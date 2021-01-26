@@ -1,0 +1,79 @@
+<h1>Install the Generic Target Toolbox (MATLAB)</h1>
+    The Generic Target Toolbox for Matlab must be installed on the host computer.
+    For this purpose, the Toolbox directory can be copied to any location on the host PC.
+    During installation, the absolute path to this directory is added to the MATLAB path.
+    Afterwards, the toolbox directory must not be moved.
+    When using multiple host PCs, it is recommended that each host PC installs the Toolbox locally, since different host PCs generally have different operating systems, MATLAB versions, compilers, etc.
+    The directory structure of the <b>Generic Target Toolbox</b> is as follows:
+	<ul class="dir">
+		<li>doc</li>
+		<li>lib</li>
+		<li>packages</li>
+	</ul>
+	<ul class="file">
+        <li>install.m</li>
+        <li>uninstall.m</li>
+	</ul>
+    <br>
+    <table>
+		<tr><th>Directory/File</th><th>Description</th></tr>
+		<tr><td><b>doc</b></td><td>
+            Contains this documentation.</td></tr>
+        <tr><td><b>lib</b></td><td>
+            Contains the Simulink library "GenericTarget".</td></tr>
+        <tr><td><b>packages</b></td><td>
+            Contains das MATLAB package "GT".</td></tr>
+        <tr><td><b>install.m</b></td><td>
+            MATLAB script to install the Generic Target Toolbox.</td></tr>
+        <tr><td><b>uninstall.m</b></td><td>
+            MATLAB script to uninstall the Generic Target Toolbox.</td></tr>
+	</table>
+
+    <h2>Install</h2>
+    To install the Generic Target Toolbox, MATLAB must be started with administrator privileges.
+    Then the installation script <code>install.m</code> must be executed.
+    The script simply adds the necessary directory paths to the MATLAB path.
+    Furthermore, the build script is executed from the <code>lib/src/</code> subdirectory to generate the necessary mex and tlc files for the driver blocks of the Simulink library.
+    The prerequisite is that a C/C++ compiler is set in MATLAB (<a href="http://de.mathworks.com/help/matlab/matlab_external/choose-c-or-c-compilers.html" target="_blank">mex -setup</a>).
+    During this process, a prompt appears asking if the host implementation should be used.
+    With the host implementation, many blocks of the toolbox can also be used in Simulink simulations.
+    More detailed information about the behavior of a block can be found in the corresponding mask description of each block.
+
+    <div class="note-green">
+	<h3 class="note-green">Supported blocks for host implementation</h3>
+    If the option "Host Implementation" is set during the installation of the toolbox, some blocks will also be usable for simulation in Simulink.
+    If the "Host Implementation" option is disabled, most blocks have no effect during a simulation and serve only as code placeholders for the application on the target PC.
+    On the target, all blocks have a function.
+    The following table shows all blocks that can be used during a simulation in Simulink.
+    <br>
+    <br>
+    <table>
+		<tr><th>Block</th><th>No Host Implementation</th><th>With Host Implementation</th></tr>
+        <tr><td>Interface/UDP Send                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
+        <tr><td>Interface/UDP Receive                 </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
+        <tr><td>Interface/Log To File                 </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
+        <tr><td>Interface/Multicast UDP Send          </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
+        <tr><td>Interface/Multicast UDP Receive       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
+        <tr><td>Time/Simulation Time                  </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
+        <tr><td>Time/Model Time                       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>*</b></span></td></tr>
+        <tr><td>Time/UNIX Time                        </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>*</b></span></td></tr>
+        <tr><td>Time/UTC Time                         </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>*</b></span></td></tr>
+        <tr><td>Time/Local Time                       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>*</b></span></td></tr>
+        <tr><td>Time/Task Execution Time              </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
+        <tr><td>Time/UTC Timestamp                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>*</b></span></td></tr>
+        <tr><td>Time/Time To Latest UTC Timestamp     </td><td align="center" style="color: #0b0;">OK</td><td align="center" style="color: #0b0;">OK</td></tr>
+    </table>
+    <b>*</b>
+    These blocks have a different function in the simulation than on the target!
+    On the target computer all <a href="timingscheduling.html">time information</a> (UTC, UNIX, Local, Simulation, Model) is determined only once during each base sampletime.
+    The times are determined in the <a href="threads.html">BaseRateScheduler</a> before all other threads are triggered.
+    This has the advantage that all blocks, which provide such time information, always consistently provide the same value within one sample rate.
+    However, this is not the case with a simulation in Simulink (with host implementation), because there is no BaseRateScheduler (Simulink does the scheduling).
+    Each "time block" independently determines the corresponding time in the simulation.
+    This means that, for example, two "Model Time" blocks executed at the same sample rate will produce different results during simulation.
+	</div>
+
+    <h2>Uninstall</h2>
+    To uninstall the Generic Target Toolbox, MATLAB must be started with administrator privileges.
+    Then the uninstall script <code>uninstall.m</code> must be executed.
+    The script only removes the paths set during installation from the MATLAB path.

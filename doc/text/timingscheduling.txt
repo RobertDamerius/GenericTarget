@@ -1,0 +1,85 @@
+<h1>Timing and Scheduling</h1>
+    There are several ways to determine the current time.
+    The Generic Target Simulink library contains several blocks for determining the time.
+    
+    <h3>UNIX Time</h3>
+    Seconds since 01 January 1970.
+    This time is determined once for each time step (with the basic sample rate).
+
+    <h3>Local Time</h3>
+    The local time according to the time zone settings of the target computer.
+    This time is determined once for each time step (with the basic sample rate).
+
+    <h3>UTC Time</h3>
+    The UTC time of the target computer.
+    This time is determined once for each time step (with the basic sample rate).
+
+    <h3>Model Time</h3>
+    The model time is the measured time that has passed since the model was started.
+    This time is determined once for each time step (with the basic sample rate).
+
+    <h3>Simulation Time</h3>
+    Unlike the model time, the simulation time is not measured.
+    The simulation time is the time that should have passed since the model was started.
+    For each time step (with the basic sample rate) a counter is incremented.
+    The simulation time is then calculated once in each time step by multiplying the counter value by the base samplerate.
+    Thus this time corresponds to the expected time of the model.
+
+    <h3>Task-Execution Time</h3>
+    During code generation, a separate thread is created for each sample time, in which the corresponding step function of the model is executed.
+    For each step function the execution time is measured.
+    This task execution time is then available in the next time step.
+    The task execution time thus indicates the computation time of the last sampling step.
+    The initial value for the first step is zero.
+
+    <div class="note-orange">
+	<h3 class="note-orange">Warning</h3>
+    If the host implementation was selected during the <a href="installtoolbox.html">installation</a> of the toolbox, some of these times can also be determined in simulations with the corresponding Simulink blocks.
+    However, the behavior is different in the simulation than on the target computer.
+    </div>
+    <br>
+
+<a name="scheduling"></a>
+<h2>Scheduling</h2>
+    The scheduling is done by the BaseRateScheduler, which runs in a <a href="threads.html">thread</a> with the highest priority (99).
+    The BaseRateScheduler waits for an event from a timer.
+    The event is periodically triggered with the base sample rate.
+    The model contains only step functions that are to be executed with a multiple of the base sample rate.
+    For each step function a counter is used which is decremented by the BaseRateScheduler.
+    If the counter is at zero, the corresponding thread is triggered and the counter is reset to its initial value.
+    The triggered thread then executes the corresponding step function of the generated model code.
+    The following figure illustrates the scheduling using an example.
+    <br>
+    <br>
+    <center><object data="../img/Scheduling.svg" type="image/svg+xml"></object></center>
+    <br>
+    <br>
+    Here the <code>step0()</code> function is executed with the basic sampling rate and the <code>step1()</code> function with twice the sampling time.
+
+    <a name="cpuoverload"></a>
+    <h3>Lost-Wakeup (CPU Overload)</h3>
+    If a thread is triggered by the BaseRateScheduler even though the corresponding step function is not yet ready, a lost wakeup occurs.
+    The trigger event from the timer is lost.
+    Only at the next timer event the step function is triggered again.
+    A Lost-Wakeup is also called CPU overload in this context.
+    With a CPU overload, the generic target application is terminated by default.
+    However, the parameter <code>terminateAtCPUOverload</code> of the <a href="simulinkinterface.html">Simulink interface class</a> can be used to specify whether the application should be terminated or the CPU overload should be ignored.
+    The number of CPU overloads (for each thread) are written to the <a href="textlog.html">text log file</a> when the application is terminated.
+    <br>
+    <br>
+    <center><object data="../img/LostWakeup.svg" type="image/svg+xml"></object></center>
+    <br>
+    <br>
+
+    <h3>Scheduling-Policy: FIFO</h3>
+    How many threads actually run in parallel in reality depends on the CPU used.
+    In principle, the number of threads that can be executed simultaneously in parallel corresponds to the number of CPU cores.
+    This does not mean that with a 4-core CPU, the model may have a maximum of four different sampletimes.
+    Only the number of threads working in parallel is limited to four.
+    The generic target application uses a FIFO strategy for scheduling.
+    If there are several tasks to do, they are processed one after the other.
+    The following figure shows the already mentioned example for the case that only one thread can work at the same time.
+    <br>
+    <br>
+    <center><object data="../img/SchedulingFIFO.svg" type="image/svg+xml"></object></center>
+    

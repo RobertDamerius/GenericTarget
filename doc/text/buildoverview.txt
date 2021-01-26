@@ -1,0 +1,29 @@
+<h1>Deployment Overview</h1>
+    A MATLAB/Simulink model can be created based on the Simulink model template.
+    Using the <code>GT.GenericTarget</code> MATLAB class, the Simulink model can be brought to the target computer.
+    Generic C/C++ code is generated from the Simulink model.
+    The generated code essentially contains a class with the methods <code>initialize()</code>, <code>step()</code>, and <code>terminate()</code>.
+    The name of the generated class is based on the name of the Simulink model.
+    Besides the generated code, the <code>codeInfo.mat</code> file is created during the model code generation.
+    This file contains additional information such as sample rates, thread priorities, and function names.
+    Based on this information and the settings of the <code>GT.GenericTarget</code> class object, the source code for the <a href="simulinkinterface.html">Simulink interface class</a> class is generated.
+    The programming interface from the actual generic target software to this Simulink interface class is always the same.
+    The source code for the generic target software comes with the MATLAB package and is copied once to the target computer (see <a href="preparetarget.html#step3">target preparation</a>).
+    On the other hand, the source code for the Simulink interface class and the source code for the actual model is generated and copied to the target computer at each <a href="buildanddeploy.html">deploy procedure</a>.
+    The software is then compiled on the target computer.
+    <br>
+    <br>
+    <center><object data="../img/Overview.svg" type="image/svg+xml"></object></center><br><br>
+    <br>
+    <br>
+
+    <h3>Use the MATLAB class GT.GenericTarget</h3>
+    For an automatic deployment mechanism, it is useful to write a MATLAB script or function.
+    The target computer should already be prepared using the <code>Setup()</code> method (see <a href="preparetarget.html#step3">here</a>).
+    First, a <code>GT.GenericTarget</code> instance must be created.
+
+    <pre>gt = GT.GenericTarget('username','hostname');</pre>
+    The IP address of the target computer can be specified as host name.
+    Afterwards the <a href="simulinkinterface.html">attributes</a> of the class can be adjusted if necessary.
+    Using the <code>Deploy()</code> method, a Simulink model can then be transferred to the target computer:
+    <pre>gt.Deploy('modelname');</pre>

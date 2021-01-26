@@ -1,0 +1,131 @@
+<h1>Prepare Target Computer</h1>
+    First the target computer must be prepared.
+    For this purpose the Debian operating system must be installed and configured on the target computer.
+    Then the Generic Target Framework is installed. The following steps must be performed.
+    <br>
+    <ul>
+        <li><a href="#step1">Step 1: Install Debian OS</a></li>
+        <li><a href="#step2">Step 2: Configure Debian</a></li>
+        <li><a href="#step3">Step 3: Setup Generic Target Framework</a></li>
+        <li><a href="#step4">Step 4: Generate SSH Key for Autologin (Optional)</a></li>
+    </ul>
+
+    <a name="step1"></a>
+    <h2>Step 1: Install Debian OS</h2>
+    Download a network installer for Debian from <a href="https://www.debian.org/distrib/netinst" target="_blank">here</a>.
+    Create a bootable USB stick.
+    Then connect the target computer to the Internet and boot from the USB stick.
+    During the installation select option "Graphical Install".
+    Then just follow the instructions. When partitioning select "Guided - use full disk".
+    Then the internal hard disk is selected and the option "All files on one partition" is used.
+    During the installation disable the print and enable the SSH server.
+    Use GNOME as desktop environment.
+    When the installation is complete, remove the USB stick and restart the computer.
+
+    <a name="step2"></a>
+    <h2>Step 2: Configure Debian</h2>
+    At the beginning you can adjust basic settings.
+    The user account should be set so that the user logs in automatically.
+    Furthermore, the energy saving setting should be adjusted so that the computer does not automatically switch to standby mode.
+
+        <h3>Install sudo</h3>
+        Make sure that sudo is installed on your distribution. Open a terminal and type
+        <pre>su</pre>
+        to act as root. Then install sudo with
+        <pre>apt install sudo</pre>
+        Then the user is added to the sudo list
+        <pre>adduser <i><u>USER</u></i> sudo</pre>
+        For <i><u>USER</u></i> you must specify the username you set during installation.
+            <div class="note-orange"><h3 class="note-orange">Note</h3>
+                If the adduser command was not found, it is probably because the /usr/sbin directory is not in the system path.
+                In this case you can update the path using the command <pre>export PATH=$PATH:/usr/sbin</pre>
+            </div>
+        In order to execute sudo commands via SSH without password request, edit the sudoers file with
+        <pre>nano /etc/sudoers</pre>
+        The line starting with "%sudo" must look like this
+        <pre>%sudo   ALL=(ALL:ALL) NOPASSWD: ALL</pre>
+        Save and close the file.
+        Then leave the root mode with
+        <pre>exit</pre>
+        and restart the computer.
+
+        <h3>Update path</h3>
+        Now add the directory <code>/usr/sbin</code> to the path.
+        For this purpose the file ~/.bashrc in the home directory is edited.
+        Add the following line:
+        <pre>export PATH=$PATH:/usr/sbin</pre>
+
+        <h3>Install PREEMPT_RT patch</h3>
+        Open a terminal and execute the following command:
+        <pre>sudo apt install linux-image-rt-amd64</pre>
+        For an architecture other than AMD64 the name may vary.
+        Restart the computer.
+        To check if the realtime kernel is active, open a terminal and type <code>uname -a</code>.
+        You should see something with "SMP PREEMPT RT".
+
+        <h3>Install C++ Compiler + Tools</h3>
+        Install the GNU compiler, build tools and C++ libraries with
+        <pre>sudo apt install g++ make build-essential</pre>
+
+        <h3>Optional</h3>
+        Additional software can now be installed.
+        It is recommended to install htop and network tools:
+        <pre>sudo apt install htop net-tools</pre>
+
+        <h3>Hardware Tuning</h3>
+        Now, some optional settings can be made to the BIOS and operating system to improve the performance and get the lowest possible worst-case latency.
+        Here are some pointers to help guide you.
+        <ul>
+            <li>enable turbo boost if your system supports it</li>
+            <li>disable CPU sleep states and CPU frequency scaling</li>
+            <li>disable any kind of energy saving options</li>
+            <li>disable Hyper-Threading to avoid virtual CPU cores</li>
+            <li>disable services you don't need</li>
+            <li>if you don't need USB, disable it in the BIOS</li>
+        </ul>
+
+    <a name="step3"></a>
+    <h2>Step 3: Setup Generic Target Framework</h2>
+    Make sure you have <a href="installtoolbox.html">installed the Generic Target MATLAB Toolbox</a>.
+    The framework for the generic target is installed using the MATLAB package (<b>GT</b>).
+    With the following script the source code for the framework is copied to the target and precompiled.
+    Make sure that your Host PC can connect to the target computer.
+    SSH and SCP are used to execute commands and copy data, respectively.
+<pre>username = 'user';           % Set username of target pc
+address  = '192.168.0.100';  % Set address of target pc
+
+gt = GT.GenericTarget(username, address);
+gt.Setup();</pre>
+    <div class="note-green">
+    <h3 class="note-green">Note</h3>
+    The default directory on the target computer is <code>~/GenericTarget/</code>, which is created in the home directory.
+    If another directory is to be used, it can be passed as a parameter to the <code>Setup()</code> method.
+    </div>
+
+    <a name="step4"></a>
+    <h2>Step 4: Generate SSH Key for Autologin (Optional)</h2>
+    While creating, starting and stopping an application on the target computer with the GenericTarget toolbox, commands are executed via SSH.
+    The connection from the user PC to the target computer via SSH must be constantly authorized and confirmed with a password.
+    Alternatively, keys can be generated and exchanged once.
+    Those keys are then used to establish an SSH connection from one computer to another without the need to enter a password.
+    SSH keys are stored in the home directory under <code>~/.ssh/</code>.
+    This folder can be easily deleted to "forget" all previous SSH connections.
+    The following commands are all executed on a user PC, i.e. the client that wants to connect to an SSH server on another computer.
+
+    <h3>1. Generate Key</h3>
+    With the command
+    <pre>ssh-keygen</pre>
+    a key is generated. Then you can specify a file name in which the key should be stored.
+    With <code>RETURN</code> a default file name is used. Then you can specify a passphrase from which the key will be generated.
+    With <code>RETURN</code> an empty passphrase is used. You can use the same key for several target computers.
+
+    <h3>2. Copy Public Key to Target</h3>
+    To copy the generated key (public key) to a target computer use the command
+    <pre>ssh-copy-id -i ~/.ssh/id_rsa.pub UserName@RemoteServer</pre>
+    Here <code>UserName</code> and <code>RemoteServer</code> must be replaced by the user name and IP address of the target computer.
+
+    <h3>3. Add Private Key</h3>
+    Now all that remains is to add a private key. To do this, execute the command
+    <pre>ssh-add</pre>
+    Establishing an SSH connection should now be done without asking for a password.
+    For testing, make an SSH connection with the command <code>ssh UserName@RemoteServer</code>.
