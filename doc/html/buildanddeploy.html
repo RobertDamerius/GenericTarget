@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20210126</div>
+<div class="header_version">Version 20210202</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -124,27 +124,20 @@
     The <code>source/SimulinkCodeGeneration/</code> directory and the <code>build/SimulinkCodeGeneration/</code> directory of the generic target framework are deleted first.
     The uploaded archive is then unpacked into the <code>source/SimulinkCodeGeneration/</code> <a href="framework.html">directory on the target</a>.
 
-    <h3>10. SSH: Stop</h3>
-    The generic target application is called with the additional argument <code>--stop</code>.
-    This terminates any running generic target application (with the application port <code><a href="simulinkinterface.html">portAppSocket</a></code>).
-    <pre>sudo ~/GenericTarget/bin/GenericTarget --stop</pre>
-
-    <h3>11. SSH: Build Application</h3>
+    <h3>10. SSH: Build Application</h3>
     The make tool is used to compile the software.
     It uses 6 jobs (6 source code files are compiled in parallel).
 
     <div class="note-green">
     <h3 class="note-green">Starting Application</h3>
     The application is not started automatically at the end of the deploy procedure. To start the application the <code>Start()</code> method of the <code>GT.GenericTarget</code> object must be called explicitly.
-    </div>
-
-    <h3>12. SSH: Start Application</h3>
     The application is started with the appropriate authorization (sudo). The corresponding command looks like this:
     <pre>sudo nohup ~/GenericTarget/bin/GenericTarget &> ~/GenericTarget/bin/log.txt &</pre>
     The nohup command ensures that the output is not routed to the SSH console.
     At the same time, the expression <code>&> ~/GenericTarget/bin/log.txt</code> ensures that the output is redirected to a text file.
     The &amp;-character at the end of the command ensures that the console does not wait for the end of the application.
     This is necessary because otherwise the SSH connection to the target computer remains active until the generic target application is terminated.
+    </div>
 
 </div>
 </div>

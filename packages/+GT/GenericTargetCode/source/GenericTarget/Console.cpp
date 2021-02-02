@@ -5,7 +5,7 @@ std::mutex Console::mtx;
 
 
 static void __console_print(FILE *stream, std::string preString, console_color_t foreground, console_color_t background, const char *format, va_list *argptr){
-    #ifndef    __WIN32__
+    #ifndef    _WIN32
     if(preString.size()) fprintf(stream, "%s", preString.c_str());
     if(argptr) vfprintf(stream, format, *argptr);
     else fprintf(stream, "%s", format);

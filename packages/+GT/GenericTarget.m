@@ -7,6 +7,9 @@
 % 20200807    Robert Damerius        Added 'mkdir -p' command during setup to create directory structure with subdirectories.
 % 20200803    Robert Damerius        SSH/SCP is used directly via system() command.
 % 20200909    Robert Damerius        Updated code generation for R2020b: new files rtw_windows.c and rtw_linux.c are deleted.
+% 20210202    Robert Damerius        Generated source code is no longer removed from code generation folder after deployment.
+%                                    Source code is updated in separate subdirectory based on model name.
+%                                    Generic Target application is no longer stopped when deploying a new model.
 % 
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -104,15 +107,17 @@ classdef GenericTarget < handle
             zip('Software.zip',{'bin','source','Makefile'},dirSoftware);
             fprintf('[GENERIC TARGET] Uploading software via SCP to target %s\n',obj.targetIPAddress);
             cmdSCP = ['scp Software.zip ' obj.targetUsername '@' obj.targetIPAddress ':Software.zip'];
-            system(cmdSCP);
-            delete('Software.zip');
+            obj.RunCommand(cmdSCP);
 
             % Create build environment and compile (empty model)
             fprintf('\n[GENERIC TARGET] Setting up build environment for target %s\n',obj.targetIPAddress);
-            cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "rm -r -f ' obj.targetSoftwareDirectory ' ; mkdir -p ' obj.targetSoftwareDirectory ' ; unzip -o Software.zip -d ' obj.targetSoftwareDirectory ' ; rm Software.zip' ' ; cd ' obj.targetSoftwareDirectory ' && make clean && make pch && make -j6"'];
-            system(cmdSSH);
+            cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "sudo rm -r -f ' obj.targetSoftwareDirectory ' ; mkdir -p ' obj.targetSoftwareDirectory ' ; unzip -o Software.zip -d ' obj.targetSoftwareDirectory ' ; rm Software.zip' ' ; cd ' obj.targetSoftwareDirectory ' && make clean && make pch && make -j6"'];
+            obj.RunCommand(cmdSSH);
             fprintf('\n[GENERIC TARGET] Setup completed\n');
             commands = {cmdSCP; cmdSSH};
+
+            % Clean up
+            delete('Software.zip');
         end
         function commands = Deploy(obj, modelName)
             %GT.GenericTarget.Deploy Deploy the target application. The code for the simulink model will be generated. In addition a simulink
@@ -130,8 +135,10 @@ classdef GenericTarget < handle
             assert(ischar(modelName), 'GT.GenericTarget.BuildAndDeploy(): Input "modelName" must be a string!');
 
             % Get code directory of simulink project and set temporary zip filename
-            dirCodeGen = Simulink.fileGenControl('get','CodeGenFolder');
-            zipFileName = [dirCodeGen filesep modelName '.zip'];
+            dirCodeGen = [Simulink.fileGenControl('get','CodeGenFolder') filesep];
+            subDirModelCode = ['GenericTarget_' modelName filesep];
+            zipFileName = [dirCodeGen subDirModelCode modelName '.zip'];
+            if(exist(zipFileName,'file')), delete(zipFileName); end
 
             % Generate code (going to be stored in the zip file)
             obj.GenerateCode(zipFileName, modelName);
@@ -140,13 +147,12 @@ classdef GenericTarget < handle
             targetZipFile = [obj.targetSoftwareDirectory modelName '.zip'];
             cmdSCP = ['scp ' zipFileName ' ' obj.targetUsername '@' obj.targetIPAddress ':' targetZipFile];
             fprintf(['\n[GENERIC TARGET] SCP: Copy new software to target ' obj.targetIPAddress '\n']);
-            system(cmdSCP);
-            delete(zipFileName);
+            obj.RunCommand(cmdSCP);
 
             % SSH: remove old sources/cache, unzip new source and compile
             fprintf(['\n[GENERIC TARGET] SSH: Build new software on target ' obj.targetIPAddress '\n']);
-            cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "sudo rm -r -f ' obj.targetSoftwareDirectory 'source/SimulinkCodeGeneration ' obj.targetSoftwareDirectory 'build/source/SimulinkCodeGeneration ; sudo unzip -qq -o ' targetZipFile ' -d ' obj.targetSoftwareDirectory 'source/SimulinkCodeGeneration ; sudo rm ' targetZipFile ' ; sudo ./' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME ' --stop ; cd ' obj.targetSoftwareDirectory ' && make -j6"'];
-            system(cmdSSH);
+            cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "sudo rm -r -f ' obj.targetSoftwareDirectory 'source/SimulinkCodeGeneration ' obj.targetSoftwareDirectory 'build/source/SimulinkCodeGeneration ; sudo unzip -qq -o ' targetZipFile ' -d ' obj.targetSoftwareDirectory 'source/SimulinkCodeGeneration ; sudo rm ' targetZipFile ' ; cd ' obj.targetSoftwareDirectory ' && make -j6"'];
+            obj.RunCommand(cmdSSH);
             fprintf('\n[GENERIC TARGET] Deployment completed\n');
             commands = {cmdSCP; cmdSSH};
         end
@@ -174,23 +180,24 @@ classdef GenericTarget < handle
             % Code generation for simulink model
             fprintf('[GENERIC TARGET] Starting code generation for model: %s\n', modelName);
             slbuild(modelName);
+            subDirModelCode = ['GenericTarget_' modelName filesep];
 
             % Get directory of generated code and unzip generated code
             dirCodeGen = [Simulink.fileGenControl('get','CodeGenFolder') filesep];
             fprintf('[GENERIC TARGET] Unzipping genereated code: %s\n', [dirCodeGen 'PackNGo.zip']);
-            [~,~] = rmdir([dirCodeGen 'CodeGeneration'],'s');
-            unzip([dirCodeGen 'PackNGo.zip'],[dirCodeGen 'CodeGeneration']);
+            [~,~] = rmdir([dirCodeGen subDirModelCode 'CodeGeneration'],'s');
+            unzip([dirCodeGen 'PackNGo.zip'],[dirCodeGen subDirModelCode 'CodeGeneration']);
             delete([dirCodeGen 'PackNGo.zip']);
 
             % Get subdirectory name for actual model code directory
             folderNameCode = regexp(Simulink.fileGenControl('get','CodeGenFolder'),filesep,'split');
             folderNameCode = folderNameCode{end};
-            dirModelCode = [dirCodeGen 'CodeGeneration' filesep folderNameCode filesep modelName '_grt_rtw' filesep];
+            dirModelCode = [dirCodeGen subDirModelCode 'CodeGeneration' filesep folderNameCode filesep modelName '_grt_rtw' filesep];
 
             % Delete some non-source files
             delete([dirModelCode '*.txt']);
             delete([dirModelCode '*.mat']);
-            dirSources = [dirCodeGen 'CodeGeneration'];
+            dirSources = [dirCodeGen subDirModelCode 'CodeGeneration'];
             fprintf('[GENERIC TARGET] Deleting files containing a main entry function from directory: %s\n', dirSources);
             GT.GenericTarget.UpdateGeneratedCode(dirSources);
 
@@ -202,8 +209,8 @@ classdef GenericTarget < handle
             % Generate interface code from code information and write to header file (.hpp) and source file (.cpp) to code generation directory
             fprintf('[GENERIC TARGET] Generating code for model interface: %s\n',GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME);
             [strInterfaceHeader, strInterfaceSource] = GT.GenericTarget.GenerateInterfaceCode(codeInfo, GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME, obj.priorityLog, obj.portAppSocket, obj.upperThreadPriority, obj.terminateAtCPUOverload, obj.autosavePeriod);
-            fidHeader = fopen([dirCodeGen GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.hpp'],'wt');
-            fidSource = fopen([dirCodeGen GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.cpp'],'wt');
+            fidHeader = fopen([dirCodeGen subDirModelCode GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.hpp'],'wt');
+            fidSource = fopen([dirCodeGen subDirModelCode GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.cpp'],'wt');
             fprintf(fidHeader, strInterfaceHeader);
             fprintf(fidSource, strInterfaceSource);
             fclose(fidHeader);
@@ -211,10 +218,10 @@ classdef GenericTarget < handle
 
             % Compress code into a zip file
             fprintf('[GENERIC TARGET] Compressing code generation files into zip: %s\n', zipFileName);
-            zip(zipFileName,{[dirCodeGen 'CodeGeneration'],[dirCodeGen GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.hpp'],[dirCodeGen GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.cpp']});
-            [~,~] = rmdir([dirCodeGen 'CodeGeneration'],'s');
-            delete([dirCodeGen GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.hpp']);
-            delete([dirCodeGen GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.cpp']);
+            zip(zipFileName,{[dirCodeGen 'GenericTarget_' modelName filesep 'CodeGeneration'],[dirCodeGen subDirModelCode GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.hpp'],[dirCodeGen subDirModelCode GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.cpp']});
+            [~,~] = rmdir([dirCodeGen subDirModelCode 'CodeGeneration'],'s');
+            delete([dirCodeGen subDirModelCode GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.hpp']);
+            delete([dirCodeGen subDirModelCode GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.cpp']);
             fprintf('[GENERIC TARGET] Code generation finished\n');
         end
         function commands = Start(obj)
@@ -224,7 +231,7 @@ classdef GenericTarget < handle
             % RETURN
             % commands ... The commands that were executed on the host.
             cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "sudo nohup ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME ' &> ' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_LOGFILE_NAME ' &"'];
-            system(cmdSSH);
+            obj.RunCommand(cmdSSH);
             commands = {cmdSSH};
         end
         function commands = Stop(obj)
@@ -234,7 +241,7 @@ classdef GenericTarget < handle
             % RETURN
             % commands ... The commands that were executed on the host.
             cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "sudo ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME ' --stop"'];
-            system(cmdSSH);
+            obj.RunCommand(cmdSSH);
             commands = {cmdSSH};
         end
         function commands = ShowPID(obj)
@@ -244,7 +251,7 @@ classdef GenericTarget < handle
             % RETURN
             % commands ... The commands that were executed on the host.
             cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "pidof ' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME '"'];
-            system(cmdSSH);
+            obj.RunCommand(cmdSSH);
             commands = {cmdSSH};
         end
         function commands = ShowLog(obj)
@@ -253,7 +260,7 @@ classdef GenericTarget < handle
             % RETURN
             % commands ... The commands that were executed on the host.
             cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "cat ' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_LOGFILE_NAME '"'];
-            system(cmdSSH);
+            obj.RunCommand(cmdSSH);
             commands = {cmdSSH};
         end
         function [data,commands] = DownloadData(obj, hostDirectory)
@@ -282,15 +289,15 @@ classdef GenericTarget < handle
             % Get all directory names
             fprintf('[GENERIC TARGET] SSH: Listing available log directories\n');
             cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "cd ' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG ' && ls"'];
-            system(cmdSSH);
+            obj.RunCommand(cmdSSH);
 
             % Get directory name from user input
             dirName = input('\n[GENERIC TARGET] Choose directory name to download: ','s');
 
             % Download directory via SCP
             fprintf('\n[GENERIC TARGET] Downloading %s from target %s\n',dirName,obj.targetIPAddress);
-            cmdSCP = ['scp -r ' obj.targetUsername '@' obj.targetIPAddress ':' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG dirName ' ' hostDirectory dirName];
-            system(cmdSCP);
+            cmdSCP = ['scp -r ' obj.targetUsername '@' obj.targetIPAddress ':' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG dirName ' ' hostDirectory];
+            obj.RunCommand(cmdSCP);
 
             % Decode target data
             data = GT.GenericTarget.DecodeTargetData([hostDirectory dirName]);
@@ -303,7 +310,7 @@ classdef GenericTarget < handle
             % commands ... The commands that were executed on the host.
             fprintf('[GENERIC TARGET] Deleting data log files from target %s\n',obj.targetIPAddress);
             cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "sudo ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME ' --stop ; sudo rm -r -f ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_DIRECTORY_LOG '"'];
-            system(cmdSSH);
+            obj.RunCommand(cmdSSH);
             commands = {cmdSSH};
         end
     end
@@ -777,6 +784,9 @@ classdef GenericTarget < handle
             strSource = strrep(strSource, '$TERMINATE_AT_CPU_OVERLOAD$', strTerminateAtCPUOverload);
             strHeader = strrep(strHeader, '$AUTOSAVE_PERIOD$', strAutosavePeriod);
             strSource = strrep(strSource, '$AUTOSAVE_PERIOD$', strAutosavePeriod);
+        end
+        function RunCommand(cmd)
+            system(cmd);
         end
     end
     properties(Constant, Access=private)

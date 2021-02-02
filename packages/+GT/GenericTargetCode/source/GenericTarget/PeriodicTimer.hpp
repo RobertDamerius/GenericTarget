@@ -41,7 +41,7 @@ class PeriodicTimer {
 
     private:
         std::chrono::time_point<std::chrono::steady_clock> timeOfStart;
-        #ifdef __WIN32__
+        #ifdef _WIN32
         HANDLE hTimer;
         #else
         int fdTimer;

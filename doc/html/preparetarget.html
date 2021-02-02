@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20210126</div>
+<div class="header_version">Version 20210202</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -52,7 +52,7 @@
         <li><a href="#step1">Step 1: Install Debian OS</a></li>
         <li><a href="#step2">Step 2: Configure Debian</a></li>
         <li><a href="#step3">Step 3: Setup Generic Target Framework</a></li>
-        <li><a href="#step4">Step 4: Generate SSH Key for Autologin (Optional)</a></li>
+        <li><a href="#step4">Step 4: Generate SSH Key for Autologin</a></li>
     </ul>
 
     <a name="step1"></a>
@@ -148,7 +148,13 @@ gt.Setup();</pre>
     </div>
 
     <a name="step4"></a>
-    <h2>Step 4: Generate SSH Key for Autologin (Optional)</h2>
+    <h2>Step 4: Generate SSH Key for Autologin</h2>
+    <div class="note-orange">
+    <h3 class="note-orange">Note</h3>
+    On Linux this step is optional. However, on Windows this step is <b>required</b> to allow ssh/scp commands to be executed from the
+    MATLAB console. The following description applies only to Linux host computers, since some commands are not available on Windows.
+    </div>
+
     While creating, starting and stopping an application on the target computer with the GenericTarget toolbox, commands are executed via SSH.
     The connection from the user PC to the target computer via SSH must be constantly authorized and confirmed with a password.
     Alternatively, keys can be generated and exchanged once.
@@ -157,23 +163,65 @@ gt.Setup();</pre>
     This folder can be easily deleted to "forget" all previous SSH connections.
     The following commands are all executed on a user PC, i.e. the client that wants to connect to an SSH server on another computer.
 
-    <h3>1. Generate Key</h3>
-    With the command
-    <pre>ssh-keygen</pre>
-    a key is generated. Then you can specify a file name in which the key should be stored.
-    With <code>RETURN</code> a default file name is used. Then you can specify a passphrase from which the key will be generated.
-    With <code>RETURN</code> an empty passphrase is used. You can use the same key for several target computers.
+    <div class="note-green">
+    <h3 class="note-green">Linux</h3>
+        <h3>1. Generate Key</h3>
+        With the command
+        <pre>ssh-keygen</pre>
+        a key is generated. Then you can specify a file name in which the key should be stored.
+        With <code>RETURN</code> a default file name is used. Then you can specify a passphrase from which the key will be generated.
+        With <code>RETURN</code> an empty passphrase is used. You can use the same key for several target computers.
 
-    <h3>2. Copy Public Key to Target</h3>
-    To copy the generated key (public key) to a target computer use the command
-    <pre>ssh-copy-id -i ~/.ssh/id_rsa.pub UserName@RemoteServer</pre>
-    Here <code>UserName</code> and <code>RemoteServer</code> must be replaced by the user name and IP address of the target computer.
+        <h3>2. Copy Public Key to Target</h3>
+        To copy the generated key (public key) to a target computer use the command
+        <pre>ssh-copy-id -i ~/.ssh/id_rsa.pub UserName@RemoteServer</pre>
+        Here <code>UserName</code> and <code>RemoteServer</code> must be replaced by the user name and IP address of the target computer.
 
-    <h3>3. Add Private Key</h3>
-    Now all that remains is to add a private key. To do this, execute the command
-    <pre>ssh-add</pre>
-    Establishing an SSH connection should now be done without asking for a password.
-    For testing, make an SSH connection with the command <code>ssh UserName@RemoteServer</code>.
+        <h3>3. Add Private Key</h3>
+        Now all that remains is to add a private key. To do this, execute the command
+        <pre>ssh-add</pre>
+        Establishing an SSH connection should now be done without asking for a password.
+        For testing, make an SSH connection with the command <code>ssh UserName@RemoteServer</code>.
+    </div>
+
+    <div class="note-blue">
+    <h3 class="note-blue">Windows</h3>
+        <h3>1. Prepare</h3>
+        Open PowerShell as an administrator and run
+        <pre>Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0</pre>
+        to install OpenSSH.
+
+        <h3>2. Generate Key</h3>
+        With the command
+        <pre>ssh-keygen</pre>
+        a key is generated. Then you can specify a file name in which the key should be stored.
+        With <code>RETURN</code> a default file name is used. Then you can specify a passphrase from which the key will be generated.
+        With <code>RETURN</code> an empty passphrase is used. You can use the same key for several target computers.
+
+        <h3>3. Copy Public Key to Target</h3>
+        To copy the generated key (public key) to a target computer use the command
+        <pre>scp C:\Users\HostName\.ssh\id_rsa.pub UserName@RemoteServer:</pre>
+        where <code>HostName</code> is your host username and <code>UserName</code> and <code>RemoteServer</code> must be replaced by
+        the user name and IP address of the target computer. Notice the <code>:</code> character at the end of the command.
+
+        <h3>4. Configure Key</h3>
+        Login to the target computer via SSH using
+        <pre>ssh UserName@RemoteServer</pre>
+        The following commands are all executed on the target computer.
+        Next, make sure that the <code>.ssh</code> directory exists on the target. If not, you can create the directory with
+        <pre>mkdir .ssh</pre>
+        Append the uploaded public key to the authorized keys.
+        <pre>cat id_rsa.pub >> .ssh/authorized_keys</pre>
+        and delete the public key.
+        <pre>rm id_rsa.pub</pre>
+        The <code>.ssh</code> and <code>authorized_keys</code> directories must have the correct set of permissions.
+        Execute the following commands
+        <pre>chmod 700 ~/.ssh</pre>
+        <pre>chmod 600 ~/.ssh/authorized_keys</pre>
+        and run
+        <pre>exit</pre>
+        to logout. or testing, make an SSH connection from the host PC to the target computer with the command <code>ssh UserName@RemoteServer</code>.
+    </div>
 
 </div>
 </div>

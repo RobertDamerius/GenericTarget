@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <chrono>
+#include <ctime>
 #include <string>
 #include <thread>
 #include <mutex>
@@ -17,16 +18,15 @@
 #include <unordered_map>
 #include <queue>
 
-/* System */
-#include <unistd.h>
-
 /* OS depending */
 // Windows System
-#ifdef __WIN32__
+#ifdef _WIN32
 #include <winsock2.h>
 #include <Ws2tcpip.h>
+#include <windows.h>
 // Unix System
 #else
+#include <unistd.h>
 #include <stdarg.h>
 #include <string.h>
 #include <sys/socket.h>

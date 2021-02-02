@@ -3,7 +3,7 @@
 
 
 PeriodicTimer::PeriodicTimer(){
-    #ifdef __WIN32__
+    #ifdef _WIN32
     hTimer = NULL;
     #else
     fdTimer = -1;
@@ -15,7 +15,7 @@ PeriodicTimer::~PeriodicTimer(){}
 
 bool PeriodicTimer::Create(double sampleRate){
     Destroy();
-    #ifdef __WIN32__
+    #ifdef _WIN32
     if(sampleRate < 0.001){
         LogE("[PERIODIC TIMER] A sample rate less than 1 millisecond is not supported!\n");
         return false;
@@ -55,7 +55,7 @@ bool PeriodicTimer::Create(double sampleRate){
 }
 
 void PeriodicTimer::Destroy(void){
-    #ifdef __WIN32__
+    #ifdef _WIN32
     if(hTimer){
         CloseHandle(hTimer);
         hTimer = NULL;
@@ -69,7 +69,7 @@ void PeriodicTimer::Destroy(void){
 }
 
 bool PeriodicTimer::WaitForSignal(void){
-    #ifdef __WIN32__
+    #ifdef _WIN32
     return (WaitForSingleObject(hTimer, INFINITE) == WAIT_OBJECT_0);
     #else
     int s = -1;

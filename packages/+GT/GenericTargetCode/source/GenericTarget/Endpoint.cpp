@@ -3,7 +3,7 @@
 
 // Helper macros for sockaddr_in struct (win/linux)
 #define    ENDPOINT_PORT(x)    x.sin_port
-#ifdef __WIN32__
+#ifdef _WIN32
 #define    ENDPOINT_IP(x)        x.sin_addr.S_un.S_addr
 #else
 #define    ENDPOINT_IP(x)        x.sin_addr.s_addr

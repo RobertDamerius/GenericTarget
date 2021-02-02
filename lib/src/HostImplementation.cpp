@@ -27,13 +27,13 @@ static double __host_implementation_GetTimeToStart(void){
 
 
 // WSA stuff required for windows
-#ifdef    __WIN32__
+#ifdef    _WIN32
 static WSADATA __host_implementation_wsadata;
 static bool __network_initialized = false;
 #endif
 
 static void __network_initialize(void){
-    #ifdef    __WIN32__
+    #ifdef    _WIN32
     if(__network_initialized)
         return;
     if(WSAStartup(MAKEWORD(2, 2), &__host_implementation_wsadata)){
@@ -51,7 +51,7 @@ static void __network_initialize(void){
 }
 
 static void __network_terminate(void){
-    #ifdef    __WIN32__
+    #ifdef    _WIN32
     if(__network_initialized){
         WSACleanup();
         __network_initialized = false;
@@ -62,7 +62,7 @@ static void __network_terminate(void){
 
 // Helper macros for sockaddr_in struct (win/linux)
 #define    ENDPOINT_PORT(x)    x.sin_port
-#ifdef __WIN32__
+#ifdef _WIN32
 #define    ENDPOINT_IP(x)        x.sin_addr.S_un.S_addr
 #else
 #define    ENDPOINT_IP(x)        x.sin_addr.s_addr
@@ -428,7 +428,7 @@ HostImplementation::UDPSocket::~UDPSocket(){
 int HostImplementation::UDPSocket::Open(void){
     if((_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
         return -1;
-    #ifdef __WIN32__
+    #ifdef _WIN32
     BOOL bNewBehavior = FALSE;
     DWORD dwBytesReturned = 0;
     WSAIoctl(_socket, _WSAIOW(IOC_VENDOR, 12), &bNewBehavior, sizeof bNewBehavior, NULL, 0, &dwBytesReturned, NULL, NULL);
@@ -443,7 +443,7 @@ bool HostImplementation::UDPSocket::IsOpen(void){
 void HostImplementation::UDPSocket::Close(void){
     _port = -1;
     if(_socket >= 0){
-        #ifdef __WIN32__
+        #ifdef _WIN32
         (void) shutdown(_socket, SD_BOTH);
         (void) closesocket(_socket);
         #else
@@ -455,7 +455,7 @@ void HostImplementation::UDPSocket::Close(void){
 }
 
 int HostImplementation::UDPSocket::SetOption(int level, int optname, const void *optval, int optlen){
-    #ifdef __WIN32__
+    #ifdef _WIN32
     return setsockopt(this->_socket, level, optname, (const char*)optval, optlen);
     #else
     return setsockopt(this->_socket, level, optname, optval, (socklen_t)optlen);
@@ -463,7 +463,7 @@ int HostImplementation::UDPSocket::SetOption(int level, int optname, const void 
 }
 
 int HostImplementation::UDPSocket::GetOption(int level, int optname, void *optval, int *optlen){
-    #ifdef __WIN32__
+    #ifdef _WIN32
     return getsockopt(this->_socket, level, optname, (char*)optval, optlen);
     #else
     return getsockopt(this->_socket, level, optname, optval, (socklen_t*)optlen);
@@ -477,7 +477,7 @@ int HostImplementation::UDPSocket::ReuseAddr(bool reuse){
 
 int HostImplementation::UDPSocket::ReusePort(bool reuse){
     unsigned yes = (unsigned)reuse;
-    #ifdef __WIN32__
+    #ifdef _WIN32
     return SetOption(SOL_SOCKET, SO_REUSEADDR, (const void*)&yes, sizeof(yes));
     #else
     return SetOption(SOL_SOCKET, SO_REUSEPORT, (const void*)&yes, sizeof(yes));
@@ -538,7 +538,7 @@ int HostImplementation::UDPSocket::Broadcast(uint16_t destinationPort, uint8_t *
     broadcast_addr.sin_family = AF_INET;
     broadcast_addr.sin_port = htons((int)destinationPort);
     broadcast_addr.sin_addr.s_addr = inet_addr(INADDR_ANY);
-    #ifndef __WIN32__
+    #ifndef _WIN32
     socklen_t optLen = sizeof(int);
     #else
     int optLen = sizeof(int);
@@ -557,7 +557,7 @@ int HostImplementation::UDPSocket::ReceiveFrom(HostImplementation::Endpoint& end
     if(!bytes)
         return -1;
     endpoint.Reset();
-    #ifndef __WIN32__
+    #ifndef _WIN32
     socklen_t address_size = sizeof(endpoint.addr);
     #else
     int address_size = sizeof(endpoint.addr);
@@ -716,7 +716,7 @@ bool HostImplementation::UDPObject::Start(void){
     }
 
     // Set priority
-    #ifndef __WIN32__
+    #ifndef _WIN32
     int priority = (int)state.prioritySocket;
     if(this->socket.SetOption(SOL_SOCKET, SO_PRIORITY, &priority, sizeof(priority)) < 0){
         printf("Warning: Could not set socket priority %d for interface %d.%d.%d.%d:%d!\n",priority,state.ipInterface[0],state.ipInterface[1],state.ipInterface[2],state.ipInterface[3],state.portInterface);
@@ -736,7 +736,7 @@ bool HostImplementation::UDPObject::Start(void){
         pInterface = &strIF[0];
     }
     if(this->socket.Bind(state.portInterface, pInterface) < 0){
-        #ifdef __WIN32__
+        #ifdef _WIN32
         int err = (int)WSAGetLastError();
         std::string errStr("");
         #else
@@ -1125,7 +1125,7 @@ bool HostImplementation::MulticastUDPObject::Start(void){
     }
 
     // Set priority
-    #ifndef __WIN32__
+    #ifndef _WIN32
     int priority = (int)state.prioritySocket;
     if(this->socket.SetOption(SOL_SOCKET, SO_PRIORITY, &priority, sizeof(priority)) < 0){
         printf("Warning: Could not set socket priority %d for interface %d.%d.%d.%d:%d!\n",priority,state.ipInterface[0],state.ipInterface[1],state.ipInterface[2],state.ipInterface[3],state.portInterface);
@@ -1147,7 +1147,7 @@ bool HostImplementation::MulticastUDPObject::Start(void){
 
     // Bind the port (ALWAYS USE ANY INTERFACE!)
     if(this->socket.Bind(state.portInterface) < 0){
-        #ifdef __WIN32__
+        #ifdef _WIN32
         int err = (int)WSAGetLastError();
         std::string errStr("");
         #else

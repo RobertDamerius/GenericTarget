@@ -7,7 +7,7 @@
 #include <SignalManager.hpp>
 
 
-#ifdef    __WIN32__
+#ifdef    _WIN32
 static WSADATA __gt_net_wsadata;
 #endif
 
@@ -24,7 +24,7 @@ void GenericTarget::ShouldTerminate(void){
 
 void GenericTarget::GetAppDirectory(std::string& path, std::string& file, int bufSize){
     char* buffer = new char[bufSize];
-    #ifdef __WIN32__
+    #ifdef _WIN32
     DWORD len = GetModuleFileName(NULL, (LPSTR)(&buffer[0]), (DWORD)bufSize);
     #else
     ssize_t len = readlink("/proc/self/exe", &buffer[0], bufSize);
@@ -235,7 +235,7 @@ bool GenericTarget::NetworkInitialize(void){
     GenericTarget::NetworkTerminate();
 
     // Windows specific
-    #ifdef    __WIN32__
+    #ifdef    _WIN32
     if(WSAStartup(MAKEWORD(2, 2), &__gt_net_wsadata)){
         GenericTarget::NetworkTerminate();
         return false;
@@ -251,7 +251,7 @@ bool GenericTarget::NetworkInitialize(void){
 }
 
 void GenericTarget::NetworkTerminate(void){
-    #ifdef    __WIN32__
+    #ifdef    _WIN32
     WSACleanup();
     #endif
 }

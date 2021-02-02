@@ -13,7 +13,7 @@ UDPSocket::~UDPSocket(){
 int UDPSocket::Open(void){
     if((_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
         return -1;
-    #ifdef __WIN32__
+    #ifdef _WIN32
     BOOL bNewBehavior = FALSE;
     DWORD dwBytesReturned = 0;
     WSAIoctl(_socket, _WSAIOW(IOC_VENDOR, 12), &bNewBehavior, sizeof bNewBehavior, NULL, 0, &dwBytesReturned, NULL, NULL);
@@ -28,7 +28,7 @@ bool UDPSocket::IsOpen(void){
 void UDPSocket::Close(void){
     _port = -1;
     if(_socket >= 0){
-        #ifdef __WIN32__
+        #ifdef _WIN32
         (void) shutdown(_socket, SD_BOTH);
         (void) closesocket(_socket);
         #else
@@ -81,7 +81,7 @@ int UDPSocket::Bind(uint16_t portBegin, uint16_t portEnd, const char *ip){
 }
 
 int UDPSocket::SetOption(int level, int optname, const void *optval, int optlen){
-    #ifdef __WIN32__
+    #ifdef _WIN32
     return setsockopt(this->_socket, level, optname, (const char*)optval, optlen);
     #else
     return setsockopt(this->_socket, level, optname, optval, (socklen_t)optlen);
@@ -89,7 +89,7 @@ int UDPSocket::SetOption(int level, int optname, const void *optval, int optlen)
 }
 
 int UDPSocket::GetOption(int level, int optname, void *optval, int *optlen){
-    #ifdef __WIN32__
+    #ifdef _WIN32
     return getsockopt(this->_socket, level, optname, (char*)optval, optlen);
     #else
     return getsockopt(this->_socket, level, optname, optval, (socklen_t*)optlen);
@@ -103,7 +103,7 @@ int UDPSocket::ReuseAddr(bool reuse){
 
 int UDPSocket::ReusePort(bool reuse){
     unsigned yes = (unsigned)reuse;
-    #ifdef __WIN32__
+    #ifdef _WIN32
     return SetOption(SOL_SOCKET, SO_REUSEADDR, (const void*)&yes, sizeof(yes));
     #else
     return SetOption(SOL_SOCKET, SO_REUSEPORT, (const void*)&yes, sizeof(yes));
@@ -123,7 +123,7 @@ int UDPSocket::Broadcast(uint16_t destinationPort, uint8_t *bytes, int size){
     broadcast_addr.sin_family = AF_INET;
     broadcast_addr.sin_port = htons((int)destinationPort);
     broadcast_addr.sin_addr.s_addr = inet_addr(INADDR_ANY);
-    #ifndef __WIN32__
+    #ifndef _WIN32
     socklen_t optLen = sizeof(int);
     #else
     int optLen = sizeof(int);
@@ -142,7 +142,7 @@ int UDPSocket::ReceiveFrom(Endpoint& endpoint, uint8_t *bytes, int size){
     if(!bytes)
         return -1;
     endpoint.Reset();
-    #ifndef __WIN32__
+    #ifndef _WIN32
     socklen_t address_size = sizeof(endpoint.addr);
     #else
     int address_size = sizeof(endpoint.addr);

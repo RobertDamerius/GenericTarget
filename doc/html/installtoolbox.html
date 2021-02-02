@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20210126</div>
+<div class="header_version">Version 20210202</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -74,6 +74,11 @@
             MATLAB script to uninstall the Generic Target Toolbox.</td></tr>
 	</table>
 
+    <div class="note-red">
+    <h3 class="note-red">Important</h3>
+    Before you install the toolbox, make sure that the toolbox is located in a directory where the absolute path does not contain any spaces.
+    </div>
+
     <h2>Install</h2>
     To install the Generic Target Toolbox, MATLAB must be started with administrator privileges.
     Then the installation script <code>install.m</code> must be executed.
@@ -117,6 +122,8 @@
     Each "time block" independently determines the corresponding time in the simulation.
     This means that, for example, two "Model Time" blocks executed at the same sample rate will produce different results during simulation.
 	</div>
+    At the moment only <b>gcc</b> (Linux) and <b>MSYS2/MinGW64</b> (Windows) are supported as compilers to create blocks with host implementation.
+    For compilers that are not yet supported, the host implementation can be skipped.
 
     <h2>Uninstall</h2>
     To uninstall the Generic Target Toolbox, MATLAB must be started with administrator privileges.

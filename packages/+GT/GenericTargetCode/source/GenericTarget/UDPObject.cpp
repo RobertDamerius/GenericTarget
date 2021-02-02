@@ -121,7 +121,7 @@ bool UDPObject::Start(void){
     }
 
     // Set priority
-    #ifndef __WIN32__
+    #ifndef _WIN32
     int priority = (int)state.prioritySocket;
     if(this->socket.SetOption(SOL_SOCKET, SO_PRIORITY, &priority, sizeof(priority)) < 0){
         LogE("Could not set socket priority %d for interface %d.%d.%d.%d:%d!\n",priority,state.ipInterface[0],state.ipInterface[1],state.ipInterface[2],state.ipInterface[3],state.portInterface);
@@ -143,7 +143,7 @@ bool UDPObject::Start(void){
         pInterface = &strIF[0];
     }
     if(this->socket.Bind(state.portInterface, pInterface) < 0){
-        #ifdef __WIN32__
+        #ifdef _WIN32
         int err = (int)WSAGetLastError();
         std::string errStr("");
         #else

@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <cmath>
 #include <chrono>
+#include <ctime>
 #include <vector>
 #include <string>
 #include <cstring>
@@ -26,19 +27,17 @@
 #include <filesystem>
 
 
-/* System */
+/* OS depending */
+// Windows System
+#ifdef _WIN32
+#include <winsock2.h>
+#include <Ws2tcpip.h>
+#include <windows.h>
+// Unix System
+#else
 #include <sys/time.h>
 #include <unistd.h>
 #include <dirent.h>
-
-
-/* OS depending */
-// Windows System
-#ifdef __WIN32__
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-// Unix System
-#else
 #include <stdarg.h>
 #include <string.h>
 #include <sys/socket.h>
