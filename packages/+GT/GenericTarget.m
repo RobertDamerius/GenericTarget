@@ -844,7 +844,7 @@ classdef GenericTarget < handle
             strSource = strrep(strSource, '$AUTOSAVE_PERIOD$', strAutosavePeriod);
         end
         function cmdout = RunCommand(cmd)
-            [~,cmdout] = system(cmd);
+            [~,cmdout] = system(cmd,'-echo');
         end
     end
     properties(Constant, Access=private)
