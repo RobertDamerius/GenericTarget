@@ -10,6 +10,7 @@
 % 20210202    Robert Damerius        Generated source code is no longer removed from code generation folder after deployment.
 %                                    Source code is updated in separate subdirectory based on model name.
 %                                    Generic Target application is no longer stopped when deploying a new model.
+% 20210203    Robert Damerius        Added DownloadAllData(), Reboot(), Shutdown() and SendCommand() member functions.
 % 
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -244,6 +245,24 @@ classdef GenericTarget < handle
             obj.RunCommand(cmdSSH);
             commands = {cmdSSH};
         end
+        function commands = Reboot(obj)
+            %GT.GenericTarget.Reboot Reboot the target computer. An SSH connection will be established to run a reboot command.
+            % 
+            % RETURN
+            % commands ... The commands that were executed on the host.
+            cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "sudo reboot"'];
+            obj.RunCommand(cmdSSH);
+            commands = {cmdSSH};
+        end
+        function commands = Shutdown(obj)
+            %GT.GenericTarget.Shutdown Shutdown the target computer. An SSH connection will be established to run a shutdown command.
+            % 
+            % RETURN
+            % commands ... The commands that were executed on the host.
+            cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "sudo shutdown -h now"'];
+            obj.RunCommand(cmdSSH);
+            commands = {cmdSSH};
+        end
         function commands = ShowPID(obj)
             %GT.GenericTarget.ShowPID Show the process ID for all processes on the target that are named "GenericTarget" %(GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME).
             % This can be used to check whether the application is running or not.
@@ -261,6 +280,19 @@ classdef GenericTarget < handle
             % commands ... The commands that were executed on the host.
             cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "cat ' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_LOGFILE_NAME '"'];
             obj.RunCommand(cmdSSH);
+            commands = {cmdSSH};
+        end
+        function [commands,cmdout] = SendCommand(obj, cmd)
+            %GT.GenericTarget.SendCommand Send a command to the target computer. The command is executed via SSH.
+            % 
+            % PARAMETERS
+            % cmd  ... The command string to be executed on the target computer, e.g. 'ls'.
+            % 
+            % RETURN
+            % commands ... The commands that were executed on the host.
+            % cmdout   ... The output that have been returned by the command window.
+            cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "' cmd '"'];
+            cmdout = obj.RunCommand(cmdSSH);
             commands = {cmdSSH};
         end
         function [data,commands] = DownloadData(obj, hostDirectory)
@@ -302,6 +334,32 @@ classdef GenericTarget < handle
             % Decode target data
             data = GT.GenericTarget.DecodeTargetData([hostDirectory dirName]);
             commands = {cmdSSH,cmdSCP};
+        end
+        function commands = DownloadAllData(obj, hostDirectory)
+            %GT.GenericTarget.DownloadAllData Download all recorded data directories from the target. The downloaded data will be written to the specified hostDirectory.
+            % 
+            % PARAMETERS
+            % hostDirectory ... The destination directory (absolute path) on the host where to write the downloaded data to.
+            %                   If the directory does not exist, then it will be created. If this argument is not given, then
+            %                   the current working directory is used as default directory.
+            % 
+            % RETURN
+            % commands ... The commands that were executed on the host.
+
+            % Default directory
+            if(2 ~= nargin)
+                hostDirectory = pwd;
+            end
+            assert(ischar(hostDirectory), 'GT.GenericTarget.DownloadData(): Input "hostDirectory" must be a string!');
+            if(filesep ~= hostDirectory(end))
+                hostDirectory = [hostDirectory filesep];
+            end
+
+            % Download directory via SCP
+            fprintf('\n[GENERIC TARGET] Downloading all data (%s) from target %s\n',[obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG],obj.targetIPAddress);
+            cmdSCP = ['scp -r ' obj.targetUsername '@' obj.targetIPAddress ':' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG ' ' hostDirectory];
+            obj.RunCommand(cmdSCP);
+            commands = {cmdSCP};
         end
         function commands = DeleteData(obj)
             %GT.GenericTarget.DeleteData Delete all recorded data on the target. This will also stop a running target application.
@@ -785,8 +843,8 @@ classdef GenericTarget < handle
             strHeader = strrep(strHeader, '$AUTOSAVE_PERIOD$', strAutosavePeriod);
             strSource = strrep(strSource, '$AUTOSAVE_PERIOD$', strAutosavePeriod);
         end
-        function RunCommand(cmd)
-            system(cmd);
+        function cmdout = RunCommand(cmd)
+            [~,cmdout] = system(cmd);
         end
     end
     properties(Constant, Access=private)
