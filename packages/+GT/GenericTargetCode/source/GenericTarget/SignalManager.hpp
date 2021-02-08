@@ -11,36 +11,24 @@ class GenericTarget;
 class SignalManager {
     public:
         /**
-         *  @brief Register a new log.
+         *  @brief Register a new bus log (scalar doubles only).
          *  @param [in] id Unique ID of the log.
-         *  @param [in] numSignals Number of signals in the log.
-         *  @param [in] labels Signal labels (zero-terminated string).
+         *  @param [in] signalNames Names for all signals separated by comma.
+         *  @param [in] numCharacters Number of characters in the signalNames array.
+         *  @param [in] numSignals Number of signals to log.
+         *  @details All signals to log must be registered before the GenericTarget creates all signal objects.
          */
-        static void Register(uint32_t id, uint32_t numSignals, const char* labels);
+        static void Register(uint32_t id, const uint8_t* signalNames, uint32_t numCharacters, uint32_t numSignals);
 
         /**
-         *  @brief Log signals.
+         *  @brief Write bus signals to file (scalar doubles only).
          *  @param [in] id Unique ID of the log.
          *  @param [in] values Signal values.
          *  @param [in] numValues Number of values.
          *  @details This function has no effect if the signal manager has not been created.
          */
-        static void LogSignals(uint32_t id, double* values, uint32_t numValues);
+        static void WriteSignals(uint32_t id, double* values, uint32_t numValues);
 
-        /**
-         *  @brief Generate the filename string.
-         *  @param [in] id ID of the data file.
-         *  @param [in] num Number appended to data file.
-         *  @return Absolute path for log filename.
-         *  @details Use this function after @ref Create has been called, otherwise the log directory has not been set and will not appear in the filename.
-         */
-        static std::string GenerateFileName(uint32_t id, uint32_t num);
-
-        /**
-         *  @brief Autosave all data logs.
-         *  @details This function has no effect if the signal manager has not been created.
-         */
-        static void Autosave(void);
 
     protected:
         friend GenericTarget;
@@ -49,6 +37,7 @@ class SignalManager {
          *  @brief Create all signals.
          *  @details This will initialize all logs for all registered @ref objects. This will also create the data log directory.
          *  @return True if success or already created, false otherwise.
+         *  @details The GenericTarget creates all signal objects that have been registered so far.
          */
         static bool Create(void);
 
@@ -61,30 +50,26 @@ class SignalManager {
     private:
         static std::atomic<bool> created;                           ///< True if signal sockets have been created, false otherwise.
         static std::unordered_map<uint32_t, SignalObject*> objects; ///< Signal object list.
-        static std::shared_mutex mtx;                               ///< Protect the @ref objects.
         static std::string directoryDataLog;                        ///< Name of the data log directory.
 
-        /* autosave thread */
-        static std::mutex mtxNotify;              ///< Mutex for thread notification.
-        static std::condition_variable cvNotify;  ///< Condition variable for thread notification.
-        static bool notified;                     ///< Flag for thread notification.
-        static std::atomic<bool> terminate;       ///< Termination flag.
-        static std::thread* threadAutosave;       ///< Autosave thread instance.
+        /**
+         *  @brief Generate the filename string.
+         *  @param [in] id ID of the data file.
+         *  @return Absolute path for log filename.
+         */
+        static std::string GenerateFileName(uint32_t id);
 
         /**
-         *  @brief Write the index file.
-         *  @details Mutex must be locked.
+         *  @brief Write index file.
+         *  @param [in] filename Absolute filename of index file to be written.
+         *  @param [in] date_year Current year (UTC).
+         *  @param [in] date_month Current month (UTC).
+         *  @param [in] date_mday Current day of the month (UTC).
+         *  @param [in] date_hour Current hour (UTC).
+         *  @param [in] date_min Current minute (UTC).
+         *  @param [in] date_sec Current second (UTC).
+         *  @return True if success, false otherwise.
          */
-        static void WriteIndexFile(void);
-
-        /**
-         *  @brief Notify the autosave thread.
-         */
-        static void Notify(void);
-
-        /**
-         *  @brief Autosave thread function.
-         */
-        static void ThreadAutosave(void);
+        static bool WriteIndexFile(std::string filename, uint32_t date_year, uint8_t date_month, uint8_t date_mday, uint8_t date_hour, uint8_t date_min, uint8_t date_sec);
 };
 

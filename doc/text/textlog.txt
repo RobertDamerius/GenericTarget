@@ -5,8 +5,8 @@
     If the application is started with <code>[...] &> log.txt</code>, the output is redirected to the text file <code>log.txt</code>.
 
 <h3>Example Log File</h3>
-    Using the MATLAB class <code>GT.GenericTarget</code> the current log file can be downloaded:
-    <pre>log = gt.GetLog();    % gt is a GT.GenericTarget object</pre>
+    Using the MATLAB class <code>GT.GenericTarget</code> the current log file can be displayed:
+    <pre>gt.ShowLog();    % gt is a GT.GenericTarget object</pre>
     The log file must be in the <code>bin/</code> directory and named <code>log.txt</code>.
     A log file can look like this:
     <br>

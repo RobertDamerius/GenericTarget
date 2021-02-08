@@ -37,14 +37,18 @@ class PeriodicTask {
          *  @brief Get the number of overloads.
          *  @return Number of overloads since @ref Start().
          */
-        uint32_t GetNumOverloads(void);
+        inline uint32_t GetNumOverloads(void){
+            return numOverloads;
+        }
 
         /**
          * @brief Get the task execution time.
          * @returns The latest task execution time in seconds.
          * @details The task execution time is the computation time required by the step function of the model.
          */
-        double GetTaskExecutionTime(void);
+        inline double GetTaskExecutionTime(void){
+            return taskExecutionTime;
+        }
 
     private:
         std::thread t;

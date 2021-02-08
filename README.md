@@ -28,6 +28,7 @@ The directory structure of this repository is as follows.
 | Date        | Version  | Description                                                                                               |
 | :---------- | :------- | :-------------------------------------------------------------------------------------------------------- |
 | 2021-01-26  | 1.0      | Initial release                                                                                           |
+| 2021-02-08  | 1.1      | File logging has been updated. Bus signals can now be recorded directly (scalar doubles only).            |
 
 
 ## How To Start

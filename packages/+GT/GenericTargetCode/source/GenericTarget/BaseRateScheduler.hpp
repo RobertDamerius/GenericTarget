@@ -50,7 +50,22 @@ class BaseRateScheduler {
          *  @return The latest task execution time in seconds or a negative value if the taskID is invalid.
          *  @details The task execution time is the computation time required by the step function of the model.
          */
-        double GetTaskExecutionTime(const uint32_t taskID);
+        inline double GetTaskExecutionTime(const uint32_t taskID){
+            if(taskID >= (uint32_t)tasks.size())
+                return -1.0;
+            return tasks[taskID]->GetTaskExecutionTime();
+        }
+
+        /**
+         *  @brief Get the number of CPU overloads for a task.
+         *  @param [in] taskID The ID of the task from which to obtain the latest number of CPU overloads.
+         *  @return The latest CPU overload counter or zero if the taskID is invalid.
+         */
+        inline uint32_t GetNumCPUOverloads(const uint32_t taskID){
+            if(taskID >= (uint32_t)tasks.size())
+                return 0;
+            return tasks[taskID]->GetNumOverloads();
+        }
 
     private:
         std::thread t;

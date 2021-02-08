@@ -1,4 +1,4 @@
-function CheckUniqueParameterValue(system, block, parameterName)
+function GT_CheckUniqueParameterValue(system, block, parameterName)
     objects = find_system(system,'Type','Block');
     numObjects = length(objects);
     thisValue = str2double(get_param(block,parameterName));

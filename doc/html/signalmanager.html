@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20210202</div>
+<div class="header_version">Version 20210208</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -45,13 +45,17 @@
 <div class="content">
 <h1>Signal Manager</h1>
     The SignalManager manages the data recording of Simulink signals.
-    Signals can be recorded as N-by-1 vectors of data type double.
-    The data to be recorded are automatically written to files.
-    These files are only successfully completed when the application is successfully closed or an autosave event is triggered.
+    Only buses whose signals and sub-signals are scalar values of data type double can be recorded.
+    The recorded data is automatically written to files.
+    If data is to be recorded, then this data is first written to a buffer.
+    A separate thread then takes care of writing the data to files.
     Each signal object has a unique ID. Internally the SignalManager has a hash table (<code>std::unordered_map</code>).
     In this hash table all signal objects are stored with their unique ID as key value.
 
     <h3>Initialization</h3>
+    The SignalManager creates an index file in the corresponding log directory.
+    This index file contains information about the data recording.
+    At the same time this index file indicates which files were created during data recording.
     During the initialization phase, the start callback functions are called from Log To File blocks.
     These blocks register a signal object at the SignalManager.
     During registration the following parameters are passed.
@@ -60,31 +64,28 @@
 		<tr><td>id</td><td>
             The unique ID of the signal object.</td></tr>
         <tr><td>numSignals</td><td>
-            The number of signals to be recorded. This refers to the dimension of the signal.
+            The number of signals to be recorded. This refers to the total number of signals in the bus.
             </td></tr>
-        <tr><td>labels</td><td>
-            A string with which signal names can be specified.
-            The signal names of a multidimensional signal are separated by commas.
+        <tr><td>signalNames</td><td>
+            Names of all signals present in the input bus.
             These signal names are only used when the data is downloaded from the target PC to create named structures of timeseries.
+            </td></tr>
+        <tr><td>numCharacters</td><td>
+            The number of characters in the signalNames array.
             </td></tr>
 	</table>
 
     <h3>Termination</h3>
-    During the termination phase, open log files are closed.
-    Then the SignalManager creates an index file in the corresponding log directory.
-    This index file contains information about the data recording, like signal names.
-    At the same time this index file indicates which files were created during data recording.
+    During the termination phase, unwritten data from the buffer is written to the file.
 
 <h2>Data Logging</h2>
     As soon as the SignalManager is created, all signal objects are created.
     Afterwards no further signal objects can be registered.
     Each signal object has its own thread, which is responsible for writing to the file.
     The priority of the thread is defined by the Simulink interface class parameter <code><a href="simulinkinterface.html">priorityLog</a></code>.
-    Data is not written continuously to the file.
-    The Log To File block appends the values to be written to a queue.
-    Only if the queue contains more than 65535 bytes, the bytes in the queue are written to the file by the thread.
-    Then the queue is cleared again.
-    For data recording the following parameters are passed to the SignalManager.
+    The data is not written to a file immediately.
+    Instead, the data is first written to a buffer.
+    A separate thread then handles writing the data to the file.
     <table>
 		<tr><th>Parameter</th><th>Description</th></tr>
 		<tr><td>id</td><td>
@@ -100,23 +101,15 @@
 
 <a name="protocol"></a>
 <h2>File Format</h2>
-    A signal corresponds to a value of the data type double (8 bytes).
-    The maximum file size is limited by software to 1 GB (1073741824 bytes).
-    This corresponds to 134217728 values of the data type double.
-    The values are written directly into a binary file (with the byte order of the target computer, i.e. little or big endian).
-    If an N-by-1 vector of signals is recorded, all elements of the vector are written to the file one after the other.
-    A timestamp of the data type double is added before each N-by-1 vector.
-    The timestamp corresponds to the <a href="timingscheduling.html">model time</a>.
-    After 134217728 values the current file is closed and a new log file is created.
+    Each Log To File block has a unique ID.
+    A separate file is created for each ID. For ID 0, for example, the file is called <code>id0</code>.
+    In this file, first only a header is written, which contains information about the data recording, such as the signal names.
+    Subsequently, all recorded data are simply appended to this file.
+    The file size is unlimited.
 
-    <h3>File Name</h3>
-    The name of a log file always corresponds to the format <code><b>ID</b>_<b>NUM</b></code>, where <code><b>ID</b></code> is the ID of the signal object and <code><b>NUM</b></code> is the file number.
-    The file 7_0 thus contains the recorded double values of ID 7.
-    0 indicates that this is the first file.
-    If this file has reached its maximum size or an autosave event has been triggered, the next file is created with the name 7_1.
-
-    <h3>The index File</h3>
-    The index file is written during the termination phase and indicates which log files exist, what the signal dimensions and sampling rates are, and the byte order in which the double values were written to the corresponding log files.
+    <h3>The Index File</h3>
+    The index file is created once at the beginning during the initialization phase, before the actual model is started.
+    This file contains information about when the data recording was started and which IDs are recorded.
     The index file has the following format:
     <table>
 		<tr>
@@ -130,29 +123,64 @@
             <td style="font-family: Courier New;">0</td>
             <td style="font-family: Courier New;">5</td>
             <td style="font-family: Courier New;">header</td>
-            <td style="font-family: Courier New;">5x uint8_t</td>
-            <td>Header identifier: contains the string "GTLOG" (<code>0x47 0x54 0x4C 0x4F 0x47</code>).</td>
+            <td style="font-family: Courier New;">5 x uint8_t</td>
+            <td>Header identifier: contains the string "GTIDX" (<code>0x47 0x54 0x49 0x44 0x58</code>).</td>
         </tr>
         <tr>
             <td style="font-family: Courier New;">5</td>
-            <td style="font-family: Courier New;">1</td>
-            <td style="font-family: Courier New;">endian</td>
-            <td style="font-family: Courier New;">uint8_t</td>
-            <td>Specifies the byte order. <code>0x01</code>: little endian, <code>0x80</code>: big endian. This byte order is used for all subsequent values as well as for all associated log files.</td>
+            <td style="font-family: Courier New;">4</td>
+            <td style="font-family: Courier New;">dateYear</td>
+            <td style="font-family: Courier New;">uint32_t</td>
+            <td>The year according to the UTC time of the target.</td>
         </tr>
         <tr>
-            <td style="font-family: Courier New;">6</td>
+            <td style="font-family: Courier New;">9</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">dateMonth</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>The month according to the UTC time of the target.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">10</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">dateMonthDay</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>The day of the month according to the UTC time of the target.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">11</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">dateHour</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>The hour according to the UTC time of the target.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">12</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">dateMinute</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>The minute according to the UTC time of the target.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">13</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">dateSecond</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>The second according to the UTC time of the target.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">14</td>
             <td style="font-family: Courier New;">4</td>
             <td style="font-family: Courier New;">numObjects</td>
             <td style="font-family: Courier New;">uint32_t</td>
             <td>Number of signal objects (corresponds to the number of Log To File blocks in the Simulink model).</td>
         </tr>
         <tr>
-            <td style="font-family: Courier New;">10</td>
+            <td style="font-family: Courier New;">18</td>
             <td style="font-family: Courier New;"></td>
             <td style="font-family: Courier New;"><b>SignalObjectData</b></td>
             <td style="font-family: Courier New;"></td>
-            <td>Contains <span style="font-family: Courier New;">numObjects</span> signal objekte. The data format for a signal object is shown in the following table.</td>
+            <td>Contains <span style="font-family: Courier New;">numObjects</span> signal objects. The data format for a signal object is shown in the following table.</td>
         </tr>
     </table>
     Data format for a signal object in the index file:
@@ -171,33 +199,63 @@
             <td style="font-family: Courier New;">uint32_t</td>
             <td>Unique ID of the signal object.</td>
         </tr>
-		<tr>
-            <td style="font-family: Courier New;">4</td>
-            <td style="font-family: Courier New;">4</td>
-            <td style="font-family: Courier New;">signalDimension</td>
-            <td style="font-family: Courier New;">uint32_t</td>
-            <td>The dimension of the recorded signal (the timestamp is not added to the dimension of the signal).</td>
+    </table>
+
+    <h3>The Data File</h3>
+    During the initialization phase, a file is created for each signal ID, in which initially only the header is written.
+    The header has the following format.
+    <table>
+        <tr>
+            <th width="110px">Offset (Bytes)</th>
+            <th width="110px">Length (Bytes)</th>
+            <th width="180px">Name</th>
+            <th width="120px">Data Type</th>
+            <th>Description</th>
         </tr>
-		<tr>
-            <td style="font-family: Courier New;">8</td>
-            <td style="font-family: Courier New;">4</td>
-            <td style="font-family: Courier New;">fileNumber</td>
-            <td style="font-family: Courier New;">uint32_t</td>
-            <td>The current file number. A data number always starts with 0.</td>
+        <tr>
+            <td style="font-family: Courier New;">0</td>
+            <td style="font-family: Courier New;">5</td>
+            <td style="font-family: Courier New;">header</td>
+            <td style="font-family: Courier New;">5 x uint8_t</td>
+            <td>Header identifier: contains the string "GTDAT" (<code>0x47 0x54 0x44 0x41 0x54</code>).</td>
         </tr>
-		<tr>
-            <td style="font-family: Courier New;">12</td>
+        <tr>
+            <td style="font-family: Courier New;">5</td>
+            <td style="font-family: Courier New;">4</td>
+            <td style="font-family: Courier New;">numSignals</td>
+            <td style="font-family: Courier New;">uint32_t</td>
+            <td>The number of signals in the bus to be recorded.</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: Courier New;">9</td>
             <td style="font-family: Courier New;">N</td>
             <td style="font-family: Courier New;">labels</td>
             <td style="font-family: Courier New;">N x char</td>
-            <td>Optional string specifying the signal names. The length can be zero.</td>
+            <td>String specifying the signal names. All signals are separated by commas.</td>
         </tr>
 		<tr>
-            <td style="font-family: Courier New;">12+N</td>
+            <td style="font-family: Courier New;">9+N</td>
             <td style="font-family: Courier New;">1</td>
             <td style="font-family: Courier New;">zeroTerminator</td>
             <td style="font-family: Courier New;">uint8_t</td>
             <td>Zero-terminator for the preceding string. This value is always 0x00 and indicates the end of the string.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">10+N</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">endian</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>Specifies the byte order. <code>0x01</code>: little endian, <code>0x80</code>: big endian. This byte order is used for all subsequent values.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">11+N</td>
+            <td style="font-family: Courier New;"></td>
+            <td style="font-family: Courier New;"><b>SampleData</b></td>
+            <td style="font-family: Courier New;"></td>
+            <td>Contains <span style="font-family: Courier New;">1 + numSignals</span> values of type <span style="font-family: Courier New;">double</span>.
+            Each sample data contains one <span style="font-family: Courier New;">double</span>, which specifies the <a href="timingscheduling.html">simulation time</a>, followed by
+            <span style="font-family: Courier New;">numSignals</span> values of type <span style="font-family: Courier New;">double</span> that indicate the bus signal data.</td>
         </tr>
     </table>
 

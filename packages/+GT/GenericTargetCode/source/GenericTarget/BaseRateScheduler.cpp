@@ -60,12 +60,6 @@ TargetTime BaseRateScheduler::GetTargetTime(void){
     return t;
 }
 
-double BaseRateScheduler::GetTaskExecutionTime(const uint32_t taskID){
-    if(taskID >= (uint32_t)tasks.size())
-        return -1.0;
-    return tasks[taskID]->GetTaskExecutionTime();
-}
-
 void BaseRateScheduler::Thread(BaseRateScheduler* src){
     // Create timer
     if(!src->baseTimer.Create(SimulinkInterface::baseSampleTime)){
@@ -79,7 +73,6 @@ void BaseRateScheduler::Thread(BaseRateScheduler* src){
     src->timeState.ticks = 0;
     src->timeState.simulation = 0.0;
     src->mtxTimeState.unlock();
-    double timeAutosave = 0.0;
     while(!src->terminate){
         // Wait for signal and break if timer was destroyed
         if(!src->baseTimer.WaitForSignal()) break;
@@ -87,12 +80,6 @@ void BaseRateScheduler::Thread(BaseRateScheduler* src){
         // Check termination flag
         if(src->terminate){
             break;
-        }
-
-        // Check for autosave
-        if((SimulinkInterface::autosavePeriod > 0.0) && ((timeAutosave += SimulinkInterface::baseSampleTime) > SimulinkInterface::autosavePeriod)){
-            timeAutosave -= SimulinkInterface::autosavePeriod * double((int)(timeAutosave / SimulinkInterface::autosavePeriod));
-            SignalManager::Autosave();
         }
 
         // Update time state

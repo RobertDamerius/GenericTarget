@@ -85,14 +85,6 @@ void PeriodicTask::Notify(void){
     }
 }
 
-uint32_t PeriodicTask::GetNumOverloads(void){
-    return numOverloads;
-}
-
-double PeriodicTask::GetTaskExecutionTime(void){
-    return taskExecutionTime;
-}
-
 void PeriodicTask::Thread(PeriodicTask* src){
     for(;;){
         // Wait for notification

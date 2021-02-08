@@ -21,9 +21,8 @@
     <br>
     <br>
     The <a href="signalmanager.html"><b>SignalManager</b></a> manages the data recording of Simulink signals.
-    Signals can be recorded as N-by-1 vectors of data type double.
-    The data to be recorded are automatically written to files.
-    These files are only successfully completed when the application is successfully closed or an autosave event is triggered.
+    Only buses whose signals and sub-signals are scalar values of data type double can be recorded.
+    The recorded data is automatically written to files.
 
 <a name="initialize"></a>
 <h2>Initialization</h2>
@@ -39,7 +38,7 @@
     At this point basic information about the application is displayed.
     All output is printed to the console by default.
     By a corresponding start command the output can be redirected into a file.
-    With the <code>GT.GenericTarget.GetLog()</code> method the current log file can be downloaded from the target PC.
+    With the <code>GT.GenericTarget.ShowLog()</code> method the current log file from the target computer can be displayed.
     The log file is overwritten at each start.
 
     <h3>2. Parse Arguments (arg)</h3>
@@ -87,8 +86,8 @@
     <h3>11. SignalManager::Create()</h3>
     The SignalManager creates a new directory in which the recorded data is stored.
     The name of the created folder corresponds to the UTC time of the target computer.
-    Open files are closed only after the application has been closed successfully or after an autosave.
     If the SignalManager could not create a new folder, the application is closed.
+    If there is no signal log block in the model, then no log directory will be created.
 
 <a name="mainloop"></a>
 <h2>Main Loop</h2>
@@ -152,7 +151,7 @@
     Created UDP objects are destroyed at this point.
 
     <h3>5. SignalManager::Destroy()</h3>
-    Generated signal objects are destroyed at this point. Open data recording files are closed.
+    Generated signal objects are destroyed at this point. Values that are still unwritten are written to the log files.
 
     <h3>6. Close AppSocket</h3>
     The application socket is closed and the generic target application is terminated.

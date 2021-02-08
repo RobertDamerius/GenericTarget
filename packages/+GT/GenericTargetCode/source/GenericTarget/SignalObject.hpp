@@ -1,26 +1,24 @@
 #pragma once
 
 
-#define SIGNAL_LOGGER_WRITE_THRESHOLD     (65536)   ///< Minimum number of bytes recorded before actually writing them to file.
-
-
 class SignalObject {
     public:
         /**
          *  @brief Create a signal object.
          */
-        explicit SignalObject(uint32_t id);
+        SignalObject();
 
         /**
-         *  @brief Delete the signal object.
+         *  @brief Destroy the signal object.
          */
         ~SignalObject();
 
         /**
          *  @brief Start the signal object.
+         *  @param [in] filename The absolute filename of the log file.
          *  @return True if success, false otherwise.
          */
-        bool Start(void);
+        bool Start(std::string filename);
 
         /**
          *  @brief Stop the signal object.
@@ -28,55 +26,41 @@ class SignalObject {
         void Stop(void);
 
         /**
-         *  @brief Autosave current data log files.
-         */
-        void Autosave(void);
-
-        /**
-         *  @brief Log signals.
-         *  @param [in] timestamp The model timestamp.
+         *  @brief Write signals to buffer.
+         *  @param [in] simulationTime The current simulation time.
          *  @param [in] values Signal values.
          *  @param [in] numValues Number of values.
+         *  @details This member function triggers the logger thread that writes the data to the binary file.
          */
-        void LogSignals(double timestamp, double* values, uint32_t numValues);
+        void Write(double simulationTime, double* values, uint32_t numValues);
 
         /**
          *  @brief Set the number of signals to log.
          *  @param [in] numSignals The number of signals to log.
          *  @note This function has no effect if the signal object has already been started.
          */
-        void SetNumSignals(uint32_t numSignals);
+        inline void SetNumSignals(uint32_t numSignals){
+            if(!started){
+                this->numSignals = numSignals;
+            }
+        }
 
         /**
          *  @brief Set the labels.
          *  @param [in] labels Labels (zero-terminated string).
          *  @note This function has no effect if the signal object has already been started.
          */
-        void SetLabels(const char* labels);
-
-        /**
-         *  @brief Assignment operator.
-         *  @details Only copies @ref id.
-         */
-        SignalObject& operator=(const SignalObject& rhs);
-
-        /**
-         *  @brief Get the unique ID.
-         *  @return The @ref id.
-         */
-        inline uint32_t GetID(void){ return this->id; }
+        inline void SetLabels(std::string labels){
+            if(!started){
+                this->labels = labels;
+            }
+        }
 
         /**
          *  @brief Get the number of signals.
          *  @return Number of signals.
          */
         inline uint32_t GetNumSignals(void){ return this->numSignals; }
-
-        /**
-         *  @brief Get the current file number.
-         *  @return Number of the latest file that has been created.
-         */
-        inline uint32_t GetFileNumber(void){ return this->fileNumber; }
 
         /**
          *  @brief Get the labels.
@@ -86,27 +70,35 @@ class SignalObject {
 
     private:
         /* Configuration attributes to be used when Start() is called */
-        uint32_t id;           ///< The unique id set during construction.
-        uint32_t numSignals;   ///< Number of signals to log.
-        std::string labels;    ///< Signal labels.
+        uint32_t numSignals;               ///< Number of values.
+        std::string labels;                ///< Signal labels.
+        std::atomic<bool> started;         ///< True if @ref Start has already been called, false otherwise.
+        std::string filename;              ///< The filename that has been set during the @ref Start member function.
 
         /* Internal thread-safe attributes if signal object has been started */
-        bool started;                      ///< True if logging is started, false otherwise.
-        std::atomic<bool> terminate;       ///< Termination flag.
-        std::atomic<bool> autosave;        ///< Autosave flag.
-        std::thread* threadLog;            ///< Receiver thread instance.
+        std::vector<double> buffer;        ///< Buffering of values to be written to file.
+        std::mutex mtxBuffer;              ///< Protect the @ref buffer.
+        std::thread* threadLog;            ///< Logger thread instance.
         std::mutex mtxNotify;              ///< Mutex for thread notification.
         std::condition_variable cvNotify;  ///< Condition variable for thread notification.
         bool notified;                     ///< Flag for thread notification.
-        std::vector<double> signals;       ///< The list signal values.
-        std::mutex mtxSignals;             ///< Protect the @ref signals.
-        uint32_t bytesWaitingForWrite;     ///< Number of bytes waiting for write operation.
-        uint32_t fileNumber;               ///< Current file number.
+        std::atomic<bool> terminate;       ///< Flag for thread termination.
+
+        /**
+         *  @brief Write header data to a file.
+         *  @return True if success, false otherwise.
+         *  @details This member function is called during the @ref Start member function.
+         */
+        bool WriteHeader(void);
 
         /**
          *  @brief Notify the logging thread.
          */
-        void Notify(void);
+        inline void Notify(void){
+            std::unique_lock<std::mutex> lock(mtxNotify);
+            notified = true;
+            cvNotify.notify_one();
+        }
 
         /**
          *  @brief Logging thread function.

@@ -3,7 +3,7 @@
     To correctly export the source code from a Simulink model, some model settings must be made in Simulink.
     The toolbox comes with a preconfigured Simulink model that should be used as a basis.
     Open MATLAB and run <code>GT.GenericTarget.GetTemplate()</code> to generate a template model in the current working directory.
-    The default sample time of the model is 0.005 seconds and can be adjusted.
+    The default sample time of the model is 0.01 seconds and can be adjusted.
     <br>
     <br>
     The template model contains a simple test to evaluate the latency.
@@ -51,7 +51,7 @@ gt.Deploy(model);</pre>
     During the process you will be asked which folder should be downloaded.
     The folder names correspond to the UTC time of the model start.
     The data can also be downloaded manually.
-    The class method <code>gt.DecodeTargetData()</code> can be used to decode the recorded data.
+    The class method <code>gt.DecodeTargetLog()</code> can be used to decode the recorded data.
     Information about the file format of data recordings can be found <a href="signalmanager.html#protocol">here</a>.
 
     <br>

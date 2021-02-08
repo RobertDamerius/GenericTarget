@@ -1,4 +1,4 @@
-/* Auto-generated code (Template Version 20200329) */
+/* Auto-generated code (Template Version 20210208) */
 #ifndef SIMULINKINTERFACE_HPP
 #define SIMULINKINTERFACE_HPP
 
@@ -16,7 +16,6 @@ class SimulinkInterface {
         static const int priorities[SIMULINKINTERFACE_NUM_TIMINGS];      ///< Thread priorities for all model step functions.
         static const char* taskNames[SIMULINKINTERFACE_NUM_TIMINGS];     ///< Names for all sample rate tasks.
         static const bool terminateAtCPUOverload;                        ///< True if application should be terminated at CPU overload, false otherwise.
-        static const double autosavePeriod;                              ///< Positive autosave period in seconds. A value less than or equal to zero disables autosaving.
 
         /**
          *  @brief Initialize the model.

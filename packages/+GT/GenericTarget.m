@@ -11,6 +11,7 @@
 %                                    Source code is updated in separate subdirectory based on model name.
 %                                    Generic Target application is no longer stopped when deploying a new model.
 % 20210203    Robert Damerius        Added DownloadAllData(), Reboot(), Shutdown() and SendCommand() member functions.
+% 20210208    Robert Damerius        Updated data logging on target.
 % 
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -37,7 +38,7 @@ classdef GenericTarget < handle
     % 
     % EXAMPLE: Show event log (text log from application)
     % gt = GT.GenericTarget('192.168.0.100','user');
-    % log = gt.ShowLog();
+    % gt.ShowLog();
     % 
     % EXAMPLE: Download recorded data and delete log
     % gt = GT.GenericTarget('192.168.0.100','user');
@@ -45,17 +46,16 @@ classdef GenericTarget < handle
     % gt.DeleteData();
     % 
     % EXAMPLE: Decode data recorded by generic target
-    % data = GT.GenericTarget.DecodeTargetData();
+    % data = GT.GenericTarget.DecodeTargetLog();
 
     properties
         targetUsername;          % User name of target PC required to login on target via SSH/SCP.
         targetIPAddress;         % IPv4 address of the target PC.
         targetSoftwareDirectory; % Directory for software on target (default: "~/GenericTarget/"). MUST BEGIN WITH '~/'!
-        priorityLog;             % Priority for the data logging threads (default: 30).
+        priorityLog;             % Priority for the data logging threads in range [0, 98] (default: 30).
         portAppSocket;           % The port for the application socket (default: 65535).
-        upperThreadPriority;     % Upper task priority in range [0, 99] (default: 40).
+        upperThreadPriority;     % Upper task priority in range [0, 98] (default: 98).
         terminateAtCPUOverload;  % True if application should terminate at CPU overload, false otherwise (default: true).
-        autosavePeriod;          % Autosave period in seconds. Autosave will be disabled for values less or equal to zero (default: 900.0).
     end
     methods
         function obj = GenericTarget(targetUsername, targetIPAddress)
@@ -75,9 +75,8 @@ classdef GenericTarget < handle
             obj.targetSoftwareDirectory = '~/GenericTarget/';
             obj.priorityLog = uint32(30);
             obj.portAppSocket = uint16(65535);
-            obj.upperThreadPriority = int32(40);
+            obj.upperThreadPriority = int32(98);
             obj.terminateAtCPUOverload = true;
-            obj.autosavePeriod = 900.0;
         end
         function commands = Setup(obj, targetSoftwareDirectory)
             %GT.GenericTarget.Setup Setup the software for the target computer. The software will be compressed to a zip file and transferred to the
@@ -209,7 +208,7 @@ classdef GenericTarget < handle
 
             % Generate interface code from code information and write to header file (.hpp) and source file (.cpp) to code generation directory
             fprintf('[GENERIC TARGET] Generating code for model interface: %s\n',GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME);
-            [strInterfaceHeader, strInterfaceSource] = GT.GenericTarget.GenerateInterfaceCode(codeInfo, GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME, obj.priorityLog, obj.portAppSocket, obj.upperThreadPriority, obj.terminateAtCPUOverload, obj.autosavePeriod);
+            [strInterfaceHeader, strInterfaceSource] = GT.GenericTarget.GenerateInterfaceCode(codeInfo, GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME, obj.priorityLog, obj.portAppSocket, obj.upperThreadPriority, obj.terminateAtCPUOverload);
             fidHeader = fopen([dirCodeGen subDirModelCode GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.hpp'],'wt');
             fidSource = fopen([dirCodeGen subDirModelCode GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.cpp'],'wt');
             fprintf(fidHeader, strInterfaceHeader);
@@ -292,10 +291,10 @@ classdef GenericTarget < handle
             % commands ... The commands that were executed on the host.
             % cmdout   ... The output that have been returned by the command window.
             cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "' cmd '"'];
-            cmdout = obj.RunCommand(cmdSSH);
+            [~,cmdout] = obj.RunCommand(cmdSSH);
             commands = {cmdSSH};
         end
-        function [data,commands] = DownloadData(obj, hostDirectory)
+        function [data,info,commands] = DownloadData(obj, hostDirectory)
             %GT.GenericTarget.DownloadData Download recorded data from the target. The downloaded data will be written to the specified hostDirectory.
             % The downloaded data is then decoded and returned.
             % 
@@ -306,6 +305,7 @@ classdef GenericTarget < handle
             % 
             % RETURN
             % data     ... The data structure containing timeseries for all recorded signals.
+            % info     ... Additional information about the log (from the index file).
             % commands ... The commands that were executed on the host.
 
             % Default directory and fallback output
@@ -316,7 +316,6 @@ classdef GenericTarget < handle
             if(filesep ~= hostDirectory(end))
                 hostDirectory = [hostDirectory filesep];
             end
-            data = [];
 
             % Get all directory names
             fprintf('[GENERIC TARGET] SSH: Listing available log directories\n');
@@ -332,7 +331,7 @@ classdef GenericTarget < handle
             obj.RunCommand(cmdSCP);
 
             % Decode target data
-            data = GT.GenericTarget.DecodeTargetData([hostDirectory dirName]);
+            [data,info] = GT.GenericTarget.DecodeTargetLog([hostDirectory dirName]);
             commands = {cmdSSH,cmdSCP};
         end
         function commands = DownloadAllData(obj, hostDirectory)
@@ -373,8 +372,105 @@ classdef GenericTarget < handle
         end
     end
     methods(Static)
-        function data = DecodeTargetData(directory)
-            %GT.GenericTarget.DecodeTargetData Decode raw data recorded by the generic target application into a structure of timeseries.
+        function busData = DecodeTargetData(dataFileName)
+            %GT.GenericTarget.DecodeTargetData Decode raw data file recorded by the generic target application into a structure of timeseries.
+            % 
+            % PARAMETERS
+            % dataFileName ... The raw data file that contains the data recorded by the generic target application, e.g. 'id0'.
+            % 
+            % RETURN
+            % busData ... The data structure containing timeseries for all recorded signals.
+            assert(ischar(dataFileName), 'GT.GenericTarget.DecodeTargetData(): Input "dataFileName" must be a string!');
+
+            % Fallback output
+            busData = struct();
+
+            % Open file
+            fp = fopen(dataFileName,'r');
+            if(fp < 0)
+                error('Could not open file: "%s"\n',dataFileName);
+            end
+
+            % Header should be: 'G' (71), 'T' (84), 'D' (68), 'A' (65), 'T' (84)
+            bytesHeader = uint8(fread(fp, 5));
+            if((5 ~= length(bytesHeader)) || (uint8(71) ~= bytesHeader(1)) || (uint8(84) ~= bytesHeader(2)) || (uint8(68) ~= bytesHeader(3)) || (uint8(65) ~= bytesHeader(4)) || (uint8(84) ~= bytesHeader(5)))
+                fclose(fp);
+                error('Invalid header of file: "%s"\n',dataFileName);
+            end
+
+            % Number of signals
+            bytesNumSignals = uint8(fread(fp, 4));
+            if(4 ~= length(bytesNumSignals))
+                fclose(fp);
+                error('Tried to read 4 bytes but could only read %d byte(s). File: "%s" may not be complete!\n',length(bytesNumSignals),dataFileName);
+            end
+            numSignals = uint64(bitor(bitor(bitshift(uint32(bytesNumSignals(1)),24),bitshift(uint32(bytesNumSignals(2)),16)),bitor(bitshift(uint32(bytesNumSignals(3)),8),uint32(bytesNumSignals(4)))));
+
+            % Read signal names
+            signalNames = char.empty();
+            while(true)
+                byte = uint8(fread(fp, 1));
+                if(1 ~= length(byte))
+                    fclose(fp);
+                    error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!\n',length(byte),dataFileName);
+                end
+                if(~byte)
+                    break;
+                end
+                signalNames = strcat(signalNames,char(byte));
+            end
+            signalNames = split(signalNames,',');
+            if(uint64(length(signalNames)) ~= numSignals)
+                fclose(fp);
+                error('Number of signal names (%d) does not match number of signals (%d) in file "%s"',length(signalNames),numSignals,dataFileName);
+            end
+
+            % Endianness should be litte endian (0x01) or big endian (0x80)
+            byteEndian = fread(fp, 1);
+            if(isempty(byteEndian) || (uint8(1) ~= byteEndian) && (uint8(128) ~= byteEndian))
+                fclose(fp);
+                error('Invalid endian value in file: "%s"\n',dataFileName);
+            end
+            bigEndian = (uint8(128) == byteEndian);
+
+            % Endianess of this machine
+            [~,~,tmp] = computer;
+            thisBigEndian = ('B' == tmp);
+
+            % Read all remaining data and compute number of samples
+            bytes = uint8(fread(fp));
+            fclose(fp);
+            bytesPerSample = uint64(8) * (uint64(1) + numSignals);
+            numSamples = uint64(floor(double(length(bytes)) / double(bytesPerSample)));
+            
+            % Read time and data into vector/matrix
+            timeVec = nan(numSamples,1);
+            dataMat = nan(numSamples,numSignals);
+            idxStart = uint64(1);
+            for i = uint64(1):numSamples
+                timeVec(i) = typecast(bytes(idxStart:(idxStart + uint64(7))), 'double');
+                idxStart = idxStart + uint64(8);
+                if(bigEndian ~= thisBigEndian)
+                    timeVec(i) = swapbytes(timeVec(i));
+                end
+                for k = uint64(1):numSignals
+                    dataMat(i,k) = typecast(bytes(idxStart:(idxStart + uint64(7))), 'double');
+                    idxStart = idxStart + uint64(8);
+                    if(bigEndian ~= thisBigEndian)
+                        dataMat(i,k) = swapbytes(dataMat(i,k));
+                    end
+                end
+            end
+
+            % Create structure with timeseries
+            for k=uint64(1):numSignals
+                layerNames = split(signalNames{k},'.');
+                ts = timeseries(dataMat(:,k),timeVec,'Name',layerNames{end});
+                eval(strcat('busData.',signalNames{k},' = ts;'));
+            end
+        end
+        function [data,info] = DecodeTargetLog(directory)
+            %GT.GenericTarget.DecodeTargetLog Decode a complete log directory.
             % 
             % PARAMETERS
             % directory ... The directory that contains the data recorded by the generic target application. This directory should
@@ -382,6 +478,7 @@ classdef GenericTarget < handle
             % 
             % RETURN
             % data ... The data structure containing timeseries for all recorded signals.
+            % info ... Additional information about the log (from the index file).
 
             % Default working directory and fallback output
             if(1 ~= nargin)
@@ -389,246 +486,71 @@ classdef GenericTarget < handle
             end
             assert(ischar(directory), 'GT.GenericTarget.DecodeTargetData(): Input "directory" must be a string!');
             if(filesep ~= directory(end))
-                directory = [directory filesep];
+                directory = strcat(directory,filesep);
             end
-            data = [];
+            data = struct();
+            info = struct();
 
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Decode the index file
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            fprintf('Decoding index file: ');
-            filenameIndex =  [directory 'index'];
+            filenameIndex = strcat(directory,'index');
             fp = fopen(filenameIndex,'r');
             if(fp < 0)
-                fprintf('Error (1): Could not open file: "%s"\n',filenameIndex);
-                return;
+                error('Could not open index file "%s"\n',filenameIndex);
             end
+            fprintf('Decoding index file "%s" ...',filenameIndex);
 
-            % Header should be: 'G' (71), 'T' (84), 'L' (76), 'O' (79), 'G' (71)
-            bytesHeader = fread(fp, 5);
-            if((5 ~= length(bytesHeader)) || (uint8(71) ~= bytesHeader(1)) || (uint8(84) ~= bytesHeader(2)) || (uint8(76) ~= bytesHeader(3)) || (uint8(79) ~= bytesHeader(4)) || (uint8(71) ~= bytesHeader(5)))
-                fprintf('Error (2): Invalid header of file: "%s"\n',filenameIndex);
+            % Header should be: 'G' (71), 'T' (84), 'I' (73), 'D' (68), 'X' (88)
+            bytesHeader = uint8(fread(fp, 5));
+            if((5 ~= length(bytesHeader)) || (uint8(71) ~= bytesHeader(1)) || (uint8(84) ~= bytesHeader(2)) || (uint8(73) ~= bytesHeader(3)) || (uint8(68) ~= bytesHeader(4)) || (uint8(88) ~= bytesHeader(5)))
                 fclose(fp);
-                return;
+                error('Invalid header of file: "%s"\n',filenameIndex);
             end
 
-            % Endianness should be litte endian (0x01) or big endian (0x80)
-            byteEndian = fread(fp, 1);
-            if(isempty(byteEndian) || (uint8(1) ~= byteEndian) && (uint8(128) ~= byteEndian))
-                fprintf('Error (3): Invalid endian value in file: "%s"\n',filenameIndex);
+            % Decode date
+            bytesDate = uint8(fread(fp, 9));
+            if(9 ~= length(bytesDate))
                 fclose(fp);
-                return;
+                error('Invalid header of file: "%s"\n',filenameIndex);
             end
-            bigEndian = (uint8(128) == byteEndian);
+            info.dateUTC.year = uint32(bitor(bitor(bitshift(uint32(bytesDate(1)),24),bitshift(uint32(bytesDate(2)),16)),bitor(bitshift(uint32(bytesDate(3)),8),uint32(bytesDate(4)))));
+            info.dateUTC.month = bytesDate(5);
+            info.dateUTC.mday = bytesDate(6);
+            info.dateUTC.hour = bytesDate(7);
+            info.dateUTC.minute = bytesDate(8);
+            info.dateUTC.second = bytesDate(9);
 
-            % Endianess of machine
-            [~,~,tmp] = computer;
-            thisBigEndian = ('B' == tmp);
-
-            % Number of logs
-            bytesNumLogs = uint8(fread(fp, 4));
-            if(4 ~= length(bytesNumLogs))
-                fprintf('Error (4): Tried to read 4 bytes but could only read %d byte(s). File: "%s" may not be complete!\n',length(bytesNumLogs),filenameIndex);
+            % Number of IDs
+            bytesNumIDs = uint8(fread(fp, 4));
+            if(4 ~= length(bytesNumIDs))
                 fclose(fp);
-                return;
+                error('Invalid header of file: "%s"\n',filenameIndex);
             end
-            numLogs = typecast(bytesNumLogs, 'uint32');
-            if(bigEndian ~= thisBigEndian), numLogs = swapbytes(numLogs); end
+            numIDs = uint32(bitor(bitor(bitshift(uint32(bytesNumIDs(1)),24),bitshift(uint32(bytesNumIDs(2)),16)),bitor(bitshift(uint32(bytesNumIDs(3)),8),uint32(bytesNumIDs(4)))));
 
-            % Decode all logs
-            logInfo(1) = struct('id',uint32(0),'dimension',uint32(0),'fileNumber',uint32(0),'labels','');
-            for i = uint32(1):numLogs
-                % ID of log
-                bytesID = uint8(fread(fp, 4));
-                if(4 ~= length(bytesID))
-                    fprintf('Error (5): Tried to read 4 bytes from SignalObjectData %d but could only read %d byte(s). File: "%s" may not be complete!\n',i,length(bytesID),filenameIndex);
+            % All IDs (4 byte per ID)
+            ids = uint32(zeros(numIDs,1));
+            for i = uint32(1):numIDs
+                bytes = uint8(fread(fp, 4));
+                if(4 ~= length(bytes))
                     fclose(fp);
-                    return;
+                    error('Invalid header of file: "%s"\n',filenameIndex);
                 end
-                logID = typecast(bytesID, 'uint32');
-                if(bigEndian ~= thisBigEndian), logID = swapbytes(logID); end
-
-                % Signal dimension
-                bytesSignalDimension = uint8(fread(fp, 4));
-                if(4 ~= length(bytesSignalDimension))
-                    fprintf('Error (6): Tried to read 4 bytes from SignalObjectData %d but could only read %d byte(s). File: "%s" may not be complete!\n',i,length(bytesSignalDimension),filenameIndex);
-                    fclose(fp);
-                    return;
-                end
-                signalDimension = typecast(bytesSignalDimension, 'uint32');
-                if(bigEndian ~= thisBigEndian), signalDimension = swapbytes(signalDimension); end
-
-                % File number
-                bytesFileNumber = uint8(fread(fp, 4));
-                if(4 ~= length(bytesFileNumber))
-                    fprintf('Error (7): Tried to read 4 bytes from SignalObjectData %d but could only read %d byte(s). File: "%s" may not be complete!\n',i,length(bytesFileNumber),filenameIndex);
-                    fclose(fp);
-                    return;
-                end
-                fileNumber = typecast(bytesFileNumber, 'uint32');
-                if(bigEndian ~= thisBigEndian), fileNumber = swapbytes(fileNumber); end
-
-                % Labels (zero-terminated string)
-                labels = '';
-                while(true)
-                    byte = uint8(fread(fp, 1));
-                    if(1 ~= length(byte))
-                        fprintf('Error (8): Tried to read 1 byte from SignalObjectData %d but could only read %d byte(s). File: "%s" may not be complete!\n',i,length(byte),filenameIndex);
-                        fclose(fp);
-                        return;
-                    end
-                    if(~byte)
-                        break;
-                    end
-                    labels = [labels char(byte)];
-                end
-
-                % Save log info to struct
-                logInfo(i) = struct('id',logID,'dimension',signalDimension,'fileNumber',fileNumber,'labels',labels);
+                ids(i) = uint32(bitor(bitor(bitshift(uint32(bytes(1)),24),bitshift(uint32(bytes(2)),16)),bitor(bitshift(uint32(bytes(3)),8),uint32(bytes(4)))));
             end
             fclose(fp);
-            fprintf('OK\n');
+            fprintf(' OK\n');
 
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            % Decode all logs
+            % Decode all log files
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            for i = uint32(1):numLogs
-                fprintf('Decoding signal log with id %d\n',logInfo(i).id);
-                % Decode all files that correspond to the ID
-                values = double([]);
-                for k = uint32(0):logInfo(i).fileNumber
-                    filename = [directory sprintf('%d_%d',logInfo(i).id,k)];
-                    fprintf('    Reading data file "%s": ',filename);
-                    fp = fopen(filename,'r');
-                    if(fp < 0)
-                        fprintf('Error: Could not open file\n');
-                        return;
-                    end
-                    bytes = uint8(fread(fp));
-                    fclose(fp);
-                    if(isempty(bytes))
-                        continue;
-                    end
-                    if(mod(length(bytes),8))
-                        fprintf('Error: Invalid file format. Number of bytes should be a multiple of 8.');
-                        return;
-                    end
-                    newValues = typecast(bytes, 'double');
-                    if(bigEndian ~= thisBigEndian)
-                        newValues = swapbytes(newValues);
-                    end
-                    values = [values; newValues];
-                    fprintf('OK\n');
-                end
-
-                % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                % Decode signal names
-                % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                fprintf('    Decoding signal names: ');
-                % Check number of signals
-                numValues = uint64(length(values));
-                if(mod(numValues, uint64(1 + logInfo(i).dimension)))
-                    fprintf('Error: Invalid number of doubles. Number (%d) should be a multiple of %d.\n',numValues,uint64(1 + logInfo(i).dimension));
-                	return;
-                end
-
-                % Ensure only printable characters
-                str = logInfo(i).labels;
-                str = str(isstrprop(str,'print'));
-
-                % Remove characters that must not appear in the signal name
-                str = strrep(str,' ','');
-                str = strrep(str,'!','');
-                str = strrep(str,'"','');
-                str = strrep(str,'#','');
-                str = strrep(str,'$','');
-                str = strrep(str,'%','');
-                str = strrep(str,'&','');
-                str = strrep(str,'''','');
-                str = strrep(str,'(','');
-                str = strrep(str,')','');
-                str = strrep(str,'*','');
-                str = strrep(str,'+','');
-                str = strrep(str,'-','');
-                str = strrep(str,'.','');
-                str = strrep(str,'/','');
-                str = strrep(str,':','');
-                str = strrep(str,';','');
-                str = strrep(str,'<','');
-                str = strrep(str,'=','');
-                str = strrep(str,'>','');
-                str = strrep(str,'?','');
-                str = strrep(str,'@','');
-                str = strrep(str,'[','');
-                str = strrep(str,'\','');
-                str = strrep(str,']','');
-                str = strrep(str,'^','');
-                str = strrep(str,'`','');
-                str = strrep(str,'{','');
-                str = strrep(str,'|','');
-                str = strrep(str,'}','');
-                str = strrep(str,'~','');
-
-                % Names are splitted by comma
-                inputLabels = split(str,',');
-                signalNames = {};
-                for k = uint32(1):logInfo(i).dimension
-                    % Fallback signal name
-                    signalNames{k} = sprintf('signal%d',k);
-
-                    % Use specified input label
-                    if((k <= uint32(length(inputLabels))) && ~isempty(inputLabels{k}))
-                        signalNames{k} = inputLabels{k};
-                    end
-                end
-
-                % Resolve duplicated names (append _NUM to duplicated signal names)
-                numSignalNames = length(signalNames);
-                for x = 1:numSignalNames
-                    currentName = signalNames{x};
-                    postNum = 1;
-                    for y = 1:(x-1)
-                        if(strcmp(currentName, signalNames{y}))
-                            postNum = postNum + 1;
-                            currentName = [signalNames{x} sprintf('_%d',postNum)];
-                            p = 1;
-                            while(p <= numSignalNames)
-                                if((x ~= p) && strcmp(currentName, signalNames{p}))
-                                    postNum = postNum + 1;
-                                    currentName = [signalNames{x} sprintf('_%d',postNum)];
-                                    p = 0;
-                                end
-                                p = p + 1;
-                            end
-                            break;
-                        end
-                    end
-                    signalNames{x} = currentName;
-                end
-                fprintf('OK\n');
-
-                % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                % Create timeseries and data structures
-                % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                fprintf('    Creating timeseries: ');
-                % Create structure of timeseries
-                stride = uint32(1) + logInfo(i).dimension;
-                SignalStruct = [];
-                for s = uint32(1):logInfo(i).dimension
-                    ts = timeseries(values((s+1):stride:end), values(1:stride:end));
-                    ts.Name = signalNames{s};
-                    input = struct(signalNames{s},ts);
-                    f = fieldnames(input);
-                    SignalStruct.(f{1}) = input.(f{1});
-                end
-
-                % Add signals to output struct (data)
-                input = struct(sprintf('id%d',logInfo(i).id),SignalStruct);
-                f = fieldnames(input);
-                for j = 1:length(f)
-                    data.(f{j}) = input.(f{j});
-                end
-                fprintf('OK\n');
+            for i = uint32(1):numIDs
+                name = strcat('id',num2str(ids(i)));
+                filenameData = strcat(directory,name);
+                fprintf('Decoding target data "%s" ...',filenameData);
+                data.(name) = GT.GenericTarget.DecodeTargetData(filenameData);
+                fprintf(' OK\n');
             end
         end
         function GetTemplate()
@@ -694,7 +616,7 @@ classdef GenericTarget < handle
                 end
             end
         end
-        function [strHeader, strSource] = GenerateInterfaceCode(codeInfo, strInterfaceName, priorityLog, portAppSocket, upperThreadPriority, terminateAtCPUOverload, autosavePeriod)
+        function [strHeader, strSource] = GenerateInterfaceCode(codeInfo, strInterfaceName, priorityLog, portAppSocket, upperThreadPriority, terminateAtCPUOverload)
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Check for valid input interface name
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -702,16 +624,15 @@ classdef GenericTarget < handle
             assert(~isempty(strInterfaceName), 'GT.GenericTarget.GenerateInterfaceCode(): Length of "strInterfaceName" must not be empty!');
             assert(isscalar(priorityLog), 'GT.GenericTarget.GenerateInterfaceCode(): Input "priorityLog" must be scalar!');
             priorityLog = uint32(priorityLog);
-            assert(priorityLog < 100, 'GT.GenericTarget.GenerateInterfaceCode(): Input "priorityLog" must be at most 99!');
+            assert(priorityLog < 99, 'GT.GenericTarget.GenerateInterfaceCode(): Input "priorityLog" must be at most 98!');
             assert(isscalar(portAppSocket), 'GT.GenericTarget.GenerateInterfaceCode(): Input "portAppSocket" must be scalar!');
             portAppSocket = uint16(portAppSocket);
             strInterfaceNameUpper = upper(strInterfaceName);
             assert(isscalar(upperThreadPriority), 'GT.GenericTarget.GenerateInterfaceCode(): Input "upperThreadPriority" must be scalar!');
             upperThreadPriority = int32(upperThreadPriority);
-            assert((upperThreadPriority >= 0) && (upperThreadPriority < 100), 'GT.GenericTarget.GenerateInterfaceCode(): Input "upperThreadPriority" must be in range [0, 99]!');
+            assert((upperThreadPriority >= 0) && (upperThreadPriority < 99), 'GT.GenericTarget.GenerateInterfaceCode(): Input "upperThreadPriority" must be in range [0, 98]!');
             assert(isscalar(terminateAtCPUOverload), 'GT.GenericTarget.GenerateInterfaceCode(): Input "terminateAtCPUOverload" must be scalar!');
             assert(islogical(terminateAtCPUOverload), 'GT.GenericTarget.GenerateInterfaceCode(): Input "terminateAtCPUOverload" must be logical!');
-            assert(isscalar(autosavePeriod), 'GT.GenericTarget.GenerateInterfaceCode(): Input "autosavePeriod" must be scalar!');
 
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Get the model name
@@ -775,10 +696,10 @@ classdef GenericTarget < handle
             strArrayTaskNames = sprintf('"%s"',taskNames(1));
             strStepSwitch = sprintf('        case 0: model.%s(); break;',stepPrototypes(1));
             for n = uint32(2):numTimings
-                strArraySampleTicks = [strArraySampleTicks sprintf(', %d',sampleTicks(n))];
-                strArrayPriorities = [strArrayPriorities sprintf(', %d',priorities(n))];
-                strStepSwitch = [strStepSwitch sprintf('\n        case %d: model.%s(); break;',uint32(n-1),stepPrototypes(n))];
-                strArrayTaskNames = [strArrayTaskNames sprintf(', "%s"',taskNames(n))];
+                strArraySampleTicks = strcat(strArraySampleTicks, sprintf(', %d',sampleTicks(n)));
+                strArrayPriorities = strcat(strArrayPriorities, sprintf(', %d',priorities(n)));
+                strStepSwitch = strcat(strStepSwitch, sprintf('\n        case %d: model.%s(); break;',uint32(n-1),stepPrototypes(n)));
+                strArrayTaskNames = strcat(strArrayTaskNames, sprintf(', "%s"',taskNames(n)));
             end
 
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -798,11 +719,6 @@ classdef GenericTarget < handle
             if(terminateAtCPUOverload)
                 strTerminateAtCPUOverload = 'true';
             end
-
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            % Get autosave period
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            strAutosavePeriod = sprintf('%f',autosavePeriod);
 
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Read template interface files and replace macros in both header and source template code
@@ -832,16 +748,14 @@ classdef GenericTarget < handle
             strSource = strrep(strSource, '$ARRAY_PRIORITIES$', strArrayPriorities);
             strHeader = strrep(strHeader, '$ARRAY_TASK_NAMES$', strArrayTaskNames);
             strSource = strrep(strSource, '$ARRAY_TASK_NAMES$', strArrayTaskNames);
-            strHeader = strrep(strHeader, '$STEP_SWIITCH$', strStepSwitch);
-            strSource = strrep(strSource, '$STEP_SWIITCH$', strStepSwitch);
+            strHeader = strrep(strHeader, '$STEP_SWITCH$', strStepSwitch);
+            strSource = strrep(strSource, '$STEP_SWITCH$', strStepSwitch);
             strHeader = strrep(strHeader, '$PRIORITY_LOG$', strPriorityLog);
             strSource = strrep(strSource, '$PRIORITY_LOG$', strPriorityLog);
             strHeader = strrep(strHeader, '$PORT_APP_SOCKET$', strPortAppSocket);
             strSource = strrep(strSource, '$PORT_APP_SOCKET$', strPortAppSocket);
             strHeader = strrep(strHeader, '$TERMINATE_AT_CPU_OVERLOAD$', strTerminateAtCPUOverload);
             strSource = strrep(strSource, '$TERMINATE_AT_CPU_OVERLOAD$', strTerminateAtCPUOverload);
-            strHeader = strrep(strHeader, '$AUTOSAVE_PERIOD$', strAutosavePeriod);
-            strSource = strrep(strSource, '$AUTOSAVE_PERIOD$', strAutosavePeriod);
         end
         function cmdout = RunCommand(cmd)
             [~,cmdout] = system(cmd,'-echo');

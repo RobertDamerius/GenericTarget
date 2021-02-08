@@ -1,4 +1,4 @@
-/* Auto-generated code (Template Version 20200329) */
+/* Auto-generated code (Template Version 20210208) */
 #ifndef $INTERFACE_NAME_UPPER$_HPP
 #define $INTERFACE_NAME_UPPER$_HPP
 
@@ -19,7 +19,6 @@ class $INTERFACE_NAME$ {
         static const int priorities[$INTERFACE_NAME_UPPER$_NUM_TIMINGS];      ///< Thread priorities for all model step functions.
         static const char* taskNames[$INTERFACE_NAME_UPPER$_NUM_TIMINGS];     ///< Names for all sample rate tasks.
         static const bool terminateAtCPUOverload;                        ///< True if application should be terminated at CPU overload, false otherwise.
-        static const double autosavePeriod;                              ///< Positive autosave period in seconds. A value less than or equal to zero disables autosaving.
 
         static $MODELNAME$ModelClass model;
 

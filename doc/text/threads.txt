@@ -1,6 +1,6 @@
 <h1>Thread Overview</h1>
-    There are three threads that are always present.
-    These are the main thread, the autosave thread of the <a href="signalmanager.html">SignalManager</a> and the BaseRateScheduler thread.
+    There are two threads that are always present.
+    These are the main thread and the BaseRateScheduler thread.
     <br>
     <br>
     <center><object data="../img/Threads.svg" type="image/svg+xml"><img src="../img/Threads.svg"></object></center>
@@ -9,9 +9,6 @@
     The <b>BaseRateScheduler thread</b> has the highest priority (99).
     This thread waits for a timer event, which is set periodically with the base sample rate.
     Then this thread distributes the event to all threads of the model.
-    <br>
-    <br>
-    The <b>autosave thread</b> runs with the <a href="simulinkinterface.html">defined</a> log priority and manages the file writing of the recorded data after a defined autosave period.
     <br>
     <br>
     The <b>main thread</b> executes the main entry function of the application.

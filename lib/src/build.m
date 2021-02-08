@@ -193,15 +193,15 @@ defs = [defs; def];
 
 
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% Driver: Signal Log
+% Driver: Bus Log (scalar doubles only)
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionDriverSignalLog';
-def.StartFcnSpec  = 'void CreateDriverSignalLog(uint32 p1, uint32 p2, uint8 p3[], uint32 p4)';
-def.OutputFcnSpec = 'void OutputDriverSignalLog(uint32 p1, double u1[p2], uint32 p2)';
-def.TerminateFcnSpec = 'void DeleteDriverSignalLog()';
-def.HeaderFiles   = {'DriverSignalLog.h'};
-def.SourceFiles   = {'DriverSignalLog.cpp','HostImplementation.cpp'};
+def.SFunctionName = 'SFunctionDriverBusLog';
+def.StartFcnSpec  = 'void CreateDriverBusLog(uint32 p1, uint8 p2[], uint32 p3, uint32 p4)';
+def.OutputFcnSpec = 'void OutputDriverBusLog(uint32 p1, double u1[], uint32 p4)';
+def.TerminateFcnSpec = 'void DeleteDriverBusLog()';
+def.HeaderFiles   = {'DriverBusLog.h'};
+def.SourceFiles   = {'DriverBusLog.cpp','HostImplementation.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
@@ -222,6 +222,26 @@ def.OutputFcnSpec = 'void OutputDriverTaskExecutionTime(double p1, double y1[1])
 def.TerminateFcnSpec = 'void DeleteDriverTaskExecutionTime()';
 def.HeaderFiles   = {'DriverTaskExecutionTime.h'};
 def.SourceFiles   = {'DriverTaskExecutionTime.cpp','HostImplementation.cpp'};
+def.IncPaths      = {''};
+def.SrcPaths      = {''};
+def.LibPaths      = {''};
+def.HostLibFiles  = {hostLibFiles};
+def.Options.language = 'C++';
+def.Options.useTlcWithAccel = false;
+def.SampleTime = 'parameterized';
+defs = [defs; def];
+
+
+% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Driver: Number of CPU overloads
+% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def = legacy_code('initialize');
+def.SFunctionName = 'SFunctionDriverNumCPUOverloads';
+def.StartFcnSpec  = 'void CreateDriverNumCPUOverloads()';
+def.OutputFcnSpec = 'void OutputDriverNumCPUOverloads(double p1, uint32 y1[1])';
+def.TerminateFcnSpec = 'void DeleteDriverNumCPUOverloads()';
+def.HeaderFiles   = {'DriverNumCPUOverloads.h'};
+def.SourceFiles   = {'DriverNumCPUOverloads.cpp','HostImplementation.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
@@ -291,6 +311,7 @@ if(useHostImplementation)
     fprintf('\tTime/UTC Time                         yes\n');
     fprintf('\tTime/Local Time                       yes\n');
     fprintf('\tTime/Task Execution Time              no\n');
+    fprintf('\tTime/CPU Overloads                    no\n');
     fprintf('\tTime/UTC Timestamp                    yes\n');
     fprintf('\tTime/Time To Latest UTC Timestamp     yes\n');
     fprintf('\t-----------------------------------------------\n\n');
