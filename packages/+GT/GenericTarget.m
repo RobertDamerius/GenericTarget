@@ -12,6 +12,9 @@
 %                                    Generic Target application is no longer stopped when deploying a new model.
 % 20210203    Robert Damerius        Added DownloadAllData(), Reboot(), Shutdown() and SendCommand() member functions.
 % 20210208    Robert Damerius        Updated data logging on target.
+% 20210210    Robert Damerius        Updated data decoding to handle a various amount of splitted data files.
+%                                    DecodeTargetLog() has been renamed to DecodeTargetLogDirectory().
+%                                    DeleteData() has been renamed to DeleteAllData().
 % 
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -331,7 +334,7 @@ classdef GenericTarget < handle
             obj.RunCommand(cmdSCP);
 
             % Decode target data
-            [data,info] = GT.GenericTarget.DecodeTargetLog([hostDirectory dirName]);
+            [data,info] = GT.GenericTarget.DecodeTargetLogDirectory([hostDirectory dirName]);
             commands = {cmdSSH,cmdSCP};
         end
         function commands = DownloadAllData(obj, hostDirectory)
@@ -360,7 +363,7 @@ classdef GenericTarget < handle
             obj.RunCommand(cmdSCP);
             commands = {cmdSCP};
         end
-        function commands = DeleteData(obj)
+        function commands = DeleteAllData(obj)
             %GT.GenericTarget.DeleteData Delete all recorded data on the target. This will also stop a running target application.
             % 
             % RETURN
@@ -372,105 +375,144 @@ classdef GenericTarget < handle
         end
     end
     methods(Static)
-        function busData = DecodeTargetData(dataFileName)
-            %GT.GenericTarget.DecodeTargetData Decode raw data file recorded by the generic target application into a structure of timeseries.
+        function busData = DecodeTargetData(dataFileNames)
+            %GT.GenericTarget.DecodeTargetData Decode raw data file(s) recorded by the generic target application into a structure of timeseries.
             % 
             % PARAMETERS
-            % dataFileName ... The raw data file that contains the data recorded by the generic target application, e.g. 'id0'.
+            % dataFileNames ... A string or a cell array of strings indicating the raw data files that contains the data recorded by the generic target application for one ID, e.g. 'id0_0' or {'id0_0','id0_1'}.
             % 
             % RETURN
             % busData ... The data structure containing timeseries for all recorded signals.
-            assert(ischar(dataFileName), 'GT.GenericTarget.DecodeTargetData(): Input "dataFileName" must be a string!');
+            if(ischar(dataFileNames))
+                dataFileNames = {dataFileNames};
+            end
+            assert(iscell(dataFileNames) && ((1 == size(dataFileNames,1)) || (1 == size(dataFileNames,2))), 'GT.GenericTarget.DecodeTargetData(): Input "dataFileNames" must be a string or a cell array of strings!');
+            for i = 1:length(dataFileNames)
+                assert(ischar(dataFileNames{i}), 'GT.GenericTarget.DecodeTargetData(): Input "dataFileNames" must be a string or a cell array of strings!');
+            end
 
             % Fallback output
             busData = struct();
-
-            % Open file
-            fp = fopen(dataFileName,'r');
-            if(fp < 0)
-                error('Could not open file: "%s"\n',dataFileName);
+            if(isempty(dataFileNames))
+                return;
             end
 
-            % Header should be: 'G' (71), 'T' (84), 'D' (68), 'A' (65), 'T' (84)
-            bytesHeader = uint8(fread(fp, 5));
-            if((5 ~= length(bytesHeader)) || (uint8(71) ~= bytesHeader(1)) || (uint8(84) ~= bytesHeader(2)) || (uint8(68) ~= bytesHeader(3)) || (uint8(65) ~= bytesHeader(4)) || (uint8(84) ~= bytesHeader(5)))
-                fclose(fp);
-                error('Invalid header of file: "%s"\n',dataFileName);
-            end
+            % Loop through all data files and decode them
+            % Check if all data files have the same header
+            prevNumSignals = uint64(0);
+            prevBigEndian = false;
+            prevSignalNames = cell.empty();
+            byteStream = uint8.empty();
+            for i = 1:length(dataFileNames)
+                % Open file
+                fp = fopen(dataFileNames{i},'r');
+                if(fp < 0)
+                    error('Could not open file: "%s"\n',dataFileNames{i});
+                end
+                fprintf('Decoding header of target data "%s" ...',dataFileNames{i});
 
-            % Number of signals
-            bytesNumSignals = uint8(fread(fp, 4));
-            if(4 ~= length(bytesNumSignals))
-                fclose(fp);
-                error('Tried to read 4 bytes but could only read %d byte(s). File: "%s" may not be complete!\n',length(bytesNumSignals),dataFileName);
-            end
-            numSignals = uint64(bitor(bitor(bitshift(uint32(bytesNumSignals(1)),24),bitshift(uint32(bytesNumSignals(2)),16)),bitor(bitshift(uint32(bytesNumSignals(3)),8),uint32(bytesNumSignals(4)))));
-
-            % Read signal names
-            signalNames = char.empty();
-            while(true)
-                byte = uint8(fread(fp, 1));
-                if(1 ~= length(byte))
+                % Header should be: 'G' (71), 'T' (84), 'D' (68), 'A' (65), 'T' (84)
+                bytesHeader = uint8(fread(fp, 5));
+                if((5 ~= length(bytesHeader)) || (uint8(71) ~= bytesHeader(1)) || (uint8(84) ~= bytesHeader(2)) || (uint8(68) ~= bytesHeader(3)) || (uint8(65) ~= bytesHeader(4)) || (uint8(84) ~= bytesHeader(5)))
                     fclose(fp);
-                    error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!\n',length(byte),dataFileName);
+                    error('Invalid header of file: "%s"\n',dataFileNames{i});
                 end
-                if(~byte)
-                    break;
-                end
-                signalNames = strcat(signalNames,char(byte));
-            end
-            signalNames = split(signalNames,',');
-            if(uint64(length(signalNames)) ~= numSignals)
-                fclose(fp);
-                error('Number of signal names (%d) does not match number of signals (%d) in file "%s"',length(signalNames),numSignals,dataFileName);
-            end
 
-            % Endianness should be litte endian (0x01) or big endian (0x80)
-            byteEndian = fread(fp, 1);
-            if(isempty(byteEndian) || (uint8(1) ~= byteEndian) && (uint8(128) ~= byteEndian))
+                % Number of signals
+                bytesNumSignals = uint8(fread(fp, 4));
+                if(4 ~= length(bytesNumSignals))
+                    fclose(fp);
+                    error('Tried to read 4 bytes but could only read %d byte(s). File: "%s" may not be complete!\n',length(bytesNumSignals),dataFileNames{i});
+                end
+                numSignals = uint64(bitor(bitor(bitshift(uint32(bytesNumSignals(1)),24),bitshift(uint32(bytesNumSignals(2)),16)),bitor(bitshift(uint32(bytesNumSignals(3)),8),uint32(bytesNumSignals(4)))));
+
+                % Read signal names
+                signalNames = char.empty();
+                while(true)
+                    byte = uint8(fread(fp, 1));
+                    if(1 ~= length(byte))
+                        fclose(fp);
+                        error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!\n',length(byte),dataFileNames{i});
+                    end
+                    if(~byte)
+                        break;
+                    end
+                    signalNames = strcat(signalNames,char(byte));
+                end
+                signalNames = split(signalNames,',');
+                if(uint64(length(signalNames)) ~= numSignals)
+                    fclose(fp);
+                    error('Number of signal names (%d) does not match number of signals (%d) in file "%s"',length(signalNames),numSignals,dataFileNames{i});
+                end
+
+                % Endianness should be litte endian (0x01) or big endian (0x80)
+                byteEndian = fread(fp, 1);
+                if(isempty(byteEndian) || (uint8(1) ~= byteEndian) && (uint8(128) ~= byteEndian))
+                    fclose(fp);
+                    error('Invalid endian value in file: "%s"\n',dataFileNames{i});
+                end
+                bigEndian = (uint8(128) == byteEndian);
+
+                % Read all remaining data
+                bytes = uint8(fread(fp));
                 fclose(fp);
-                error('Invalid endian value in file: "%s"\n',dataFileName);
+                byteStream = [byteStream; bytes];
+
+                % Check for matching headers
+                if(i > 1)
+                    assert(numSignals == prevNumSignals, 'Input files have different headers! They may belong to different IDs!');
+                    assert(bigEndian == prevBigEndian, 'Input files have different headers! They may belong to different IDs!');
+                    assert(length(signalNames) == length(prevSignalNames), 'Input files have different headers! They may belong to different IDs!');
+                    for j = 1:length(signalNames)
+                        assert(strcmp(signalNames{j}, prevSignalNames{j}), 'Input files have different headers! They may belong to different IDs!');
+                    end
+                end
+                prevNumSignals = numSignals;
+                prevBigEndian = bigEndian;
+                prevSignalNames = signalNames;
+                fprintf(' OK\n');
             end
-            bigEndian = (uint8(128) == byteEndian);
 
             % Endianess of this machine
             [~,~,tmp] = computer;
             thisBigEndian = ('B' == tmp);
 
-            % Read all remaining data and compute number of samples
-            bytes = uint8(fread(fp));
-            fclose(fp);
-            bytesPerSample = uint64(8) * (uint64(1) + numSignals);
-            numSamples = uint64(floor(double(length(bytes)) / double(bytesPerSample)));
-            
+            % Compute the total number of samples
+            bytesPerSample = uint64(8) * (uint64(1) + prevNumSignals);
+            numSamples = uint64(floor(double(length(byteStream)) / double(bytesPerSample)));
+
             % Read time and data into vector/matrix
+            fprintf('\tDecoding %d samples from %d data files ...', numSamples, length(dataFileNames));
             timeVec = nan(numSamples,1);
-            dataMat = nan(numSamples,numSignals);
+            dataMat = nan(numSamples,prevNumSignals);
             idxStart = uint64(1);
             for i = uint64(1):numSamples
-                timeVec(i) = typecast(bytes(idxStart:(idxStart + uint64(7))), 'double');
+                timeVec(i) = typecast(byteStream(idxStart:(idxStart + uint64(7))), 'double');
                 idxStart = idxStart + uint64(8);
-                if(bigEndian ~= thisBigEndian)
+                if(prevBigEndian ~= thisBigEndian)
                     timeVec(i) = swapbytes(timeVec(i));
                 end
-                for k = uint64(1):numSignals
-                    dataMat(i,k) = typecast(bytes(idxStart:(idxStart + uint64(7))), 'double');
+                for k = uint64(1):prevNumSignals
+                    dataMat(i,k) = typecast(byteStream(idxStart:(idxStart + uint64(7))), 'double');
                     idxStart = idxStart + uint64(8);
-                    if(bigEndian ~= thisBigEndian)
+                    if(prevBigEndian ~= thisBigEndian)
                         dataMat(i,k) = swapbytes(dataMat(i,k));
                     end
                 end
             end
+            fprintf(' OK\n');
 
             % Create structure with timeseries
-            for k=uint64(1):numSignals
+            fprintf('\tGenerating output structure of timeseries ...');
+            for k=uint64(1):prevNumSignals
                 layerNames = split(signalNames{k},'.');
                 ts = timeseries(dataMat(:,k),timeVec,'Name',layerNames{end});
                 eval(strcat('busData.',signalNames{k},' = ts;'));
             end
+            fprintf(' OK\n');
         end
-        function [data,info] = DecodeTargetLog(directory)
-            %GT.GenericTarget.DecodeTargetLog Decode a complete log directory.
+        function [data,info] = DecodeTargetLogDirectory(directory)
+            %GT.GenericTarget.DecodeTargetLogDirectory Decode a complete log directory.
             % 
             % PARAMETERS
             % directory ... The directory that contains the data recorded by the generic target application. This directory should
@@ -546,11 +588,27 @@ classdef GenericTarget < handle
             % Decode all log files
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             for i = uint32(1):numIDs
-                name = strcat('id',num2str(ids(i)));
-                filenameData = strcat(directory,name);
-                fprintf('Decoding target data "%s" ...',filenameData);
-                data.(name) = GT.GenericTarget.DecodeTargetData(filenameData);
-                fprintf(' OK\n');
+                % Prefix string for current ID
+                idName = strcat('id',num2str(ids(i)));
+                prefixID = strcat(idName,'_');
+
+                % Find all file names with prefix ID
+                listing = dir(directory);
+                dataFileNames = cell.empty();
+                k = 0;
+                for j = 1:length(listing)
+                    filename = strcat(directory, listing(j).name);
+                    if(listing(j).isdir || ~isfile(filename))
+                        continue;
+                    end
+                    if(startsWith(listing(j).name, prefixID, 'IgnoreCase', true))
+                        k = k + 1;
+                        dataFileNames{k} = filename;
+                    end
+                end
+
+                % Decode all filenames
+                data.(idName) = GT.GenericTarget.DecodeTargetData(dataFileNames);
             end
         end
         function GetTemplate()

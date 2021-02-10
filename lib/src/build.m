@@ -197,7 +197,7 @@ defs = [defs; def];
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
 def.SFunctionName = 'SFunctionDriverBusLog';
-def.StartFcnSpec  = 'void CreateDriverBusLog(uint32 p1, uint8 p2[], uint32 p3, uint32 p4)';
+def.StartFcnSpec  = 'void CreateDriverBusLog(uint32 p1, uint8 p2[], uint32 p3, uint32 p4, uint32 p5)';
 def.OutputFcnSpec = 'void OutputDriverBusLog(uint32 p1, double u1[], uint32 p4)';
 def.TerminateFcnSpec = 'void DeleteDriverBusLog()';
 def.HeaderFiles   = {'DriverBusLog.h'};

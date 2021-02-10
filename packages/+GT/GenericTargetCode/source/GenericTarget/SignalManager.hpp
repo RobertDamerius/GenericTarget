@@ -16,9 +16,10 @@ class SignalManager {
          *  @param [in] signalNames Names for all signals separated by comma.
          *  @param [in] numCharacters Number of characters in the signalNames array.
          *  @param [in] numSignals Number of signals to log.
+         *  @param [in] numSamplesPerFile The number of samples per file or zero if all samples should be written to one file.
          *  @details All signals to log must be registered before the GenericTarget creates all signal objects.
          */
-        static void Register(uint32_t id, const uint8_t* signalNames, uint32_t numCharacters, uint32_t numSignals);
+        static void Register(uint32_t id, const uint8_t* signalNames, uint32_t numCharacters, uint32_t numSignals, uint32_t numSamplesPerFile);
 
         /**
          *  @brief Write bus signals to file (scalar doubles only).

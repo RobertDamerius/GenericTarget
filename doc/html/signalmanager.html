@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20210208</div>
+<div class="header_version">Version 20210210</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -73,6 +73,10 @@
         <tr><td>numCharacters</td><td>
             The number of characters in the signalNames array.
             </td></tr>
+        <tr><td>numSamplesPerFile</td><td>
+            The number of samples that should be written to a file before opening a new data file. If this value is zero, then all
+            samples are written to a single data file.
+            </td></tr>
 	</table>
 
     <h3>Termination</h3>
@@ -86,6 +90,7 @@
     The data is not written to a file immediately.
     Instead, the data is first written to a buffer.
     A separate thread then handles writing the data to the file.
+    This logger thread automatically opens new files when the number of written samples exceeds the <code>numSamplesPerFile</code> parameter set during initialization.
     <table>
 		<tr><th>Parameter</th><th>Description</th></tr>
 		<tr><td>id</td><td>
@@ -102,14 +107,18 @@
 <a name="protocol"></a>
 <h2>File Format</h2>
     Each Log To File block has a unique ID.
-    A separate file is created for each ID. For ID 0, for example, the file is called <code>id0</code>.
-    In this file, first only a header is written, which contains information about the data recording, such as the signal names.
-    Subsequently, all recorded data are simply appended to this file.
-    The file size is unlimited.
+    Separate files are created for each ID. For ID 0, for example, the first data file is called <code>id0_0</code>.
+    If the number of samples written exceeds the <code>numSamplesPerFile</code> parameter set during initialization, then a new data file called <code>id0_1</code> is created.
+    The subsequent files for ID 0 are then called <code>id0_2</code>, <code>id0_3</code> and so on.
+    Each file contains its own header and can therefore be decoded independently of other files.
+    The header of an ID data file contains information about the data recording, such as the number of signals, signal names and byte order.
+    Subsequently, all recorded data samples are simply appended to this file.
+    The file size depends on the <code>numSamplesPerFile</code> parameter set during initialization.
+    If this parameter is zero, then the file size is unlimited.
 
     <h3>The Index File</h3>
     The index file is created once at the beginning during the initialization phase, before the actual model is started.
-    This file contains information about when the data recording was started and which IDs are recorded.
+    This file contains information about when the data recording was started and which IDs are to be recorded.
     The index file has the following format:
     <table>
 		<tr>
@@ -202,8 +211,10 @@
     </table>
 
     <h3>The Data File</h3>
-    During the initialization phase, a file is created for each signal ID, in which initially only the header is written.
-    The header has the following format.
+    The naming of a data file is <code>id<i>N</i>_<i>M</i></code> where <code><i>N</i></code> denotes the unique ID of the data log and <code><i>M</i></code> indicates the file number in ascending order.
+    Each ID file contains a header to allow a single ID file to be decoded separately.
+    The header data of all ID data files for id <code><i>M</i></code> are identical.
+    The actual sample data is appended after the header bytes.
     <table>
         <tr>
             <th width="110px">Offset (Bytes)</th>

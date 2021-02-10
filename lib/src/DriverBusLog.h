@@ -13,8 +13,9 @@
  *  @param [in] signalNames Names for all signals separated by comma.
  *  @param [in] numCharacters Number of characters in the signalNames array.
  *  @param [in] numSignals Number of signals to log.
+ *  @param [in] numSamplesPerFile The number of samples per file or zero if all samples should be written to one file.
  */
-extern void CreateDriverBusLog(uint32_t id, const uint8_t* signalNames, uint32_t numCharacters, uint32_t numSignals);
+extern void CreateDriverBusLog(uint32_t id, const uint8_t* signalNames, uint32_t numCharacters, uint32_t numSignals, uint32_t numSamplesPerFile);
 
 /**
  *  @brief Delete the bus log driver (scalar doubles only).

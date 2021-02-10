@@ -4,9 +4,9 @@
 #endif
 
 
-void CreateDriverBusLog(uint32_t id, const uint8_t* signalNames, uint32_t numCharacters, uint32_t numSignals){
+void CreateDriverBusLog(uint32_t id, const uint8_t* signalNames, uint32_t numCharacters, uint32_t numSignals, uint32_t numSamplesPerFile){
     #ifdef GENERIC_TARGET_IMPLEMENTATION
-    SignalManager::Register(id, signalNames, numCharacters, numSignals);
+    SignalManager::Register(id, signalNames, numCharacters, numSignals, numSamplesPerFile);
     #else
     (void)id;
     (void)signalNames;

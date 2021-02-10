@@ -6,6 +6,7 @@
 
 
 SignalObject::SignalObject(){
+    this->numSamplesPerFile = 0;
     this->numSignals = 0;
     this->labels = "";
     this->started = false;
@@ -13,6 +14,9 @@ SignalObject::SignalObject(){
     this->notified = false;
     this->terminate = false;
     this->threadLog = nullptr;
+    this->currentFileNumber = 0;
+    this->numSamplesWritten = 0;
+    this->currentFileStarted = false;
 }
 
 SignalObject::~SignalObject(){
@@ -23,15 +27,8 @@ bool SignalObject::Start(std::string filename){
     // Make sure that the signal object is stopped
     Stop();
 
-    // Create file and write header
+    // Set filename and start log thread
     this->filename = filename;
-    Log("[SIGNAL MANAGER] Creating data file \"%s\"\n", this->filename.c_str());
-    if(!WriteHeader()){
-        LogE("[SIGNAL MANAGER] Could not create data file \"%s\"\n", this->filename.c_str());
-        return false;
-    }
-
-    // Start log thread
     threadLog = new std::thread(SignalObject::ThreadLog, this);
     struct sched_param param;
     param.sched_priority = SimulinkInterface::priorityLog;
@@ -54,39 +51,39 @@ void SignalObject::Stop(void){
     }
     terminate = false;
 
-    // If the signal object was started, check if there're remaining values in the buffer and write/append them to the data file
+    // If the signal object was started, check if there're remaining values in the buffer and write/append them to data files
     if(this->started){
         this->mtxBuffer.lock();
+        WriteBufferToDataFiles(std::ref(this->buffer));
         if(this->buffer.size()){
-            std::fstream fs(this->filename, std::ios::out | std::ios::app | std::ios::binary);
-            if(fs.is_open()){
-                fs.write(reinterpret_cast<const char*>(&this->buffer[0]), 8 * this->buffer.size());
-                fs.close();
-            }
-            else{
-                LogW("[SIGNAL MANAGER] Some signal data is in the buffer (%ull bytes) but could not be written to the data file \"%s\"!\n", this->buffer.size(), this->filename.c_str());
-            }
+            std::string currentFileName = this->filename + std::string("_") + std::to_string(this->currentFileNumber);
+            LogW("[SIGNAL MANAGER] Some signal data is in the buffer (%ull samples) but could not be written to the data file \"%s\"!\n", this->buffer.size() / (size_t)(1 + this->numSignals), currentFileName.c_str());
             this->buffer.clear();
         }
         this->mtxBuffer.unlock();
     }
     this->started = false;
+    this->currentFileNumber = 0;
+    this->numSamplesWritten = 0;
+    this->currentFileStarted = false;
 }
 
 void SignalObject::Write(double simulationTime, double* values, uint32_t numValues){
     // Append data to buffer, we try again next time (or at model stop)
-    this->mtxBuffer.lock();
-    this->buffer.push_back(simulationTime);
-    this->buffer.insert(this->buffer.end(), &values[0], &values[0] + numValues);
-    this->mtxBuffer.unlock();
+    if(this->numSignals == numValues){
+        this->mtxBuffer.lock();
+        this->buffer.push_back(simulationTime);
+        this->buffer.insert(this->buffer.end(), &values[0], &values[0] + this->numSignals);
+        this->mtxBuffer.unlock();
+    }
 
     // Notify file logging thread that new data is available
     this->Notify();
 }
 
-bool SignalObject::WriteHeader(void){
+bool SignalObject::WriteHeader(std::string name){
     // Open file
-    FILE *file = fopen(this->filename.c_str(), "wb");
+    FILE *file = fopen(name.c_str(), "wb");
     if(!file)
         return false;
 
@@ -141,14 +138,55 @@ void SignalObject::ThreadLog(SignalObject* obj){
         }
         obj->mtxBuffer.unlock();
 
-        // Write/append new data to file
-        std::fstream fs(obj->filename, std::ios::out | std::ios::app | std::ios::binary);
-        if(fs.is_open()){
-            if(localBuffer.size()){
-                fs.write(reinterpret_cast<const char*>(&localBuffer[0]),8 * localBuffer.size());
-                localBuffer.clear();
+        // Write buffer data to files
+        obj->WriteBufferToDataFiles(std::ref(localBuffer));
+    }
+
+    // If there's data in the local buffer copy it to the beginning of the main buffer
+    if(localBuffer.size()){
+        obj->mtxBuffer.lock();
+        obj->buffer.insert(obj->buffer.begin(), localBuffer.begin(), localBuffer.end());
+        obj->mtxBuffer.unlock();
+    }
+}
+
+void SignalObject::WriteBufferToDataFiles(std::vector<double>& values){
+    while(values.size()){
+        // The current file name of the active data file
+        std::string currentFileName = this->filename + std::string("_") + std::to_string(this->currentFileNumber);
+
+        // Check if new file should be started
+        if(!this->currentFileStarted){
+            if(!WriteHeader(currentFileName)){
+                return;
             }
-            fs.close();
+            this->currentFileStarted = true;
+            this->numSamplesWritten = 0;
+            Log("[SIGNAL MANAGER] Created data log file \"%s\".\n", currentFileName.c_str());
+        }
+
+        // We have a started file, write samples
+        size_t numSamplesToWrite = values.size() / (size_t)(1 + this->numSignals);
+        if(this->numSamplesPerFile){
+            numSamplesToWrite = std::min(numSamplesToWrite, this->numSamplesPerFile);
+        }
+        if(!numSamplesToWrite){
+            return;
+        }
+        size_t numValuesToWrite = numSamplesToWrite * (size_t)(1 + this->numSignals);
+        std::fstream fs(currentFileName, std::ios::out | std::ios::app | std::ios::binary);
+        if(!fs.is_open()){
+            return;
+        }
+        fs.write(reinterpret_cast<const char*>(&values[0]), numValuesToWrite * 8);
+        fs.close();
+        this->numSamplesWritten += numSamplesToWrite;
+        values.erase(values.begin(), values.begin() + numValuesToWrite);
+
+        // File has been finished successfully, set markers to indicate that a new file should be started
+        if(this->numSamplesPerFile && (this->numSamplesWritten >= this->numSamplesPerFile)){
+            this->currentFileStarted = false;
+            this->currentFileNumber++;
         }
     }
 }

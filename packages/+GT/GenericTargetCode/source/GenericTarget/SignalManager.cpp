@@ -10,7 +10,7 @@ std::unordered_map<uint32_t, SignalObject*> SignalManager::objects;
 std::string SignalManager::directoryDataLog;
 
 
-void SignalManager::Register(uint32_t id, const uint8_t* signalNames, uint32_t numCharacters, uint32_t numSignals){
+void SignalManager::Register(uint32_t id, const uint8_t* signalNames, uint32_t numCharacters, uint32_t numSignals, uint32_t numSamplesPerFile){
     // Warning if Register() is called after signals have already been created
     if(created){
         LogW("Cannot register signal (id=%d) because signal creation was already done!\n",id);
@@ -29,12 +29,14 @@ void SignalManager::Register(uint32_t id, const uint8_t* signalNames, uint32_t n
     if(found != objects.end()){
         // This signal (id) was already registered, update signal data
         LogW("Signal object with ID %d has already been registered! Signal parameters are updated!\n",id);
+        found->second->SetNumSamplesPerFile(numSamplesPerFile);
         found->second->SetNumSignals(numSignals);
         found->second->SetLabels(signalLabels);
     }
     else{
         // This is a new signal (id), add it to the list
         SignalObject* obj = new SignalObject();
+        obj->SetNumSamplesPerFile(numSamplesPerFile);
         obj->SetNumSignals(numSignals);
         obj->SetLabels(signalLabels);
         objects.insert(std::pair<uint32_t, SignalObject*>(id, obj));
