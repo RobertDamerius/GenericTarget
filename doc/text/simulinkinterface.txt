@@ -20,9 +20,21 @@
             <th>Description</th>
         </tr>
 		<tr>
-            <td style="font-family: Courier New;">targetUsername</td>
-            <td style="font-family: Courier New;">string</td>
-            <td>Username for the target computer. Required for the SSH connection.</td>
+            <td style="font-family: Courier New;">portAppSocket</td>
+            <td style="font-family: Courier New;">uint16</td>
+            <td>UDP port of the AppSocket.
+            The default value is 65535.
+            If several generic target applications are to be executed on one target computer, the port for the application socket can be adapted.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">portSSH</td>
+            <td style="font-family: Courier New;">uint16</td>
+            <td>The port to be used for SSH/SCP connection. The default value is 22.</td>
+        </tr>
+		<tr>
+            <td style="font-family: Courier New;">priorityLog</td>
+            <td style="font-family: Courier New;">uint32</td>
+            <td>Priority for <a href="threads.html">threads</a> that record data. The default value is 30.</td>
         </tr>
 		<tr>
             <td style="font-family: Courier New;">targetIPAddress</td>
@@ -39,26 +51,19 @@
             </td>
         </tr>
 		<tr>
-            <td style="font-family: Courier New;">priorityLog</td>
-            <td style="font-family: Courier New;">uint32</td>
-            <td>Priority for <a href="threads.html">threads</a> that record data. The default value is 30.</td>
-        </tr>
-		<tr>
-            <td style="font-family: Courier New;">portAppSocket</td>
-            <td style="font-family: Courier New;">uint16</td>
-            <td>UDP port of the AppSocket.
-            The default value is 65535.
-            If several generic target applications are to be executed on one target computer, the port for the application socket can be adapted.</td>
-        </tr>
-		<tr>
-            <td style="font-family: Courier New;">upperThreadPriority</td>
-            <td style="font-family: Courier New;">int32</td>
-            <td>Highest priority value for model threads. The default value is 98.</td>
+            <td style="font-family: Courier New;">targetUsername</td>
+            <td style="font-family: Courier New;">string</td>
+            <td>Username for the target computer. Required for the SSH connection.</td>
         </tr>
         <tr>
             <td style="font-family: Courier New;">terminateAtCPUOverload</td>
             <td style="font-family: Courier New;">boolean</td>
             <td>Defines whether the application should be terminated on CPU overload or not.
             If there is a CPU-Overload and this value is set to <code>FALSE</code>, the application is not terminated and a <a href="timingscheduling.html#cpuoverload">lost wakeup</a> occurs. The default value is <code>TRUE</code>.</td>
+        </tr>
+		<tr>
+            <td style="font-family: Courier New;">upperThreadPriority</td>
+            <td style="font-family: Courier New;">int32</td>
+            <td>Highest priority value for model threads. The default value is 98.</td>
         </tr>
     </table>

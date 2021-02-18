@@ -15,6 +15,7 @@
 % 20210210    Robert Damerius        Updated data decoding to handle a various amount of splitted data files.
 %                                    DecodeTargetLog() has been renamed to DecodeTargetLogDirectory().
 %                                    DeleteData() has been renamed to DeleteAllData().
+% 20210218    Robert Damerius        Added portSSH property. Added DeployToHost() member function.
 % 
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -52,13 +53,14 @@ classdef GenericTarget < handle
     % data = GT.GenericTarget.DecodeTargetLog();
 
     properties
-        targetUsername;          % User name of target PC required to login on target via SSH/SCP.
+        portAppSocket;           % The port for the application socket (default: 65535).
+        portSSH;                 % The port to be used for SSH/SCP connection (default: 22).
+        priorityLog;             % Priority for the data logging threads in range [0, 98] (default: 30).
         targetIPAddress;         % IPv4 address of the target PC.
         targetSoftwareDirectory; % Directory for software on target (default: "~/GenericTarget/"). MUST BEGIN WITH '~/'!
-        priorityLog;             % Priority for the data logging threads in range [0, 98] (default: 30).
-        portAppSocket;           % The port for the application socket (default: 65535).
-        upperThreadPriority;     % Upper task priority in range [0, 98] (default: 98).
+        targetUsername;          % User name of target PC required to login on target via SSH/SCP.
         terminateAtCPUOverload;  % True if application should terminate at CPU overload, false otherwise (default: true).
+        upperThreadPriority;     % Upper task priority in range [0, 98] (default: 98).
     end
     methods
         function obj = GenericTarget(targetUsername, targetIPAddress)
@@ -80,6 +82,7 @@ classdef GenericTarget < handle
             obj.portAppSocket = uint16(65535);
             obj.upperThreadPriority = int32(98);
             obj.terminateAtCPUOverload = true;
+            obj.portSSH = uint16(22);
         end
         function commands = Setup(obj, targetSoftwareDirectory)
             %GT.GenericTarget.Setup Setup the software for the target computer. The software will be compressed to a zip file and transferred to the
@@ -109,12 +112,12 @@ classdef GenericTarget < handle
             fprintf('[GENERIC TARGET] Compressing software: %s\n',dirSoftware);
             zip('Software.zip',{'bin','source','Makefile'},dirSoftware);
             fprintf('[GENERIC TARGET] Uploading software via SCP to target %s\n',obj.targetIPAddress);
-            cmdSCP = ['scp Software.zip ' obj.targetUsername '@' obj.targetIPAddress ':Software.zip'];
+            cmdSCP = ['scp -P ' num2str(obj.portSSH) ' Software.zip ' obj.targetUsername '@' obj.targetIPAddress ':Software.zip'];
             obj.RunCommand(cmdSCP);
 
             % Create build environment and compile (empty model)
             fprintf('\n[GENERIC TARGET] Setting up build environment for target %s\n',obj.targetIPAddress);
-            cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "sudo rm -r -f ' obj.targetSoftwareDirectory ' ; mkdir -p ' obj.targetSoftwareDirectory ' ; unzip -o Software.zip -d ' obj.targetSoftwareDirectory ' ; rm Software.zip' ' ; cd ' obj.targetSoftwareDirectory ' && make clean && make pch && make -j6"'];
+            cmdSSH = ['ssh -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "sudo rm -r -f ' obj.targetSoftwareDirectory ' ; mkdir -p ' obj.targetSoftwareDirectory ' ; unzip -o Software.zip -d ' obj.targetSoftwareDirectory ' ; rm Software.zip' ' ; cd ' obj.targetSoftwareDirectory ' && make clean && make pch && make -j6"'];
             obj.RunCommand(cmdSSH);
             fprintf('\n[GENERIC TARGET] Setup completed\n');
             commands = {cmdSCP; cmdSSH};
@@ -135,7 +138,7 @@ classdef GenericTarget < handle
             % commands ... The commands that were executed on the host.
 
             % Make sure that input is a string
-            assert(ischar(modelName), 'GT.GenericTarget.BuildAndDeploy(): Input "modelName" must be a string!');
+            assert(ischar(modelName), 'GT.GenericTarget.Deploy(): Input "modelName" must be a string!');
 
             % Get code directory of simulink project and set temporary zip filename
             dirCodeGen = [Simulink.fileGenControl('get','CodeGenFolder') filesep];
@@ -148,16 +151,67 @@ classdef GenericTarget < handle
 
             % SCP: copy zip to target
             targetZipFile = [obj.targetSoftwareDirectory modelName '.zip'];
-            cmdSCP = ['scp ' zipFileName ' ' obj.targetUsername '@' obj.targetIPAddress ':' targetZipFile];
+            cmdSCP = ['scp -P ' num2str(obj.portSSH) ' ' zipFileName ' ' obj.targetUsername '@' obj.targetIPAddress ':' targetZipFile];
             fprintf(['\n[GENERIC TARGET] SCP: Copy new software to target ' obj.targetIPAddress '\n']);
             obj.RunCommand(cmdSCP);
 
             % SSH: remove old sources/cache, unzip new source and compile
             fprintf(['\n[GENERIC TARGET] SSH: Build new software on target ' obj.targetIPAddress '\n']);
-            cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "sudo rm -r -f ' obj.targetSoftwareDirectory 'source/SimulinkCodeGeneration ' obj.targetSoftwareDirectory 'build/source/SimulinkCodeGeneration ; sudo unzip -qq -o ' targetZipFile ' -d ' obj.targetSoftwareDirectory 'source/SimulinkCodeGeneration ; sudo rm ' targetZipFile ' ; cd ' obj.targetSoftwareDirectory ' && make -j6"'];
+            cmdSSH = ['ssh -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "sudo rm -r -f ' obj.targetSoftwareDirectory 'source/SimulinkCodeGeneration ' obj.targetSoftwareDirectory 'build/source/SimulinkCodeGeneration ; sudo unzip -qq -o ' targetZipFile ' -d ' obj.targetSoftwareDirectory 'source/SimulinkCodeGeneration ; sudo rm ' targetZipFile ' ; cd ' obj.targetSoftwareDirectory ' && make -j6"'];
             obj.RunCommand(cmdSSH);
             fprintf('\n[GENERIC TARGET] Deployment completed\n');
             commands = {cmdSCP; cmdSSH};
+        end
+        function DeployToHost(obj, modelName, directory)
+            %GT.GenericTarget.DeployToHost Deploy the target application to a directory on the host machine. The code for the simulink model will be generated.
+            % In addition a simulink interface class will be generated based on the code information from the simulink code generation process.
+            % The source code will then be moved to the specified output directory together with the generic target framework source code.
+            % The software is not compiled after this deployment.
+            % 
+            % PARAMETERS
+            % modelName ... The name of the simulink model that should be build (excluding directory and file extension).
+            % directory ... Optional name of the directory (absolute path) where to save the generated target application code. If no directory is specified, then the current working directory is used.
+
+            % Make sure that inputs are strings
+            assert(ischar(modelName), 'GT.GenericTarget.DeployToHost(): Input "modelName" must be a string!');
+            if(nargin < 3)
+                directory = pwd;
+            end
+            assert(ischar(directory), 'GT.GenericTarget.DeployToHost(): Input "directory" must be a string!');
+            if(filesep ~= directory(end))
+                directory = [directory filesep];
+            end
+
+            % Get code directory of simulink project and set temporary zip filename
+            dirCodeGen = [Simulink.fileGenControl('get','CodeGenFolder') filesep];
+            subDirModelCode = ['GenericTarget_' modelName filesep];
+            zipFileName = [dirCodeGen subDirModelCode modelName '.zip'];
+            if(exist(zipFileName,'file')), delete(zipFileName); end
+
+            % Generate code (going to be stored in the zip file)
+            obj.GenerateCode(zipFileName, modelName);
+
+            % Get absolute path to Software directory
+            fullpath = mfilename('fullpath');
+            filename = mfilename();
+            dirSoftware = [fullpath(1:(end-length(filename))) GT.GenericTarget.DIRECTORY_GENERIC_TARGET_CODE filesep];
+
+            % Copy software framework to output directory
+            outputDirectory = strcat(directory,'GT_',modelName,filesep);
+            fprintf('[GENERIC TARGET] Copying software framework to "%s"\n', outputDirectory);
+            [~,~] = rmdir(outputDirectory,'s');
+            [~,~] = mkdir(outputDirectory);
+            [~,~] = copyfile([dirSoftware 'bin'],[outputDirectory 'bin']);
+            [~,~] = copyfile([dirSoftware 'source'],[outputDirectory 'source']);
+            [~,~] = copyfile([dirSoftware 'Makefile'],[outputDirectory 'Makefile']);
+
+            % Unzip generated code into output directory
+            fprintf('[GENERIC TARGET] Unzipping generated model code into "%s"\n', outputDirectory);
+            unzip(zipFileName, [outputDirectory 'source' filesep 'SimulinkCodeGeneration']);
+            fprintf('[GENERIC TARGET] Finished\n');
+
+            % Show information
+            fprintf('To compile, open terminal in "%s" and run:\n    make clean && make pch && make -j6\n',outputDirectory);
         end
         function GenerateCode(obj, zipFileName, modelName)
             %GT.GenericTarget.GenerateCode Generate the code for the simulink model and the interface class. The generated code of the interface class
@@ -233,7 +287,7 @@ classdef GenericTarget < handle
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "sudo nohup ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME ' &> ' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_LOGFILE_NAME ' &"'];
+            cmdSSH = ['ssh -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "sudo nohup ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME ' &> ' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_LOGFILE_NAME ' &"'];
             obj.RunCommand(cmdSSH);
             commands = {cmdSSH};
         end
@@ -243,7 +297,7 @@ classdef GenericTarget < handle
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "sudo ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME ' --stop"'];
+            cmdSSH = ['ssh -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "sudo ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME ' --stop"'];
             obj.RunCommand(cmdSSH);
             commands = {cmdSSH};
         end
@@ -252,7 +306,7 @@ classdef GenericTarget < handle
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "sudo reboot"'];
+            cmdSSH = ['ssh -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "sudo reboot"'];
             obj.RunCommand(cmdSSH);
             commands = {cmdSSH};
         end
@@ -261,7 +315,7 @@ classdef GenericTarget < handle
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "sudo shutdown -h now"'];
+            cmdSSH = ['ssh -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "sudo shutdown -h now"'];
             obj.RunCommand(cmdSSH);
             commands = {cmdSSH};
         end
@@ -271,7 +325,7 @@ classdef GenericTarget < handle
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "pidof ' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME '"'];
+            cmdSSH = ['ssh -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "pidof ' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME '"'];
             obj.RunCommand(cmdSSH);
             commands = {cmdSSH};
         end
@@ -280,7 +334,7 @@ classdef GenericTarget < handle
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "cat ' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_LOGFILE_NAME '"'];
+            cmdSSH = ['ssh -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "cat ' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_LOGFILE_NAME '"'];
             obj.RunCommand(cmdSSH);
             commands = {cmdSSH};
         end
@@ -293,7 +347,7 @@ classdef GenericTarget < handle
             % RETURN
             % commands ... The commands that were executed on the host.
             % cmdout   ... The output that have been returned by the command window.
-            cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "' cmd '"'];
+            cmdSSH = ['ssh -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "' cmd '"'];
             [~,cmdout] = obj.RunCommand(cmdSSH);
             commands = {cmdSSH};
         end
@@ -322,7 +376,7 @@ classdef GenericTarget < handle
 
             % Get all directory names
             fprintf('[GENERIC TARGET] SSH: Listing available log directories\n');
-            cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "cd ' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG ' && ls"'];
+            cmdSSH = ['ssh -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "cd ' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG ' && ls"'];
             obj.RunCommand(cmdSSH);
 
             % Get directory name from user input
@@ -330,7 +384,7 @@ classdef GenericTarget < handle
 
             % Download directory via SCP
             fprintf('\n[GENERIC TARGET] Downloading %s from target %s\n',dirName,obj.targetIPAddress);
-            cmdSCP = ['scp -r ' obj.targetUsername '@' obj.targetIPAddress ':' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG dirName ' ' hostDirectory];
+            cmdSCP = ['scp -P ' num2str(obj.portSSH) ' -r ' obj.targetUsername '@' obj.targetIPAddress ':' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG dirName ' ' hostDirectory];
             obj.RunCommand(cmdSCP);
 
             % Decode target data
@@ -352,14 +406,14 @@ classdef GenericTarget < handle
             if(2 ~= nargin)
                 hostDirectory = pwd;
             end
-            assert(ischar(hostDirectory), 'GT.GenericTarget.DownloadData(): Input "hostDirectory" must be a string!');
+            assert(ischar(hostDirectory), 'GT.GenericTarget.DownloadAllData(): Input "hostDirectory" must be a string!');
             if(filesep ~= hostDirectory(end))
                 hostDirectory = [hostDirectory filesep];
             end
 
             % Download directory via SCP
             fprintf('\n[GENERIC TARGET] Downloading all data (%s) from target %s\n',[obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG],obj.targetIPAddress);
-            cmdSCP = ['scp -r ' obj.targetUsername '@' obj.targetIPAddress ':' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG ' ' hostDirectory];
+            cmdSCP = ['scp -P ' num2str(obj.portSSH) ' -r ' obj.targetUsername '@' obj.targetIPAddress ':' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG ' ' hostDirectory];
             obj.RunCommand(cmdSCP);
             commands = {cmdSCP};
         end
@@ -369,7 +423,7 @@ classdef GenericTarget < handle
             % RETURN
             % commands ... The commands that were executed on the host.
             fprintf('[GENERIC TARGET] Deleting data log files from target %s\n',obj.targetIPAddress);
-            cmdSSH = ['ssh ' obj.targetUsername '@' obj.targetIPAddress ' "sudo ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME ' --stop ; sudo rm -r -f ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_DIRECTORY_LOG '"'];
+            cmdSSH = ['ssh -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "sudo ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME ' --stop ; sudo rm -r -f ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_DIRECTORY_LOG '"'];
             obj.RunCommand(cmdSSH);
             commands = {cmdSSH};
         end
