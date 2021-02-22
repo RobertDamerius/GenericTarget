@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20210218</div>
+<div class="header_version">Version 20210222</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -99,22 +99,29 @@
     <br>
     <table>
 		<tr><th>Block</th><th>No Host Implementation</th><th>With Host Implementation</th></tr>
-        <tr><td>Interface/UDP Send                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
-        <tr><td>Interface/UDP Receive                 </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
+        <tr><td>Interface/UDP Send                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
+        <tr><td>Interface/UDP Receive                 </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
         <tr><td>Interface/Log To File                 </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
-        <tr><td>Interface/Multicast UDP Send          </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
-        <tr><td>Interface/Multicast UDP Receive       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
+        <tr><td>Interface/Multicast UDP Send          </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
+        <tr><td>Interface/Multicast UDP Receive       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
         <tr><td>Time/Simulation Time                  </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
-        <tr><td>Time/Model Time                       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>*</b></span></td></tr>
-        <tr><td>Time/UNIX Time                        </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>*</b></span></td></tr>
-        <tr><td>Time/UTC Time                         </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>*</b></span></td></tr>
-        <tr><td>Time/Local Time                       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>*</b></span></td></tr>
+        <tr><td>Time/Model Time                       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>**</b></span></td></tr>
+        <tr><td>Time/UNIX Time                        </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>**</b></span></td></tr>
+        <tr><td>Time/UTC Time                         </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>**</b></span></td></tr>
+        <tr><td>Time/Local Time                       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>**</b></span></td></tr>
         <tr><td>Time/Task Execution Time              </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
         <tr><td>Time/CPU Overloads                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
-        <tr><td>Time/UTC Timestamp                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>*</b></span></td></tr>
+        <tr><td>Time/UTC Timestamp                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>**</b></span></td></tr>
         <tr><td>Time/Time To Latest UTC Timestamp     </td><td align="center" style="color: #0b0;">OK</td><td align="center" style="color: #0b0;">OK</td></tr>
     </table>
     <b>*</b>
+    These blocks behave different during simulations with Simulink.
+    When using UDP interface blocks in Simulink models a local port must be specified only once!
+    It is not possible to receive and send from one port at the same time.
+    This only works with the deployed code.
+    <br>
+    <br>
+    <b>**</b>
     These blocks have a different function in the simulation than on the target!
     On the target computer all <a href="timingscheduling.html">time information</a> (UTC, UNIX, Local, Simulation, Model) is determined only once during each base sampletime.
     The times are determined in the <a href="threads.html">BaseRateScheduler</a> before all other threads are triggered.

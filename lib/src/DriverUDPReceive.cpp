@@ -7,12 +7,12 @@
 #endif
 
 
-void CreateDriverUDPReceive(uint16_t port, uint8_t* ipInterface, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy){
+void CreateDriverUDPReceive(uint16_t port, uint8_t* ipInterface, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded){
     #ifdef GENERIC_TARGET_IMPLEMENTATION
-    UDPObjectManager::Register(ipInterface, port, rxBufferSize, prioritySocket, priorityThread, numBuffers, (udp_buffer_strategy_t)bufferStrategy);
+    UDPObjectManager::Register(ipInterface, port, rxBufferSize, prioritySocket, priorityThread, numBuffers, (udp_buffer_strategy_t)bufferStrategy, ipFilter, countAsDiscarded);
     #else
     #ifdef HOST_IMPLEMENTATION
-    HostImplementation::CreateDriverUDPReceive(port, ipInterface, rxBufferSize, prioritySocket, priorityThread, numBuffers, bufferStrategy);
+    HostImplementation::CreateDriverUDPReceive(port, ipInterface, rxBufferSize, prioritySocket, priorityThread, numBuffers, bufferStrategy, ipFilter, countAsDiscarded);
     #else
     (void)port;
     (void)ipInterface;
@@ -21,6 +21,8 @@ void CreateDriverUDPReceive(uint16_t port, uint8_t* ipInterface, uint32_t rxBuff
     (void)priorityThread;
     (void)numBuffers;
     (void)bufferStrategy;
+    (void)ipFilter;
+    (void)countAsDiscarded;
     #endif
     #endif
 }

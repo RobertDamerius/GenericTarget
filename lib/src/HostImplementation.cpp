@@ -91,7 +91,9 @@ std::mutex HostImplementation::MulticastUDPObjectManager::mtx;
 void HostImplementation::CreateDriverUDPSend(uint16_t port, uint8_t* ipInterface, int32_t prioritySocket, int32_t priorityThread){
     __host_implementation_initialize();
     __network_initialize();
-    HostImplementation::UDPObjectManager::Register(ipInterface, port, 1, prioritySocket, priorityThread, 1, (HostImplementation::udp_buffer_strategy_t)0xFFFFFFFF);
+    uint8_t ipFilter[4];
+    ipFilter[0] = ipFilter[1] = ipFilter[2] = ipFilter[3] = 0;
+    HostImplementation::UDPObjectManager::Register(ipInterface, port, 1, prioritySocket, priorityThread, 1, (HostImplementation::udp_buffer_strategy_t)0xFFFFFFFF, ipFilter, 0);
 }
 
 void HostImplementation::DeleteDriverUDPSend(void){
@@ -111,10 +113,10 @@ void HostImplementation::OutputDriverUDPSend(uint16_t port, uint16_t* destinatio
     HostImplementation::UDPObjectManager::Send(port, destination, bytes, length);
 }
 
-void HostImplementation::CreateDriverUDPReceive(uint16_t port, uint8_t* ipInterface, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy){
+void HostImplementation::CreateDriverUDPReceive(uint16_t port, uint8_t* ipInterface, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded){
     __host_implementation_initialize();
     __network_initialize();
-    HostImplementation::UDPObjectManager::Register(ipInterface, port, rxBufferSize, prioritySocket, priorityThread, numBuffers, (HostImplementation::udp_buffer_strategy_t)bufferStrategy);
+    HostImplementation::UDPObjectManager::Register(ipInterface, port, rxBufferSize, prioritySocket, priorityThread, numBuffers, (HostImplementation::udp_buffer_strategy_t)bufferStrategy, ipFilter, countAsDiscarded);
 }
 
 void HostImplementation::DeleteDriverUDPReceive(void){
@@ -137,7 +139,9 @@ void HostImplementation::OutputDriverUDPReceive(uint16_t port, uint32_t rxBuffer
 void HostImplementation::CreateDriverMulticastUDPSend(uint16_t port, uint8_t* ipInterface, uint8_t* ipGroup, int32_t prioritySocket, int32_t priorityThread, uint8_t ttl){
     __host_implementation_initialize();
     __network_initialize();
-    HostImplementation::MulticastUDPObjectManager::Register(ipInterface, ipGroup, port, 1, prioritySocket, priorityThread, ttl, 1, (HostImplementation::udp_buffer_strategy_t)0xFFFFFFFF);
+    uint8_t ipFilter[4];
+    ipFilter[0] = ipFilter[1] = ipFilter[2] = ipFilter[3] = 0;
+    HostImplementation::MulticastUDPObjectManager::Register(ipInterface, ipGroup, port, 1, prioritySocket, priorityThread, ttl, 1, (HostImplementation::udp_buffer_strategy_t)0xFFFFFFFF, ipFilter, 0);
 }
 
 void HostImplementation::DeleteDriverMulticastUDPSend(void){
@@ -157,10 +161,10 @@ void HostImplementation::OutputDriverMulticastUDPSend(uint16_t port, uint16_t* d
     HostImplementation::MulticastUDPObjectManager::Send(port, destination, bytes, length);
 }
 
-void HostImplementation::CreateDriverMulticastUDPReceive(uint16_t port, uint8_t* ipInterface, uint8_t* ipGroup, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, uint8_t ttl, const uint32_t numBuffers, const uint32_t bufferStrategy){
+void HostImplementation::CreateDriverMulticastUDPReceive(uint16_t port, uint8_t* ipInterface, uint8_t* ipGroup, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, uint8_t ttl, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded){
     __host_implementation_initialize();
     __network_initialize();
-    HostImplementation::MulticastUDPObjectManager::Register(ipInterface, ipGroup, port, rxBufferSize, prioritySocket, priorityThread, ttl, numBuffers, (HostImplementation::udp_buffer_strategy_t)bufferStrategy);
+    HostImplementation::MulticastUDPObjectManager::Register(ipInterface, ipGroup, port, rxBufferSize, prioritySocket, priorityThread, ttl, numBuffers, (HostImplementation::udp_buffer_strategy_t)bufferStrategy, ipFilter, countAsDiscarded);
 }
 
 void HostImplementation::DeleteDriverMulticastUDPReceive(void){
@@ -612,6 +616,8 @@ HostImplementation::UDPObject::UDPObject(uint16_t port){
     priorityThread = 0;
     numBuffers = 1;
     bufferStrategy = DISCARD_OLDEST;
+    ipFilter[0] = ipFilter[1] = ipFilter[2] = ipFilter[3] = 0;
+    countAsDiscarded = true;
     this->threadRX = nullptr;
 
     // Initial state
@@ -633,6 +639,8 @@ HostImplementation::UDPObject::UDPObject(uint16_t port){
     state.idxMessage = 0;
     state.timestamp = nullptr;
     state.discardCounter = 0;
+    state.ipFilter[0] = state.ipFilter[1] = state.ipFilter[2] = state.ipFilter[3] = 0;
+    state.countAsDiscarded = true;
 }
 
 HostImplementation::UDPObject::~UDPObject(){
@@ -654,11 +662,21 @@ void HostImplementation::UDPObject::UpdateNumBuffers(const uint32_t numBuffers){
     this->numBuffers = (numBuffers > this->numBuffers) ? numBuffers : this->numBuffers;
 }
 
-void HostImplementation::UDPObject::UpdateBufferStrategy(const HostImplementation::udp_buffer_strategy_t bufferStrategy){
+void HostImplementation::UDPObject::UpdateBufferStrategy(const udp_buffer_strategy_t bufferStrategy){
     switch(bufferStrategy){
         case DISCARD_OLDEST: this->bufferStrategy = DISCARD_OLDEST; break;
         case DISCARD_RECEIVED: this->bufferStrategy = DISCARD_RECEIVED; break;
     }
+}
+
+void HostImplementation::UDPObject::UpdateIPFilter(uint8_t* ipFilter, bool countAsDiscarded){
+    if(ipFilter[0] || ipFilter[1] || ipFilter[2] || ipFilter[3]){
+        this->ipFilter[0] = ipFilter[0];
+        this->ipFilter[1] = ipFilter[1];
+        this->ipFilter[2] = ipFilter[2];
+        this->ipFilter[3] = ipFilter[3];
+    }
+    this->countAsDiscarded = countAsDiscarded;
 }
 
 void HostImplementation::UDPObject::SetInterface(uint8_t ipA, uint8_t ipB, uint8_t ipC, uint8_t ipD){
@@ -668,7 +686,7 @@ void HostImplementation::UDPObject::SetInterface(uint8_t ipA, uint8_t ipB, uint8
     this->ipInterface[3] = ipD;
 }
 
-HostImplementation::UDPObject& HostImplementation::UDPObject::operator=(const UDPObject& rhs){
+HostImplementation::UDPObject& HostImplementation::UDPObject::operator=(const HostImplementation::UDPObject& rhs){
     this->port = rhs.port;
     this->ipInterface[0] = rhs.ipInterface[0];
     this->ipInterface[1] = rhs.ipInterface[1];
@@ -706,6 +724,11 @@ bool HostImplementation::UDPObject::Start(void){
     state.idxMessage = 0;
     state.timestamp = new double[state.numBuffers];
     state.discardCounter = 0;
+    state.ipFilter[0] = this->ipFilter[0];
+    state.ipFilter[1] = this->ipFilter[1];
+    state.ipFilter[2] = this->ipFilter[2];
+    state.ipFilter[3] = this->ipFilter[3];
+    state.countAsDiscarded = this->countAsDiscarded;
     ClearQueue(state.idxQueue);
 
     // Open the UDP socket
@@ -719,7 +742,9 @@ bool HostImplementation::UDPObject::Start(void){
     #ifndef _WIN32
     int priority = (int)state.prioritySocket;
     if(this->socket.SetOption(SOL_SOCKET, SO_PRIORITY, &priority, sizeof(priority)) < 0){
-        printf("Warning: Could not set socket priority %d for interface %d.%d.%d.%d:%d!\n",priority,state.ipInterface[0],state.ipInterface[1],state.ipInterface[2],state.ipInterface[3],state.portInterface);
+        printf("Error: Could not set socket priority %d for interface %d.%d.%d.%d:%d!\n",priority,state.ipInterface[0],state.ipInterface[1],state.ipInterface[2],state.ipInterface[3],state.portInterface);
+        mtxState.unlock();
+        return false;
     }
     #endif
 
@@ -754,7 +779,9 @@ bool HostImplementation::UDPObject::Start(void){
     struct sched_param param;
     param.sched_priority = state.priorityThread;
     if(0 != pthread_setschedparam(threadRX->native_handle(), SCHED_FIFO, &param)){
-        printf("Warning: Could not set thread priority %d\n", state.priorityThread);
+        printf("Error: Could not set thread priority %d\n", state.priorityThread);
+        mtxState.unlock();
+        return false;
     }
     mtxState.unlock();
     return true;
@@ -798,7 +825,7 @@ void HostImplementation::UDPObject::Stop(void){
 }
 
 void HostImplementation::UDPObject::Send(const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
-    HostImplementation::Endpoint ep((uint8_t)(0x00FF & destination[0]), (uint8_t)(0x00FF & destination[1]), (uint8_t)(0x00FF & destination[2]), (uint8_t)(0x00FF & destination[3]), destination[4]);
+    Endpoint ep((uint8_t)(0x00FF & destination[0]), (uint8_t)(0x00FF & destination[1]), (uint8_t)(0x00FF & destination[2]), (uint8_t)(0x00FF & destination[3]), destination[4]);
     (void) socket.SendTo(ep, (uint8_t*)bytes, length);
 }
 
@@ -846,7 +873,7 @@ void HostImplementation::UDPObject::ThreadReceive(HostImplementation::UDPObject*
     ClearQueue(obj->state.idxQueue);
     obj->mtxState.unlock();
     uint8_t* rxBuffer = new uint8_t[rxBufferSize];
-    HostImplementation::Endpoint ep;
+    Endpoint ep;
     while(obj->socket.IsOpen()){
         // Receive message
         int rx = obj->socket.ReceiveFrom(ep, &rxBuffer[0], rxBufferSize);
@@ -856,7 +883,12 @@ void HostImplementation::UDPObject::ThreadReceive(HostImplementation::UDPObject*
 
         // Copy to state
         obj->mtxState.lock();
-        if((uint32_t)obj->state.idxQueue.size() >= numBuffers){
+        if((obj->state.ipFilter[0] || obj->state.ipFilter[1] || obj->state.ipFilter[2] || obj->state.ipFilter[3]) && !ep.CompareIPv4(obj->state.ipFilter[0],obj->state.ipFilter[1],obj->state.ipFilter[2],obj->state.ipFilter[3])){
+            // IP filter is set and sender IP does not match: discard message
+            if(obj->state.countAsDiscarded)
+                obj->state.discardCounter++;
+        }
+        else if((uint32_t)obj->state.idxQueue.size() >= numBuffers){
             // Buffer is full: use specified strategy
             switch(obj->state.strategy){
                 case DISCARD_OLDEST:
@@ -887,25 +919,28 @@ void HostImplementation::UDPObject::ThreadReceive(HostImplementation::UDPObject*
         obj->mtxState.unlock();
     }
     delete[] rxBuffer;
+    obj->mtxState.lock();
+    obj->mtxState.unlock();
 }
 
-void HostImplementation::UDPObjectManager::Register(uint8_t* ipInterface, uint16_t port, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const HostImplementation::udp_buffer_strategy_t bufferStrategy){
+void HostImplementation::UDPObjectManager::Register(uint8_t* ipInterface, uint16_t port, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const udp_buffer_strategy_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded){
     // Warning if Register() is called after UDP sockets have already been created
-    HostImplementation::UDPObjectManager::mtx.lock();
-    if(HostImplementation::UDPObjectManager::created){
-        HostImplementation::UDPObjectManager::mtx.unlock();
-        printf("Error: Cannot register UDP socket (port=%d) because socket creation was already done!\n",port);
+    mtx.lock();
+    if(created){
+        mtx.unlock();
+        printf("Warning: Cannot register UDP socket (port=%d) because socket creation was already done!\n",port);
         return;
     }
 
     // Check if this socket is already in the list
-    auto found = HostImplementation::UDPObjectManager::objects.find(port);
-    if(found != HostImplementation::UDPObjectManager::objects.end()){
+    auto found = objects.find(port);
+    if(found != objects.end()){
         // This socket (port) was already registered, update socket data
         found->second->UpdateReceiveBufferSize(rxBufferSize);
         found->second->UpdatePriorities(prioritySocket, priorityThread);
         found->second->UpdateNumBuffers(numBuffers);
         found->second->UpdateBufferStrategy(bufferStrategy);
+        found->second->UpdateIPFilter(ipFilter, (bool)countAsDiscarded);
         if(ipInterface){
             found->second->SetInterface(ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]);
         }
@@ -915,55 +950,52 @@ void HostImplementation::UDPObjectManager::Register(uint8_t* ipInterface, uint16
     }
     else{
         // This is a new socket (port), add it to the list
-        HostImplementation::UDPObject* obj = new HostImplementation::UDPObject(port);
+        UDPObject* obj = new UDPObject(port);
         obj->UpdateReceiveBufferSize(rxBufferSize);
         obj->UpdatePriorities(prioritySocket, priorityThread);
         obj->UpdateNumBuffers(numBuffers);
         obj->UpdateBufferStrategy(bufferStrategy);
+        obj->UpdateIPFilter(ipFilter, (bool)countAsDiscarded);
         if(ipInterface){
             obj->SetInterface(ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]);
         }
         else{
             obj->SetInterface(0, 0, 0, 0);
         }
-        HostImplementation::UDPObjectManager::objects.insert(std::pair<uint16_t, UDPObject*>(port, obj));
+        objects.insert(std::pair<uint16_t, UDPObject*>(port, obj));
     }
-    HostImplementation::UDPObjectManager::mtx.unlock();
+    mtx.unlock();
 }
 
 void HostImplementation::UDPObjectManager::Send(const uint16_t port, const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
     if(!length){
         return;
     }
-    HostImplementation::UDPObjectManager::mtx.lock();
-    auto found = HostImplementation::UDPObjectManager::objects.find(port);
-    if(found != HostImplementation::UDPObjectManager::objects.end()){
+    mtx.lock();
+    auto found = objects.find(port);
+    if(found != objects.end()){
         found->second->Send(destination, bytes, length);
     }
-    HostImplementation::UDPObjectManager::mtx.unlock();
+    mtx.unlock();
 }
 
 void HostImplementation::UDPObjectManager::Receive(const uint16_t port, uint16_t* sources, uint8_t* bytes, uint32_t* lengths, double* timestamps, uint32_t* numMessagesReceived, uint32_t* numMessagesDiscarded, const uint32_t maxMessageSize, const uint32_t maxNumMessages){
-    HostImplementation::UDPObjectManager::mtx.lock();
-    auto found = HostImplementation::UDPObjectManager::objects.find(port);
-    if(found != HostImplementation::UDPObjectManager::objects.end()){
+    mtx.lock();
+    auto found = objects.find(port);
+    if(found != objects.end()){
         found->second->Receive(sources, bytes, lengths, timestamps, numMessagesReceived, numMessagesDiscarded, maxMessageSize, maxNumMessages);
     }
-    HostImplementation::UDPObjectManager::mtx.unlock();
+    mtx.unlock();
 }
 
 bool HostImplementation::UDPObjectManager::Create(void){
     bool error = false;
-    HostImplementation::UDPObjectManager::mtx.lock();
-    if(HostImplementation::UDPObjectManager::created){
-        HostImplementation::UDPObjectManager::mtx.unlock();
-        return true;
-    }
-    for(auto&& p : HostImplementation::UDPObjectManager::objects){
+    mtx.lock();
+    for(auto&& p : objects){
         error |= !p.second->Start();
     }
-    HostImplementation::UDPObjectManager::created = true;
-    HostImplementation::UDPObjectManager::mtx.unlock();
+    created = true;
+    mtx.unlock();
     if(error){
         HostImplementation::UDPObjectManager::Destroy();
     }
@@ -971,14 +1003,14 @@ bool HostImplementation::UDPObjectManager::Create(void){
 }
 
 void HostImplementation::UDPObjectManager::Destroy(void){
-    HostImplementation::UDPObjectManager::mtx.lock();
-    for(auto&& p : HostImplementation::UDPObjectManager::objects){
+    mtx.lock();
+    for(auto&& p : objects){
         p.second->Stop();
         delete p.second;
     }
-    HostImplementation::UDPObjectManager::objects.clear();
-    HostImplementation::UDPObjectManager::created = false;
-    HostImplementation::UDPObjectManager::mtx.unlock();
+    objects.clear();
+    created = false;
+    mtx.unlock();
 }
 
 bool HostImplementation::UDPObjectManager::IsDestroyed(void){
@@ -1001,6 +1033,8 @@ HostImplementation::MulticastUDPObject::MulticastUDPObject(uint16_t port){
     ttl = 1;
     numBuffers = 1;
     bufferStrategy = DISCARD_OLDEST;
+    ipFilter[0] = ipFilter[1] = ipFilter[2] = ipFilter[3] = 0;
+    countAsDiscarded = true;
     this->threadRX = nullptr;
 
     // Initial state
@@ -1022,8 +1056,10 @@ HostImplementation::MulticastUDPObject::MulticastUDPObject(uint16_t port){
     state.idxMessage = 0;
     state.timestamp = nullptr;
     state.ttl = 1;
-    state.group = HostImplementation::Endpoint(244,0,0,0,0);
+    state.group = Endpoint(244,0,0,0,0);
     state.discardCounter = 0;
+    state.ipFilter[0] = state.ipFilter[1] = state.ipFilter[2] = state.ipFilter[3] = 0;
+    state.countAsDiscarded = true;
 }
 
 HostImplementation::MulticastUDPObject::~MulticastUDPObject(){
@@ -1049,11 +1085,21 @@ void HostImplementation::MulticastUDPObject::UpdateNumBuffers(const uint32_t num
     this->numBuffers = (numBuffers > this->numBuffers) ? numBuffers : this->numBuffers;
 }
 
-void HostImplementation::MulticastUDPObject::UpdateBufferStrategy(const HostImplementation::udp_buffer_strategy_t bufferStrategy){
+void HostImplementation::MulticastUDPObject::UpdateBufferStrategy(const udp_buffer_strategy_t bufferStrategy){
     switch(bufferStrategy){
         case DISCARD_OLDEST: this->bufferStrategy = DISCARD_OLDEST; break;
         case DISCARD_RECEIVED: this->bufferStrategy = DISCARD_RECEIVED; break;
     }
+}
+
+void HostImplementation::MulticastUDPObject::UpdateIPFilter(uint8_t* ipFilter, bool countAsDiscarded){
+    if(ipFilter[0] || ipFilter[1] || ipFilter[2] || ipFilter[3]){
+        this->ipFilter[0] = ipFilter[0];
+        this->ipFilter[1] = ipFilter[1];
+        this->ipFilter[2] = ipFilter[2];
+        this->ipFilter[3] = ipFilter[3];
+    }
+    this->countAsDiscarded = countAsDiscarded;
 }
 
 void HostImplementation::MulticastUDPObject::SetInterface(uint8_t ipA, uint8_t ipB, uint8_t ipC, uint8_t ipD){
@@ -1113,8 +1159,13 @@ bool HostImplementation::MulticastUDPObject::Start(void){
     state.idxMessage = 0;
     state.timestamp = new double[state.numBuffers];
     state.ttl = this->ttl;
-    state.group = HostImplementation::Endpoint(this->group[0], this->group[1], this->group[2], this->group[3], this->port);
+    state.group = Endpoint(this->group[0], this->group[1], this->group[2], this->group[3], this->port);
     state.discardCounter = 0;
+    state.ipFilter[0] = this->ipFilter[0];
+    state.ipFilter[1] = this->ipFilter[1];
+    state.ipFilter[2] = this->ipFilter[2];
+    state.ipFilter[3] = this->ipFilter[3];
+    state.countAsDiscarded = this->countAsDiscarded;
     ClearQueue(state.idxQueue);
 
     // Open the UDP socket
@@ -1128,7 +1179,9 @@ bool HostImplementation::MulticastUDPObject::Start(void){
     #ifndef _WIN32
     int priority = (int)state.prioritySocket;
     if(this->socket.SetOption(SOL_SOCKET, SO_PRIORITY, &priority, sizeof(priority)) < 0){
-        printf("Warning: Could not set socket priority %d for interface %d.%d.%d.%d:%d!\n",priority,state.ipInterface[0],state.ipInterface[1],state.ipInterface[2],state.ipInterface[3],state.portInterface);
+        printf("Error: Could not set socket priority %d for interface %d.%d.%d.%d:%d!\n",priority,state.ipInterface[0],state.ipInterface[1],state.ipInterface[2],state.ipInterface[3],state.portInterface);
+        mtxState.unlock();
+        return false;
     }
     #endif
 
@@ -1191,7 +1244,9 @@ bool HostImplementation::MulticastUDPObject::Start(void){
     struct sched_param param;
     param.sched_priority = state.priorityThread;
     if(0 != pthread_setschedparam(threadRX->native_handle(), SCHED_FIFO, &param)){
-        printf("Warning: Could not set thread priority %d\n", state.priorityThread);
+        printf("Error: Could not set thread priority %d\n", state.priorityThread);
+        mtxState.unlock();
+        return false;
     }
     mtxState.unlock();
     return true;
@@ -1248,7 +1303,7 @@ void HostImplementation::MulticastUDPObject::Stop(void){
 }
 
 void HostImplementation::MulticastUDPObject::Send(const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
-    HostImplementation::Endpoint ep((uint8_t)(0x00FF & destination[0]), (uint8_t)(0x00FF & destination[1]), (uint8_t)(0x00FF & destination[2]), (uint8_t)(0x00FF & destination[3]), destination[4]);
+    Endpoint ep((uint8_t)(0x00FF & destination[0]), (uint8_t)(0x00FF & destination[1]), (uint8_t)(0x00FF & destination[2]), (uint8_t)(0x00FF & destination[3]), destination[4]);
     (void) socket.SendTo(ep, (uint8_t*)bytes, length);
 }
 
@@ -1288,7 +1343,7 @@ void HostImplementation::MulticastUDPObject::Receive(uint16_t* sources, uint8_t*
     mtxState.unlock();
 }
 
-void HostImplementation::MulticastUDPObject::ThreadReceive(MulticastUDPObject* obj){
+void HostImplementation::MulticastUDPObject::ThreadReceive(HostImplementation::MulticastUDPObject* obj){
     obj->mtxState.lock();
     uint32_t rxBufferSize = obj->state.rxBufferSize;
     uint32_t numBuffers = obj->state.numBuffers;
@@ -1296,7 +1351,7 @@ void HostImplementation::MulticastUDPObject::ThreadReceive(MulticastUDPObject* o
     ClearQueue(obj->state.idxQueue);
     obj->mtxState.unlock();
     uint8_t* rxBuffer = new uint8_t[rxBufferSize];
-    HostImplementation::Endpoint ep;
+    Endpoint ep;
     while(obj->socket.IsOpen()){
         // Receive message
         int rx = obj->socket.ReceiveFrom(ep, &rxBuffer[0], rxBufferSize);
@@ -1306,7 +1361,12 @@ void HostImplementation::MulticastUDPObject::ThreadReceive(MulticastUDPObject* o
 
         // Copy to state
         obj->mtxState.lock();
-        if((uint32_t)obj->state.idxQueue.size() >= numBuffers){
+        if((obj->state.ipFilter[0] || obj->state.ipFilter[1] || obj->state.ipFilter[2] || obj->state.ipFilter[3]) && !ep.CompareIPv4(obj->state.ipFilter[0],obj->state.ipFilter[1],obj->state.ipFilter[2],obj->state.ipFilter[3])){
+            // IP filter is set and sender IP does not match: discard message
+            if(obj->state.countAsDiscarded)
+                obj->state.discardCounter++;
+        }
+        else if((uint32_t)obj->state.idxQueue.size() >= numBuffers){
             // Buffer is full: use specified strategy
             switch(obj->state.strategy){
                 case DISCARD_OLDEST:
@@ -1337,26 +1397,29 @@ void HostImplementation::MulticastUDPObject::ThreadReceive(MulticastUDPObject* o
         obj->mtxState.unlock();
     }
     delete[] rxBuffer;
+    obj->mtxState.lock();
+    obj->mtxState.unlock();
 }
 
-void HostImplementation::MulticastUDPObjectManager::Register(uint8_t* ipInterface, uint8_t* ipGroup, uint16_t port, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, uint8_t ttl, const uint32_t numBuffers, const HostImplementation::udp_buffer_strategy_t bufferStrategy){
+void HostImplementation::MulticastUDPObjectManager::Register(uint8_t* ipInterface, uint8_t* ipGroup, uint16_t port, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, uint8_t ttl, const uint32_t numBuffers, const udp_buffer_strategy_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded){
     // Warning if Register() is called after UDP sockets have already been created
-    HostImplementation::MulticastUDPObjectManager::mtx.lock();
-    if(HostImplementation::MulticastUDPObjectManager::created){
-        HostImplementation::MulticastUDPObjectManager::mtx.unlock();
-        printf("Error: Cannot register UDP socket (port=%d) because socket creation was already done!\n",port);
+    mtx.lock();
+    if(created){
+        mtx.unlock();
+        printf("Warning: Cannot register UDP socket (port=%d) because socket creation was already done!\n",port);
         return;
     }
 
     // Check if this socket is already in the list
-    auto found = HostImplementation::MulticastUDPObjectManager::objects.find(port);
-    if(found != HostImplementation::MulticastUDPObjectManager::objects.end()){
+    auto found = objects.find(port);
+    if(found != objects.end()){
         // This socket (port) was already registered, update socket data
         found->second->UpdateReceiveBufferSize(rxBufferSize);
         found->second->UpdatePriorities(prioritySocket, priorityThread);
         found->second->UpdateTTL(ttl);
         found->second->UpdateNumBuffers(numBuffers);
         found->second->UpdateBufferStrategy(bufferStrategy);
+        found->second->UpdateIPFilter(ipFilter, (bool)countAsDiscarded);
         if(ipInterface){
             found->second->SetInterface(ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]);
         }
@@ -1369,12 +1432,13 @@ void HostImplementation::MulticastUDPObjectManager::Register(uint8_t* ipInterfac
     }
     else{
         // This is a new socket (port), add it to the list
-        HostImplementation::MulticastUDPObject* obj = new HostImplementation::MulticastUDPObject(port);
+        MulticastUDPObject* obj = new MulticastUDPObject(port);
         obj->UpdateReceiveBufferSize(rxBufferSize);
         obj->UpdatePriorities(prioritySocket, priorityThread);
         obj->UpdateTTL(ttl);
         obj->UpdateNumBuffers(numBuffers);
         obj->UpdateBufferStrategy(bufferStrategy);
+        obj->UpdateIPFilter(ipFilter, (bool)countAsDiscarded);
         if(ipInterface){
             obj->SetInterface(ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]);
         }
@@ -1384,44 +1448,40 @@ void HostImplementation::MulticastUDPObjectManager::Register(uint8_t* ipInterfac
         if(ipGroup){
             obj->SetGroup(ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
         }
-        HostImplementation::MulticastUDPObjectManager::objects.insert(std::pair<uint16_t, MulticastUDPObject*>(port, obj));
+        objects.insert(std::pair<uint16_t, MulticastUDPObject*>(port, obj));
     }
-    HostImplementation::MulticastUDPObjectManager::mtx.unlock();
+    mtx.unlock();
 }
 
 void HostImplementation::MulticastUDPObjectManager::Send(const uint16_t port, const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
     if(!length){
         return;
     }
-    HostImplementation::MulticastUDPObjectManager::mtx.lock();
-    auto found = HostImplementation::MulticastUDPObjectManager::objects.find(port);
-    if(found != HostImplementation::MulticastUDPObjectManager::objects.end()){
+    mtx.lock();
+    auto found = objects.find(port);
+    if(found != objects.end()){
         found->second->Send(destination, bytes, length);
     }
-    HostImplementation::MulticastUDPObjectManager::mtx.unlock();
+    mtx.unlock();
 }
 
 void HostImplementation::MulticastUDPObjectManager::Receive(const uint16_t port, uint16_t* sources, uint8_t* bytes, uint32_t* lengths, double* timestamps, uint32_t* numMessagesReceived, uint32_t* numMessagesDiscarded, const uint32_t maxMessageSize, const uint32_t maxNumMessages){
-    HostImplementation::MulticastUDPObjectManager::mtx.lock();
-    auto found = HostImplementation::MulticastUDPObjectManager::objects.find(port);
-    if(found != HostImplementation::MulticastUDPObjectManager::objects.end()){
+    mtx.lock();
+    auto found = objects.find(port);
+    if(found != objects.end()){
         found->second->Receive(sources, bytes, lengths, timestamps, numMessagesReceived, numMessagesDiscarded, maxMessageSize, maxNumMessages);
     }
-    HostImplementation::MulticastUDPObjectManager::mtx.unlock();
+    mtx.unlock();
 }
 
 bool HostImplementation::MulticastUDPObjectManager::Create(void){
     bool error = false;
-    HostImplementation::MulticastUDPObjectManager::mtx.lock();
-    if(HostImplementation::MulticastUDPObjectManager::created){
-        HostImplementation::MulticastUDPObjectManager::mtx.unlock();
-        return true;
-    }
-    for(auto&& p : HostImplementation::MulticastUDPObjectManager::objects){
+    mtx.lock();
+    for(auto&& p : objects){
         error |= !p.second->Start();
     }
-    HostImplementation::MulticastUDPObjectManager::created = true;
-    HostImplementation::MulticastUDPObjectManager::mtx.unlock();
+    created = true;
+    mtx.unlock();
     if(error){
         HostImplementation::MulticastUDPObjectManager::Destroy();
     }
@@ -1429,14 +1489,14 @@ bool HostImplementation::MulticastUDPObjectManager::Create(void){
 }
 
 void HostImplementation::MulticastUDPObjectManager::Destroy(void){
-    HostImplementation::MulticastUDPObjectManager::mtx.lock();
-    for(auto&& p : HostImplementation::MulticastUDPObjectManager::objects){
+    mtx.lock();
+    for(auto&& p : objects){
         p.second->Stop();
         delete p.second;
     }
-    HostImplementation::MulticastUDPObjectManager::objects.clear();
-    HostImplementation::MulticastUDPObjectManager::created = false;
-    HostImplementation::MulticastUDPObjectManager::mtx.unlock();
+    objects.clear();
+    created = false;
+    mtx.unlock();
 }
 
 bool HostImplementation::MulticastUDPObjectManager::IsDestroyed(void){

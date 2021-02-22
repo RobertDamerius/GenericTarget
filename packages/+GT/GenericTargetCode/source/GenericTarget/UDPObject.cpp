@@ -17,6 +17,8 @@ UDPObject::UDPObject(uint16_t port){
     priorityThread = 0;
     numBuffers = 1;
     bufferStrategy = DISCARD_OLDEST;
+    ipFilter[0] = ipFilter[1] = ipFilter[2] = ipFilter[3] = 0;
+    countAsDiscarded = true;
     this->threadRX = nullptr;
 
     // Initial state
@@ -38,6 +40,8 @@ UDPObject::UDPObject(uint16_t port){
     state.idxMessage = 0;
     state.timestamp = nullptr;
     state.discardCounter = 0;
+    state.ipFilter[0] = state.ipFilter[1] = state.ipFilter[2] = state.ipFilter[3] = 0;
+    state.countAsDiscarded = true;
 }
 
 UDPObject::~UDPObject(){
@@ -64,6 +68,16 @@ void UDPObject::UpdateBufferStrategy(const udp_buffer_strategy_t bufferStrategy)
         case DISCARD_OLDEST: this->bufferStrategy = DISCARD_OLDEST; break;
         case DISCARD_RECEIVED: this->bufferStrategy = DISCARD_RECEIVED; break;
     }
+}
+
+void UDPObject::UpdateIPFilter(uint8_t* ipFilter, bool countAsDiscarded){
+    if(ipFilter[0] || ipFilter[1] || ipFilter[2] || ipFilter[3]){
+        this->ipFilter[0] = ipFilter[0];
+        this->ipFilter[1] = ipFilter[1];
+        this->ipFilter[2] = ipFilter[2];
+        this->ipFilter[3] = ipFilter[3];
+    }
+    this->countAsDiscarded = countAsDiscarded;
 }
 
 void UDPObject::SetInterface(uint8_t ipA, uint8_t ipB, uint8_t ipC, uint8_t ipD){
@@ -111,6 +125,11 @@ bool UDPObject::Start(void){
     state.idxMessage = 0;
     state.timestamp = new double[state.numBuffers];
     state.discardCounter = 0;
+    state.ipFilter[0] = this->ipFilter[0];
+    state.ipFilter[1] = this->ipFilter[1];
+    state.ipFilter[2] = this->ipFilter[2];
+    state.ipFilter[3] = this->ipFilter[3];
+    state.countAsDiscarded = this->countAsDiscarded;
     ClearQueue(state.idxQueue);
 
     // Open the UDP socket
@@ -266,7 +285,12 @@ void UDPObject::ThreadReceive(UDPObject* obj){
 
         // Copy to state
         obj->mtxState.lock();
-        if((uint32_t)obj->state.idxQueue.size() >= numBuffers){
+        if((obj->state.ipFilter[0] || obj->state.ipFilter[1] || obj->state.ipFilter[2] || obj->state.ipFilter[3]) && !ep.CompareIPv4(obj->state.ipFilter[0],obj->state.ipFilter[1],obj->state.ipFilter[2],obj->state.ipFilter[3])){
+            // IP filter is set and sender IP does not match: discard message
+            if(obj->state.countAsDiscarded)
+                obj->state.discardCounter++;
+        }
+        else if((uint32_t)obj->state.idxQueue.size() >= numBuffers){
             // Buffer is full: use specified strategy
             switch(obj->state.strategy){
                 case DISCARD_OLDEST:

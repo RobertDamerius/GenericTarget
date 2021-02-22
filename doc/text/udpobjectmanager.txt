@@ -49,6 +49,12 @@
             <br><b>DISCARD_OLDEST (0)</b>: The oldest message is deleted from the FIFO buffer and the newly received message is added to the FIFO buffer.
             <br><b>DISCARD_RECEIVED (1)</b>: The received message is discarded. The FIFO buffer remains unchanged.
             </td></tr>
+        <tr><td>ipFilter</td><td>
+            Array of 4 bytes containing IPv4 address of the sender address that should be allowed. If no filter should be used, all bytes must be zero.
+            </td></tr>
+        <tr><td>countAsDiscarded</td><td>
+            Non-zero value if out-filtered messages should be counted as discarded, zero if not.
+            </td></tr>
 	</table>
 
     <h3>Termination</h3>
@@ -85,6 +91,7 @@
     <h3>Receive</h3>
     Receiving is always done in a parallel executed receive thread.
     Each UDP socket has its own receive thread.
+    If IP address filtering is used, then only messages from the specified address are processed and all other messages are discarded.
     The received messages are copied into an internal buffer.
     The buffer can contain several messages.
     If a new message is received, it is added to the buffer.
@@ -117,5 +124,11 @@
             This time corresponds to the measured time in seconds since the scheduler was started.
             This time is comparable to the <a href="timingscheduling.html">model time</a>, but can also be between two sampling steps.
             There is a time for each message from the message buffer.
+            </td></tr>
+        <tr><td>numMessagesReceived</td><td>
+            The number of messages that have been received/written to the bytes output.
+            </td></tr>
+        <tr><td>numMessagesDiscarded</td><td>
+            The number of messages that have been discarded.
             </td></tr>
     </table>

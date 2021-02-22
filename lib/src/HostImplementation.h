@@ -83,8 +83,10 @@ void OutputDriverUDPSend(uint16_t port, uint16_t* destination, uint8_t* bytes, u
  *  @param [in] priorityThread Receiver thread priority, range: [0, 99].
  *  @param [in] numBuffers Number of receive buffers to be used.
  *  @param [in] bufferStrategy Either 0 (DISCARD_OLDEST) or 1 (DISCARD_RECEIVED). Unknown values are ignored.
+ *  @param [in] ipFilter Array of 4 bytes containing IPv4 address of the sender address that should be allowed. If no filter should be used, all bytes must be zero.
+ *  @param [in] countAsDiscarded Non-zero value if out-filtered messages should be counted as discarded, zero if not.
  */
-void CreateDriverUDPReceive(uint16_t port, uint8_t* ipInterface, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy);
+void CreateDriverUDPReceive(uint16_t port, uint8_t* ipInterface, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded);
 
 /**
  *  @brief Delete the UDP receive driver.
@@ -142,8 +144,10 @@ void OutputDriverMulticastUDPSend(uint16_t port, uint16_t* destination, uint8_t*
  *  @param [in] ttl Time-to-live value associated with the multicast traffic.
  *  @param [in] numBuffers Number of receive buffers to be used.
  *  @param [in] bufferStrategy Either 0 (DISCARD_OLDEST) or 1 (DISCARD_RECEIVED). Unknown values are ignored.
+ *  @param [in] ipFilter Array of 4 bytes containing IPv4 address of the sender address that should be allowed. If no filter should be used, all bytes must be zero.
+ *  @param [in] countAsDiscarded Non-zero value if out-filtered messages should be counted as discarded, zero if not.
  */
-void CreateDriverMulticastUDPReceive(uint16_t port, uint8_t* ipInterface, uint8_t* ipGroup, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, uint8_t ttl, const uint32_t numBuffers, const uint32_t bufferStrategy);
+void CreateDriverMulticastUDPReceive(uint16_t port, uint8_t* ipInterface, uint8_t* ipGroup, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, uint8_t ttl, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded);
 
 /**
  *  @brief Delete the multicast UDP receive driver.
@@ -594,6 +598,8 @@ typedef struct {
     std::queue<uint32_t> idxQueue;  ///< A queue (FIFO) containing the indices of messages. The maximum queue size is NUM_BUF.
     uint32_t idxMessage;            ///< Index of the current message.
     uint32_t discardCounter;        ///< Number of messages that have been discarded.
+    uint8_t ipFilter[4];            ///< IP address to be used for address filtering when receiving messages.
+    bool countAsDiscarded;          ///< True if out-filtered messages should be counted as discarded.
 } udp_state_t;
 
 
@@ -642,6 +648,16 @@ class UDPObject {
          *  @note This function has no effect if the UDP object has already been started.
          */
         void UpdateBufferStrategy(const udp_buffer_strategy_t bufferStrategy);
+
+        /**
+         *  @brief Update IP address for address filtering.
+         *  @param [in] ipFilter Array of 4 bytes containing IPv4 address of the sender address that should be allowed. If no filter should be used, all bytes must be zero.
+         *  @param [in] countAsDiscarded True if out-filtered messages should be counted as discarded or not.
+         *  @return Return description
+         *  @details If this member function is called multiple times, the latest non-zero value will be used for ipFilter (for countAsDiscarded the latest value is used). Note that the default value for ipFilter is [0;0;0;0].
+         *  @note This function has no effect if the UDP object has already been started.
+         */
+        void UpdateIPFilter(uint8_t* ipFilter, bool countAsDiscarded);
 
         /**
          *  @brief Set the interface address.
@@ -701,6 +717,8 @@ class UDPObject {
         int32_t priorityThread; ///< Receiver thread priority, range: [0, 99].
         uint32_t numBuffers;    ///< Number of buffers, must be greater than zero.
         udp_buffer_strategy_t bufferStrategy; ///< The buffer strategy.
+        uint8_t ipFilter[4];    ///< IP address to be used for address filtering when receiving messages.
+        bool countAsDiscarded;  ///< True if out-filtered messages should be counted as discarded.
 
         /* Internal thread-safe attributes if UDP object has been started */
         udp_state_t state;      ///< The internal state.
@@ -728,10 +746,12 @@ class UDPObjectManager {
          *  @param [in] priorityThread Receiver thread priority, range: [0, 99].
          *  @param [in] numBuffers Number of receive buffers to be used.
          *  @param [in] bufferStrategy Either DISCARD_OLDEST or DISCARD_RECEIVED. Unknown values are ignored.
+         *  @param [in] ipFilter Array of 4 bytes containing IPv4 address of the sender address that should be allowed. If no filter should be used, all bytes must be zero.
+         *  @param [in] countAsDiscarded Non-zero value if out-filtered messages should be counted as discarded, zero if not.
          *  @details If the port already exists then the interface will be updated and the larger rxBufferSize will be used.
          *  @note New sockets can only be registered before calling the @ref Create function or after calling the @ref Destroy function.
          */
-        static void Register(uint8_t* ipInterface, uint16_t port, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const udp_buffer_strategy_t bufferStrategy);
+        static void Register(uint8_t* ipInterface, uint16_t port, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const udp_buffer_strategy_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded);
 
         /**
          *  @brief Send a UDP message.
@@ -804,6 +824,8 @@ typedef struct {
     uint32_t idxMessage;            ///< Index of the current message.
     Endpoint group;                 ///< The multicast group address (IPv4 and port).
     uint32_t discardCounter;        ///< Number of messages that have been discarded.
+    uint8_t ipFilter[4];            ///< IP address to be used for address filtering when receiving messages.
+    bool countAsDiscarded;          ///< True if out-filtered messages should be counted as discarded.
 } multicast_udp_state_t;
 
 
@@ -862,6 +884,16 @@ class MulticastUDPObject {
         void UpdateBufferStrategy(const udp_buffer_strategy_t bufferStrategy);
 
         /**
+         *  @brief Update IP address for address filtering.
+         *  @param [in] ipFilter Array of 4 bytes containing IPv4 address of the sender address that should be allowed. If no filter should be used, all bytes must be zero.
+         *  @param [in] countAsDiscarded True if out-filtered messages should be counted as discarded or not.
+         *  @return Return description
+         *  @details If this member function is called multiple times, the latest non-zero value will be used for ipFilter (for countAsDiscarded the latest value is used). Note that the default value for ipFilter is [0;0;0;0].
+         *  @note This function has no effect if the multicast UDP object has already been started.
+         */
+        void UpdateIPFilter(uint8_t* ipFilter, bool countAsDiscarded);
+
+        /**
          *  @brief Set the interface address.
          *  @param [in] ipA First byte of IPv4 Address (A.B.C.D).
          *  @param [in] ipB Second byte of IPv4 Address (A.B.C.D).
@@ -899,7 +931,7 @@ class MulticastUDPObject {
         void Stop(void);
 
         /**
-         *  @brief Send a UDP message to a specified destination.
+         *  @brief Send a UDP message to the specified destination.
          *  @param [in] destination The destination, where indices [0,1,2,3] indicate the destination IPv4 address and index [4] indicates the destination port.
          *  @param [in] bytes Array containing the message to be transmitted.
          *  @param [in] length Number of bytes that should be transmitted.
@@ -931,6 +963,8 @@ class MulticastUDPObject {
         uint8_t ttl;                 ///< Time-to-live for multicast messages (default: 1).
         uint32_t numBuffers;         ///< Number of buffers, must be greater than zero.
         udp_buffer_strategy_t bufferStrategy; ///< The buffer strategy.
+        uint8_t ipFilter[4];         ///< IP address to be used for address filtering when receiving messages.
+        bool countAsDiscarded;       ///< True if out-filtered messages should be counted as discarded.
 
         /* Internal thread-safe attributes if UDP object has been started */
         multicast_udp_state_t state; ///< The internal state.
@@ -960,10 +994,12 @@ class MulticastUDPObjectManager {
          *  @param [in] ttl Time-to-live value associated with the multicast traffic.
          *  @param [in] numBuffers Number of receive buffers to be used.
          *  @param [in] bufferStrategy Either DISCARD_OLDEST or DISCARD_RECEIVED. Unknown values are ignored.
+         *  @param [in] ipFilter Array of 4 bytes containing IPv4 address of the sender address that should be allowed. If no filter should be used, all bytes must be zero.
+         *  @param [in] countAsDiscarded Non-zero value if out-filtered messages should be counted as discarded, zero if not.
          *  @details If the port already exists then the interface will be updated and the larger rxBufferSize will be used.
          *  @note New sockets can only be registered before calling the @ref Create function or after calling the @ref Destroy function.
          */
-        static void Register(uint8_t* ipInterface, uint8_t* ipGroup, uint16_t port, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, uint8_t ttl, const uint32_t numBuffers, const udp_buffer_strategy_t bufferStrategy);
+        static void Register(uint8_t* ipInterface, uint8_t* ipGroup, uint16_t port, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, uint8_t ttl, const uint32_t numBuffers, const udp_buffer_strategy_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded);
 
         /**
          *  @brief Send a multicast UDP message.

@@ -7,7 +7,7 @@ std::unordered_map<uint16_t, UDPObject*> UDPObjectManager::objects;
 std::shared_mutex UDPObjectManager::mtx;
 
 
-void UDPObjectManager::Register(uint8_t* ipInterface, uint16_t port, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const udp_buffer_strategy_t bufferStrategy){
+void UDPObjectManager::Register(uint8_t* ipInterface, uint16_t port, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const udp_buffer_strategy_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded){
     // Warning if Register() is called after UDP sockets have already been created
     mtx.lock();
     if(created){
@@ -24,6 +24,7 @@ void UDPObjectManager::Register(uint8_t* ipInterface, uint16_t port, uint32_t rx
         found->second->UpdatePriorities(prioritySocket, priorityThread);
         found->second->UpdateNumBuffers(numBuffers);
         found->second->UpdateBufferStrategy(bufferStrategy);
+        found->second->UpdateIPFilter(ipFilter, (bool)countAsDiscarded);
         if(ipInterface){
             found->second->SetInterface(ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]);
         }
@@ -38,6 +39,7 @@ void UDPObjectManager::Register(uint8_t* ipInterface, uint16_t port, uint32_t rx
         obj->UpdatePriorities(prioritySocket, priorityThread);
         obj->UpdateNumBuffers(numBuffers);
         obj->UpdateBufferStrategy(bufferStrategy);
+        obj->UpdateIPFilter(ipFilter, (bool)countAsDiscarded);
         if(ipInterface){
             obj->SetInterface(ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]);
         }

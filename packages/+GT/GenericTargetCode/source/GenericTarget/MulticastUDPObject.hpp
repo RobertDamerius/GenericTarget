@@ -24,6 +24,8 @@ typedef struct {
     uint32_t idxMessage;            ///< Index of the current message.
     Endpoint group;                 ///< The multicast group address (IPv4 and port).
     uint32_t discardCounter;        ///< Number of messages that have been discarded.
+    uint8_t ipFilter[4];            ///< IP address to be used for address filtering when receiving messages.
+    bool countAsDiscarded;          ///< True if out-filtered messages should be counted as discarded.
 } multicast_udp_state_t;
 
 
@@ -80,6 +82,16 @@ class MulticastUDPObject {
          *  @note This function has no effect if the UDP object has already been started.
          */
         void UpdateBufferStrategy(const udp_buffer_strategy_t bufferStrategy);
+
+        /**
+         *  @brief Update IP address for address filtering.
+         *  @param [in] ipFilter Array of 4 bytes containing IPv4 address of the sender address that should be allowed. If no filter should be used, all bytes must be zero.
+         *  @param [in] countAsDiscarded True if out-filtered messages should be counted as discarded or not.
+         *  @return Return description
+         *  @details If this member function is called multiple times, the latest non-zero value will be used for ipFilter (for countAsDiscarded the latest value is used). Note that the default value for ipFilter is [0;0;0;0].
+         *  @note This function has no effect if the multicast UDP object has already been started.
+         */
+        void UpdateIPFilter(uint8_t* ipFilter, bool countAsDiscarded);
 
         /**
          *  @brief Set the interface address.
@@ -151,6 +163,8 @@ class MulticastUDPObject {
         uint8_t ttl;                 ///< Time-to-live for multicast messages (default: 1).
         uint32_t numBuffers;         ///< Number of buffers, must be greater than zero.
         udp_buffer_strategy_t bufferStrategy; ///< The buffer strategy.
+        uint8_t ipFilter[4];         ///< IP address to be used for address filtering when receiving messages.
+        bool countAsDiscarded;       ///< True if out-filtered messages should be counted as discarded.
 
         /* Internal thread-safe attributes if UDP object has been started */
         multicast_udp_state_t state; ///< The internal state.

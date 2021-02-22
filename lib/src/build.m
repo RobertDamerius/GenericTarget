@@ -37,7 +37,7 @@ defs = [defs; def];
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
 def.SFunctionName = 'SFunctionDriverUDPReceive';
-def.StartFcnSpec  = 'void CreateDriverUDPReceive(uint16 p1, uint8 p2[4], uint32 p3, int32 p4, int32 p5, uint32 p6, uint32 p7)';
+def.StartFcnSpec  = 'void CreateDriverUDPReceive(uint16 p1, uint8 p2[4], uint32 p3, int32 p4, int32 p5, uint32 p6, uint32 p7, uint8 p8[4], uint8 p9)';
 def.OutputFcnSpec = 'void OutputDriverUDPReceive(uint16 p1, uint32 p3, uint32 p6, uint16 y1[5*p6], uint8 y2[p3*p6], uint32 y3[p6], double y4[p6], uint32 y5[1], uint32 y6[1])';
 def.TerminateFcnSpec = 'void DeleteDriverUDPReceive()';
 def.HeaderFiles   = {'DriverUDPReceive.h'};
@@ -77,7 +77,7 @@ defs = [defs; def];
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
 def.SFunctionName = 'SFunctionDriverMulticastUDPReceive';
-def.StartFcnSpec  = 'void CreateDriverMulticastUDPReceive(uint16 p1, uint8 p2[4], uint8 p3[4], uint32 p4, int32 p5, int32 p6, uint8 p7, uint32 p8, uint32 p9)';
+def.StartFcnSpec  = 'void CreateDriverMulticastUDPReceive(uint16 p1, uint8 p2[4], uint8 p3[4], uint32 p4, int32 p5, int32 p6, uint8 p7, uint32 p8, uint32 p9, uint8 p10[4], uint8 p11)';
 def.OutputFcnSpec = 'void OutputDriverMulticastUDPReceive(uint16 p1, uint32 p4, uint32 p8, uint16 y1[5*p8], uint8 y2[p4*p8], uint32 y3[p8], double y4[p8], uint32 y5[1], uint32 y6[1])';
 def.TerminateFcnSpec = 'void DeleteDriverMulticastUDPReceive()';
 def.HeaderFiles   = {'DriverMulticastUDPReceive.h'};
@@ -300,11 +300,11 @@ if(useHostImplementation)
     fprintf('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n H O S T   I M P L E M E N T A T I O N   S U P P O R T\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
     fprintf('\tBLOCK                                 SUPPORTED\n');
     fprintf('\t-----------------------------------------------\n');
-    fprintf('\tInterface/UDP Send                    yes\n');
-    fprintf('\tInterface/UDP Receive                 yes\n');
+    fprintf('\tInterface/UDP Send                    partially (*)\n');
+    fprintf('\tInterface/UDP Receive                 partially (*)\n');
     fprintf('\tInterface/Log To File                 no\n');
-    fprintf('\tInterface/Multicast UDP Send          yes\n');
-    fprintf('\tInterface/Multicast UDP Receive       yes\n');
+    fprintf('\tInterface/Multicast UDP Send          partially (*)\n');
+    fprintf('\tInterface/Multicast UDP Receive       partially (*)\n');
     fprintf('\tTime/Simulation Time                  no\n');
     fprintf('\tTime/Model Time                       yes\n');
     fprintf('\tTime/UNIX Time                        yes\n');
@@ -314,7 +314,7 @@ if(useHostImplementation)
     fprintf('\tTime/CPU Overloads                    no\n');
     fprintf('\tTime/UTC Timestamp                    yes\n');
     fprintf('\tTime/Time To Latest UTC Timestamp     yes\n');
-    fprintf('\t-----------------------------------------------\n\n');
+    fprintf('\t-----------------------------------------------\n(*) UDP interface blocks are only supported for unique local ports!\n\n');
 end
 
 % Clean up

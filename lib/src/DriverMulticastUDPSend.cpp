@@ -7,7 +7,9 @@
 
 void CreateDriverMulticastUDPSend(uint16_t port, uint8_t* ipInterface, uint8_t* ipGroup, int32_t prioritySocket, int32_t priorityThread, uint8_t ttl){
     #ifdef GENERIC_TARGET_IMPLEMENTATION
-    MulticastUDPObjectManager::Register(ipInterface, ipGroup, port, 1, prioritySocket, priorityThread, ttl, 1, (udp_buffer_strategy_t)0xFFFFFFFF);
+    uint8_t ipFilter[4];
+    ipFilter[0] = ipFilter[1] = ipFilter[2] = ipFilter[3] = 0;
+    MulticastUDPObjectManager::Register(ipInterface, ipGroup, port, 1, prioritySocket, priorityThread, ttl, 1, (udp_buffer_strategy_t)0xFFFFFFFF, ipFilter, 0);
     #else
     #ifdef HOST_IMPLEMENTATION
     HostImplementation::CreateDriverMulticastUDPSend(port, ipInterface, ipGroup, prioritySocket, priorityThread, ttl);

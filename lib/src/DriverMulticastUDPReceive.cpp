@@ -7,12 +7,12 @@
 #endif
 
 
-void CreateDriverMulticastUDPReceive(uint16_t port, uint8_t* ipInterface, uint8_t* ipGroup, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, uint8_t ttl, const uint32_t numBuffers, const uint32_t bufferStrategy){
+void CreateDriverMulticastUDPReceive(uint16_t port, uint8_t* ipInterface, uint8_t* ipGroup, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, uint8_t ttl, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded){
     #ifdef GENERIC_TARGET_IMPLEMENTATION
-    MulticastUDPObjectManager::Register(ipInterface, ipGroup, port, rxBufferSize, prioritySocket, priorityThread, ttl, numBuffers, (udp_buffer_strategy_t)bufferStrategy);
+    MulticastUDPObjectManager::Register(ipInterface, ipGroup, port, rxBufferSize, prioritySocket, priorityThread, ttl, numBuffers, (udp_buffer_strategy_t)bufferStrategy, ipFilter, countAsDiscarded);
     #else
     #ifdef HOST_IMPLEMENTATION
-    HostImplementation::CreateDriverMulticastUDPReceive(port, ipInterface, ipGroup, rxBufferSize, prioritySocket, priorityThread, ttl, numBuffers, bufferStrategy);
+    HostImplementation::CreateDriverMulticastUDPReceive(port, ipInterface, ipGroup, rxBufferSize, prioritySocket, priorityThread, ttl, numBuffers, bufferStrategy, ipFilter, countAsDiscarded);
     #else
     (void)port;
     (void)ipInterface;
@@ -23,6 +23,8 @@ void CreateDriverMulticastUDPReceive(uint16_t port, uint8_t* ipInterface, uint8_
     (void)ttl;
     (void)numBuffers;
     (void)bufferStrategy;
+    (void)ipFilter;
+    (void)countAsDiscarded;
     #endif
     #endif
 }

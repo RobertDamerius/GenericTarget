@@ -19,10 +19,12 @@ class UDPObjectManager {
          *  @param [in] priorityThread Receiver thread priority, range: [0, 99].
          *  @param [in] numBuffers Number of receive buffers to be used.
          *  @param [in] bufferStrategy Either DISCARD_OLDEST or DISCARD_RECEIVED. Unknown values are ignored.
+         *  @param [in] ipFilter Array of 4 bytes containing IPv4 address of the sender address that should be allowed. If no filter should be used, all bytes must be zero.
+         *  @param [in] countAsDiscarded Non-zero value if out-filtered messages should be counted as discarded, zero if not.
          *  @details If the port already exists then the interface will be updated and the larger rxBufferSize will be used.
          *  @note New sockets can only be registered before calling the @ref Create function or after calling the @ref Destroy function.
          */
-        static void Register(uint8_t* ipInterface, uint16_t port, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const udp_buffer_strategy_t bufferStrategy);
+        static void Register(uint8_t* ipInterface, uint16_t port, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const udp_buffer_strategy_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded);
 
         /**
          *  @brief Send a UDP message.
