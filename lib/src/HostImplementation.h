@@ -931,7 +931,7 @@ class MulticastUDPObject {
         void Stop(void);
 
         /**
-         *  @brief Send a UDP message to the specified destination.
+         *  @brief Send a UDP message to a specified destination.
          *  @param [in] destination The destination, where indices [0,1,2,3] indicate the destination IPv4 address and index [4] indicates the destination port.
          *  @param [in] bytes Array containing the message to be transmitted.
          *  @param [in] length Number of bytes that should be transmitted.

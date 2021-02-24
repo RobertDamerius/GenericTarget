@@ -15,7 +15,7 @@ MulticastUDPObject::MulticastUDPObject(uint16_t port){
     rxBufferSize = 1;
     prioritySocket = 0;
     priorityThread = 0;
-    group[0] = 224;
+    group[0] = 239;
     group[1] = 0;
     group[2] = 0;
     group[3] = 0;
@@ -45,7 +45,7 @@ MulticastUDPObject::MulticastUDPObject(uint16_t port){
     state.idxMessage = 0;
     state.timestamp = nullptr;
     state.ttl = 1;
-    state.group = Endpoint(244,0,0,0,0);
+    state.group = Endpoint(239,0,0,0,0);
     state.discardCounter = 0;
     state.ipFilter[0] = state.ipFilter[1] = state.ipFilter[2] = state.ipFilter[3] = 0;
     state.countAsDiscarded = true;
