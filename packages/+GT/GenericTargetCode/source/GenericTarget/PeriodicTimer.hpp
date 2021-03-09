@@ -28,10 +28,11 @@ class PeriodicTimer {
 
         /**
          *  @brief Wait for a signal.
+         *  @param [in] resetTimeOfStart True if internal time-of-start value should be reset, false otherwise (default value is: false).
          *  @return True if timer signal was received successfully, false otherwise.
          *  @details If timer is not created or was destroyed, false will be returned immediately.
          */
-        bool WaitForSignal(void);
+        bool WaitForSignal(bool resetTimeOfStart = false);
 
         /**
          *  @brief Get the elapsed time to the start (@ref Create) of the timer.

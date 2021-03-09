@@ -73,9 +73,11 @@ void BaseRateScheduler::Thread(BaseRateScheduler* src){
     src->timeState.ticks = 0;
     src->timeState.simulation = 0.0;
     src->mtxTimeState.unlock();
+    bool firstCall = true;
     while(!src->terminate){
         // Wait for signal and break if timer was destroyed
-        if(!src->baseTimer.WaitForSignal()) break;
+        if(!src->baseTimer.WaitForSignal(firstCall)) break;
+        firstCall = false;
 
         // Check termination flag
         if(src->terminate){
@@ -85,7 +87,7 @@ void BaseRateScheduler::Thread(BaseRateScheduler* src){
         // Update time state
         src->mtxTimeState.lock();
         src->timeState.model = src->baseTimer.GetTimeToStart();
-        src->timeState.simulation = double(++src->timeState.ticks) * SimulinkInterface::baseSampleTime;
+        src->timeState.simulation = double(src->timeState.ticks++) * SimulinkInterface::baseSampleTime;
         auto systemClock = std::chrono::system_clock::now();
         std::time_t systemTime = std::chrono::system_clock::to_time_t(systemClock);
         std::tm* gmTime = std::gmtime(&systemTime);

@@ -181,8 +181,6 @@ bool UDPObject::Start(void){
     param.sched_priority = state.priorityThread;
     if(0 != pthread_setschedparam(threadRX->native_handle(), SCHED_FIFO, &param)){
         LogE("Could not set thread priority %d\n", state.priorityThread);
-        mtxState.unlock();
-        return false;
     }
     mtxState.unlock();
     return true;

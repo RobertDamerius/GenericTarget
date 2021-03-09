@@ -14,10 +14,11 @@ PeriodicTimer::PeriodicTimer(){
 PeriodicTimer::~PeriodicTimer(){}
 
 bool PeriodicTimer::Create(double sampleRate){
+    const double timeToWaitBeforeStart = 0.1;
     Destroy();
     #ifdef _WIN32
     if(sampleRate < 0.001){
-        LogE("[PERIODIC TIMER] A sample rate less than 1 millisecond is not supported!\n");
+        LogE("[PERIODIC TIMER] A sample rate less than 1 millisecond can not be set on windows!\n");
         return false;
     }
     hTimer = CreateWaitableTimer(NULL, false, NULL); // No SECURITY_ATRIBUTES, no manual reset, no timer name
@@ -26,7 +27,7 @@ bool PeriodicTimer::Create(double sampleRate){
         return false;
     }
     LARGE_INTEGER lpDueTime;
-    lpDueTime.QuadPart = (LONGLONG)(sampleRate * 1e7 * -1); // in 100 ns, negative for relative time (positive would be absolute time using UTC)
+    lpDueTime.QuadPart = (LONGLONG)(timeToWaitBeforeStart * 1e7 * -1); // in 100 ns, negative for relative time (positive would be absolute time using UTC)
     LONG lPeriod = (LONG)(sampleRate * 1e3);
     if(!SetWaitableTimer(hTimer, &lpDueTime, lPeriod, NULL, NULL, false)){ // No completetion routine, no args for completetion routine, no resume
         LogE("[PERIODIC TIMER] Could not set waitable timer!\n");
@@ -41,8 +42,8 @@ bool PeriodicTimer::Create(double sampleRate){
     struct itimerspec its;
     its.it_interval.tv_sec = (time_t)sampleRate;
     its.it_interval.tv_nsec = (sampleRate - (time_t)sampleRate) * 1000000000;
-    its.it_value.tv_sec = its.it_interval.tv_sec;
-    its.it_value.tv_nsec = its.it_interval.tv_nsec;
+    its.it_value.tv_sec = (time_t)timeToWaitBeforeStart;
+    its.it_value.tv_nsec = (timeToWaitBeforeStart - (time_t)timeToWaitBeforeStart) * 1000000000;
     if(timerfd_settime(fdTimer, 0, &its, nullptr) < 0){ // 0: no flags
         LogE("[PERIODIC TIMER] Could not set time for timer!\n");
         close(fdTimer);
@@ -68,9 +69,13 @@ void PeriodicTimer::Destroy(void){
     #endif
 }
 
-bool PeriodicTimer::WaitForSignal(void){
+bool PeriodicTimer::WaitForSignal(bool resetTimeOfStart){
     #ifdef _WIN32
-    return (WaitForSingleObject(hTimer, INFINITE) == WAIT_OBJECT_0);
+    bool result = (WaitForSingleObject(hTimer, INFINITE) == WAIT_OBJECT_0);
+    if(resetTimeOfStart){
+        timeOfStart = std::chrono::steady_clock::now();
+    }
+    return result;
     #else
     int s = -1;
     uint64_t exp = 0;
@@ -78,6 +83,9 @@ bool PeriodicTimer::WaitForSignal(void){
         s = read(fdTimer, &exp, sizeof(exp));
         if((s == -1) && (errno == EINTR)){
             continue;
+        }
+        if(resetTimeOfStart){
+            timeOfStart = std::chrono::steady_clock::now();
         }
         break;
     }
