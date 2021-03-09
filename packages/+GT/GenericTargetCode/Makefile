@@ -35,9 +35,9 @@ CC_SYMBOLS         = -DGENERIC_TARGET_IMPLEMENTATION
 # Flags
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Build Flags
-CC_FLAGS        = -Wall -Wextra -Wno-format-security -Ofast -mtune=native
-CPP_FLAGS       = -std=c++17 -Wall -Wextra -Wno-format-security -Ofast -mtune=native
-LD_FLAGS        = -Wall -Wextra -Wno-format-security -Ofast -mtune=native
+CC_FLAGS        = -Wall -Wextra -Wno-format-security -O3 -mtune=native
+CPP_FLAGS       = -std=c++17 -Wall -Wextra -Wno-format-security -O3 -mtune=native
+LD_FLAGS        = -Wall -Wextra -Wno-format-security -O3 -mtune=native
 DEP_FLAGS       = -MT $@ -MMD -MP -MF $(DIRECTORY_BUILD)$*.Td
 POSTCOMPILE     = mv -f $(DIRECTORY_BUILD)$*.Td $(DIRECTORY_BUILD)$*.d
 
