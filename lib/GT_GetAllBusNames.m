@@ -14,7 +14,11 @@ function nameString = GT_GetAllBusNames(inputSignals,preString)
         else
             busName = strcat(preString, inputSignals{i}{1},'.');
             busElements = inputSignals{i}{2};
-            nameString = strcat(nameString, ',', GT_GetAllBusNames(busElements, busName));
+            if(isempty(nameString))
+                nameString = GT_GetAllBusNames(busElements, busName);
+            else
+                nameString = strcat(nameString, ',', GT_GetAllBusNames(busElements, busName));
+            end
         end
     end
 end
