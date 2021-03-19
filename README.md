@@ -12,7 +12,7 @@ The directory structure of this repository is as follows.
 | File / Directory   | Description                                                                                                  |
 | :----------------- | :----------------------------------------------------------------------------------------------------------- |
 | doc                | contains the documentation that can be created with [SimpleDoc](https://github.com/RobertDamerius/SimpleDoc) |
-| lib                | contains the MATLAB Simulink library "GenericTarget" (**>= R2020b**)                                        |
+| lib                | contains the MATLAB Simulink library "GenericTarget" (**>= R2020b**)                                         |
 | packages           | contains the MATLAB package "GT"                                                                             |
 | readme.html        | forwards to the documentation                                                                                |
 | install.m          | MATLAB script to install the Generic Target Toolbox                                                          |
@@ -25,10 +25,11 @@ The directory structure of this repository is as follows.
 > The toolbox is currently in the first stage of development and testing.
 
 ### Revision History
-| Date        | Version  | Description                                                                                               |
-| :---------- | :------- | :-------------------------------------------------------------------------------------------------------- |
-| 2021-01-26  | 1.0      | Initial release                                                                                           |
-| 2021-02-08  | 1.1      | File logging has been updated. Bus signals can now be recorded directly (scalar doubles only).            |
+| Date        | Version  | Description                                                                                                |
+| :---------- | :------- | :--------------------------------------------------------------------------------------------------------- |
+| 2021-01-26  | 1.0      | Initial release                                                                                            |
+| 2021-02-08  | 1.1      | File logging has been updated. Bus signals can now be recorded directly (scalar doubles only).             |
+| 2021-03-19  | 1.2      | File logging has been extended to complete bus objects with multi-dimensional signals of common data types.|
 
 
 ## How To Start

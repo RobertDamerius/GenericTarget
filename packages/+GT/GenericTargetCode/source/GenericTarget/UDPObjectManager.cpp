@@ -51,16 +51,17 @@ void UDPObjectManager::Register(uint8_t* ipInterface, uint16_t port, uint32_t rx
     mtx.unlock();
 }
 
-void UDPObjectManager::Send(const uint16_t port, const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
-    if(!length){
-        return;
+int32_t UDPObjectManager::Send(const uint16_t port, const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
+    int32_t result = 0;
+    if(length){
+        mtx.lock_shared();
+        auto found = objects.find(port);
+        if(found != objects.end()){
+            result = found->second->Send(destination, bytes, length);
+        }
+        mtx.unlock_shared();
     }
-    mtx.lock_shared();
-    auto found = objects.find(port);
-    if(found != objects.end()){
-        found->second->Send(destination, bytes, length);
-    }
-    mtx.unlock_shared();
+    return result;
 }
 
 void UDPObjectManager::Receive(const uint16_t port, uint16_t* sources, uint8_t* bytes, uint32_t* lengths, double* timestamps, uint32_t* numMessagesReceived, uint32_t* numMessagesDiscarded, const uint32_t maxMessageSize, const uint32_t maxNumMessages){

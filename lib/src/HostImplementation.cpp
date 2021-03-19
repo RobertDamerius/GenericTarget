@@ -104,12 +104,12 @@ void HostImplementation::DeleteDriverUDPSend(void){
     __host_implementation_terminate();
 }
 
-void HostImplementation::OutputDriverUDPSend(uint16_t port, uint16_t* destination, uint8_t* bytes, uint32_t length){
+void HostImplementation::OutputDriverUDPSend(int32_t* result, uint16_t port, uint16_t* destination, uint8_t* bytes, uint32_t length){
     __host_implementation_check();
     if(!HostImplementation::UDPObjectManager::Create()){
         fprintf(stderr,"Error: Failed to create UDP object manager!\n");
     }
-    HostImplementation::UDPObjectManager::Send(port, destination, bytes, length);
+    *result = HostImplementation::UDPObjectManager::Send(port, destination, bytes, length);
 }
 
 void HostImplementation::CreateDriverUDPReceive(uint16_t port, uint8_t* ipInterface, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded){
@@ -150,12 +150,12 @@ void HostImplementation::DeleteDriverMulticastUDPSend(void){
     __host_implementation_terminate();
 }
 
-void HostImplementation::OutputDriverMulticastUDPSend(uint16_t port, uint16_t* destination, uint8_t* bytes, uint32_t length){
+void HostImplementation::OutputDriverMulticastUDPSend(int32_t* result, uint16_t port, uint16_t* destination, uint8_t* bytes, uint32_t length){
     __host_implementation_check();
     if(!HostImplementation::MulticastUDPObjectManager::Create()){
         fprintf(stderr,"Error: Failed to create multicast UDP object manager!\n");
     }
-    HostImplementation::MulticastUDPObjectManager::Send(port, destination, bytes, length);
+    *result = HostImplementation::MulticastUDPObjectManager::Send(port, destination, bytes, length);
 }
 
 void HostImplementation::CreateDriverMulticastUDPReceive(uint16_t port, uint8_t* ipInterface, uint8_t* ipGroup, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, uint8_t ttl, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded){
@@ -816,9 +816,9 @@ void HostImplementation::UDPObject::Stop(void){
     mtxState.unlock();
 }
 
-void HostImplementation::UDPObject::Send(const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
+int32_t HostImplementation::UDPObject::Send(const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
     HostImplementation::Endpoint ep((uint8_t)(0x00FF & destination[0]), (uint8_t)(0x00FF & destination[1]), (uint8_t)(0x00FF & destination[2]), (uint8_t)(0x00FF & destination[3]), destination[4]);
-    (void) socket.SendTo(ep, (uint8_t*)bytes, length);
+    return socket.SendTo(ep, (uint8_t*)bytes, length);
 }
 
 void HostImplementation::UDPObject::Receive(uint16_t* sources, uint8_t* bytes, uint32_t* lengths, double* timestamps, uint32_t* numMessagesReceived, uint32_t* numMessagesDiscarded, const uint32_t maxMessageSize, const uint32_t maxNumMessages){
@@ -957,16 +957,17 @@ void HostImplementation::UDPObjectManager::Register(uint8_t* ipInterface, uint16
     HostImplementation::UDPObjectManager::mtx.unlock();
 }
 
-void HostImplementation::UDPObjectManager::Send(const uint16_t port, const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
-    if(!length){
-        return;
+int32_t HostImplementation::UDPObjectManager::Send(const uint16_t port, const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
+    int32_t result = 0;
+    if(length){
+        HostImplementation::UDPObjectManager::mtx.lock();
+        auto found = HostImplementation::UDPObjectManager::objects.find(port);
+        if(found != HostImplementation::UDPObjectManager::objects.end()){
+            result = found->second->Send(destination, bytes, length);
+        }
+        HostImplementation::UDPObjectManager::mtx.unlock();
     }
-    HostImplementation::UDPObjectManager::mtx.lock();
-    auto found = HostImplementation::UDPObjectManager::objects.find(port);
-    if(found != HostImplementation::UDPObjectManager::objects.end()){
-        found->second->Send(destination, bytes, length);
-    }
-    HostImplementation::UDPObjectManager::mtx.unlock();
+    return result;
 }
 
 void HostImplementation::UDPObjectManager::Receive(const uint16_t port, uint16_t* sources, uint8_t* bytes, uint32_t* lengths, double* timestamps, uint32_t* numMessagesReceived, uint32_t* numMessagesDiscarded, const uint32_t maxMessageSize, const uint32_t maxNumMessages){
@@ -1292,9 +1293,9 @@ void HostImplementation::MulticastUDPObject::Stop(void){
     mtxState.unlock();
 }
 
-void HostImplementation::MulticastUDPObject::Send(const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
+int32_t HostImplementation::MulticastUDPObject::Send(const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
     HostImplementation::Endpoint ep((uint8_t)(0x00FF & destination[0]), (uint8_t)(0x00FF & destination[1]), (uint8_t)(0x00FF & destination[2]), (uint8_t)(0x00FF & destination[3]), destination[4]);
-    (void) socket.SendTo(ep, (uint8_t*)bytes, length);
+    return socket.SendTo(ep, (uint8_t*)bytes, length);
 }
 
 void HostImplementation::MulticastUDPObject::Receive(uint16_t* sources, uint8_t* bytes, uint32_t* lengths, double* timestamps, uint32_t* numMessagesReceived, uint32_t* numMessagesDiscarded, const uint32_t maxMessageSize, const uint32_t maxNumMessages){
@@ -1441,16 +1442,17 @@ void HostImplementation::MulticastUDPObjectManager::Register(uint8_t* ipInterfac
     HostImplementation::MulticastUDPObjectManager::mtx.unlock();
 }
 
-void HostImplementation::MulticastUDPObjectManager::Send(const uint16_t port, const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
-    if(!length){
-        return;
+int32_t HostImplementation::MulticastUDPObjectManager::Send(const uint16_t port, const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
+    int32_t result = 0;
+    if(length){
+        HostImplementation::MulticastUDPObjectManager::mtx.lock();
+        auto found = HostImplementation::MulticastUDPObjectManager::objects.find(port);
+        if(found != HostImplementation::MulticastUDPObjectManager::objects.end()){
+            result = found->second->Send(destination, bytes, length);
+        }
+        HostImplementation::MulticastUDPObjectManager::mtx.unlock();
     }
-    HostImplementation::MulticastUDPObjectManager::mtx.lock();
-    auto found = HostImplementation::MulticastUDPObjectManager::objects.find(port);
-    if(found != HostImplementation::MulticastUDPObjectManager::objects.end()){
-        found->second->Send(destination, bytes, length);
-    }
-    HostImplementation::MulticastUDPObjectManager::mtx.unlock();
+    return result;
 }
 
 void HostImplementation::MulticastUDPObjectManager::Receive(const uint16_t port, uint16_t* sources, uint8_t* bytes, uint32_t* lengths, double* timestamps, uint32_t* numMessagesReceived, uint32_t* numMessagesDiscarded, const uint32_t maxMessageSize, const uint32_t maxNumMessages){

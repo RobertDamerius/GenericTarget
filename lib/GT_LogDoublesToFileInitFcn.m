@@ -1,4 +1,4 @@
-function GT_LogToFileInitFcn(block)
+function GT_LogDoublesToFileInitFcn(block)
     % Read all input names from bus selector
     busSelector = [block '/BusSelector'];
     inputSignals = get_param(busSelector, 'InputSignals');
@@ -12,7 +12,7 @@ function GT_LogToFileInitFcn(block)
     set_param(block, 'numSignals', num2str(1 + count(allNames, ',')));
 
     % Set labels
-    set_param(block, 'signalNames', strcat('''',allNames,''''));
+    set_param(block, 'signalNames', allNames);
     set_param(block, 'numCharacters', num2str(2 + length(allNames)));
 end
 

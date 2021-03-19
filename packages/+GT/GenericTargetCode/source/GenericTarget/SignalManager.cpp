@@ -1,4 +1,6 @@
 #include <SignalManager.hpp>
+#include <SignalObjectDoubles.hpp>
+#include <SignalObjectBus.hpp>
 #include <Console.hpp>
 #include <Common.hpp>
 #include <SimulinkInterface.hpp>
@@ -6,7 +8,7 @@
 
 
 std::atomic<bool> SignalManager::created = ATOMIC_VAR_INIT(false);
-std::unordered_map<uint32_t, SignalObject*> SignalManager::objects;
+std::unordered_map<uint32_t, SignalObjectBase*> SignalManager::objects;
 std::string SignalManager::directoryDataLog;
 
 
@@ -17,10 +19,10 @@ void SignalManager::Register(uint32_t id, const uint8_t* signalNames, uint32_t n
         return;
     }
 
-    // Get labels (only use supported characters)
+    // Get labels (only use printable characters)
     std::string signalLabels;
     for(uint32_t n = 0; n < numCharacters; ++n){
-        if(((signalNames[n] >= 'a') && (signalNames[n] <= 'z')) || ((signalNames[n] >= 'A') && (signalNames[n] <= 'Z')) || ((signalNames[n] >= '0') && (signalNames[n] <= '9')) || ('.' == signalNames[n]) || (',' == signalNames[n]) || ('_' == signalNames[n]) || (' ' == signalNames[n]))
+        if((signalNames[n] >= 0x20) && (signalNames[n] < 0x7F))
             signalLabels.push_back(signalNames[n]);
     }
 
@@ -35,11 +37,11 @@ void SignalManager::Register(uint32_t id, const uint8_t* signalNames, uint32_t n
     }
     else{
         // This is a new signal (id), add it to the list
-        SignalObject* obj = new SignalObject();
+        SignalObjectDoubles* obj = new SignalObjectDoubles();
         obj->SetNumSamplesPerFile(numSamplesPerFile);
         obj->SetNumSignals(numSignals);
         obj->SetLabels(signalLabels);
-        objects.insert(std::pair<uint32_t, SignalObject*>(id, obj));
+        objects.insert(std::pair<uint32_t, SignalObjectBase*>(id, obj));
     }
 }
 
@@ -49,6 +51,67 @@ void SignalManager::WriteSignals(uint32_t id, double* values, uint32_t numValues
         auto found = objects.find(id);
         if(found != objects.end()){
             found->second->Write(t.simulation, values, numValues);
+        }
+    }
+}
+
+void SignalManager::BusObjectRegister(uint32_t id, uint32_t numSamplesPerFile, uint32_t numBytesPerSample, const uint8_t* signalNames, uint32_t strlenSignalNames, const uint8_t* dimensions, uint32_t strlenDimensions, const uint8_t* dataTypes, uint32_t strlenDataTypes){
+    // Warning if Register() is called after signals have already been created
+    if(created){
+        LogW("Cannot register signal (id=%d) because signal creation was already done!\n",id);
+        return;
+    }
+
+    // Get labels (only use printable characters)
+    std::string signalLabels;
+    for(uint32_t n = 0; n < strlenSignalNames; ++n){
+        if((signalNames[n] >= 0x20) && (signalNames[n] < 0x7F))
+            signalLabels.push_back(signalNames[n]);
+    }
+
+    // Get dimensions (only use printable characters)
+    std::string strDimensions;
+    for(uint32_t n = 0; n < strlenDimensions; ++n){
+        if((dimensions[n] >= 0x20) && (dimensions[n] < 0x7F))
+            strDimensions.push_back(dimensions[n]);
+    }
+
+    // Get datatypes (only use printable characters)
+    std::string strDataTypes;
+    for(uint32_t n = 0; n < strlenDataTypes; ++n){
+        if((dataTypes[n] >= 0x20) && (dataTypes[n] < 0x7F))
+            strDataTypes.push_back(dataTypes[n]);
+    }
+
+    // Check if this signal object is already in the list
+    auto found = objects.find(id);
+    if(found != objects.end()){
+        // This signal (id) was already registered, update signal data
+        LogW("Signal object with ID %d has already been registered! Signal parameters are updated!\n",id);
+        found->second->SetNumSamplesPerFile(numSamplesPerFile);
+        found->second->SetNumBytesPerSample(numBytesPerSample);
+        found->second->SetLabels(signalLabels);
+        found->second->SetDimensions(strDimensions);
+        found->second->SetDataTypes(strDataTypes);
+    }
+    else{
+        // This is a new signal (id), add it to the list
+        SignalObjectBus* obj = new SignalObjectBus();
+        obj->SetNumSamplesPerFile(numSamplesPerFile);
+        obj->SetNumBytesPerSample(numBytesPerSample);
+        obj->SetLabels(signalLabels);
+        obj->SetDimensions(strDimensions);
+        obj->SetDataTypes(strDataTypes);
+        objects.insert(std::pair<uint32_t, SignalObjectBase*>(id, obj));
+    }
+}
+
+void SignalManager::BusObjectWriteSignals(uint32_t id, uint8_t* bytes, uint32_t numBytesPerSample){
+    if(created){
+        TargetTime t = GenericTarget::GetTargetTime();
+        auto found = objects.find(id);
+        if(found != objects.end()){
+            found->second->Write(t.simulation, bytes, numBytesPerSample);
         }
     }
 }
@@ -188,6 +251,21 @@ bool SignalManager::WriteIndexFile(std::string filename, uint32_t date_year, uin
         bytes[3] = uint8_t(id & 0x000000FF);
         fwrite(&bytes[0], 1, 4, file);
     }
+
+    // version + 0x00
+    fwrite(&strVersion[0], 1, strVersion.length(), file);
+    bytes[0] = 0;
+    fwrite(&bytes[0], 1, 1, file);
+
+    // modelName + 0x00
+    fwrite(&SimulinkInterface::modelName[0], 1, SimulinkInterface::modelName.length(), file);
+    bytes[0] = 0;
+    fwrite(&bytes[0], 1, 1, file);
+
+    // compileDate + 0x00
+    fwrite(&SimulinkInterface::strCompiled[0], 1, SimulinkInterface::strCompiled.length(), file);
+    bytes[0] = 0;
+    fwrite(&bytes[0], 1, 1, file);
     fclose(file);
     return true;
 }

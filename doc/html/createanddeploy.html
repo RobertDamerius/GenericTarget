@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20210309</div>
+<div class="header_version">Version 20210319</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -92,11 +92,11 @@ gt.Deploy(model);</pre>
     <br>
     <br>
     <h3>Download data</h3>
-    Make sure that the model is stopped and download the data with <code>data = gt.DownloadData()</code>.
+    Make sure that the model is stopped and download the data with <code>gt.DownloadDataDirectory()</code>.
     During the process you will be asked which folder should be downloaded.
     The folder names correspond to the UTC time of the model start.
     The data can also be downloaded manually.
-    The class method <code>gt.DecodeTargetLog()</code> can be used to decode the recorded data.
+    The function <code>GT.DecodeLogDirectory()</code> can be used to decode the recorded data.
     Information about the file format of data recordings can be found <a href="signalmanager.html#protocol">here</a>.
 
     <br>

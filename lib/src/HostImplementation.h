@@ -67,12 +67,13 @@ void DeleteDriverUDPSend(void);
 
 /**
  *  @brief Output function for the UDP send driver.
+ *  @param [out] result The number of bytes that have been transmitted or a negative value in case of errors.
  *  @param [in] port The port of this UDP socket.
  *  @param [in] destination The destination address, where the LSB of indices [0,1,2,3] indicate the IPv4 address and the index [4] indicates the destination port.
  *  @param [in] bytes The array containing the message that should be send.
  *  @param [in] length Number of bytes that should be send.
  */
-void OutputDriverUDPSend(uint16_t port, uint16_t* destination, uint8_t* bytes, uint32_t length);
+void OutputDriverUDPSend(int32_t* result, uint16_t port, uint16_t* destination, uint8_t* bytes, uint32_t length);
 
 /**
  *  @brief Create the UDP receive driver.
@@ -126,12 +127,13 @@ void DeleteDriverMulticastUDPSend(void);
 
 /**
  *  @brief Output function for the multicast UDP send driver.
+ *  @param [out] result The number of bytes that have been transmitted or a negative value in case of errors.
  *  @param [in] port The port of this UDP socket.
  *  @param [in] destination The destination address, where the LSB of indices [0,1,2,3] indicate the IPv4 address and the index [4] indicates the destination port.
  *  @param [in] bytes The array containing the message that should be send.
  *  @param [in] length Number of bytes that should be send.
  */
-void OutputDriverMulticastUDPSend(uint16_t port, uint16_t* destination, uint8_t* bytes, uint32_t length);
+void OutputDriverMulticastUDPSend(int32_t* result, uint16_t port, uint16_t* destination, uint8_t* bytes, uint32_t length);
 
 /**
  *  @brief Create the multicast UDP receive driver.
@@ -691,8 +693,9 @@ class UDPObject {
          *  @param [in] destination The destination, where indices [0,1,2,3] indicate the destination IPv4 address and index [4] indicates the destination port.
          *  @param [in] bytes Array containing the message to be transmitted.
          *  @param [in] length Number of bytes that should be transmitted.
+         *  @return The number of bytes that have been transmitted or a negative value in case of errors.
          */
-        void Send(const uint16_t* destination, const uint8_t* bytes, const uint32_t length);
+        int32_t Send(const uint16_t* destination, const uint8_t* bytes, const uint32_t length);
 
         /**
          *  @brief Fetch all messages from the receive buffer.
@@ -759,9 +762,10 @@ class UDPObjectManager {
          *  @param [in] destination The destination, where indices [0,1,2,3] indicate the destination IPv4 address and index [4] indicates the destination port.
          *  @param [in] bytes Array containing the message to be transmitted.
          *  @param [in] length Number of bytes that should be transmitted.
+         *  @return The number of bytes that have been transmitted or a negative value in case of errors.
          *  @details The function will return immediately if the length is zero.
          */
-        static void Send(const uint16_t port, const uint16_t* destination, const uint8_t* bytes, const uint32_t length);
+        static int32_t Send(const uint16_t port, const uint16_t* destination, const uint8_t* bytes, const uint32_t length);
 
         /**
          *  @brief Fetch all messages from the receive buffer of a socket.
@@ -935,8 +939,9 @@ class MulticastUDPObject {
          *  @param [in] destination The destination, where indices [0,1,2,3] indicate the destination IPv4 address and index [4] indicates the destination port.
          *  @param [in] bytes Array containing the message to be transmitted.
          *  @param [in] length Number of bytes that should be transmitted.
+         *  @return The number of bytes that have been transmitted or a negative value in case of errors.
          */
-        void Send(const uint16_t* destination, const uint8_t* bytes, const uint32_t length);
+        int32_t Send(const uint16_t* destination, const uint8_t* bytes, const uint32_t length);
 
         /**
          *  @brief Fetch all messages from the receive buffer.
@@ -1007,9 +1012,10 @@ class MulticastUDPObjectManager {
          *  @param [in] destination The destination, where indices [0,1,2,3] indicate the destination IPv4 address and index [4] indicates the destination port.
          *  @param [in] bytes Array containing the message to be transmitted.
          *  @param [in] length Number of bytes that should be transmitted.
+         *  @return The number of bytes that have been transmitted or a negative value in case of errors.
          *  @details The function will return immediately if the length is zero.
          */
-        static void Send(const uint16_t port, const uint16_t* destination, const uint8_t* bytes, const uint32_t length);
+        static int32_t Send(const uint16_t port, const uint16_t* destination, const uint8_t* bytes, const uint32_t length);
 
         /**
          *  @brief Fetch all messages from the receive buffer of a socket.

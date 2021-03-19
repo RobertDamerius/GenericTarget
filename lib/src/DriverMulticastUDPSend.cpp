@@ -32,13 +32,14 @@ void DeleteDriverMulticastUDPSend(void){
     #endif
 }
 
-void OutputDriverMulticastUDPSend(uint16_t port, uint16_t* destination, uint8_t* bytes, uint32_t length){
+void OutputDriverMulticastUDPSend(int32_t* result, uint16_t port, uint16_t* destination, uint8_t* bytes, uint32_t length){
     #ifdef GENERIC_TARGET_IMPLEMENTATION
-    MulticastUDPObjectManager::Send(port, destination, bytes, length);
+    *result = MulticastUDPObjectManager::Send(port, destination, bytes, length);
     #else
     #ifdef HOST_IMPLEMENTATION
-    HostImplementation::OutputDriverMulticastUDPSend(port, destination, bytes, length);
+    HostImplementation::OutputDriverMulticastUDPSend(result, port, destination, bytes, length);
     #else
+    *result = 0;
     (void)port;
     (void)bytes;
     (void)length;

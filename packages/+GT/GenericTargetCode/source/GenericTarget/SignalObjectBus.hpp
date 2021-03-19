@@ -1,17 +1,20 @@
 #pragma once
 
 
-class SignalObject {
+#include <SignalObjectBase.hpp>
+
+
+class SignalObjectBus: public SignalObjectBase {
     public:
         /**
          *  @brief Create a signal object.
          */
-        SignalObject();
+        SignalObjectBus();
 
         /**
          *  @brief Destroy the signal object.
          */
-        ~SignalObject();
+        ~SignalObjectBus();
 
         /**
          *  @brief Start the signal object.
@@ -28,11 +31,11 @@ class SignalObject {
         /**
          *  @brief Write signals to buffer.
          *  @param [in] simulationTime The current simulation time.
-         *  @param [in] values Signal values.
-         *  @param [in] numValues Number of values.
+         *  @param [in] bytes Array that contains the bytes to write.
+         *  @param [in] numBytes Number of bytes to write.
          *  @details This member function triggers the logger thread that writes the data to the binary file.
          */
-        void Write(double simulationTime, double* values, uint32_t numValues);
+        void Write(double simulationTime, uint8_t* bytes, uint32_t numBytes);
 
         /**
          *  @brief Set the number of samples per file.
@@ -46,13 +49,13 @@ class SignalObject {
         }
 
         /**
-         *  @brief Set the number of signals to log.
-         *  @param [in] numSignals The number of signals to log.
+         *  @brief Set the number of bytes per sample.
+         *  @param [in] numBytesPerSample The number of bytes per sample.
          *  @note This function has no effect if the signal object has already been started.
          */
-        inline void SetNumSignals(uint32_t numSignals){
+        inline void SetNumBytesPerSample(uint32_t numBytesPerSample){
             if(!started){
-                this->numSignals = numSignals;
+                this->numBytesPerSample = numBytesPerSample;
             }
         }
 
@@ -68,27 +71,39 @@ class SignalObject {
         }
 
         /**
-         *  @brief Get the number of signals.
-         *  @return Number of signals.
+         *  @brief Set the dimensions.
+         *  @param [in] dimensions Dimension string (zero-terminated string).
+         *  @note This function has no effect if the signal object has already been started.
          */
-        inline uint32_t GetNumSignals(void){ return this->numSignals; }
+        inline void SetDimensions(std::string dimensions){
+            if(!started){
+                this->dimensions = dimensions;
+            }
+        }
 
         /**
-         *  @brief Get the labels.
-         *  @return The @ref labels.
+         *  @brief Set the datatypes.
+         *  @param [in] dataTypes Data types string (zero-terminated string).
+         *  @note This function has no effect if the signal object has already been started.
          */
-        inline std::string GetLabels(void){ return this->labels; }
+        inline void SetDataTypes(std::string dataTypes){
+            if(!started){
+                this->dataTypes = dataTypes;
+            }
+        }
 
     private:
         /* Configuration attributes to be used when Start() is called */
         size_t numSamplesPerFile;          ///< Number of samples per file. If this value is zero, all samples are written to a single file.
-        uint32_t numSignals;               ///< Number of values.
+        uint32_t numBytesPerSample;        ///< Number of bytes per sample.
         std::string labels;                ///< Signal labels.
+        std::string dimensions;            ///< Dimensions (string).
+        std::string dataTypes;             ///< Data types (string).
         std::atomic<bool> started;         ///< True if @ref Start has already been called, false otherwise.
         std::string filename;              ///< The filename that has been set during the @ref Start member function.
 
         /* Internal thread-safe attributes if signal object has been started */
-        std::vector<double> buffer;        ///< Buffering of values to be written to file (maybe deque<vector<double>> is more suitable?).
+        std::vector<uint8_t> buffer;       ///< Buffering of binary values to be written to file.
         std::mutex mtxBuffer;              ///< Protect the @ref buffer.
         std::thread* threadLog;            ///< Logger thread instance.
         std::mutex mtxNotify;              ///< Mutex for thread notification.
@@ -120,12 +135,12 @@ class SignalObject {
          *  @brief Logging thread function.
          *  @param [in] obj The signal object that started the thread function.
          */
-        static void ThreadLog(SignalObject* obj);
+        static void ThreadLog(SignalObjectBus* obj);
 
         /**
          *  @brief Write a buffer to one or several data files.
-         *  @param [inout] values Reference to a buffer that should be written to file(s). Values that have been written to file(s) successfully are removed from the container.
+         *  @param [inout] bytes Reference to a buffer that should be written to file(s). Values that have been written to file(s) successfully are removed from the container.
          */
-        void WriteBufferToDataFiles(std::vector<double>& values);
+        void WriteBufferToDataFiles(std::vector<uint8_t>& bytes);
 };
 

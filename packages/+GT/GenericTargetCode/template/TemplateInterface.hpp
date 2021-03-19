@@ -1,4 +1,4 @@
-/* Auto-generated code (Template Version 20210208) */
+/* Auto-generated code (Template Version 20210319) */
 #ifndef $INTERFACE_NAME_UPPER$_HPP
 #define $INTERFACE_NAME_UPPER$_HPP
 
@@ -11,6 +11,7 @@
 
 class $INTERFACE_NAME$ {
     public:
+        static const std::string modelName;                              ///< A string indicating the model name (ASCII characters only).
         static const std::string strCompiled;                            ///< A time-string indicating the time of compilation.
         static const uint16_t portAppSocket;                             ///< The port for the application socket.
         static const int priorityLog;                                    ///< Priority for data logging threads.

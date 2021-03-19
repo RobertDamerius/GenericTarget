@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20210309</div>
+<div class="header_version">Version 20210319</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -137,6 +137,13 @@
             </td></tr>
         <tr><td>length</td><td>
             The number of bytes to send.
+            </td></tr>
+    </table>
+    The following parameters are returned by the block when selected via the mask dialog.
+    <table>
+		<tr><th>Parameter</th><th>Description</th></tr>
+		<tr><td>result</td><td>
+            An integer indicating the number of bytes that have been transmitted or a negative value in case of errors.
             </td></tr>
     </table>
 

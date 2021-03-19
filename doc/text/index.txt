@@ -17,7 +17,8 @@
             <h4>MATLAB Package</h4>
             The MATLAB package (<b>GT</b>) includes the <code>GT.GenericTarget</code> class.
             This class can be used to generate source code for the generic target application based on a Simulink model and deploy it to the target.
-            In addition, this class can also be used to start and stop the application or download and convert recorded data.
+            In addition, this class can also be used to start and stop the application or download recorded data.
+            Furthermore, the (<b>GT</b>) MATLAB package contains functions to decode recorded data.
             </td><tr>
         <tr><td style="border:none;"><img src="../img/SimulinkLibrary.png"></td><td style="border:none;"></td><td valign="top" style="border:none;">
             <h4>Simulink Library</h4>
@@ -34,8 +35,8 @@
             </td><tr>
         <tr><td style="border:none;"><img src="../img/GenericTargetSoftware.png"></td><td style="border:none;"></td><td valign="top" style="border:none;">
             <h4>Generic Target Software</h4>
-            The MATLAB package contains the source code for the realtime application running on the target PC.
-            The build procedure compiles this source code together with the generated code of the Simulink model on the target PC.
+            The MATLAB package contains the source code for the realtime application running on the target computer.
+            The build procedure compiles this source code together with the generated code of the Simulink model on the target computer.
             </td><tr>
     </table>
     <br>

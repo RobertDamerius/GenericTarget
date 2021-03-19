@@ -1,7 +1,8 @@
-/* Auto-generated code (Template Version 20210208) */
+/* Auto-generated code (Template Version 20210319) */
 #include <$INTERFACE_NAME$.hpp>
 
 
+const std::string SimulinkInterface::modelName("$NAME_OF_MODEL$");
 const std::string $INTERFACE_NAME$::strCompiled(__DATE__ " " __TIME__);
 const uint16_t $INTERFACE_NAME$::portAppSocket = $PORT_APP_SOCKET$;
 const int $INTERFACE_NAME$::priorityLog = $PRIORITY_LOG$;

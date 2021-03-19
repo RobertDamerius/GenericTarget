@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include <SignalObject.hpp>
+#include <SignalObjectBase.hpp>
 
 
 /* Forward declaration */
@@ -30,6 +30,29 @@ class SignalManager {
          */
         static void WriteSignals(uint32_t id, double* values, uint32_t numValues);
 
+        /**
+         *  @brief Register a new bus log (complete bus object).
+         *  @param [in] id Unique ID of the log.
+         *  @param [in] numSamplesPerFile The number of samples per file or zero if all samples should be written to one file.
+         *  @param [in] numBytesPerSample The number of bytes per sample (exluding timestamp).
+         *  @param [in] signalNames Names for all signals separated by comma.
+         *  @param [in] strlenSignalNames Number of characters in the signalNames array.
+         *  @param [in] dimensions String representing all signal dimensions separated by comma.
+         *  @param [in] strlenDimensions Number of characters in the dimensions array.
+         *  @param [in] dataTypes String representing all signal data types separated by comma.
+         *  @param [in] strlenDataTypes Number of characters in the dataTypes array.
+         *  @details All signals to log must be registered before the GenericTarget creates all signal objects.
+         */
+        static void BusObjectRegister(uint32_t id, uint32_t numSamplesPerFile, uint32_t numBytesPerSample, const uint8_t* signalNames, uint32_t strlenSignalNames, const uint8_t* dimensions, uint32_t strlenDimensions, const uint8_t* dataTypes, uint32_t strlenDataTypes);
+
+        /**
+         *  @brief Write bus signals to file (complete bus object).
+         *  @param [in] id Unique ID of the log.
+         *  @param [in] bytes Array containing the bytes for a sample (exluding timestamp).
+         *  @param [in] numBytesPerSample The number of bytes per sample (exluding timestamp).
+         *  @details This function has no effect if the signal manager has not been created.
+         */
+        static void BusObjectWriteSignals(uint32_t id, uint8_t* bytes, uint32_t numBytesPerSample);
 
     protected:
         friend GenericTarget;
@@ -49,9 +72,9 @@ class SignalManager {
         static void Destroy(void);
 
     private:
-        static std::atomic<bool> created;                           ///< True if signal sockets have been created, false otherwise.
-        static std::unordered_map<uint32_t, SignalObject*> objects; ///< Signal object list.
-        static std::string directoryDataLog;                        ///< Name of the data log directory.
+        static std::atomic<bool> created;                                 ///< True if signal sockets have been created, false otherwise.
+        static std::unordered_map<uint32_t, SignalObjectBase*> objects;   ///< Signal object list.
+        static std::string directoryDataLog;                              ///< Name of the data log directory.
 
         /**
          *  @brief Generate the filename string.

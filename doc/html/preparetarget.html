@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20210309</div>
+<div class="header_version">Version 20210319</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -72,7 +72,7 @@
     At the beginning you can adjust basic settings.
     The user account should be set so that the user logs in automatically.
     Furthermore, the energy saving setting should be adjusted so that the computer does not automatically switch to standby mode.
-    Depending on the Linux distributiuon used, some steps may not be necessary.
+    Depending on the Linux distribution used, some steps may not be necessary, others may be missing.
 
         <h3>Install sudo</h3>
         Make sure that sudo is installed on your distribution. Open a terminal and type
@@ -137,8 +137,8 @@
     With the following script the source code for the framework is copied to the target and precompiled.
     Make sure that your Host PC can connect to the target computer.
     SSH and SCP are used to execute commands and copy data, respectively.
-<pre>username = 'user';           % Set username of target pc
-address  = '192.168.0.100';  % Set address of target pc
+<pre>username = 'user';           % Set username of target computer
+address  = '192.168.0.100';  % Set address of target computer
 
 gt = GT.GenericTarget(username, address);
 gt.Setup();</pre>
@@ -146,6 +146,10 @@ gt.Setup();</pre>
     <h3 class="note-green">Note</h3>
     The default directory on the target computer is <code>~/GenericTarget/</code>, which is created in the home directory.
     If another directory is to be used, it can be passed as a parameter to the <code>Setup()</code> method.
+    </div>
+    <div class="note-orange">
+    <h3 class="note-orange">Note</h3>
+    If a new version of the toolbox is to be used for a target, then the new framework should also be copied to the target by running the <code>Setup()</code> method again.
     </div>
 
     <a name="step4"></a>

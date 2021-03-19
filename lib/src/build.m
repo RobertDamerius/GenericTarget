@@ -18,7 +18,7 @@ end
 def = legacy_code('initialize');
 def.SFunctionName = 'SFunctionDriverUDPSend';
 def.StartFcnSpec  = 'void CreateDriverUDPSend(uint16 p1, uint8 p2[4], int32 p3, int32 p4)';
-def.OutputFcnSpec = 'void OutputDriverUDPSend(uint16 p1, uint16 u1[5], uint8 u2[], uint32 u3)';
+def.OutputFcnSpec = 'void OutputDriverUDPSend(int32 y1[1], uint16 p1, uint16 u1[5], uint8 u2[], uint32 u3)';
 def.TerminateFcnSpec = 'void DeleteDriverUDPSend()';
 def.HeaderFiles   = {'DriverUDPSend.h'};
 def.SourceFiles   = {'DriverUDPSend.cpp','HostImplementation.cpp'};
@@ -58,7 +58,7 @@ defs = [defs; def];
 def = legacy_code('initialize');
 def.SFunctionName = 'SFunctionDriverMulticastUDPSend';
 def.StartFcnSpec  = 'void CreateDriverMulticastUDPSend(uint16 p1, uint8 p2[4], uint8 p3[4], int32 p4, int32 p5, uint8 p6)';
-def.OutputFcnSpec = 'void OutputDriverMulticastUDPSend(uint16 p1, uint16 u1[5], uint8 u2[], uint32 u3)';
+def.OutputFcnSpec = 'void OutputDriverMulticastUDPSend(int32 y1[1], uint16 p1, uint16 u1[5], uint8 u2[], uint32 u3)';
 def.TerminateFcnSpec = 'void DeleteDriverMulticastUDPSend()';
 def.HeaderFiles   = {'DriverMulticastUDPSend.h'};
 def.SourceFiles   = {'DriverMulticastUDPSend.cpp','HostImplementation.cpp'};
@@ -213,6 +213,26 @@ defs = [defs; def];
 
 
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Driver: Bus Object Log (complete bus)
+% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def = legacy_code('initialize');
+def.SFunctionName = 'SFunctionDriverBusObjectLog';
+def.StartFcnSpec  = 'void CreateDriverBusObjectLog(uint32 p1, uint32 p2, uint32 p3, uint8 p4[], uint32 p5, uint8 p6[], uint32 p7, uint8 p8[], uint32 p9)';
+def.OutputFcnSpec = 'void OutputDriverBusObjectLog(uint32 p1, uint8 u1[p3], uint32 p3)';
+def.TerminateFcnSpec = 'void DeleteDriverBusObjectLog()';
+def.HeaderFiles   = {'DriverBusObjectLog.h'};
+def.SourceFiles   = {'DriverBusObjectLog.cpp','HostImplementation.cpp'};
+def.IncPaths      = {''};
+def.SrcPaths      = {''};
+def.LibPaths      = {''};
+def.HostLibFiles  = {hostLibFiles};
+def.Options.language = 'C++';
+def.Options.useTlcWithAccel = false;
+def.SampleTime = 'parameterized';
+defs = [defs; def];
+
+
+% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % Driver: Task Execution Time
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
@@ -293,7 +313,7 @@ legacy_code('sfcn_tlc_generate', defs);
 legacy_code('rtwmakecfg_generate', defs);
 
 % Generate Simulink blocks (not required, all blocks are already in the library)
-% legacy_code('slblock_generate', defs);
+%legacy_code('slblock_generate', defs);
 
 % Print information on supported host implementations
 if(useHostImplementation)
@@ -302,7 +322,8 @@ if(useHostImplementation)
     fprintf('\t-----------------------------------------------\n');
     fprintf('\tInterface/UDP Send                    partially (*)\n');
     fprintf('\tInterface/UDP Receive                 partially (*)\n');
-    fprintf('\tInterface/Log To File                 no\n');
+    fprintf('\tInterface/Log Doubles To File         no\n');
+    fprintf('\tInterface/Log Bus To File             no\n');
     fprintf('\tInterface/Multicast UDP Send          partially (*)\n');
     fprintf('\tInterface/Multicast UDP Receive       partially (*)\n');
     fprintf('\tTime/Simulation Time                  no\n');

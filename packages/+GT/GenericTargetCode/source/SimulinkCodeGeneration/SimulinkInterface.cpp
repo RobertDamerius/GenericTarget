@@ -1,7 +1,8 @@
-/* Auto-generated code (Template Version 20210208) */
+/* Auto-generated code (Template Version 20210319) */
 #include <SimulinkInterface.hpp>
 
 
+const std::string SimulinkInterface::modelName("Model");
 const std::string SimulinkInterface::strCompiled(__DATE__ " " __TIME__);
 const uint16_t SimulinkInterface::portAppSocket = 65535;
 const int SimulinkInterface::priorityLog = 30;

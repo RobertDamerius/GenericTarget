@@ -22,7 +22,7 @@
         <tr><td><b>lib</b></td><td>
             Contains the Simulink library "GenericTarget".</td></tr>
         <tr><td><b>packages</b></td><td>
-            Contains das MATLAB package "GT".</td></tr>
+            Contains the MATLAB package "GT".</td></tr>
         <tr><td><b>install.m</b></td><td>
             MATLAB script to install the Generic Target Toolbox.</td></tr>
         <tr><td><b>uninstall.m</b></td><td>
@@ -56,7 +56,8 @@
 		<tr><th>Block</th><th>No Host Implementation</th><th>With Host Implementation</th></tr>
         <tr><td>Interface/UDP Send                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
         <tr><td>Interface/UDP Receive                 </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
-        <tr><td>Interface/Log To File                 </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
+        <tr><td>Interface/Log Doubles To File         </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
+        <tr><td>Interface/Log Bus To File             </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
         <tr><td>Interface/Multicast UDP Send          </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
         <tr><td>Interface/Multicast UDP Receive       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
         <tr><td>Time/Simulation Time                  </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>

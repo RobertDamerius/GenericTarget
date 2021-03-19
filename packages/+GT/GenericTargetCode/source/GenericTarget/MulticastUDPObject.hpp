@@ -135,8 +135,9 @@ class MulticastUDPObject {
          *  @param [in] destination The destination, where indices [0,1,2,3] indicate the destination IPv4 address and index [4] indicates the destination port.
          *  @param [in] bytes Array containing the message to be transmitted.
          *  @param [in] length Number of bytes that should be transmitted.
+         *  @return The number of bytes that have been transmitted or a negative value in case of errors.
          */
-        void Send(const uint16_t* destination, const uint8_t* bytes, const uint32_t length);
+        int32_t Send(const uint16_t* destination, const uint8_t* bytes, const uint32_t length);
 
         /**
          *  @brief Fetch all messages from the receive buffer.

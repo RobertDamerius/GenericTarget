@@ -1,7 +1,6 @@
 #include <BaseRateScheduler.hpp>
 #include <SimulinkInterface.hpp>
 #include <Console.hpp>
-#include <SignalManager.hpp>
 
 
 BaseRateScheduler::BaseRateScheduler(){

@@ -30,13 +30,14 @@ void DeleteDriverUDPSend(void){
     #endif
 }
 
-void OutputDriverUDPSend(uint16_t port, uint16_t* destination, uint8_t* bytes, uint32_t length){
+void OutputDriverUDPSend(int32_t* result, uint16_t port, uint16_t* destination, uint8_t* bytes, uint32_t length){
     #ifdef GENERIC_TARGET_IMPLEMENTATION
-    UDPObjectManager::Send(port, destination, bytes, length);
+    *result = UDPObjectManager::Send(port, destination, bytes, length);
     #else
     #ifdef HOST_IMPLEMENTATION
-    HostImplementation::OutputDriverUDPSend(port, destination, bytes, length);
+    HostImplementation::OutputDriverUDPSend(result, port, destination, bytes, length);
     #else
+    *result = 0;
     (void)port;
     (void)destination;
     (void)bytes;

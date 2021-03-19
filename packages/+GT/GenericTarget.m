@@ -16,6 +16,13 @@
 %                                    DecodeTargetLog() has been renamed to DecodeTargetLogDirectory().
 %                                    DeleteData() has been renamed to DeleteAllData().
 % 20210218    Robert Damerius        Added portSSH property. Added DeployToHost() member function.
+% 20210319    Robert Damerius        Renamed SendCommand() member function to RunCommandOnTarget().
+%                                    Static decoder functions have been moved to the GT namespace.
+%                                    Added GetTargetLogDirectoryName() member function.
+%                                    Replaced several strcat() calls by vector concatenation because strcat does not
+%                                    concatenate white spaces.
+%                                    DownloadData() has been renamed to DownloadDataDirectory() and does not decode.
+%                                    Constant properties are now public.
 % 
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -44,23 +51,27 @@ classdef GenericTarget < handle
     % gt = GT.GenericTarget('192.168.0.100','user');
     % gt.ShowLog();
     % 
-    % EXAMPLE: Download recorded data and delete log
+    % EXAMPLE: Download recorded data / delete all data
     % gt = GT.GenericTarget('192.168.0.100','user');
-    % log = gt.DownloadData();
-    % gt.DeleteData();
-    % 
-    % EXAMPLE: Decode data recorded by generic target
-    % data = GT.GenericTarget.DecodeTargetLog();
+    % gt.DownloadDataDirectory();
+    % gt.DeleteAllData();
 
     properties
         portAppSocket;           % The port for the application socket (default: 65535).
         portSSH;                 % The port to be used for SSH/SCP connection (default: 22).
         priorityLog;             % Priority for the data logging threads in range [0, 98] (default: 30).
         targetIPAddress;         % IPv4 address of the target PC.
-        targetSoftwareDirectory; % Directory for software on target (default: "~/GenericTarget/"). MUST BEGIN WITH '~/'!
+        targetSoftwareDirectory; % Directory for software on target (default: "~/GenericTarget/"). MUST BEGIN WITH '~/' AND END WITH '/'!
         targetUsername;          % User name of target PC required to login on target via SSH/SCP.
         terminateAtCPUOverload;  % True if application should terminate at CPU overload, false otherwise (default: true).
         upperThreadPriority;     % Upper task priority in range [0, 98] (default: 98).
+    end
+    properties(Constant)
+        GENERIC_TARGET_SUBDIRECTORY_CODE = 'GenericTargetCode';  % Subdirectory in package directory that contains application code and templates.
+        GENERIC_TARGET_SOFTWARE_NAME     = 'GenericTarget';      % Executable name for generic target application.
+        GENERIC_TARGET_LOGFILE_NAME      = 'log.txt';            % Name of text log file on target.
+        GENERIC_TARGET_DIRECTORY_LOG     = 'log/';               % Name of log directory on target.
+        GENERIC_TARGET_INTERFACE_NAME    = 'SimulinkInterface';  % Name of interface class.
     end
     methods
         function obj = GenericTarget(targetUsername, targetIPAddress)
@@ -71,6 +82,12 @@ classdef GenericTarget < handle
             % targetIPAddress ... The host name of the target, e.g. IP address.
 
             % Make sure that inputs are strings
+            if(nargin < 1)
+                targetUsername = '';
+            end
+            if(nargin < 2)
+                targetIPAddress = '';
+            end
             assert(ischar(targetUsername), 'GT.GenericTarget.GenericTarget(): Input "targetUsername" must be a string!');
             assert(ischar(targetIPAddress), 'GT.GenericTarget.GenericTarget(): Input "targetIPAddress" must be a string!');
 
@@ -105,7 +122,7 @@ classdef GenericTarget < handle
             % Get absolute path to Software directory
             fullpath = mfilename('fullpath');
             filename = mfilename();
-            dirSoftware = [fullpath(1:(end-length(filename))) GT.GenericTarget.DIRECTORY_GENERIC_TARGET_CODE];
+            dirSoftware = [fullpath(1:(end-length(filename))) GT.GenericTarget.GENERIC_TARGET_SUBDIRECTORY_CODE];
 
             % Compress software to zip and upload to target
             fprintf('[GENERIC TARGET] Setup software for target %s (target software directory: %s)\n',obj.targetIPAddress,obj.targetSoftwareDirectory);
@@ -194,10 +211,10 @@ classdef GenericTarget < handle
             % Get absolute path to Software directory
             fullpath = mfilename('fullpath');
             filename = mfilename();
-            dirSoftware = [fullpath(1:(end-length(filename))) GT.GenericTarget.DIRECTORY_GENERIC_TARGET_CODE filesep];
+            dirSoftware = [fullpath(1:(end-length(filename))) GT.GenericTarget.GENERIC_TARGET_SUBDIRECTORY_CODE filesep];
 
             % Copy software framework to output directory
-            outputDirectory = strcat(directory,'GT_',modelName,filesep);
+            outputDirectory = [directory,'GT_',modelName,filesep];
             fprintf('[GENERIC TARGET] Copying software framework to "%s"\n', outputDirectory);
             [~,~] = rmdir(outputDirectory,'s');
             [~,~] = mkdir(outputDirectory);
@@ -265,7 +282,7 @@ classdef GenericTarget < handle
 
             % Generate interface code from code information and write to header file (.hpp) and source file (.cpp) to code generation directory
             fprintf('[GENERIC TARGET] Generating code for model interface: %s\n',GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME);
-            [strInterfaceHeader, strInterfaceSource] = GT.GenericTarget.GenerateInterfaceCode(codeInfo, GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME, obj.priorityLog, obj.portAppSocket, obj.upperThreadPriority, obj.terminateAtCPUOverload);
+            [strInterfaceHeader, strInterfaceSource] = GT.GenericTarget.GenerateInterfaceCode(modelName, codeInfo, GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME, obj.priorityLog, obj.portAppSocket, obj.upperThreadPriority, obj.terminateAtCPUOverload);
             fidHeader = fopen([dirCodeGen subDirModelCode GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.hpp'],'wt');
             fidSource = fopen([dirCodeGen subDirModelCode GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.cpp'],'wt');
             fprintf(fidHeader, strInterfaceHeader);
@@ -338,8 +355,8 @@ classdef GenericTarget < handle
             obj.RunCommand(cmdSSH);
             commands = {cmdSSH};
         end
-        function [commands,cmdout] = SendCommand(obj, cmd)
-            %GT.GenericTarget.SendCommand Send a command to the target computer. The command is executed via SSH.
+        function [commands,cmdout] = RunCommandOnTarget(obj, cmd)
+            %GT.GenericTarget.RunCommandOnTarget Run a command to the target computer. The command is executed via SSH.
             % 
             % PARAMETERS
             % cmd  ... The command string to be executed on the target computer, e.g. 'ls'.
@@ -351,45 +368,54 @@ classdef GenericTarget < handle
             [~,cmdout] = obj.RunCommand(cmdSSH);
             commands = {cmdSSH};
         end
-        function [data,info,commands] = DownloadData(obj, hostDirectory)
-            %GT.GenericTarget.DownloadData Download recorded data from the target. The downloaded data will be written to the specified hostDirectory.
-            % The downloaded data is then decoded and returned.
+        function commands = DownloadDataDirectory(obj, hostDirectory, targetLogDirectory)
+            %GT.GenericTarget.DownloadDataDirectory Download recorded data from the target. The downloaded data will be written to the specified hostDirectory.
             % 
             % PARAMETERS
-            % hostDirectory ... The destination directory (absolute path) on the host where to write the downloaded data to.
-            %                   If the directory does not exist, then it will be created. If this argument is not given, then
-            %                   the current working directory is used as default directory.
+            % hostDirectory      ... The destination directory (absolute path) on the host where to write the downloaded data to.
+            %                        If the directory does not exist, then it will be created. If this argument is not given, then
+            %                        the current working directory is used as default directory.
+            % targetLogDirectory ... Optional string indicating the log directory name on the target to be downloaded, e.g. "20210319_123456".
+            %                        If this parameter is not given, all log directories existing on the target will be displayed and the user has to
+            %                        specify the name manually.
             % 
             % RETURN
-            % data     ... The data structure containing timeseries for all recorded signals.
-            % info     ... Additional information about the log (from the index file).
             % commands ... The commands that were executed on the host.
 
             % Default directory and fallback output
-            if(2 ~= nargin)
+            if(nargin < 2)
                 hostDirectory = pwd;
             end
-            assert(ischar(hostDirectory), 'GT.GenericTarget.DownloadData(): Input "hostDirectory" must be a string!');
+            if(nargin < 3)
+                targetLogDirectory = char.empty();
+            end
+            assert(ischar(hostDirectory), 'GT.GenericTarget.DownloadDataDirectory(): Input "hostDirectory" must be a string!');
+            assert(ischar(targetLogDirectory), 'GT.GenericTarget.DownloadDataDirectory(): Input "targetLogDirectory" must be a string!');
             if(filesep ~= hostDirectory(end))
                 hostDirectory = [hostDirectory filesep];
             end
 
-            % Get all directory names
-            fprintf('[GENERIC TARGET] SSH: Listing available log directories\n');
-            cmdSSH = ['ssh -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "cd ' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG ' && ls"'];
-            obj.RunCommand(cmdSSH);
+            % Check if user specified log directory
+            cmdSSH = char.empty();
+            if(isempty(targetLogDirectory))
+                % Get all directory names
+                fprintf('[GENERIC TARGET] SSH: Listing available log directories\n');
+                cmdSSH = ['ssh -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "cd ' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG ' && ls"'];
+                obj.RunCommand(cmdSSH);
 
-            % Get directory name from user input
-            dirName = input('\n[GENERIC TARGET] Choose directory name to download: ','s');
+                % Get directory name from user input
+                targetLogDirectory = input('\n[GENERIC TARGET] Choose directory name to download: ','s');
+            end
 
             % Download directory via SCP
-            fprintf('\n[GENERIC TARGET] Downloading %s from target %s\n',dirName,obj.targetIPAddress);
-            cmdSCP = ['scp -P ' num2str(obj.portSSH) ' -r ' obj.targetUsername '@' obj.targetIPAddress ':' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG dirName ' ' hostDirectory];
+            fprintf('\n[GENERIC TARGET] Downloading %s from target %s\n',targetLogDirectory,obj.targetIPAddress);
+            cmdSCP = ['scp -P ' num2str(obj.portSSH) ' -r ' obj.targetUsername '@' obj.targetIPAddress ':' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG targetLogDirectory ' ' hostDirectory];
             obj.RunCommand(cmdSCP);
-
-            % Decode target data
-            [data,info] = GT.GenericTarget.DecodeTargetLogDirectory([hostDirectory dirName]);
-            commands = {cmdSSH,cmdSCP};
+            if(isempty(cmdSSH))
+                commands = {cmdSCP};
+            else
+                commands = {cmdSSH,cmdSCP};
+            end
         end
         function commands = DownloadAllData(obj, hostDirectory)
             %GT.GenericTarget.DownloadAllData Download all recorded data directories from the target. The downloaded data will be written to the specified hostDirectory.
@@ -427,249 +453,20 @@ classdef GenericTarget < handle
             obj.RunCommand(cmdSSH);
             commands = {cmdSSH};
         end
+        function logDirectory = GetTargetLogDirectoryName(obj)
+            %GT.GenericTarget.GetTargetLogDirectoryName Get the absolute name of the log directory on the target.
+            % 
+            % RETURN
+            % logDirectory ... Absolute log directory name on the target.
+            logDirectory = [obj.targetSoftwareDirectory GT.GenericTarget.GENERIC_TARGET_DIRECTORY_LOG];
+        end
     end
     methods(Static)
-        function busData = DecodeTargetData(dataFileNames)
-            %GT.GenericTarget.DecodeTargetData Decode raw data file(s) recorded by the generic target application into a structure of timeseries.
-            % 
-            % PARAMETERS
-            % dataFileNames ... A string or a cell array of strings indicating the raw data files that contains the data recorded by the generic target application for one ID, e.g. 'id0_0' or {'id0_0','id0_1'}.
-            % 
-            % RETURN
-            % busData ... The data structure containing timeseries for all recorded signals.
-            if(ischar(dataFileNames))
-                dataFileNames = {dataFileNames};
-            end
-            assert(iscell(dataFileNames) && ((1 == size(dataFileNames,1)) || (1 == size(dataFileNames,2))), 'GT.GenericTarget.DecodeTargetData(): Input "dataFileNames" must be a string or a cell array of strings!');
-            for i = 1:length(dataFileNames)
-                assert(ischar(dataFileNames{i}), 'GT.GenericTarget.DecodeTargetData(): Input "dataFileNames" must be a string or a cell array of strings!');
-            end
-
-            % Fallback output
-            busData = struct();
-            if(isempty(dataFileNames))
-                return;
-            end
-
-            % Loop through all data files and decode them
-            % Check if all data files have the same header
-            prevNumSignals = uint64(0);
-            prevBigEndian = false;
-            prevSignalNames = cell.empty();
-            byteStream = uint8.empty();
-            for i = 1:length(dataFileNames)
-                % Open file
-                fp = fopen(dataFileNames{i},'r');
-                if(fp < 0)
-                    error('Could not open file: "%s"\n',dataFileNames{i});
-                end
-                fprintf('Decoding header of target data "%s" ...',dataFileNames{i});
-
-                % Header should be: 'G' (71), 'T' (84), 'D' (68), 'A' (65), 'T' (84)
-                bytesHeader = uint8(fread(fp, 5));
-                if((5 ~= length(bytesHeader)) || (uint8(71) ~= bytesHeader(1)) || (uint8(84) ~= bytesHeader(2)) || (uint8(68) ~= bytesHeader(3)) || (uint8(65) ~= bytesHeader(4)) || (uint8(84) ~= bytesHeader(5)))
-                    fclose(fp);
-                    error('Invalid header of file: "%s"\n',dataFileNames{i});
-                end
-
-                % Number of signals
-                bytesNumSignals = uint8(fread(fp, 4));
-                if(4 ~= length(bytesNumSignals))
-                    fclose(fp);
-                    error('Tried to read 4 bytes but could only read %d byte(s). File: "%s" may not be complete!\n',length(bytesNumSignals),dataFileNames{i});
-                end
-                numSignals = uint64(bitor(bitor(bitshift(uint32(bytesNumSignals(1)),24),bitshift(uint32(bytesNumSignals(2)),16)),bitor(bitshift(uint32(bytesNumSignals(3)),8),uint32(bytesNumSignals(4)))));
-
-                % Read signal names
-                signalNames = char.empty();
-                while(true)
-                    byte = uint8(fread(fp, 1));
-                    if(1 ~= length(byte))
-                        fclose(fp);
-                        error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!\n',length(byte),dataFileNames{i});
-                    end
-                    if(~byte)
-                        break;
-                    end
-                    signalNames = strcat(signalNames,char(byte));
-                end
-                signalNames = split(signalNames,',');
-                if(uint64(length(signalNames)) ~= numSignals)
-                    fclose(fp);
-                    error('Number of signal names (%d) does not match number of signals (%d) in file "%s"',length(signalNames),numSignals,dataFileNames{i});
-                end
-
-                % Endianness should be litte endian (0x01) or big endian (0x80)
-                byteEndian = fread(fp, 1);
-                if(isempty(byteEndian) || (uint8(1) ~= byteEndian) && (uint8(128) ~= byteEndian))
-                    fclose(fp);
-                    error('Invalid endian value in file: "%s"\n',dataFileNames{i});
-                end
-                bigEndian = (uint8(128) == byteEndian);
-
-                % Read all remaining data
-                bytes = uint8(fread(fp));
-                fclose(fp);
-                byteStream = [byteStream; bytes];
-
-                % Check for matching headers
-                if(i > 1)
-                    assert(numSignals == prevNumSignals, 'Input files have different headers! They may belong to different IDs!');
-                    assert(bigEndian == prevBigEndian, 'Input files have different headers! They may belong to different IDs!');
-                    assert(length(signalNames) == length(prevSignalNames), 'Input files have different headers! They may belong to different IDs!');
-                    for j = 1:length(signalNames)
-                        assert(strcmp(signalNames{j}, prevSignalNames{j}), 'Input files have different headers! They may belong to different IDs!');
-                    end
-                end
-                prevNumSignals = numSignals;
-                prevBigEndian = bigEndian;
-                prevSignalNames = signalNames;
-                fprintf(' OK\n');
-            end
-
-            % Endianess of this machine
-            [~,~,tmp] = computer;
-            thisBigEndian = ('B' == tmp);
-
-            % Compute the total number of samples
-            bytesPerSample = uint64(8) * (uint64(1) + prevNumSignals);
-            numSamples = uint64(floor(double(length(byteStream)) / double(bytesPerSample)));
-
-            % Read time and data into vector/matrix
-            fprintf('\tDecoding %d samples from %d data files ...', numSamples, length(dataFileNames));
-            timeVec = nan(numSamples,1);
-            dataMat = nan(numSamples,prevNumSignals);
-            idxStart = uint64(1);
-            for i = uint64(1):numSamples
-                timeVec(i) = typecast(byteStream(idxStart:(idxStart + uint64(7))), 'double');
-                idxStart = idxStart + uint64(8);
-                if(prevBigEndian ~= thisBigEndian)
-                    timeVec(i) = swapbytes(timeVec(i));
-                end
-                for k = uint64(1):prevNumSignals
-                    dataMat(i,k) = typecast(byteStream(idxStart:(idxStart + uint64(7))), 'double');
-                    idxStart = idxStart + uint64(8);
-                    if(prevBigEndian ~= thisBigEndian)
-                        dataMat(i,k) = swapbytes(dataMat(i,k));
-                    end
-                end
-            end
-            fprintf(' OK\n');
-
-            % Create structure with timeseries
-            fprintf('\tGenerating output structure of timeseries ...');
-            for k=uint64(1):prevNumSignals
-                layerNames = split(signalNames{k},'.');
-                ts = timeseries(dataMat(:,k),timeVec,'Name',layerNames{end});
-                eval(strcat('busData.',signalNames{k},' = ts;'));
-            end
-            fprintf(' OK\n');
-        end
-        function [data,info] = DecodeTargetLogDirectory(directory)
-            %GT.GenericTarget.DecodeTargetLogDirectory Decode a complete log directory.
-            % 
-            % PARAMETERS
-            % directory ... The directory that contains the data recorded by the generic target application. This directory should
-            %               contain at least an index file. If this parameter is not given, then the current working directory is used.
-            % 
-            % RETURN
-            % data ... The data structure containing timeseries for all recorded signals.
-            % info ... Additional information about the log (from the index file).
-
-            % Default working directory and fallback output
-            if(1 ~= nargin)
-                directory = pwd;
-            end
-            assert(ischar(directory), 'GT.GenericTarget.DecodeTargetData(): Input "directory" must be a string!');
-            if(filesep ~= directory(end))
-                directory = strcat(directory,filesep);
-            end
-            data = struct();
-            info = struct();
-
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            % Decode the index file
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            filenameIndex = strcat(directory,'index');
-            fp = fopen(filenameIndex,'r');
-            if(fp < 0)
-                error('Could not open index file "%s"\n',filenameIndex);
-            end
-            fprintf('Decoding index file "%s" ...',filenameIndex);
-
-            % Header should be: 'G' (71), 'T' (84), 'I' (73), 'D' (68), 'X' (88)
-            bytesHeader = uint8(fread(fp, 5));
-            if((5 ~= length(bytesHeader)) || (uint8(71) ~= bytesHeader(1)) || (uint8(84) ~= bytesHeader(2)) || (uint8(73) ~= bytesHeader(3)) || (uint8(68) ~= bytesHeader(4)) || (uint8(88) ~= bytesHeader(5)))
-                fclose(fp);
-                error('Invalid header of file: "%s"\n',filenameIndex);
-            end
-
-            % Decode date
-            bytesDate = uint8(fread(fp, 9));
-            if(9 ~= length(bytesDate))
-                fclose(fp);
-                error('Invalid header of file: "%s"\n',filenameIndex);
-            end
-            info.dateUTC.year = uint32(bitor(bitor(bitshift(uint32(bytesDate(1)),24),bitshift(uint32(bytesDate(2)),16)),bitor(bitshift(uint32(bytesDate(3)),8),uint32(bytesDate(4)))));
-            info.dateUTC.month = bytesDate(5);
-            info.dateUTC.mday = bytesDate(6);
-            info.dateUTC.hour = bytesDate(7);
-            info.dateUTC.minute = bytesDate(8);
-            info.dateUTC.second = bytesDate(9);
-
-            % Number of IDs
-            bytesNumIDs = uint8(fread(fp, 4));
-            if(4 ~= length(bytesNumIDs))
-                fclose(fp);
-                error('Invalid header of file: "%s"\n',filenameIndex);
-            end
-            numIDs = uint32(bitor(bitor(bitshift(uint32(bytesNumIDs(1)),24),bitshift(uint32(bytesNumIDs(2)),16)),bitor(bitshift(uint32(bytesNumIDs(3)),8),uint32(bytesNumIDs(4)))));
-
-            % All IDs (4 byte per ID)
-            ids = uint32(zeros(numIDs,1));
-            for i = uint32(1):numIDs
-                bytes = uint8(fread(fp, 4));
-                if(4 ~= length(bytes))
-                    fclose(fp);
-                    error('Invalid header of file: "%s"\n',filenameIndex);
-                end
-                ids(i) = uint32(bitor(bitor(bitshift(uint32(bytes(1)),24),bitshift(uint32(bytes(2)),16)),bitor(bitshift(uint32(bytes(3)),8),uint32(bytes(4)))));
-            end
-            fclose(fp);
-            fprintf(' OK\n');
-
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            % Decode all log files
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            for i = uint32(1):numIDs
-                % Prefix string for current ID
-                idName = strcat('id',num2str(ids(i)));
-                prefixID = strcat(idName,'_');
-
-                % Find all file names with prefix ID
-                listing = dir(directory);
-                dataFileNames = cell.empty();
-                k = 0;
-                for j = 1:length(listing)
-                    filename = strcat(directory, listing(j).name);
-                    if(listing(j).isdir || ~isfile(filename))
-                        continue;
-                    end
-                    if(startsWith(listing(j).name, prefixID, 'IgnoreCase', true))
-                        k = k + 1;
-                        dataFileNames{k} = filename;
-                    end
-                end
-
-                % Decode all filenames
-                data.(idName) = GT.GenericTarget.DecodeTargetData(dataFileNames);
-            end
-        end
         function GetTemplate()
             %GT.GenericTarget.GetTemplate Copy the template MATLAB/simulink model to the current working directory.
             fullpath = mfilename('fullpath');
             filename = mfilename();
-            dirGenericTargetCode = [fullpath(1:(end-length(filename))) GT.GenericTarget.DIRECTORY_GENERIC_TARGET_CODE filesep];
+            dirGenericTargetCode = [fullpath(1:(end-length(filename))) GT.GenericTarget.GENERIC_TARGET_SUBDIRECTORY_CODE filesep];
             [~,~] = copyfile([dirGenericTargetCode 'GenericTargetTemplate.slx'], [pwd filesep 'GenericTargetTemplate.slx'], 'f');
         end
     end
@@ -678,7 +475,7 @@ classdef GenericTarget < handle
             % Get template directory
             fullpath = mfilename('fullpath');
             filename = mfilename();
-            dirTemplate = [fullpath(1:(end-length(filename))) GT.GenericTarget.DIRECTORY_GENERIC_TARGET_CODE filesep 'template' filesep];
+            dirTemplate = [fullpath(1:(end-length(filename))) GT.GenericTarget.GENERIC_TARGET_SUBDIRECTORY_CODE filesep 'template' filesep];
 
             % Get list of files and folders for current directory and check all files/folders
             filesAndFolders = dir(directory);
@@ -728,10 +525,11 @@ classdef GenericTarget < handle
                 end
             end
         end
-        function [strHeader, strSource] = GenerateInterfaceCode(codeInfo, strInterfaceName, priorityLog, portAppSocket, upperThreadPriority, terminateAtCPUOverload)
+        function [strHeader, strSource] = GenerateInterfaceCode(modelName, codeInfo, strInterfaceName, priorityLog, portAppSocket, upperThreadPriority, terminateAtCPUOverload)
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Check for valid input interface name
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            assert(ischar(modelName), 'GT.GenericTarget.GenerateInterfaceCode(): Input "modelName" must be a string!');
             assert(ischar(strInterfaceName), 'GT.GenericTarget.GenerateInterfaceCode(): Input "strInterfaceName" must be a string!');
             assert(~isempty(strInterfaceName), 'GT.GenericTarget.GenerateInterfaceCode(): Length of "strInterfaceName" must not be empty!');
             assert(isscalar(priorityLog), 'GT.GenericTarget.GenerateInterfaceCode(): Input "priorityLog" must be scalar!');
@@ -747,9 +545,15 @@ classdef GenericTarget < handle
             assert(islogical(terminateAtCPUOverload), 'GT.GenericTarget.GenerateInterfaceCode(): Input "terminateAtCPUOverload" must be logical!');
 
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            % Get the model name
+            % Get the model name, both for function names and information
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             strModelName = codeInfo.Name;
+            strNameOfModel = '';
+            for i = 1:length(modelName)
+                if((uint8(modelName(i)) >= uint8(20)) && (uint8(modelName(i)) <= uint8(126)))
+                    strNameOfModel = [strNameOfModel,modelName(i)];
+                end
+            end
 
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Get initialize and terminate function prototype
@@ -808,10 +612,10 @@ classdef GenericTarget < handle
             strArrayTaskNames = sprintf('"%s"',taskNames(1));
             strStepSwitch = sprintf('        case 0: model.%s(); break;',stepPrototypes(1));
             for n = uint32(2):numTimings
-                strArraySampleTicks = strcat(strArraySampleTicks, sprintf(', %d',sampleTicks(n)));
-                strArrayPriorities = strcat(strArrayPriorities, sprintf(', %d',priorities(n)));
-                strStepSwitch = strcat(strStepSwitch, sprintf('\n        case %d: model.%s(); break;',uint32(n-1),stepPrototypes(n)));
-                strArrayTaskNames = strcat(strArrayTaskNames, sprintf(', "%s"',taskNames(n)));
+                strArraySampleTicks = strcat(strArraySampleTicks, sprintf(',%d',sampleTicks(n)));
+                strArrayPriorities = strcat(strArrayPriorities, sprintf(',%d',priorities(n)));
+                strStepSwitch = [strStepSwitch, sprintf('\n        case %d: model.%s(); break;',uint32(n-1),stepPrototypes(n))];
+                strArrayTaskNames = [strArrayTaskNames, sprintf(', "%s"',taskNames(n))];
             end
 
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -837,9 +641,11 @@ classdef GenericTarget < handle
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             fullpath = mfilename('fullpath');
             filename = mfilename();
-            dirTemplate = [fullpath(1:(end-length(filename))) GT.GenericTarget.DIRECTORY_GENERIC_TARGET_CODE filesep 'template' filesep];
+            dirTemplate = [fullpath(1:(end-length(filename))) GT.GenericTarget.GENERIC_TARGET_SUBDIRECTORY_CODE filesep 'template' filesep];
             strHeader = fileread([dirTemplate 'TemplateInterface.hpp']);
             strSource = fileread([dirTemplate 'TemplateInterface.cpp']);
+            strHeader = strrep(strHeader, '$NAME_OF_MODEL$', strNameOfModel);
+            strSource = strrep(strSource, '$NAME_OF_MODEL$', strNameOfModel);
             strHeader = strrep(strHeader, '$INTERFACE_NAME_UPPER$', strInterfaceNameUpper);
             strSource = strrep(strSource, '$INTERFACE_NAME_UPPER$', strInterfaceNameUpper);
             strHeader = strrep(strHeader, '$INTERFACE_NAME$', strInterfaceName);
@@ -872,13 +678,6 @@ classdef GenericTarget < handle
         function cmdout = RunCommand(cmd)
             [~,cmdout] = system(cmd,'-echo');
         end
-    end
-    properties(Constant, Access=private)
-        DIRECTORY_GENERIC_TARGET_CODE = 'GenericTargetCode';
-        GENERIC_TARGET_SOFTWARE_NAME = 'GenericTarget';
-        GENERIC_TARGET_LOGFILE_NAME = 'log.txt';
-        GENERIC_TARGET_DIRECTORY_LOG = 'log/';
-        GENERIC_TARGET_INTERFACE_NAME = 'SimulinkInterface';
     end
 end
 

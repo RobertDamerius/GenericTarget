@@ -289,9 +289,9 @@ void MulticastUDPObject::Stop(void){
     mtxState.unlock();
 }
 
-void MulticastUDPObject::Send(const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
+int32_t MulticastUDPObject::Send(const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
     Endpoint ep((uint8_t)(0x00FF & destination[0]), (uint8_t)(0x00FF & destination[1]), (uint8_t)(0x00FF & destination[2]), (uint8_t)(0x00FF & destination[3]), destination[4]);
-    (void) socket.SendTo(ep, (uint8_t*)bytes, length);
+    return socket.SendTo(ep, (uint8_t*)bytes, length);
 }
 
 void MulticastUDPObject::Receive(uint16_t* sources, uint8_t* bytes, uint32_t* lengths, double* timestamps, uint32_t* numMessagesReceived, uint32_t* numMessagesDiscarded, const uint32_t maxMessageSize, const uint32_t maxNumMessages){
