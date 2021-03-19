@@ -409,7 +409,8 @@ classdef GenericTarget < handle
 
             % Download directory via SCP
             fprintf('\n[GENERIC TARGET] Downloading %s from target %s\n',targetLogDirectory,obj.targetIPAddress);
-            cmdSCP = ['scp -P ' num2str(obj.portSSH) ' -r ' obj.targetUsername '@' obj.targetIPAddress ':' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG targetLogDirectory ' ' hostDirectory];
+            [~,~] = mkdir(hostDirectory);
+            cmdSCP = ['scp -P ' num2str(obj.portSSH) ' -r ' obj.targetUsername '@' obj.targetIPAddress ':' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG targetLogDirectory ' ' hostDirectory targetLogDirectory];
             obj.RunCommand(cmdSCP);
             if(isempty(cmdSSH))
                 commands = {cmdSCP};
@@ -439,9 +440,14 @@ classdef GenericTarget < handle
 
             % Download directory via SCP
             fprintf('\n[GENERIC TARGET] Downloading all data (%s) from target %s\n',[obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG],obj.targetIPAddress);
+            [~,~] = mkdir(hostDirectory);
             cmdSCP = ['scp -P ' num2str(obj.portSSH) ' -r ' obj.targetUsername '@' obj.targetIPAddress ':' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG ' ' hostDirectory];
             obj.RunCommand(cmdSCP);
             commands = {cmdSCP};
+
+            % Unpack from log directory
+            [~,~] = movefile([hostDirectory obj.GENERIC_TARGET_DIRECTORY_LOG '*'],hostDirectory);
+            [~,~] = rmdir([hostDirectory obj.GENERIC_TARGET_DIRECTORY_LOG], 's');
         end
         function commands = DeleteAllData(obj)
             %GT.GenericTarget.DeleteData Delete all recorded data on the target. This will also stop a running target application.
