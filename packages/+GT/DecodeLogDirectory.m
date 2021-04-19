@@ -14,6 +14,7 @@ function [data,info] = DecodeLogDirectory(directory)
     % Version     Author                 Changes
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % 20210319    Robert Damerius        Initial release.
+    % 20210419    Robert Damerius        Ignoring empty data file names.
     % 
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -53,7 +54,9 @@ function [data,info] = DecodeLogDirectory(directory)
         end
 
         % Decode all filenames
-        data.(idName) = GT.DecodeDataFiles(dataFileNames);
+        if(~isempty(dataFileNames))
+            data.(idName) = GT.DecodeDataFiles(dataFileNames);
+        end
     end
 end
 
