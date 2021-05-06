@@ -54,17 +54,23 @@
     <center><object data="../img/Scheduling.svg" type="image/svg+xml"></object></center>
     <br>
     <br>
-    Here the <code>step0()</code> function is executed with the basic sampling rate and the <code>step1()</code> function with twice the sampling time.
+    Here, the <code>step0()</code> function is executed with the basic sampling rate and the <code>step1()</code> function with twice the sampling time.
 
     <a name="cpuoverload"></a>
     <h3>Lost-Wakeup (CPU Overload)</h3>
     If a thread is triggered by the BaseRateScheduler even though the corresponding step function is not yet ready, a lost wakeup occurs.
     The trigger event from the timer is lost.
-    Only at the next timer event the step function is triggered again.
     A Lost-Wakeup is also called CPU overload in this context.
     With a CPU overload, the generic target application is terminated by default.
     However, the parameter <code>terminateAtCPUOverload</code> of the <a href="simulinkinterface.html">Simulink interface class</a> can be used to specify whether the application should be terminated or the CPU overload should be ignored.
     The number of CPU overloads (for each thread) are written to the <a href="textlog.html">text log file</a> when the application is terminated.
+    If CPU overloads are ignored, the application continues.
+    As stated, the tirgger event from the timer is lost.
+    However, the information that one or more events have been triggered is retained.
+    Therefore, another <code>step0()</code> function is called directly after the previous <code>step0()</code> function is terminated.
+    The number of timer events that lead to a lost wakeup is irrelevant.
+    In any case, another <code>step0()</code> calculation is performed directly afterwards.
+    This behaviour is illustrated in the following figure.
     <br>
     <br>
     <center><object data="../img/LostWakeup.svg" type="image/svg+xml"></object></center>
