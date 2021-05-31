@@ -30,6 +30,7 @@ The directory structure of this repository is as follows.
 | 2021-01-26  | 1.0      | Initial release                                                                                            |
 | 2021-02-08  | 1.1      | File logging has been updated. Bus signals can now be recorded directly (scalar doubles only).             |
 | 2021-03-19  | 1.2      | File logging has been extended to complete bus objects with multi-dimensional signals of common data types.|
+| 2021-05-31  | 1.3      | Custom code directories can now be included during code generation.                                        |
 
 
 ## How To Start

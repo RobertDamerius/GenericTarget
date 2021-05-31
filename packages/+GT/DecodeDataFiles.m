@@ -12,6 +12,7 @@ function data = DecodeDataFiles(dataFileNames)
     % Version     Author                 Changes
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % 20210319    Robert Damerius        Initial release.
+    % 20210531    Robert Damerius        Increased performance. Complete signal data is now casted and assigned at one time.
     % 
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -144,16 +145,13 @@ function data = DecodeDataFiles(dataFileNames)
         end
 
         % Decode this signal from all samples
-        idx1 = offsetSignalData;
         sizeOfSignal = GetSizeOfSignal(dim,type);
-        for i = 1:numberOfSamples
-            v = typecast(bytes(idx1:(idx1 + sizeOfSignal - uint64(1))), type);
-            if(length(dim) > 1) % multi-dimensional signal
-                eval(['dataVals(',strDimAssign,'i) = reshape(v, dim);']);
-            else % scalar signal
-                dataVals(i) = v;
-            end
-            idx1 = idx1 + stride;
+        byteIndices = offsetSignalData + cumsum(repmat([stride; zeros(sizeOfSignal-1,1)],[numberOfSamples 1])) - stride + repmat(((1:sizeOfSignal)' - 1),[numberOfSamples 1]);
+        valuesCasted = typecast(bytes(byteIndices), type);
+        if(length(dim) > 1) % multi-dimensional signal
+            eval(['dataVals(',strDimAssign,':) = reshape(valuesCasted, [dim, numberOfSamples]);']);
+        else % scalar signal
+            dataVals = valuesCasted;
         end
         offsetSignalData = offsetSignalData + sizeOfSignal;
 

@@ -15,9 +15,14 @@
     <br>
     <table>
 		<tr>
-            <th width="110px">Name</th>
-            <th width="110px">Data Type</th>
+            <th width="150px">Name</th>
+            <th width="150px">Data Type</th>
             <th>Description</th>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">customCode</td>
+            <td style="font-family: Courier New;">cell-array (str)</td>
+            <td>List of directories that should be copied to the target along with the generated code.</td>
         </tr>
 		<tr>
             <td style="font-family: Courier New;">portAppSocket</td>

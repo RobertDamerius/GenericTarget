@@ -23,6 +23,7 @@
 %                                    concatenate white spaces.
 %                                    DownloadData() has been renamed to DownloadDataDirectory() and does not decode.
 %                                    Constant properties are now public.
+% 20210531    Robert Damerius        Added customCode property that allows directories to be integrated in the code directory.
 % 
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -65,6 +66,7 @@ classdef GenericTarget < handle
         targetUsername;          % User name of target PC required to login on target via SSH/SCP.
         terminateAtCPUOverload;  % True if application should terminate at CPU overload, false otherwise (default: true).
         upperThreadPriority;     % Upper task priority in range [0, 98] (default: 98).
+        customCode;              % Cell-array of directories containing custom code to be uploaded along with the generated code.
     end
     properties(Constant)
         GENERIC_TARGET_SUBDIRECTORY_CODE = 'GenericTargetCode';  % Subdirectory in package directory that contains application code and templates.
@@ -100,6 +102,7 @@ classdef GenericTarget < handle
             obj.upperThreadPriority = int32(98);
             obj.terminateAtCPUOverload = true;
             obj.portSSH = uint16(22);
+            obj.customCode = cell.empty();
         end
         function commands = Setup(obj, targetSoftwareDirectory)
             %GT.GenericTarget.Setup Setup the software for the target computer. The software will be compressed to a zip file and transferred to the
@@ -241,6 +244,7 @@ classdef GenericTarget < handle
             % DETAILS
             % The zip file contains the following:
             %  - CodeGeneration             ... A directory that contains generated code.
+            %  - CustomCode                 ... A directory that contains custom code.
             %  - SimulinkInterface.cpp      ... Source file of generated interface code.
             %  - SimulinkInterface.hpp      ... Header file of generated interface code.
             %
@@ -250,6 +254,7 @@ classdef GenericTarget < handle
             % Make sure that input is a string
             assert(ischar(zipFileName), 'GT.GenericTarget.GenerateCode(): Input "zipFileName" must be a string!');
             assert(ischar(modelName), 'GT.GenericTarget.GenerateCode(): Input "modelName" must be a string!');
+            assert(iscell(obj.customCode), 'GT.GenericTarget.GenerateCode(): Property customCode must be a cell array!');
 
             % Code generation for simulink model
             fprintf('[GENERIC TARGET] Starting code generation for model: %s\n', modelName);
@@ -290,10 +295,24 @@ classdef GenericTarget < handle
             fclose(fidHeader);
             fclose(fidSource);
 
+            % Get all custom code sources
+            dirCustomCode = [dirCodeGen subDirModelCode 'CustomCode'];
+            [~,~] = mkdir(dirCustomCode);
+            obj.customCode = unique(obj.customCode);
+            for i=1:length(obj.customCode)
+                splittedNames = strsplit(obj.customCode{i},filesep);
+                idx = find(~cellfun(@isempty,splittedNames));
+                if(~isempty(idx))
+                    [~,~] = copyfile(obj.customCode{i},[dirCustomCode filesep splittedNames{idx(end)}],'f');
+                end
+            end
+
             % Compress code into a zip file
+            dirCodeGeneration = [dirCodeGen subDirModelCode 'CodeGeneration'];
             fprintf('[GENERIC TARGET] Compressing code generation files into zip: %s\n', zipFileName);
-            zip(zipFileName,{[dirCodeGen 'GenericTarget_' modelName filesep 'CodeGeneration'],[dirCodeGen subDirModelCode GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.hpp'],[dirCodeGen subDirModelCode GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.cpp']});
-            [~,~] = rmdir([dirCodeGen subDirModelCode 'CodeGeneration'],'s');
+            zip(zipFileName,{dirCodeGeneration,dirCustomCode,[dirCodeGen subDirModelCode GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.hpp'],[dirCodeGen subDirModelCode GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.cpp']});
+            [~,~] = rmdir(dirCodeGeneration,'s');
+            [~,~] = rmdir(dirCustomCode,'s');
             delete([dirCodeGen subDirModelCode GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.hpp']);
             delete([dirCodeGen subDirModelCode GT.GenericTarget.GENERIC_TARGET_INTERFACE_NAME '.cpp']);
             fprintf('[GENERIC TARGET] Code generation finished\n');
