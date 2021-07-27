@@ -153,7 +153,7 @@ bool GenericTarget::Initialize(int argc, char**argv){
             Log("[GENERIC TARGET] Application will be terminated\n");
         }
         else{
-            Log("[GENERIC TARGET] Initialization failed\n");
+            LogE("[GENERIC TARGET] Initialization failed\n");
         }
         appSocket.Close();
         GenericTarget::NetworkTerminate();

@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20210531</div>
+<div class="header_version">Version 20210727</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -83,6 +83,13 @@ gt.Deploy(model);</pre>
     To do so, simply change the properties of the object before the <code>Deploy</code> method is called.
     For example, if the application should not be terminated in case of a CPU overload, set the corresponding flag to zero with <code>gt.terminateAtCPUOverload = 0;</code>.
     The list with all properties can be found <a href="simulinkinterface.html">here</a>.
+    </div>
+
+    <div class="note-green">
+    <h3 class="note-green">Alternative Deployment</h3>
+    As an alternative, the code can also be generated first and then deployed to the target computer later.
+    With the function <code>gt.GenerateCode()</code> only the code can be generated and packed into a zip archive.
+    This zip archive can later be copied to the target and compiled there with the command <code>gt.DeployGeneratedCode()</code>.
     </div>
 
     <br>
