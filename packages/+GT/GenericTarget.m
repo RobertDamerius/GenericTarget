@@ -25,6 +25,7 @@
 %                                    Constant properties are now public.
 % 20210531    Robert Damerius        Added customCode property that allows directories to be integrated in the code directory.
 % 20210727    Robert Damerius        Added DeployGeneratedCode() member function.
+% 20220216    Robert Damerius        Searching for main entry functions in source files now also works for empty source files.
 % 
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -550,6 +551,7 @@ classdef GenericTarget < handle
                     fid = fopen(filename);
                     while(~feof(fid))
                         line = fgetl(fid);
+                        if(~ischar(line)), continue; end
                         deleteFile = contains(line, 'int_T main(');
                         if(deleteFile), break; end
                         deleteFile = contains(line, 'int main(');

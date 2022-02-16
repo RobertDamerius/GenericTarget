@@ -72,7 +72,7 @@
     <br>
     <div class="note-orange">
 	<h3 class="note-orange">Note about the Rate-Transition block</h3>
-    In principle, multiple threads are created by using rate transition blocks with different samplerates.
+    Different samplerates in the model are connected by rate transition blocks.
     On the target computer the threads are executed in concurrence to each other.
     To ensure data integrity, the option <b>Ensure data integrity during data transfer</b> must be enabled in the rate-transition block.
 	</div>

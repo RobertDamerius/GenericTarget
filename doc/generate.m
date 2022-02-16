@@ -10,6 +10,7 @@ outputDirectory = 'html';
 layoutNavBar = [
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.none);
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Overview', 'index.html');
+    SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Development Notes', 'developmentnotes.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.none);
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.text, 'GETTING STARTED');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Install Generic Target Toolbox', 'installtoolbox.html');

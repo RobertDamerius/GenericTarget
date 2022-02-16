@@ -6,8 +6,8 @@
     <ul>
         <li><a href="#step1">Step 1: Install Debian OS</a></li>
         <li><a href="#step2">Step 2: Configure Debian</a></li>
-        <li><a href="#step3">Step 3: Setup Generic Target Framework</a></li>
-        <li><a href="#step4">Step 4: Generate SSH Key for Autologin</a></li>
+        <li><a href="#step3">Step 3: Generate SSH Key for Autologin</a></li>
+        <li><a href="#step4">Step 4: Setup Generic Target Framework</a></li>
     </ul>
 
     <a name="step1"></a>
@@ -86,29 +86,7 @@
         </ul>
 
     <a name="step3"></a>
-    <h2>Step 3: Setup Generic Target Framework</h2>
-    Make sure you have <a href="installtoolbox.html">installed the Generic Target MATLAB Toolbox</a>.
-    The framework for the generic target is installed using the MATLAB package (<b>GT</b>).
-    With the following script the source code for the framework is copied to the target and precompiled.
-    Make sure that your Host PC can connect to the target computer.
-    SSH and SCP are used to execute commands and copy data, respectively.
-<pre>username = 'user';           % Set username of target computer
-address  = '192.168.0.100';  % Set address of target computer
-
-gt = GT.GenericTarget(username, address);
-gt.Setup();</pre>
-    <div class="note-green">
-    <h3 class="note-green">Note</h3>
-    The default directory on the target computer is <code>~/GenericTarget/</code>, which is created in the home directory.
-    If another directory is to be used, it can be passed as a parameter to the <code>Setup()</code> method.
-    </div>
-    <div class="note-orange">
-    <h3 class="note-orange">Note</h3>
-    If a new version of the toolbox is to be used for a target, then the new framework should also be copied to the target by running the <code>Setup()</code> method again.
-    </div>
-
-    <a name="step4"></a>
-    <h2>Step 4: Generate SSH Key for Autologin</h2>
+    <h2>Step 3: Generate SSH Key for Autologin</h2>
     <div class="note-orange">
     <h3 class="note-orange">Note</h3>
     On Linux this step is optional. However, on Windows this step is <b>required</b> to allow ssh/scp commands to be executed from the
@@ -149,7 +127,7 @@ gt.Setup();</pre>
         <h3>1. Prepare</h3>
         Open PowerShell as an administrator and run
         <pre>Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0</pre>
-        to install OpenSSH.
+        to install OpenSSH. Close the PowerShell. The remaining commands can be executed using a normal windows terminal.
 
         <h3>2. Generate Key</h3>
         With the command
@@ -182,3 +160,26 @@ gt.Setup();</pre>
         <pre>exit</pre>
         to logout. or testing, make an SSH connection from the host PC to the target computer with the command <code>ssh UserName@RemoteServer</code>.
     </div>
+
+    <a name="step4"></a>
+    <h2>Step 4: Setup Generic Target Framework</h2>
+    Make sure you have <a href="installtoolbox.html">installed the Generic Target MATLAB Toolbox</a>.
+    The framework for the generic target is installed using the MATLAB package (<b>GT</b>).
+    With the following script the source code for the framework is copied to the target and precompiled.
+    Make sure that your Host PC can connect to the target computer.
+    SSH and SCP are used to execute commands and copy data, respectively.
+<pre>username = 'user';           % Set username of target computer
+address  = '192.168.0.100';  % Set address of target computer
+
+gt = GT.GenericTarget(username, address);
+gt.Setup();</pre>
+    <div class="note-green">
+    <h3 class="note-green">Note</h3>
+    The default directory on the target computer is <code>~/GenericTarget/</code>, which is created in the home directory.
+    If another directory is to be used, it can be passed as a parameter to the <code>Setup()</code> method.
+    </div>
+    <div class="note-orange">
+    <h3 class="note-orange">Note</h3>
+    If an updated version of the Generic Target MATLAB Toolbox is to be used, then the new framework should also be copied to the target computer by running the <code>Setup()</code> method again.
+    </div>
+

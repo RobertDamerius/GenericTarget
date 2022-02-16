@@ -34,6 +34,12 @@
     The automatic generation of a main entry function cannot be disabled for the grt.tlc target file under Simulink.
     There is the possibility that other MATLAB versions generate different prototypes!
     </span>
+    <div class="note-red">
+	<h3 class="note-red">Important</h3>
+    All source and header files, that contain <code>int_T main(</code> or <code>int main(</code> are removed!
+    It is not examined whether these expressions are part of a comment or not.
+    As soon as one of the expressions appears within a file, this file is removed!
+	</div>
 
     <h3>4. Replace RTW Headers</h3>
     All header files named <code>rtw_windows.h</code> and <code>rtw_linux.h</code> are replaced by header files of the same name, which are located in the <code>packages/+GT/GenericTargetCode/template/</code>

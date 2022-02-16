@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20210727</div>
+<div class="header_version">Version 20220216</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -18,6 +18,7 @@
 <ul class="ulnav">
 <li class="linone"></li>
 <li class="linav_active"><a href="index.html">Overview</a></li>
+<li class="linav"><a href="developmentnotes.html">Development Notes</a></li>
 <li class="linone"></li>
 <li class="litext">GETTING STARTED</li>
 <li class="linav"><a href="installtoolbox.html">Install Generic Target Toolbox</a></li>
@@ -117,7 +118,7 @@
     <br>
     <div class="note-orange">
 	<h3 class="note-orange">Note about the Rate-Transition block</h3>
-    In principle, multiple threads are created by using rate transition blocks with different samplerates.
+    Different samplerates in the model are connected by rate transition blocks.
     On the target computer the threads are executed in concurrence to each other.
     To ensure data integrity, the option <b>Ensure data integrity during data transfer</b> must be enabled in the rate-transition block.
 	</div>
