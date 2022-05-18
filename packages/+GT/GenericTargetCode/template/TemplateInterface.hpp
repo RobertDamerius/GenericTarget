@@ -1,9 +1,9 @@
-/* Auto-generated code (Template Version 20210319) */
+/* Auto-generated code (Template Version 20220518) */
 #ifndef $INTERFACE_NAME_UPPER$_HPP
 #define $INTERFACE_NAME_UPPER$_HPP
 
 
-#include <$MODELNAME$.h>
+#include <$NAME_OF_CLASSHEADER$>
 
 
 #define $INTERFACE_NAME_UPPER$_NUM_TIMINGS  ($NUM_TIMINGS$)
@@ -21,7 +21,7 @@ class $INTERFACE_NAME$ {
         static const char* taskNames[$INTERFACE_NAME_UPPER$_NUM_TIMINGS];     ///< Names for all sample rate tasks.
         static const bool terminateAtCPUOverload;                        ///< True if application should be terminated at CPU overload, false otherwise.
 
-        static $MODELNAME$ModelClass model;
+        static $NAME_OF_CLASS$ model;
 
         /**
          *  @brief Initialize the model.

@@ -26,6 +26,7 @@
 % 20210531    Robert Damerius        Added customCode property that allows directories to be integrated in the code directory.
 % 20210727    Robert Damerius        Added DeployGeneratedCode() member function.
 % 20220216    Robert Damerius        Searching for main entry functions in source files now also works for empty source files.
+% 20220518    Robert Damerius        Getting class name and header of generated code from constructor code info: codeInfo.ConstructorFunction.Prototype.
 % 
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -598,6 +599,12 @@ classdef GenericTarget < handle
             end
 
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            % Get name of class and corresponding header file name
+            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            strNameOfClass = codeInfo.ConstructorFunction.Prototype.Name;
+            strNameOfClassHeader = codeInfo.ConstructorFunction.Prototype.HeaderFile;
+
+            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Get initialize and terminate function prototype
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             assert(isempty(codeInfo.UpdateFunctions), 'GT.GenericTarget.GenerateInterfaceCode(): Code generation information contains update functions! However, no update functions are supported!');
@@ -692,8 +699,10 @@ classdef GenericTarget < handle
             strSource = strrep(strSource, '$INTERFACE_NAME_UPPER$', strInterfaceNameUpper);
             strHeader = strrep(strHeader, '$INTERFACE_NAME$', strInterfaceName);
             strSource = strrep(strSource, '$INTERFACE_NAME$', strInterfaceName);
-            strHeader = strrep(strHeader, '$MODELNAME$', strModelName);
-            strSource = strrep(strSource, '$MODELNAME$', strModelName);
+            strHeader = strrep(strHeader, '$NAME_OF_CLASS$', strNameOfClass);
+            strSource = strrep(strSource, '$NAME_OF_CLASS$', strNameOfClass);
+            strHeader = strrep(strHeader, '$NAME_OF_CLASSHEADER$', strNameOfClassHeader);
+            strSource = strrep(strSource, '$NAME_OF_CLASSHEADER$', strNameOfClassHeader);
             strHeader = strrep(strHeader, '$CODE_INFO_INITIALIZE$', strModelInitialize);
             strSource = strrep(strSource, '$CODE_INFO_INITIALIZE$', strModelInitialize);
             strHeader = strrep(strHeader, '$CODE_INFO_TERMINATE$', strModelTerminate);
