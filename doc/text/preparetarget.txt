@@ -67,6 +67,10 @@
         <h3>Install C++ Compiler + Tools</h3>
         Install the GNU compiler, build tools and C++ libraries with
         <pre>sudo apt install g++ make build-essential</pre>
+        <div class="note-orange">
+        <h3 class="note-orange">Note</h3>
+        C++17 is required. Make sure that the installed g++ compiler supports the C++17 language features.
+        </div>
 
         <h3>Optional</h3>
         Additional software can now be installed.
