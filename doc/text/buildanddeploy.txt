@@ -88,7 +88,7 @@
 
     <h3>10. SSH: Build Application</h3>
     The make tool is used to compile the software.
-    It uses 6 jobs (6 source code files are compiled in parallel).
+    It uses 8 jobs (8 source code files are compiled in parallel).
 
     <div class="note-green">
     <h3 class="note-green">Starting Application</h3>
