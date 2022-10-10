@@ -1,6 +1,7 @@
-#include <BaseRateScheduler.hpp>
-#include <SimulinkInterface.hpp>
-#include <Console.hpp>
+#include <GenericTarget/BaseRateScheduler.hpp>
+#include <GenericTarget/GenericTarget.hpp>
+#include <SimulinkCodeGeneration/SimulinkInterface.hpp>
+using namespace gt;
 
 
 BaseRateScheduler::BaseRateScheduler(){
@@ -17,7 +18,7 @@ void BaseRateScheduler::Start(void){
     Stop();
 
     // Create periodic threads
-    for(uint32_t id = 0; id < SIMULINKINTERFACE_NUM_TIMINGS; id++){
+    for(uint32_t id = 0; id < SIMULINK_INTERFACE_NUM_TIMINGS; id++){
         tasks.push_back(new PeriodicTask(id));
         tasks.back()->Start();
     }
@@ -26,9 +27,9 @@ void BaseRateScheduler::Start(void){
     started = true;
     t = std::thread(&BaseRateScheduler::Thread, this);
     struct sched_param param;
-    param.sched_priority = BASE_RATE_SCHEDULER_TIMER_PRIORITY;
+    param.sched_priority = GENERIC_TARGET_PRIORITY_BASE_RATE_SCHEDULER;
     if(0 != pthread_setschedparam(t.native_handle(), SCHED_FIFO, &param)){
-        LogE("[BASE RATE SCHEDULER] Could not set thread priority %d for base rate scheduler (sampletime=%lf)\n", BASE_RATE_SCHEDULER_TIMER_PRIORITY, SimulinkInterface::baseSampleTime);
+        LogE("[BASE RATE SCHEDULER] Could not set thread priority %d for base rate scheduler (sampletime=%lf)\n", GENERIC_TARGET_PRIORITY_BASE_RATE_SCHEDULER, SimulinkInterface::baseSampleTime);
     }
 }
 
@@ -59,70 +60,72 @@ TargetTime BaseRateScheduler::GetTargetTime(void){
     return t;
 }
 
-void BaseRateScheduler::Thread(BaseRateScheduler* src){
+void BaseRateScheduler::Thread(){
+    mtxTimeState.lock();
+    timeState.ticks = 0;
+    mtxTimeState.unlock();
+    bool firstCall = true;
+    double hardwareTime = 0.0;
+
     // Create timer
-    if(!src->baseTimer.Create(SimulinkInterface::baseSampleTime)){
-        src->baseTimer.Destroy();
+    if(!baseTimer.Create(SimulinkInterface::baseSampleTime)){
+        baseTimer.Destroy();
         GenericTarget::ShouldTerminate();
         return;
     }
 
     // Thread loop
-    src->mtxTimeState.lock();
-    src->timeState.ticks = 0;
-    src->timeState.simulation = 0.0;
-    src->mtxTimeState.unlock();
-    bool firstCall = true;
-    while(!src->terminate){
+    while(!terminate){
         // Wait for signal and break if timer was destroyed
-        if(!src->baseTimer.WaitForSignal(firstCall)) break;
+        if(!baseTimer.WaitForSignal(firstCall)) break;
+        hardwareTime = baseTimer.GetTimeToStart();
         firstCall = false;
 
         // Check termination flag
-        if(src->terminate){
+        if(terminate){
             break;
         }
 
         // Update time state
-        src->mtxTimeState.lock();
-        src->timeState.model = src->baseTimer.GetTimeToStart();
-        src->timeState.simulation = double(src->timeState.ticks++) * SimulinkInterface::baseSampleTime;
-        auto systemClock = std::chrono::system_clock::now();
-        std::time_t systemTime = std::chrono::system_clock::to_time_t(systemClock);
+        mtxTimeState.lock();
+        timeState.hardware = hardwareTime;
+        timeState.software = static_cast<double>(timeState.ticks++) * SimulinkInterface::baseSampleTime;
+        auto timePoint = std::chrono::system_clock::now();
+        std::time_t systemTime = std::chrono::system_clock::to_time_t(timePoint);
         std::tm* gmTime = std::gmtime(&systemTime);
-        src->timeState.utc.second = gmTime->tm_sec;
-        src->timeState.utc.minute = gmTime->tm_min;
-        src->timeState.utc.hour = gmTime->tm_hour;
-        src->timeState.utc.mday = gmTime->tm_mday;
-        src->timeState.utc.mon = gmTime->tm_mon;
-        src->timeState.utc.year = gmTime->tm_year;
-        src->timeState.utc.wday = gmTime->tm_wday;
-        src->timeState.utc.yday = gmTime->tm_yday;
-        src->timeState.utc.isdst = gmTime->tm_isdst;
+        timeState.utc.second = gmTime->tm_sec;
+        timeState.utc.minute = gmTime->tm_min;
+        timeState.utc.hour = gmTime->tm_hour;
+        timeState.utc.mday = gmTime->tm_mday;
+        timeState.utc.mon = gmTime->tm_mon;
+        timeState.utc.year = gmTime->tm_year;
+        timeState.utc.wday = gmTime->tm_wday;
+        timeState.utc.yday = gmTime->tm_yday;
+        timeState.utc.isdst = gmTime->tm_isdst;
         std::tm* localTime = std::localtime(&systemTime);
-        src->timeState.local.second = localTime->tm_sec;
-        src->timeState.local.minute = localTime->tm_min;
-        src->timeState.local.hour = localTime->tm_hour;
-        src->timeState.local.mday = localTime->tm_mday;
-        src->timeState.local.mon = localTime->tm_mon;
-        src->timeState.local.year = localTime->tm_year;
-        src->timeState.local.wday = localTime->tm_wday;
-        src->timeState.local.yday = localTime->tm_yday;
-        src->timeState.local.isdst = localTime->tm_isdst;
-        src->timeState.unix = 0.001 * double(std::chrono::duration_cast<std::chrono::milliseconds>(systemClock.time_since_epoch()).count());
-        auto duration = systemClock.time_since_epoch();
+        timeState.local.second = localTime->tm_sec;
+        timeState.local.minute = localTime->tm_min;
+        timeState.local.hour = localTime->tm_hour;
+        timeState.local.mday = localTime->tm_mday;
+        timeState.local.mon = localTime->tm_mon;
+        timeState.local.year = localTime->tm_year;
+        timeState.local.wday = localTime->tm_wday;
+        timeState.local.yday = localTime->tm_yday;
+        timeState.local.isdst = localTime->tm_isdst;
+        timeState.unixTime = 0.001 * static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(timePoint.time_since_epoch()).count());
+        auto duration = timePoint.time_since_epoch();
         auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
         duration -= seconds;
-        src->timeState.utc.nanoseconds = src->timeState.local.nanoseconds = (int)std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
-        src->mtxTimeState.unlock();
+        timeState.utc.nanoseconds = timeState.local.nanoseconds = static_cast<int>(std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count());
+        mtxTimeState.unlock();
 
         // Signal periodic model tasks
-        for(auto&& task : src->tasks){
+        for(auto&& task : tasks){
             task->Notify();
         }
     }
 
     // Destroy timer
-    src->baseTimer.Destroy();
+    baseTimer.Destroy();
 }
 

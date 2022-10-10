@@ -1,9 +1,15 @@
 #pragma once
 
 
-#include <SignalObjectBase.hpp>
+#include <GenericTarget/SignalObjectBase.hpp>
 
 
+namespace gt {
+
+
+/**
+ * @brief This class represents the signal object for bus data types.
+ */
 class SignalObjectBus: public SignalObjectBase {
     public:
         /**
@@ -30,12 +36,12 @@ class SignalObjectBus: public SignalObjectBase {
 
         /**
          *  @brief Write signals to buffer.
-         *  @param [in] simulationTime The current simulation time.
+         *  @param [in] softwareTime The current software time.
          *  @param [in] bytes Array that contains the bytes to write.
          *  @param [in] numBytes Number of bytes to write.
          *  @details This member function triggers the logger thread that writes the data to the binary file.
          */
-        void Write(double simulationTime, uint8_t* bytes, uint32_t numBytes);
+        void Write(double softwareTime, uint8_t* bytes, uint32_t numBytes);
 
         /**
          *  @brief Set the number of samples per file.
@@ -105,7 +111,7 @@ class SignalObjectBus: public SignalObjectBase {
         /* Internal thread-safe attributes if signal object has been started */
         std::vector<uint8_t> buffer;       ///< Buffering of binary values to be written to file.
         std::mutex mtxBuffer;              ///< Protect the @ref buffer.
-        std::thread* threadLog;            ///< Logger thread instance.
+        std::thread threadLog;             ///< Logger thread instance.
         std::mutex mtxNotify;              ///< Mutex for thread notification.
         std::condition_variable cvNotify;  ///< Condition variable for thread notification.
         bool notified;                     ///< Flag for thread notification.
@@ -133,9 +139,8 @@ class SignalObjectBus: public SignalObjectBase {
 
         /**
          *  @brief Logging thread function.
-         *  @param [in] obj The signal object that started the thread function.
          */
-        static void ThreadLog(SignalObjectBus* obj);
+        void ThreadLog(void);
 
         /**
          *  @brief Write a buffer to one or several data files.
@@ -143,4 +148,7 @@ class SignalObjectBus: public SignalObjectBase {
          */
         void WriteBufferToDataFiles(std::vector<uint8_t>& bytes);
 };
+
+
+} /* namespace: gt */
 

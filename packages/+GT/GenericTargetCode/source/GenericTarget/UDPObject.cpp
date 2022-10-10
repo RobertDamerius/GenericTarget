@@ -1,6 +1,6 @@
-#include <UDPObject.hpp>
-#include <Console.hpp>
-#include <GenericTarget.hpp>
+#include <GenericTarget/UDPObject.hpp>
+#include <GenericTarget/GenericTarget.hpp>
+using namespace gt;
 
 
 template<typename T> static void ClearQueue(std::queue<T>& q){
@@ -19,7 +19,6 @@ UDPObject::UDPObject(uint16_t port){
     bufferStrategy = DISCARD_OLDEST;
     ipFilter[0] = ipFilter[1] = ipFilter[2] = ipFilter[3] = 0;
     countAsDiscarded = true;
-    this->threadRX = nullptr;
 
     // Initial state
     state.buffer = nullptr;
@@ -176,10 +175,10 @@ bool UDPObject::Start(void){
     }
 
     // Start receiver thread
-    threadRX = new std::thread(UDPObject::ThreadReceive, this);
+    threadRX = std::thread(&UDPObject::ThreadReceive, this);
     struct sched_param param;
     param.sched_priority = state.priorityThread;
-    if(0 != pthread_setschedparam(threadRX->native_handle(), SCHED_FIFO, &param)){
+    if(0 != pthread_setschedparam(threadRX.native_handle(), SCHED_FIFO, &param)){
         LogE("Could not set thread priority %d\n", state.priorityThread);
     }
     mtxState.unlock();
@@ -188,10 +187,8 @@ bool UDPObject::Start(void){
 
 void UDPObject::Stop(void){
     this->socket.Close();
-    if(threadRX){
-        threadRX->join();
-        delete threadRX;
-        threadRX = nullptr;
+    if(threadRX.joinable()){
+        threadRX.join();
     }
     mtxState.lock();
     if(state.buffer){
@@ -264,63 +261,63 @@ void UDPObject::Receive(uint16_t* sources, uint8_t* bytes, uint32_t* lengths, do
     mtxState.unlock();
 }
 
-void UDPObject::ThreadReceive(UDPObject* obj){
-    obj->mtxState.lock();
-    Log("[GENERIC TARGET] Started UDP socket %d.%d.%d.%d:%d (rxBufferSize=%d, numBuffers=%d)\n",obj->state.ipInterface[0],obj->state.ipInterface[1],obj->state.ipInterface[2],obj->state.ipInterface[3],obj->state.portInterface,obj->state.rxBufferSize,obj->state.numBuffers);
-    uint32_t rxBufferSize = obj->state.rxBufferSize;
-    uint32_t numBuffers = obj->state.numBuffers;
-    obj->state.idxMessage = 0;
-    ClearQueue(obj->state.idxQueue);
-    obj->mtxState.unlock();
+void UDPObject::ThreadReceive(void){
+    mtxState.lock();
+    Log("[GENERIC TARGET] Started UDP socket %d.%d.%d.%d:%d (rxBufferSize=%d, numBuffers=%d)\n",state.ipInterface[0],state.ipInterface[1],state.ipInterface[2],state.ipInterface[3],state.portInterface,state.rxBufferSize,state.numBuffers);
+    uint32_t rxBufferSize = state.rxBufferSize;
+    uint32_t numBuffers = state.numBuffers;
+    state.idxMessage = 0;
+    ClearQueue(state.idxQueue);
+    mtxState.unlock();
     uint8_t* rxBuffer = new uint8_t[rxBufferSize];
     Endpoint ep;
-    while(obj->socket.IsOpen()){
+    while(socket.IsOpen()){
         // Receive message
-        int rx = obj->socket.ReceiveFrom(ep, &rxBuffer[0], rxBufferSize);
-        if((rx < 0) || !obj->socket.IsOpen() || (obj->socket.GetPort() < 0)){
+        int rx = socket.ReceiveFrom(ep, &rxBuffer[0], rxBufferSize);
+        if((rx < 0) || !socket.IsOpen() || (socket.GetPort() < 0)){
             break;
         }
 
         // Copy to state
-        obj->mtxState.lock();
-        if((obj->state.ipFilter[0] || obj->state.ipFilter[1] || obj->state.ipFilter[2] || obj->state.ipFilter[3]) && !ep.CompareIPv4(obj->state.ipFilter[0],obj->state.ipFilter[1],obj->state.ipFilter[2],obj->state.ipFilter[3])){
+        mtxState.lock();
+        if((state.ipFilter[0] || state.ipFilter[1] || state.ipFilter[2] || state.ipFilter[3]) && !ep.CompareIPv4(state.ipFilter[0],state.ipFilter[1],state.ipFilter[2],state.ipFilter[3])){
             // IP filter is set and sender IP does not match: discard message
-            if(obj->state.countAsDiscarded)
-                obj->state.discardCounter++;
+            if(state.countAsDiscarded)
+                state.discardCounter++;
         }
-        else if((uint32_t)obj->state.idxQueue.size() >= numBuffers){
+        else if((uint32_t)state.idxQueue.size() >= numBuffers){
             // Buffer is full: use specified strategy
-            switch(obj->state.strategy){
+            switch(state.strategy){
                 case DISCARD_OLDEST:
-                    obj->state.idxMessage = obj->state.idxQueue.front();
-                    obj->state.idxQueue.pop();
-                    obj->state.idxQueue.push(obj->state.idxMessage);
-                    obj->state.timestamp[obj->state.idxMessage] = GenericTarget::GetTime();
-                    obj->state.rxLength[obj->state.idxMessage] = (uint32_t(rx) < rxBufferSize) ? rx : rxBufferSize;
-                    memcpy(&obj->state.buffer[obj->state.idxMessage * rxBufferSize], &rxBuffer[0], obj->state.rxLength[obj->state.idxMessage]);
-                    ep.GetIPv4(&obj->state.ipSender[obj->state.idxMessage * 4]);
-                    obj->state.portSender[obj->state.idxMessage] = ep.GetPort();
+                    state.idxMessage = state.idxQueue.front();
+                    state.idxQueue.pop();
+                    state.idxQueue.push(state.idxMessage);
+                    state.timestamp[state.idxMessage] = GenericTarget::GetTime();
+                    state.rxLength[state.idxMessage] = (uint32_t(rx) < rxBufferSize) ? rx : rxBufferSize;
+                    memcpy(&state.buffer[state.idxMessage * rxBufferSize], &rxBuffer[0], state.rxLength[state.idxMessage]);
+                    ep.GetIPv4(&state.ipSender[state.idxMessage * 4]);
+                    state.portSender[state.idxMessage] = ep.GetPort();
                     break;
                 case DISCARD_RECEIVED:
                     break;
             }
-            obj->state.discardCounter++;
+            state.discardCounter++;
         }
         else{
             // Buffer is not full: use next index and write data to state buffers
-            obj->state.idxMessage = (obj->state.idxMessage + 1) % numBuffers;
-            obj->state.timestamp[obj->state.idxMessage] = GenericTarget::GetTime();
-            obj->state.rxLength[obj->state.idxMessage] = (uint32_t(rx) < rxBufferSize) ? rx : rxBufferSize;
-            memcpy(&obj->state.buffer[obj->state.idxMessage * rxBufferSize], &rxBuffer[0], obj->state.rxLength[obj->state.idxMessage]);
-            ep.GetIPv4(&obj->state.ipSender[obj->state.idxMessage * 4]);
-            obj->state.portSender[obj->state.idxMessage] = ep.GetPort();
-            obj->state.idxQueue.push(obj->state.idxMessage);
+            state.idxMessage = (state.idxMessage + 1) % numBuffers;
+            state.timestamp[state.idxMessage] = GenericTarget::GetTime();
+            state.rxLength[state.idxMessage] = (uint32_t(rx) < rxBufferSize) ? rx : rxBufferSize;
+            memcpy(&state.buffer[state.idxMessage * rxBufferSize], &rxBuffer[0], state.rxLength[state.idxMessage]);
+            ep.GetIPv4(&state.ipSender[state.idxMessage * 4]);
+            state.portSender[state.idxMessage] = ep.GetPort();
+            state.idxQueue.push(state.idxMessage);
         }
-        obj->mtxState.unlock();
+        mtxState.unlock();
     }
     delete[] rxBuffer;
-    obj->mtxState.lock();
-    Log("[GENERIC TARGET] Stopped UDP socket %d.%d.%d.%d:%d\n",obj->state.ipInterface[0],obj->state.ipInterface[1],obj->state.ipInterface[2],obj->state.ipInterface[3],obj->state.portInterface);
-    obj->mtxState.unlock();
+    mtxState.lock();
+    Log("[GENERIC TARGET] Stopped UDP socket %d.%d.%d.%d:%d\n",state.ipInterface[0],state.ipInterface[1],state.ipInterface[2],state.ipInterface[3],state.portInterface);
+    mtxState.unlock();
 }
 

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generiert durch Microsoft Visio, SVG Export GenericTargetSoftware.svg GenericTargetSoftware -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
+		xmlns:v="http://schemas.microsoft.com/visio/2003/SVGExtensions/" width="3.00831in" height="1.63036in"
+		viewBox="0 0 216.598 117.386" xml:space="preserve" color-interpolation-filters="sRGB" class="st11">
+	<v:documentProperties v:langID="1031" v:metric="true" v:viewMarkup="false">
+		<v:userDefs>
+			<v:ud v:nameU="msvNoAutoConnect" v:val="VT0(1):26"/>
+		</v:userDefs>
+	</v:documentProperties>
+
+	<style type="text/css">
+	<![CDATA[
+		.st1 {fill:#f9fcfd;stroke:#171850;stroke-linecap:round;stroke-linejoin:round;stroke-width:4}
+		.st2 {fill:none;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.75}
+		.st3 {fill:#171850;font-family:Brutal Type;font-size:1.33333em;font-weight:bold}
+		.st4 {fill:#000000;fill-opacity:0.098;stroke:none;stroke-linecap:butt;stroke-width:0.75}
+		.st5 {fill:url(#grad0-16);stroke:none;stroke-linecap:butt;stroke-width:0.75}
+		.st6 {fill:url(#grad1-21);stroke:none;stroke-linecap:butt;stroke-width:0.75}
+		.st7 {fill:#00599c;stroke:none;stroke-linecap:butt;stroke-width:0.75}
+		.st8 {fill:#004482;stroke:none;stroke-linecap:butt;stroke-width:0.75}
+		.st9 {fill:#659ad2;stroke:none;stroke-linecap:butt;stroke-width:0.75}
+		.st10 {fill:#ffffff;stroke:none;stroke-linecap:butt;stroke-width:0.75}
+		.st11 {fill:none;fill-rule:evenodd;font-size:12px;overflow:visible;stroke-linecap:square;stroke-miterlimit:3}
+	]]>
+	</style>
+
+	<defs id="Patterns_And_Gradients">
+		<linearGradient id="grad0-16" x1="0" y1="0" x2="1" y2="0" gradientTransform="rotate(-90 0.5 0.5)">
+			<stop offset="0" stop-color="#666666" stop-opacity="1"/>
+			<stop offset="0.89" stop-color="#b3b3b3" stop-opacity="1"/>
+		</linearGradient>
+		<radialGradient id="grad1-21" cx="1" cy="1" r="1.4">
+			<stop offset="0.28" stop-color="#ffffff" stop-opacity="1"/>
+			<stop offset="0.38" stop-color="#f9fbfc" stop-opacity="1"/>
+			<stop offset="0.51" stop-color="#e8eef2" stop-opacity="1"/>
+			<stop offset="0.66" stop-color="#ccd9e2" stop-opacity="1"/>
+			<stop offset="0.82" stop-color="#a5bccc" stop-opacity="1"/>
+			<stop offset="0.95" stop-color="#82a2b8" stop-opacity="1"/>
+		</radialGradient>
+	</defs>
+	<g v:mID="6" v:index="4" v:groupContext="foregroundPage">
+		<title>GenericTargetSoftware</title>
+		<v:pageProperties v:drawingScale="0.0393701" v:pageScale="0.0393701" v:drawingUnits="24" v:shadowOffsetX="8.50394"
+				v:shadowOffsetY="-8.50394"/>
+		<g id="shape5-1" v:mID="5" v:groupContext="shape" transform="translate(2,-2)">
+			<title>Tabelle.5</title>
+			<rect x="0" y="4" width="212.598" height="113.386" rx="14.1732" ry="14.1732" class="st1"/>
+		</g>
+		<g id="shape1-3" v:mID="1" v:groupContext="shape" transform="translate(2,1.42109E-14)">
+			<title>Tabelle.1</title>
+			<desc>Generic Target Software</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="106.299" cy="103.213" width="212.6" height="28.3465"/>
+			<rect x="0" y="89.0394" width="212.598" height="28.3465" class="st2"/>
+			<text x="15.73" y="108.01" class="st3" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Generic Target Software</text>		</g>
+		<g id="group21-6" transform="translate(79.1064,-26.2203)" v:mID="21" v:groupContext="group">
+			<title>g60</title>
+			<g id="shape22-7" v:mID="22" v:groupContext="shape" transform="translate(3.24364,-3.24364)">
+				<title>polygon54</title>
+				<path d="M42.17 49.27 L42.17 62.28 L55.14 62.28 L55.14 117.39 L0 117.39 L0 49.27 L42.17 49.27 Z" class="st4"/>
+			</g>
+			<g id="shape23-9" v:mID="23" v:groupContext="shape">
+				<title>path56</title>
+				<path d="M61.63 55.76 L48.65 42.78 L0 42.78 L0 117.39 L61.63 117.39 L61.63 55.76 ZM58.39 55.76 L48.65 55.76 L48.65
+							 46.03 L58.39 55.76 ZM3.24 114.14 L3.24 46.03 L45.41 46.03 L45.41 59 L58.39 59 L58.39 114.14 L3.24 114.14
+							 Z" class="st4"/>
+			</g>
+			<g id="shape24-11" v:mID="24" v:groupContext="shape" transform="translate(48.6547,-61.6292)">
+				<title>polygon58</title>
+				<path d="M0 117.39 L9.67 117.35 L0 107.65 L0 117.39 Z" class="st4"/>
+			</g>
+		</g>
+		<g id="shape26-13" v:mID="26" v:groupContext="shape" transform="translate(75.8628,-29.4639)">
+			<title>path64</title>
+			<path d="M61.63 55.76 L48.65 42.78 L0 42.78 L0 117.39 L61.63 117.39 L61.63 55.76 ZM58.39 55.76 L48.65 55.76 L48.65 46.03
+						 L58.39 55.76 ZM3.24 114.14 L3.24 46.03 L45.41 46.03 L45.41 59 L58.39 59 L58.39 114.14 L3.24 114.14 Z"
+					class="st5"/>
+		</g>
+		<g id="group40-17" transform="translate(79.1064,-32.7076)" v:mID="40" v:groupContext="group">
+			<title>Tabelle.40</title>
+			<g id="shape25-18" v:mID="25" v:groupContext="shape">
+				<title>polygon62</title>
+				<path d="M42.17 49.27 L42.17 62.28 L55.14 62.28 L55.14 117.39 L0 117.39 L0 49.27 L42.17 49.27 Z" class="st6"/>
+			</g>
+			<g id="shape27-22" v:mID="27" v:groupContext="shape" transform="translate(45.411,-58.3856)">
+				<title>polygon66</title>
+				<path d="M0 117.39 L9.67 117.35 L0 107.65 L0 117.39 Z" class="st4"/>
+			</g>
+			<g id="group33-24" transform="translate(9.51811,-10.3752)" v:mID="33" v:groupContext="group">
+				<title>Tabelle.33</title>
+				<g id="shape34-25" v:mID="34" v:groupContext="shape" transform="translate(18.0529,-10.2818)">
+					<title>Tabelle.34</title>
+					<path d="M17.59 117.39 C17.88 116.9 18.05 116.34 18.05 115.85 L18.05 98.61 C18.05 98.11 17.88 97.56 17.59 97.07
+								 L0 107.23 L17.59 117.39 Z" class="st7"/>
+				</g>
+				<g id="shape35-27" v:mID="35" v:groupContext="shape" transform="translate(0.459345,1.42109E-14)">
+					<title>Tabelle.35</title>
+					<path d="M19.16 116.89 L34.08 108.27 C34.51 108.02 34.9 107.59 35.19 107.1 L17.59 96.95 L0 107.1 C0.28 107.59
+								 0.67 108.02 1.1 108.27 L16.03 116.89 C16.89 117.39 18.3 117.39 19.16 116.89 Z" class="st8"/>
+				</g>
+				<g id="shape36-29" v:mID="36" v:groupContext="shape" transform="translate(1.79856E-13,-10.2818)">
+					<title>Tabelle.36</title>
+					<path d="M35.65 97.07 C35.36 96.58 34.97 96.15 34.54 95.9 L19.62 87.29 C18.76 86.79 17.35 86.79 16.49 87.29 L1.56
+								 95.9 C0.7 96.4 0 97.62 0 98.61 L0 115.85 C0 116.34 0.18 116.9 0.46 117.39 L18.05 107.23 L35.65 97.07
+								 Z" class="st9"/>
+				</g>
+				<g id="shape37-31" v:mID="37" v:groupContext="shape" transform="translate(6.01762,-8.40414)">
+					<title>Tabelle.37</title>
+					<path d="M12.04 117.39 C5.4 117.39 0 111.99 0 105.35 C0 98.71 5.4 93.32 12.04 93.32 C16.32 93.32 20.31 95.62
+								 22.46 99.33 L17.25 102.34 C16.17 100.49 14.18 99.33 12.04 99.33 C8.72 99.33 6.02 102.03 6.02 105.35
+								 C6.02 108.67 8.72 111.37 12.04 111.37 C14.18 111.37 16.18 110.21 17.25 108.36 L22.46 111.37 C20.31
+								 115.08 16.32 117.39 12.04 117.39 Z" class="st10"/>
+				</g>
+				<g id="shape38-33" v:mID="38" v:groupContext="shape" transform="translate(26.0764,-18.4335)">
+					<title>Tabelle.38</title>
+					<path d="M4.01 114.71 L2.67 114.71 L2.67 113.37 L1.34 113.37 L1.34 114.71 L0 114.71 L0 116.05 L1.34 116.05 L1.34
+								 117.39 L2.67 117.39 L2.67 116.05 L4.01 116.05 L4.01 114.71 Z" class="st10"/>
+				</g>
+				<g id="shape39-35" v:mID="39" v:groupContext="shape" transform="translate(31.091,-18.4335)">
+					<title>Tabelle.39</title>
+					<path d="M4.01 114.71 L2.67 114.71 L2.67 113.37 L1.34 113.37 L1.34 114.71 L0 114.71 L0 116.05 L1.34 116.05 L1.34
+								 117.39 L2.67 117.39 L2.67 116.05 L4.01 116.05 L4.01 114.71 Z" class="st10"/>
+				</g>
+			</g>
+		</g>
+	</g>
+</svg>

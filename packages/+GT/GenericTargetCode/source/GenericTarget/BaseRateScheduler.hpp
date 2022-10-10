@@ -1,14 +1,17 @@
 #pragma once
 
 
-#include <PeriodicTimer.hpp>
-#include <PeriodicTask.hpp>
-#include <TargetTime.hpp>
+#include <GenericTarget/PeriodicTimer.hpp>
+#include <GenericTarget/PeriodicTask.hpp>
+#include <GenericTarget/TargetTime.hpp>
 
 
-#define BASE_RATE_SCHEDULER_TIMER_PRIORITY    (99)
+namespace gt {
 
 
+/**
+ * @brief The baserate scheduler runs a realtime-priority master thread and manages all worker threads of the model.
+ */
 class BaseRateScheduler {
     public:
         /**
@@ -80,8 +83,10 @@ class BaseRateScheduler {
 
         /**
          *  @brief Thread function.
-         *  @param [in] src The base-rate scheduler that has started the thread.
          */
-        static void Thread(BaseRateScheduler* src);
+        void Thread(void);
 };
+
+
+} /* namespace: gt */
 

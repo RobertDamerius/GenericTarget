@@ -14,15 +14,17 @@
     The UTC time of the target computer.
     This time is determined once for each time step (with the basic sample rate).
 
-    <h3>Model Time</h3>
-    The model time is the measured time that has passed since the model was started.
+    <h3>Hardware Time</h3>
+    The hardware time is the measured execution time that has passed since the model was started.
     This time is determined once for each time step (with the basic sample rate).
+    A high resolution timer is used.
+    However, this timer may not be steady.
 
-    <h3>Simulation Time</h3>
-    Unlike the model time, the simulation time is not measured.
-    The simulation time is the time that should have passed since the model was started.
+    <h3>Software Time</h3>
+    Unlike the hardware time, the software time is not measured.
+    The software time is the time that should have passed since the model was started.
     For each time step (with the basic sample rate) a counter is incremented.
-    The simulation time is then calculated once in each time step by multiplying the counter value by the base samplerate.
+    The software time is then calculated once in each time step by multiplying the counter value by the base samplerate.
     Thus this time corresponds to the expected time of the model.
 
     <h3>Task-Execution Time</h3>

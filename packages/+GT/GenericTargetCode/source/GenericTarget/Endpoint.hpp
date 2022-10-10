@@ -1,6 +1,12 @@
 #pragma once
 
 
+#include <GenericTarget/Common.hpp>
+
+
+namespace gt {
+
+
 /* Forward declaration for "friendly classes" */
 class UDPSocket;
 
@@ -163,4 +169,7 @@ class Endpoint {
         void UpdateID(void);
 
 };
+
+
+} /* namespace: gt */
 

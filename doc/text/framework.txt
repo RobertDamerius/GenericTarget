@@ -20,7 +20,7 @@
 		<tr><td>build</td><td>This directory is created during the compilation process. During compilation, object files and dependency files are first created from the source file, which are then linked together to the application. The dependency files ensure that when a source or header file is changed, only those source files are recompiled that depend on the changed files.</td></tr>
 		<tr><td>source</td><td>This directory contains the source code for compiling the application. The <code>source/SimulinkCodeGeneration/</code> subfolder will contain the generated C/C++ code for the model and for the Simulink interface class as well as optional custom code.</td></tr>
 		<tr><td>template</td><td>Contains some headers that are replaced during the deployment process. It also contains a template interface that is used to create the Simulink interface class.</td></tr>
-		<tr><td>GenericTargetTemplate.slx</td><td>Simulink template. Can be copied to the current directory with the MATLAB command <code>GT.GenericTarget.GetTemplate()</code>. This template contains all necessary settings to generate the source code as required for the generic target application.</td></tr>
+		<tr><td>GenericTargetTemplate.slx</td><td>Simulink template. Can be copied to the current directory with the MATLAB command <code>GT.GetTemplate()</code>. This template contains all necessary settings to generate the source code as required for the generic target application.</td></tr>
 		<tr><td>Makefile</td><td>On the target computer the software is compiled with the g++ compiler. For this purpose the make tool is used, which uses the Makefile to execute appropriate commands. The Makefile compiles all source files in the <code>source/</code> directory.</td></tr>
 	</table>
     During <a href="preparetarget.html#step3">setup</a> all directories except the <code>template/</code> folder and <code>GenericTargetTemplate.slx</code> file are copied to the target computer and precompiled once.
@@ -40,13 +40,6 @@
     will delete the <code>build/</code> directory and the application from the <code>bin/</code> directory.
     It also deletes precompiled headers.
 
-    <h3>make pch</h3>
-    With the command
-    <pre>make pch</pre>
-    the header file <code>source/pch/PreCompiled.hpp</code> is precompiled.
-    This header file contains all necessary headers from external libraries, and is always included automatically when compiling a source file.
-    This command only needs to be executed if the header file is changed or the precompiled header is deleted (e.g. with <code>make clean</code>).
-
     <h3>make all</h3>
     The command
     <pre>make all</pre>
@@ -55,8 +48,7 @@
     compiles all source files in the <code>source/</code> directory.
     Then the application is created in the <code>bin/</code> directory.
     With the command
-    <pre>make -j6</pre> six source files can be compiled in parallel.
+    <pre>make -j8</pre> eight source files are compiled in parallel.
     On a CPU with multiple cores, this can speed up the compilation process.
-    On N CPU cores you can use about N + 2 jobs.
-    During the deploy procedure 6 jobs are used.
+    During the deploy procedure 8 jobs are used.
 

@@ -1,6 +1,16 @@
 #pragma once
 
 
+#include <GenericTarget/Common.hpp>
+
+
+namespace gt {
+
+
+/**
+ * @brief This class represents a periodic timer that waits for timer interrupts. The periodic time is set when calling the @ref Create
+ * member function. On windows, the lowest possible value is 1 millisecond.
+ */
 class PeriodicTimer {
     public:
         /**
@@ -48,4 +58,7 @@ class PeriodicTimer {
         int fdTimer;
         #endif
 };
+
+
+} /* namespace: gt */
 

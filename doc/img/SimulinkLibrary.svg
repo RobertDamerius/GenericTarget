@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generiert durch Microsoft Visio, SVG Export SimulinkLibrary.svg SimulinkLibrary -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
+		xmlns:v="http://schemas.microsoft.com/visio/2003/SVGExtensions/" width="3.02893in" height="1.63557in"
+		viewBox="0 0 218.083 117.761" xml:space="preserve" color-interpolation-filters="sRGB" class="st10">
+	<v:documentProperties v:langID="1031" v:metric="true" v:viewMarkup="false">
+		<v:userDefs>
+			<v:ud v:nameU="msvNoAutoConnect" v:val="VT0(1):26"/>
+		</v:userDefs>
+	</v:documentProperties>
+
+	<style type="text/css">
+	<![CDATA[
+		.st1 {fill:#f9fcfd;stroke:#171850;stroke-linecap:round;stroke-linejoin:round;stroke-width:4}
+		.st2 {fill:none;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.75}
+		.st3 {fill:#171850;font-family:Brutal Type;font-size:1.33333em;font-weight:bold}
+		.st4 {marker-end:url(#mrkr4-12);stroke:#595959;stroke-linecap:butt;stroke-width:3.75}
+		.st5 {fill:#595959;fill-opacity:1;stroke:#595959;stroke-opacity:1;stroke-width:0.72254335260116}
+		.st6 {fill:url(#grad7-16);stroke:none;stroke-linecap:butt;stroke-width:0.75}
+		.st7 {fill:url(#grad7-20);stroke:none;stroke-linecap:butt;stroke-width:0.75}
+		.st8 {fill:url(#grad0-24);stroke:none;stroke-linecap:butt;stroke-width:0.75}
+		.st9 {fill:url(#grad0-28);stroke:none;stroke-linecap:butt;stroke-width:0.75}
+		.st10 {fill:none;fill-rule:evenodd;font-size:12px;overflow:visible;stroke-linecap:square;stroke-miterlimit:3}
+	]]>
+	</style>
+
+	<defs id="Patterns_And_Gradients">
+		<radialGradient id="grad7-16" cx="0" cy="0" r="1.4">
+			<stop offset="0.07" stop-color="#e4a588" stop-opacity="1"/>
+			<stop offset="0.39" stop-color="#e16a32" stop-opacity="1"/>
+			<stop offset="0.61" stop-color="#d54c11" stop-opacity="1"/>
+			<stop offset="0.71" stop-color="#cf3d00" stop-opacity="1"/>
+		</radialGradient>
+		<radialGradient id="grad7-20" cx="0" cy="0" r="1.4">
+			<stop offset="0.29" stop-color="#73c8ec" stop-opacity="1"/>
+			<stop offset="0.68" stop-color="#128dbb" stop-opacity="1"/>
+		</radialGradient>
+		<linearGradient id="grad0-24" x1="0" y1="0" x2="1" y2="0" gradientTransform="rotate(90 0.5 0.5)">
+			<stop offset="0" stop-color="#3088cd" stop-opacity="1"/>
+			<stop offset="0.55" stop-color="#185991" stop-opacity="1"/>
+			<stop offset="0.9" stop-color="#0b3f6f" stop-opacity="1"/>
+		</linearGradient>
+		<linearGradient id="grad0-28" x1="0" y1="0" x2="1" y2="0" gradientTransform="rotate(90 0.5 0.5)">
+			<stop offset="0" stop-color="#a32e17" stop-opacity="1"/>
+			<stop offset="0.23" stop-color="#972d13" stop-opacity="1"/>
+			<stop offset="0.64" stop-color="#78290a" stop-opacity="1"/>
+			<stop offset="1" stop-color="#582500" stop-opacity="1"/>
+		</linearGradient>
+	</defs>
+	<defs id="Markers">
+		<g id="lend4">
+			<path d="M 2 1 L 0 0 L 2 -1 L 2 1 " style="stroke:none"/>
+		</g>
+		<marker id="mrkr4-12" class="st5" v:arrowType="4" v:arrowSize="0" v:setback="2.768" refX="-2.768" orient="auto"
+				markerUnits="strokeWidth" overflow="visible">
+			<use xlink:href="#lend4" transform="scale(-1.384,-1.384) "/>
+		</marker>
+	</defs>
+	<g v:mID="4" v:index="2" v:groupContext="foregroundPage">
+		<title>SimulinkLibrary</title>
+		<v:pageProperties v:drawingScale="0.0393701" v:pageScale="0.0393701" v:drawingUnits="24" v:shadowOffsetX="8.50394"
+				v:shadowOffsetY="-8.50394"/>
+		<g id="shape5-1" v:mID="5" v:groupContext="shape" transform="translate(2,-2.375)">
+			<title>Tabelle.5</title>
+			<rect x="0" y="4.375" width="212.598" height="113.386" rx="14.1732" ry="14.1732" class="st1"/>
+		</g>
+		<g id="shape1-3" v:mID="1" v:groupContext="shape" transform="translate(5.10957,-0.375)">
+			<title>Tabelle.1</title>
+			<desc>Simulink Library</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="106.299" cy="103.588" width="212.6" height="28.3465"/>
+			<rect x="0" y="89.4144" width="212.598" height="28.3465" class="st2"/>
+			<text x="44.99" y="108.39" class="st3" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Simulink Library</text>		</g>
+		<g id="group25-6" transform="translate(66.0873,-26.6789)" v:mID="25" v:groupContext="group">
+			<title>Tabelle.25</title>
+			<g id="shape23-7" v:mID="23" v:groupContext="shape" transform="translate(-7.99361E-15,-36.3543)">
+				<title>Tabelle.23</title>
+				<path d="M0 96.31 L66.27 96.31 L66.27 107.38" class="st4"/>
+			</g>
+			<g id="shape21-13" v:mID="21" v:groupContext="shape" transform="translate(51.1492,-3.02497)">
+				<title>rect75</title>
+				<rect x="0" y="87.5111" width="30.2497" height="30.2497" class="st6"/>
+			</g>
+			<g id="shape19-17" v:mID="19" v:groupContext="shape" transform="translate(15.1249,-36.6342)">
+				<title>polygon71</title>
+				<path d="M0 117.76 L0 75.41 L36.3 96.59 L0 117.76 Z" class="st7"/>
+			</g>
+			<g id="shape20-21" v:mID="20" v:groupContext="shape" transform="translate(12.0999,-31.3708)">
+				<title>path73</title>
+				<path d="M6.05 75.41 L33.34 91.32 L6.05 107.23 L6.05 75.41 ZM0 64.88 L0 117.76 L9.07 112.74 L36.3 96.53 L45.25 91.32
+							 L36.3 86.12 L9.07 70.39 L0 64.88 Z" class="st8"/>
+			</g>
+			<g id="shape22-25" v:mID="22" v:groupContext="shape" transform="translate(48.1242,0)">
+				<title>path77</title>
+				<path d="M30.25 87.51 L30.25 111.71 L6.05 111.71 L6.05 87.51 L30.25 87.51 ZM36.3 81.46 L0 81.46 L0 117.76 L36.3 117.76
+							 L36.3 81.46 Z" class="st9"/>
+			</g>
+		</g>
+	</g>
+</svg>

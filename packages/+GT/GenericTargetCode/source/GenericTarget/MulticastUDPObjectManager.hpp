@@ -4,10 +4,16 @@
 #include <MulticastUDPObject.hpp>
 
 
+namespace gt {
+
+
 /* Forward declaration */
 class GenericTarget;
 
 
+/**
+ * @brief This class manages all multicast UDP objects.
+ */
 class MulticastUDPObjectManager {
     public:
         /**
@@ -75,4 +81,7 @@ class MulticastUDPObjectManager {
         static std::unordered_map<uint16_t, MulticastUDPObject*> objects; ///< UDP object list.
         static std::shared_mutex mtx;                                     ///< Protect the @ref objects.
 };
+
+
+} /* namespace: gt */
 

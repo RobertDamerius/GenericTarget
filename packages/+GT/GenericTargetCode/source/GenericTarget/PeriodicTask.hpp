@@ -1,6 +1,16 @@
 #pragma once
 
 
+#include <GenericTarget/Common.hpp>
+
+
+namespace gt {
+
+
+/**
+ * @brief This class represents a task that is notified periodically by the scheduler. It contains a thread
+ * that runs the step function of the simulink model with a specified priority.
+ */
 class PeriodicTask {
     public:
         const uint32_t taskID;
@@ -64,8 +74,10 @@ class PeriodicTask {
 
         /**
          *  @brief Thread function.
-         *  @param [in] src The periodic task that has started the thread.
          */
-        static void Thread(PeriodicTask* src);
+        void Thread(void);
 };
+
+
+} /* namespace: gt */
 

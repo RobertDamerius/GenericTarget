@@ -136,7 +136,7 @@
         <tr><td>timestamps</td><td>
             A timestamp indicates the time at which a message was received.
             This time corresponds to the measured time in seconds since the scheduler was started.
-            This time is comparable to the <a href="timingscheduling.html">model time</a>, but can also be between two sampling steps.
+            This time is comparable to the <a href="timingscheduling.html">hardware time</a>, but can also be between two sampling steps.
             There is a time for each message from the message buffer.
             </td></tr>
         <tr><td>numMessagesReceived</td><td>

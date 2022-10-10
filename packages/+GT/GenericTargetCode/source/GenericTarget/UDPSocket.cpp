@@ -1,4 +1,5 @@
-#include <UDPSocket.hpp>
+#include <GenericTarget/UDPSocket.hpp>
+using namespace gt;
 
 
 UDPSocket::UDPSocket(){
@@ -60,26 +61,6 @@ int UDPSocket::Bind(uint16_t port, const char *ip){
     return -1;
 }
 
-int UDPSocket::Bind(uint16_t portBegin, uint16_t portEnd, const char *ip){
-    if(_socket < 0)
-        return -1;
-    if(_port >= 0)
-        return -1;
-    struct sockaddr_in addr_this;
-    addr_this.sin_addr.s_addr = ip ? inet_addr(ip) : htonl(INADDR_ANY);
-    addr_this.sin_family = AF_INET;
-    int port = (int)((portBegin < portEnd) ? portBegin : portEnd);
-    int end = (int)((portEnd < portBegin) ? portBegin : portEnd);
-    for(; port <= end; port++){
-        addr_this.sin_port = htons(port);
-        int s = (int)_socket;
-        if(!bind(s, (struct sockaddr *)&addr_this, sizeof(struct sockaddr_in))){
-            return (_port = port);
-        }
-    }
-    return -1;
-}
-
 int UDPSocket::SetOption(int level, int optname, const void *optval, int optlen){
     #ifdef _WIN32
     return setsockopt(this->_socket, level, optname, (const char*)optval, optlen);
@@ -114,28 +95,6 @@ int UDPSocket::SendTo(Endpoint& endpoint, uint8_t *bytes, int size){
     if(!bytes)
         return -1;
     return sendto(_socket, (const char*) bytes, size, 0, (const struct sockaddr*) &endpoint.addr, sizeof(endpoint.addr));
-}
-
-int UDPSocket::Broadcast(uint16_t destinationPort, uint8_t *bytes, int size){
-    int oldValue;
-    int newValue = 1;
-    struct sockaddr_in broadcast_addr;
-    broadcast_addr.sin_family = AF_INET;
-    broadcast_addr.sin_port = htons((int)destinationPort);
-    broadcast_addr.sin_addr.s_addr = inet_addr(INADDR_ANY);
-    #ifndef _WIN32
-    socklen_t optLen = sizeof(int);
-    #else
-    int optLen = sizeof(int);
-    #endif
-    if(getsockopt(_socket, SOL_SOCKET, SO_BROADCAST, (char*)&oldValue, &optLen))
-        return -1;
-    if(setsockopt(_socket, SOL_SOCKET, SO_BROADCAST, (const char*)&newValue, optLen))
-        return -1;
-    int tx = sendto(_socket, (const char*) bytes, size, 0, (struct sockaddr *)&broadcast_addr, sizeof(broadcast_addr));
-    if(setsockopt(_socket, SOL_SOCKET, SO_BROADCAST, (const char*)&oldValue, optLen))
-        return -1;
-    return tx;
 }
 
 int UDPSocket::ReceiveFrom(Endpoint& endpoint, uint8_t *bytes, int size){

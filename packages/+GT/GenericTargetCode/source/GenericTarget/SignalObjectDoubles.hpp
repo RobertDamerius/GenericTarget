@@ -1,9 +1,15 @@
 #pragma once
 
 
-#include <SignalObjectBase.hpp>
+#include <GenericTarget/SignalObjectBase.hpp>
 
 
+namespace gt {
+
+
+/**
+ * @brief This class represents the signal object for doubles.
+ */
 class SignalObjectDoubles: public SignalObjectBase {
     public:
         /**
@@ -30,12 +36,12 @@ class SignalObjectDoubles: public SignalObjectBase {
 
         /**
          *  @brief Write signals to buffer.
-         *  @param [in] simulationTime The current simulation time.
+         *  @param [in] softwareTime The current software time.
          *  @param [in] values Signal values.
          *  @param [in] numValues Number of values.
          *  @details This member function triggers the logger thread that writes the data to the binary file.
          */
-        void Write(double simulationTime, double* values, uint32_t numValues);
+        void Write(double softwareTime, double* values, uint32_t numValues);
 
         /**
          *  @brief Set the number of samples per file.
@@ -81,7 +87,7 @@ class SignalObjectDoubles: public SignalObjectBase {
         /* Internal thread-safe attributes if signal object has been started */
         std::vector<double> buffer;        ///< Buffering of values to be written to file (maybe deque<vector<double>> is more suitable?).
         std::mutex mtxBuffer;              ///< Protect the @ref buffer.
-        std::thread* threadLog;            ///< Logger thread instance.
+        std::thread threadLog;             ///< Logger thread instance.
         std::mutex mtxNotify;              ///< Mutex for thread notification.
         std::condition_variable cvNotify;  ///< Condition variable for thread notification.
         bool notified;                     ///< Flag for thread notification.
@@ -109,9 +115,8 @@ class SignalObjectDoubles: public SignalObjectBase {
 
         /**
          *  @brief Logging thread function.
-         *  @param [in] obj The signal object that started the thread function.
          */
-        static void ThreadLog(SignalObjectDoubles* obj);
+        void ThreadLog(void);
 
         /**
          *  @brief Write a buffer to one or several data files.
@@ -119,4 +124,7 @@ class SignalObjectDoubles: public SignalObjectBase {
          */
         void WriteBufferToDataFiles(std::vector<double>& values);
 };
+
+
+} /* namespace: gt */
 

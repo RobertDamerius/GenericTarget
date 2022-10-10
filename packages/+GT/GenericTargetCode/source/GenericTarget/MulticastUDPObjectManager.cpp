@@ -1,5 +1,5 @@
-#include <MulticastUDPObjectManager.hpp>
-#include <Console.hpp>
+#include <GenericTarget/MulticastUDPObjectManager.hpp>
+using namespace gt;
 
 
 bool MulticastUDPObjectManager::created = false;

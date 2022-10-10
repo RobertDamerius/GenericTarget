@@ -2,14 +2,14 @@
     Make sure that you have <a href="installtoolbox.html">installed</a> the Generic Target MATLAB toolbox and <a href="preparetarget.html">prepared</a> the target computer.
     To correctly export the source code from a Simulink model, some model settings must be made in Simulink.
     The toolbox comes with a preconfigured Simulink model that should be used as a basis.
-    Open MATLAB and run <code>GT.GenericTarget.GetTemplate()</code> to generate a template model in the current working directory.
+    Open MATLAB and run <code>GT.GetTemplate()</code> to generate a template model in the current working directory.
     The default sample time of the model is 0.01 seconds and can be adjusted.
     <br>
     <br>
     The template model contains a simple test to evaluate the latency.
-    Here the <a href="timingscheduling.html">simulation time</a> is subtracted from the <a href="timingscheduling.html">model time</a>.
-    The simulation time is a value which is incremented with the sampletime at each sampling step and gives the expected time.
-    The model time is a measured time with respect to the model start.
+    Here the <a href="timingscheduling.html">software time</a> is subtracted from the <a href="timingscheduling.html">hardware time</a>.
+    The software time is a value which is incremented with the sampletime at each sampling step and gives the expected time.
+    The hardware time is a measured execution time with respect to the model start.
     In this example the difference of both times is recorded and written to a file.
     <br>
     <br>
@@ -19,11 +19,13 @@
     In the ideal case the difference is zero.
     In practice, values in the microsecond range are obtained.
     If the base sampletime becomes too small, it can happen that the realtime kernel in combination with the used target computer is no longer able to maintain the given base sampletime.
+    On Windows, the lowest possible sampletime is 1 millisecond.
+    Keep that in mind if you want to deploy your model to a host running Windows.
 
     <br>
     <br>
     <h3>Build model and deploy to hardware</h3>
-    To generate source code from the Simulink model and deploy it to the hardware, the <code>GT.GenericTarget</code> class of the MATLAB package can be used.
+    To generate source code from the Simulink model and deploy it to the hardware, the <code>GT.GenericTarget</code> class of the MATLAB package is used.
     It is helpful to write a MATLAB script for the deployment process.
     A simple script could look like this:
     <pre>username = 'user';                   % Set username of target pc
@@ -37,19 +39,19 @@ gt.Deploy(model);</pre>
     Once a GenericTarget instance is created, additional parameters can be set.
     To do so, simply change the properties of the object before the <code>Deploy</code> method is called.
     For example, if the application should not be terminated in case of a CPU overload, set the corresponding flag to zero with <code>gt.terminateAtCPUOverload = 0;</code>.
-    The list with all properties can be found <a href="simulinkinterface.html">here</a>.
+    The list with all properties is given <a href="simulinkinterface.html">here</a>.
     </div>
 
     <div class="note-green">
     <h3 class="note-green">Alternative Deployment</h3>
     As an alternative, the code can also be generated first and then deployed to the target computer later.
-    With the function <code>gt.GenerateCode()</code> only the code can be generated and packed into a zip archive.
+    With the function <code>gt.GenerateCode()</code> only the code is generated and packed into a zip archive.
     This zip archive can later be copied to the target and compiled there with the command <code>gt.DeployGeneratedCode()</code>.
     </div>
 
     <br>
     <h3>Start and stop application</h3>
-    After the model has been successfully deployed to the target hardware, the application can be started with <code>gt.Start()</code> and stopped with <code>gt.Stop()</code>.
+    After the model has been successfully deployed to the target hardware, the application is started with <code>gt.Start()</code> and stopped with <code>gt.Stop()</code>.
 
     <br>
     <br>
@@ -58,8 +60,8 @@ gt.Deploy(model);</pre>
     During the process you will be asked which folder should be downloaded.
     The folder names correspond to the UTC time of the model start.
     The data can also be downloaded manually.
-    The function <code>GT.DecodeLogDirectory()</code> can be used to decode the recorded data.
-    Information about the file format of data recordings can be found <a href="signalmanager.html#protocol">here</a>.
+    The function <code>GT.DecodeLogDirectory()</code> is used to decode the recorded data.
+    Information about the file format of data recordings are given <a href="signalmanager.html#protocol">here</a>.
 
     <br>
     <div class="note-orange">

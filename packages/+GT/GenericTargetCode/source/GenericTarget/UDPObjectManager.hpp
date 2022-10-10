@@ -1,13 +1,19 @@
 #pragma once
 
 
-#include <UDPObject.hpp>
+#include <GenericTarget/UDPObject.hpp>
+
+
+namespace gt {
 
 
 /* Forward declaration */
 class GenericTarget;
 
 
+/**
+ * @brief This class manages all unicast UDP objects.
+ */
 class UDPObjectManager {
     public:
         /**
@@ -73,4 +79,7 @@ class UDPObjectManager {
         static std::unordered_map<uint16_t, UDPObject*> objects; ///< UDP object list.
         static std::shared_mutex mtx;                            ///< Protect the @ref objects.
 };
+
+
+} /* namespace: gt */
 

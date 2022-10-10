@@ -2,7 +2,7 @@
 #
 # Generic Makefile (g++)
 #
-# Version 20200513
+# Version 20221010
 # Copyright (c) Robert Damerius
 #
 #########################################################################
@@ -20,7 +20,6 @@ DEBUG_MODE        := 0
 DIRECTORY_SOURCE  := source/
 DIRECTORY_BUILD   := build/
 DIRECTORY_PRODUCT := bin/
-DIRECTORY_PCH     := source/pch/
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -35,9 +34,9 @@ CC_SYMBOLS         = -DGENERIC_TARGET_IMPLEMENTATION
 # Flags
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Build Flags
-CC_FLAGS        = -Wall -Wextra -Wno-format-security -O3 -mtune=native
-CPP_FLAGS       = -std=c++17 -Wall -Wextra -Wno-format-security -O3 -mtune=native
-LD_FLAGS        = -Wall -Wextra -Wno-format-security -O3 -mtune=native
+CC_FLAGS        = -Wall -Wextra -Wno-format-security -mtune=native
+CPP_FLAGS       = -std=c++17 -Wall -Wextra -Wno-format-security -mtune=native
+LD_FLAGS        = -Wall -Wextra -Wno-format-security -mtune=native
 DEP_FLAGS       = -MT $@ -MMD -MP -MF $(DIRECTORY_BUILD)$*.Td
 POSTCOMPILE     = mv -f $(DIRECTORY_BUILD)$*.Td $(DIRECTORY_BUILD)$*.d
 
@@ -47,7 +46,9 @@ ifeq ($(DEBUG_MODE), 1)
 	CPP_FLAGS  += -ggdb
 	CC_SYMBOLS += -DDEBUG
 else
-	LD_FLAGS   += -s
+	CC_FLAGS   += -O3
+	CPP_FLAGS  += -O3
+	LD_FLAGS   += -O3 -s
 endif
 
 # Libs and shared objects
@@ -81,13 +82,6 @@ SOURCES_C   := $(call rwildcard,$(DIRECTORY_SOURCE),*.c)
 SOURCES_CPP := $(call rwildcard,$(DIRECTORY_SOURCE),*.cpp)
 SOURCES_RC  := $(call rwildcard,$(DIRECTORY_SOURCE),*.rc)
 
-# Precompiled headers
-PCH_H       := $(call rwildcard,$(DIRECTORY_PCH),*.h)
-PCH_HPP     := $(call rwildcard,$(DIRECTORY_PCH),*.hpp)
-GCH_H       := $(PCH_H:.h=.gch)
-GCH_HPP     := $(PCH_HPP:.hpp=.gch)
-GCH_ALL     := $(addprefix $(DIRECTORY_PCH), $(GCH_H) $(GCH_HPP))
-
 # Object files
 OBJECTS_BIN := $(SOURCES_BIN:.bin=.o)
 OBJECTS_C   := $(SOURCES_C:.c=.o)
@@ -105,7 +99,7 @@ SHARED_OBJECTS = $(call rwildcard,$(DIRECTORY_SOURCE),*.so)
 DIRECTORY_ALL := $(dir $(call rwildcard,$(DIRECTORY_SOURCE),.))
 
 # Add header directories and library directories to related paths
-INCLUDE_PATHS += -I/usr/local/include $(addprefix -I,$(DIRECTORY_ALL)) $(addprefix -I,$(DIRECTORY_PCH)) $(addprefix -include ,$(notdir $(PCH_H))) $(addprefix -include ,$(notdir $(PCH_HPP)))
+INCLUDE_PATHS += -I/usr/local/include $(addprefix -I,$(DIRECTORY_ALL))
 LIBRARY_PATHS += -L/usr/local/lib $(addprefix -L,$(DIRECTORY_ALL))
 
 
@@ -125,11 +119,9 @@ $(shell $(MKDIR) $(DIRECTORY_BUILD) $(addprefix $(DIRECTORY_BUILD), $(DIRECTORY_
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Make targets
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.PHONY: all pch info clean
+.PHONY: all info clean
 
 all: $(PRODUCT)
-
-pch: $(GCH_ALL) 
 
 info:
 	@echo ""
@@ -139,8 +131,7 @@ info:
 	@echo ""
 	@echo "~~~~~~~ COMMAND LIST ~~~~~~~~~~~~~~~~~~~~~~~~"
 	@echo "all:     Makes complete software (no precompiled headers)."
-	@echo "pch:     Makes precompiled headers in directory \"$(DIRECTORY_PCH)\"".
-	@echo "clean:   Removes out built project files (.o, .d), precompiled headers (.gch) and build directory \"$(DIRECTORY_BUILD)\"".
+	@echo "clean:   Removes out built project files (.o, .d), build directory \"$(DIRECTORY_BUILD)\" and binaries".
 	@echo "info:    Shows this info."
 	@echo ""
 	@echo "~~~~~~~ DIRECTORY SETTINGS ~~~~~~~~~~~~~~~~~~"
@@ -151,7 +142,7 @@ info:
 	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
 clean:
-	@$(RM) $(call rwildcard,$(DIRECTORY_BUILD),*.o) $(call rwildcard,$(DIRECTORY_BUILD),*.d) $(call rwildcard,$(DIRECTORY_PCH),*.gch) $(PRODUCT)
+	@$(RM) $(call rwildcard,$(DIRECTORY_BUILD),*.o) $(call rwildcard,$(DIRECTORY_BUILD),*.d) $(PRODUCT)
 	@$(RM) $(DIRECTORY_BUILD)
 	@echo "Clean: Done."
 
@@ -178,14 +169,6 @@ $(DIRECTORY_BUILD)%.o: %.rc
 $(DIRECTORY_BUILD)%.o: %.bin
 	@printf "[BIN]  > $<\n"
 	@$(LD) -r -b binary -o $@ $<
-
-$(DIRECTORY_PCH)%.gch: %.h
-	@printf "[PCH]  > $<\n"
-	@$(CPP) $(CPP_FLAGS) $<
-
-$(DIRECTORY_PCH)%.gch: %.hpp
-	@printf "[PCH]  > $<\n"
-	@$(CPP) $(CPP_FLAGS) $<
 
 $(DIRECTORY_BUILD)%.d: ;
 .PRECIOUS: $(DIRECTORY_BUILD)%.d

@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20220819</div>
+<div class="header_version">Version 20221010</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -51,7 +51,7 @@
     If the application is started with <code>[...] &> log.txt</code>, the output is redirected to the text file <code>log.txt</code>.
 
 <h3>Example Log File</h3>
-    Using the MATLAB class <code>GT.GenericTarget</code> the current log file can be displayed:
+    Using the MATLAB class <code>GT.GenericTarget</code> the current log file is displayed:
     <pre>gt.ShowLog();    % gt is a GT.GenericTarget object</pre>
     The log file must be in the <code>bin/</code> directory and named <code>log.txt</code>.
     A log file can look like this:
@@ -75,7 +75,7 @@
     The type of message is displayed at the beginning of a line.
     No character here means that it is information.
     An 'E' means error, a 'W' means warning.
-    It can be seen that the thread priorities cannot be set.
+    It is seen that the thread priorities cannot be set.
     In this case it is because the application was running on a Windows PC without realtime.
     On a Linux-OS with PREEMPT_RT patch and appropriate authorization (sudo) this error does not occur.
 

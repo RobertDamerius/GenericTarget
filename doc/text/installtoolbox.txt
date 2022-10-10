@@ -4,6 +4,7 @@
     During installation, the absolute path to this directory is added to the MATLAB path.
     Afterwards, the toolbox directory must not be moved.
     When using multiple host PCs, it is recommended that each host PC installs the Toolbox locally, since different host PCs generally have different operating systems, MATLAB versions, compilers, etc.
+    However, it's also possible to copy the toolbox to a simulink project and add it to the project path.
     The directory structure of the <b>Generic Target Toolbox</b> is as follows:
 	<ul class="dir">
 		<li>doc</li>
@@ -35,14 +36,13 @@
     </div>
 
     <h2>Install</h2>
-    To install the Generic Target Toolbox, MATLAB must be started with administrator privileges.
-    Then the installation script <code>install.m</code> must be executed.
-    The script simply adds the necessary directory paths to the MATLAB path.
+    Run the installation script <code>install.m</code>.
+    The script simply adds the necessary directory paths to the MATLAB path if desired.
     Furthermore, the build script is executed from the <code>lib/src/</code> subdirectory to generate the necessary mex and tlc files for the driver blocks of the Simulink library.
     The prerequisite is that a C/C++ compiler is set in MATLAB (<a href="http://de.mathworks.com/help/matlab/matlab_external/choose-c-or-c-compilers.html" target="_blank">mex -setup</a>).
     During this process, a prompt appears asking if the host implementation should be used.
     With the host implementation, many blocks of the toolbox can also be used in Simulink simulations.
-    More detailed information about the behavior of a block can be found in the corresponding mask description of each block.
+    More detailed information about the behavior of a block is found in the corresponding mask description of each block.
 
     <div class="note-green">
 	<h3 class="note-green">Supported blocks for host implementation</h3>
@@ -60,8 +60,8 @@
         <tr><td>Interface/Log Bus To File             </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
         <tr><td>Interface/Multicast UDP Send          </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
         <tr><td>Interface/Multicast UDP Receive       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
-        <tr><td>Time/Simulation Time                  </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
-        <tr><td>Time/Model Time                       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>**</b></span></td></tr>
+        <tr><td>Time/Software Time                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
+        <tr><td>Time/Hardware Time                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>**</b></span></td></tr>
         <tr><td>Time/UNIX Time                        </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>**</b></span></td></tr>
         <tr><td>Time/UTC Time                         </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>**</b></span></td></tr>
         <tr><td>Time/Local Time                       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>**</b></span></td></tr>
@@ -79,17 +79,16 @@
     <br>
     <b>**</b>
     These blocks have a different function in the simulation than on the target!
-    On the target computer all <a href="timingscheduling.html">time information</a> (UTC, UNIX, Local, Simulation, Model) is determined only once during each base sampletime.
+    On the target computer all <a href="timingscheduling.html">time information</a> (UTC, UNIX, Local, Software, Hardware) is determined only once during each base sampletime.
     The times are determined in the <a href="threads.html">BaseRateScheduler</a> before all other threads are triggered.
     This has the advantage that all blocks, which provide such time information, always consistently provide the same value within one sample rate.
     However, this is not the case with a simulation in Simulink (with host implementation), because there is no BaseRateScheduler (Simulink does the scheduling).
     Each "time block" independently determines the corresponding time in the simulation.
-    This means that, for example, two "Model Time" blocks executed at the same sample rate will produce different results during simulation.
+    This means that, for example, two "Hardware Time" blocks executed at the same sample rate will produce different results during simulation.
 	</div>
     At the moment only <b>gcc</b> (Linux) and <b>MSYS2/MinGW64</b> (Windows) are supported as compilers to create blocks with host implementation.
     For compilers that are not yet supported, the host implementation can be skipped.
 
     <h2>Uninstall</h2>
-    To uninstall the Generic Target Toolbox, MATLAB must be started with administrator privileges.
-    Then the uninstall script <code>uninstall.m</code> must be executed.
+    To uninstall the Generic Target Toolbox, execute the uninstall script <code>uninstall.m</code>.
     The script only removes the paths set during installation from the MATLAB path.

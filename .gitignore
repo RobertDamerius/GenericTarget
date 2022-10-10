@@ -1,2 +1,3 @@
 lib/src/rtwmakecfg.m
-lib/src/SFunctionDriver*
+lib/src/SFunction*
+.vscode

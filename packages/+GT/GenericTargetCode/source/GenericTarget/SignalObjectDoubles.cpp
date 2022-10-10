@@ -1,8 +1,7 @@
-#include <SignalObjectDoubles.hpp>
-#include <Console.hpp>
-#include <SimulinkInterface.hpp>
-#include <SignalManager.hpp>
-#include <Common.hpp>
+#include <GenericTarget/SignalObjectDoubles.hpp>
+#include <SimulinkCodeGeneration/SimulinkInterface.hpp>
+#include <GenericTarget/SignalManager.hpp>
+using namespace gt;
 
 
 SignalObjectDoubles::SignalObjectDoubles(){
@@ -13,7 +12,6 @@ SignalObjectDoubles::SignalObjectDoubles(){
     this->filename = "";
     this->notified = false;
     this->terminate = false;
-    this->threadLog = nullptr;
     this->currentFileNumber = 0;
     this->numSamplesWritten = 0;
     this->currentFileStarted = false;
@@ -29,10 +27,10 @@ bool SignalObjectDoubles::Start(std::string filename){
 
     // Set filename and start log thread
     this->filename = filename;
-    threadLog = new std::thread(SignalObjectDoubles::ThreadLog, this);
+    threadLog = std::thread(&SignalObjectDoubles::ThreadLog, this);
     struct sched_param param;
     param.sched_priority = SimulinkInterface::priorityLog;
-    if(0 != pthread_setschedparam(threadLog->native_handle(), SCHED_FIFO, &param)){
+    if(0 != pthread_setschedparam(threadLog.native_handle(), SCHED_FIFO, &param)){
         LogE("[SIGNAL MANAGER] Could not set thread priority %d for logger thread\n", SimulinkInterface::priorityLog);
     }
 
@@ -43,11 +41,9 @@ bool SignalObjectDoubles::Start(std::string filename){
 void SignalObjectDoubles::Stop(void){
     // Stop thread
     terminate = true;
-    if(threadLog){
-        this->Notify();
-        threadLog->join();
-        delete threadLog;
-        threadLog = nullptr;
+    this->Notify();
+    if(threadLog.joinable()){
+        threadLog.join();
     }
     terminate = false;
 
@@ -68,11 +64,11 @@ void SignalObjectDoubles::Stop(void){
     this->currentFileStarted = false;
 }
 
-void SignalObjectDoubles::Write(double simulationTime, double* values, uint32_t numValues){
+void SignalObjectDoubles::Write(double softwareTime, double* values, uint32_t numValues){
     // Just append data to buffer
     if(this->numSignals == numValues){
         this->mtxBuffer.lock();
-        this->buffer.push_back(simulationTime);
+        this->buffer.push_back(softwareTime);
         this->buffer.insert(this->buffer.end(), &values[0], &values[0] + this->numSignals);
         this->mtxBuffer.unlock();
     }
@@ -125,36 +121,36 @@ bool SignalObjectDoubles::WriteHeader(std::string name){
     return true;
 }
 
-void SignalObjectDoubles::ThreadLog(SignalObjectDoubles* obj){
+void SignalObjectDoubles::ThreadLog(void){
     std::vector<double> localBuffer;
-    while(!obj->terminate){
+    while(!terminate){
         // Wait for notification
         {
-            std::unique_lock<std::mutex> lock(obj->mtxNotify);
-            obj->cvNotify.wait(lock, [obj](){ return (obj->notified || obj->terminate); });
-            obj->notified = false;
+            std::unique_lock<std::mutex> lock(mtxNotify);
+            cvNotify.wait(lock, [this](){ return (notified || terminate); });
+            notified = false;
         }
-        if(obj->terminate){
+        if(terminate){
             break;
         }
 
         // Copy to local buffer
-        obj->mtxBuffer.lock();
-        if(obj->buffer.size()){
-            localBuffer.insert(localBuffer.end(), obj->buffer.begin(), obj->buffer.end());
-            obj->buffer.clear();
+        mtxBuffer.lock();
+        if(buffer.size()){
+            localBuffer.insert(localBuffer.end(), buffer.begin(), buffer.end());
+            buffer.clear();
         }
-        obj->mtxBuffer.unlock();
+        mtxBuffer.unlock();
 
         // Write buffer data to files
-        obj->WriteBufferToDataFiles(std::ref(localBuffer));
+        WriteBufferToDataFiles(std::ref(localBuffer));
     }
 
     // If there's data in the local buffer copy it to the beginning of the main buffer
     if(localBuffer.size()){
-        obj->mtxBuffer.lock();
-        obj->buffer.insert(obj->buffer.begin(), localBuffer.begin(), localBuffer.end());
-        obj->mtxBuffer.unlock();
+        mtxBuffer.lock();
+        buffer.insert(buffer.begin(), localBuffer.begin(), localBuffer.end());
+        mtxBuffer.unlock();
     }
 }
 

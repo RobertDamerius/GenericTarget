@@ -13,27 +13,27 @@
     <br>
     <br>
     <table style="border:none;">
-        <tr><td style="border:none;"><img src="../img/MATLABPackage.png"></td><td width="10px" style="border:none;"></td><td valign="top" style="border:none;">
+        <tr><td style="border:none;"><img src="../img/MATLABPackage.svg"></td><td width="10px" style="border:none;"></td><td valign="top" style="border:none;">
             <h4>MATLAB Package</h4>
             The MATLAB package (<b>GT</b>) includes the <code>GT.GenericTarget</code> class.
-            This class can be used to generate source code for the generic target application based on a Simulink model and deploy it to the target.
-            In addition, this class can also be used to start and stop the application or download recorded data.
+            This class is used to generate source code for the generic target application based on a Simulink model and deploy it to the target.
+            In addition, this class is also used to start and stop the application or download recorded data.
             Furthermore, the (<b>GT</b>) MATLAB package contains functions to decode recorded data.
             </td><tr>
-        <tr><td style="border:none;"><img src="../img/SimulinkLibrary.png"></td><td style="border:none;"></td><td valign="top" style="border:none;">
+        <tr><td style="border:none;"><img src="../img/SimulinkLibrary.svg"></td><td style="border:none;"></td><td valign="top" style="border:none;">
             <h4>Simulink Library</h4>
             The Simulink library contains driver blocks.
             These blocks generally have no effect in a simulation and serve as code placeholders for the target application.
             However, a host implementation can be used during the <a href="installtoolbox.html">toolbox installation</a>.
             This allows many of the blocks to be used in the simulation.
             </td><tr>
-        <tr><td style="border:none;"><img src="../img/TemplateModel.png"></td><td style="border:none;"></td><td valign="top" style="border:none;">
+        <tr><td style="border:none;"><img src="../img/TemplateModel.svg"></td><td style="border:none;"></td><td valign="top" style="border:none;">
             <h4>Template Model</h4>
             The MATLAB package includes a template for a Simulink model.
             Based on this model, the software for the generic target application can be implemented.
             This template is configured with all necessary settings.
             </td><tr>
-        <tr><td style="border:none;"><img src="../img/GenericTargetSoftware.png"></td><td style="border:none;"></td><td valign="top" style="border:none;">
+        <tr><td style="border:none;"><img src="../img/GenericTargetSoftware.svg"></td><td style="border:none;"></td><td valign="top" style="border:none;">
             <h4>Generic Target Software</h4>
             The MATLAB package contains the source code for the realtime application running on the target computer.
             The build procedure compiles this source code together with the generated code of the Simulink model on the target computer.
@@ -42,8 +42,8 @@
     <br>
 
 <h2>The Framework - How It Works</h2>
-    A MATLAB/Simulink model can be created based on the Simulink model template.
-    In principle, all standard blocks from which generic C/C++ code can be generated can be used.
+    A MATLAB/Simulink model should be created based on the Simulink model template.
+    In principle, all standard blocks from which generic C/C++ code is generated can be used.
     Special interface blocks such as UDP Receive or Target Scope from the Simulink Realtime Toolbox cannot be used.
     A separate Simulink library with driver blocks comes with the Generic Target Toolbox.
     You can use the MATLAB class <code>GT.GenericTarget</code> to deploy the Simulink model to the target computer.
@@ -67,7 +67,7 @@
     If several different sampling rates exist in the model, several <code>step()</code> methods are generated.
     These are called <code>step0()</code>, <code>step1()</code>, <code>step2()</code>, and so on.
     All those <code>step()</code> methods are then executed in parallel in separate threads with corresponding priorities.
-    The lower the sample rate, the higher the priority
+    The lower the sample rate, the higher the priority.
     <br>
     <br>
     <div class="note-orange">

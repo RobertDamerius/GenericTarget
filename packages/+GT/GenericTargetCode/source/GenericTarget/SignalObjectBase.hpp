@@ -1,6 +1,15 @@
 #pragma once
 
 
+#include <GenericTarget/Common.hpp>
+
+
+namespace gt {
+
+
+/**
+ * @brief This abstract class represents the basics of a signal object to be used for data recording.
+ */
 class SignalObjectBase {
     public:
         /**
@@ -42,4 +51,7 @@ class SignalObjectBase {
         virtual inline void SetDimensions(std::string dimensions){ (void)dimensions; }
         virtual inline void SetDataTypes(std::string dataTypes){ (void)dataTypes; }
 };
+
+
+} /* namespace: gt */
 

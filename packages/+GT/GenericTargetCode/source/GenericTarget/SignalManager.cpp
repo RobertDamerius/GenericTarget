@@ -1,10 +1,10 @@
-#include <SignalManager.hpp>
-#include <SignalObjectDoubles.hpp>
-#include <SignalObjectBus.hpp>
-#include <Console.hpp>
-#include <Common.hpp>
-#include <SimulinkInterface.hpp>
-#include <GenericTarget.hpp>
+#include <GenericTarget/SignalManager.hpp>
+#include <GenericTarget/SignalObjectDoubles.hpp>
+#include <GenericTarget/SignalObjectBus.hpp>
+#include <GenericTarget/Common.hpp>
+#include <SimulinkCodeGeneration/SimulinkInterface.hpp>
+#include <GenericTarget/GenericTarget.hpp>
+using namespace gt;
 
 
 std::atomic<bool> SignalManager::created = ATOMIC_VAR_INIT(false);
@@ -50,7 +50,7 @@ void SignalManager::WriteSignals(uint32_t id, double* values, uint32_t numValues
         TargetTime t = GenericTarget::GetTargetTime();
         auto found = objects.find(id);
         if(found != objects.end()){
-            found->second->Write(t.simulation, values, numValues);
+            found->second->Write(t.software, values, numValues);
         }
     }
 }
@@ -111,16 +111,15 @@ void SignalManager::BusObjectWriteSignals(uint32_t id, uint8_t* bytes, uint32_t 
         TargetTime t = GenericTarget::GetTargetTime();
         auto found = objects.find(id);
         if(found != objects.end()){
-            found->second->Write(t.simulation, bytes, numBytesPerSample);
+            found->second->Write(t.software, bytes, numBytesPerSample);
         }
     }
 }
 
 std::string SignalManager::GenerateFileName(uint32_t id){
-    std::string strPath, strFile;
-    GenericTarget::GetAppDirectory(strPath, strFile, MAX_LENGTH_ABSOLUTE_FILE_NAME);
+    std::string strPath = GenericTarget::GetAppDirectory();
     std::filesystem::path fsPath = strPath;
-    fsPath /= DIRECTORY_DATA_LOGGER;
+    fsPath /= GENERIC_TARGET_DIRECTORY_DATA_LOGGER;
     fsPath /= SignalManager::directoryDataLog;
     fsPath /= std::string("id") + std::to_string(id);
     return fsPath.string();
@@ -134,10 +133,9 @@ bool SignalManager::Create(void){
     if(objects.size()){
         try{
             // Check if log directory exists and create if not
-            std::string strPath, strFile;
-            GenericTarget::GetAppDirectory(strPath, strFile, MAX_LENGTH_ABSOLUTE_FILE_NAME);
+            std::string strPath = GenericTarget::GetAppDirectory();
             std::filesystem::path fsPath = strPath;
-            fsPath /= DIRECTORY_DATA_LOGGER;
+            fsPath /= GENERIC_TARGET_DIRECTORY_DATA_LOGGER;
             if(!std::filesystem::exists(fsPath) || (std::filesystem::exists(fsPath) && !std::filesystem::is_directory(fsPath))){
                 if(!std::filesystem::create_directory(fsPath)){
                     LogE("[SIGNAL MANAGER] Could not create directory \"%s\"!\n",fsPath.string().c_str());
@@ -147,8 +145,8 @@ bool SignalManager::Create(void){
             }
 
             // Set directory name for log data
-            auto systemClock = std::chrono::system_clock::now();
-            std::time_t systemTime = std::chrono::system_clock::to_time_t(systemClock);
+            auto timePoint = std::chrono::system_clock::now();
+            std::time_t systemTime = std::chrono::system_clock::to_time_t(timePoint);
             std::tm* gmTime = std::gmtime(&systemTime);
             char szName[64];
             uint32_t date_year = uint32_t(1900 + gmTime->tm_year);
@@ -162,7 +160,7 @@ bool SignalManager::Create(void){
 
             // Get absolute path to log directory
             fsPath = strPath;
-            fsPath /= DIRECTORY_DATA_LOGGER;
+            fsPath /= GENERIC_TARGET_DIRECTORY_DATA_LOGGER;
             fsPath /= SignalManager::directoryDataLog;
 
             // Create directory
@@ -174,7 +172,7 @@ bool SignalManager::Create(void){
             Log("[SIGNAL MANAGER] Created log directory \"%s\"\n",fsPath.string().c_str());
 
             // Write index file
-            fsPath /= std::string(FILE_NAME_DATA_LOGGER_INDEX);
+            fsPath /= std::string(GENERIC_TARGET_FILE_NAME_DATA_LOGGER_INDEX);
             std::string indexFileName = fsPath.string();
             Log("[SIGNAL MANAGER] Creating data log index file \"%s\"\n", indexFileName.c_str());
             if(!WriteIndexFile(indexFileName, date_year, date_month, date_mday, date_hour, date_min, date_sec)){

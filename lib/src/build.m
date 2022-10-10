@@ -16,12 +16,12 @@ end
 % Driver: UDP Send
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionDriverUDPSend';
-def.StartFcnSpec  = 'void CreateDriverUDPSend(uint16 p1, uint8 p2[4], int32 p3, int32 p4)';
-def.OutputFcnSpec = 'void OutputDriverUDPSend(int32 y1[1], uint16 p1, uint16 u1[5], uint8 u2[], uint32 u3)';
-def.TerminateFcnSpec = 'void DeleteDriverUDPSend()';
-def.HeaderFiles   = {'DriverUDPSend.h'};
-def.SourceFiles   = {'DriverUDPSend.cpp','HostImplementation.cpp'};
+def.SFunctionName = 'SFunctionGTDriverUDPSend';
+def.StartFcnSpec  = 'void GT_CreateDriverUDPSend(uint16 p1, uint8 p2[4], int32 p3, int32 p4)';
+def.OutputFcnSpec = 'void GT_OutputDriverUDPSend(int32 y1[1], uint16 p1, uint16 u1[5], uint8 u2[], uint32 u3)';
+def.TerminateFcnSpec = 'void GT_DeleteDriverUDPSend()';
+def.HeaderFiles   = {'GT_DriverUDPSend.h'};
+def.SourceFiles   = {'GT_DriverUDPSend.cpp','GT_HostImplementation.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
@@ -36,12 +36,12 @@ defs = [defs; def];
 % Driver: UDP Receive
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionDriverUDPReceive';
-def.StartFcnSpec  = 'void CreateDriverUDPReceive(uint16 p1, uint8 p2[4], uint32 p3, int32 p4, int32 p5, uint32 p6, uint32 p7, uint8 p8[4], uint8 p9)';
-def.OutputFcnSpec = 'void OutputDriverUDPReceive(uint16 p1, uint32 p3, uint32 p6, uint16 y1[5*p6], uint8 y2[p3*p6], uint32 y3[p6], double y4[p6], uint32 y5[1], uint32 y6[1])';
-def.TerminateFcnSpec = 'void DeleteDriverUDPReceive()';
-def.HeaderFiles   = {'DriverUDPReceive.h'};
-def.SourceFiles   = {'DriverUDPReceive.cpp','HostImplementation.cpp'};
+def.SFunctionName = 'SFunctionGTDriverUDPReceive';
+def.StartFcnSpec  = 'void GT_CreateDriverUDPReceive(uint16 p1, uint8 p2[4], uint32 p3, int32 p4, int32 p5, uint32 p6, uint32 p7, uint8 p8[4], uint8 p9)';
+def.OutputFcnSpec = 'void GT_OutputDriverUDPReceive(uint16 p1, uint32 p3, uint32 p6, uint16 y1[5*p6], uint8 y2[p3*p6], uint32 y3[p6], double y4[p6], uint32 y5[1], uint32 y6[1])';
+def.TerminateFcnSpec = 'void GT_DeleteDriverUDPReceive()';
+def.HeaderFiles   = {'GT_DriverUDPReceive.h'};
+def.SourceFiles   = {'GT_DriverUDPReceive.cpp','GT_HostImplementation.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
@@ -56,12 +56,12 @@ defs = [defs; def];
 % Driver: UDP Send (Multicast)
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionDriverMulticastUDPSend';
-def.StartFcnSpec  = 'void CreateDriverMulticastUDPSend(uint16 p1, uint8 p2[4], uint8 p3[4], int32 p4, int32 p5, uint8 p6)';
-def.OutputFcnSpec = 'void OutputDriverMulticastUDPSend(int32 y1[1], uint16 p1, uint16 u1[5], uint8 u2[], uint32 u3)';
-def.TerminateFcnSpec = 'void DeleteDriverMulticastUDPSend()';
-def.HeaderFiles   = {'DriverMulticastUDPSend.h'};
-def.SourceFiles   = {'DriverMulticastUDPSend.cpp','HostImplementation.cpp'};
+def.SFunctionName = 'SFunctionGTDriverMulticastUDPSend';
+def.StartFcnSpec  = 'void GT_CreateDriverMulticastUDPSend(uint16 p1, uint8 p2[4], uint8 p3[4], int32 p4, int32 p5, uint8 p6)';
+def.OutputFcnSpec = 'void GT_OutputDriverMulticastUDPSend(int32 y1[1], uint16 p1, uint16 u1[5], uint8 u2[], uint32 u3)';
+def.TerminateFcnSpec = 'void GT_DeleteDriverMulticastUDPSend()';
+def.HeaderFiles   = {'GT_DriverMulticastUDPSend.h'};
+def.SourceFiles   = {'GT_DriverMulticastUDPSend.cpp','GT_HostImplementation.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
@@ -76,12 +76,12 @@ defs = [defs; def];
 % Driver: UDP Receive (Multicast)
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionDriverMulticastUDPReceive';
-def.StartFcnSpec  = 'void CreateDriverMulticastUDPReceive(uint16 p1, uint8 p2[4], uint8 p3[4], uint32 p4, int32 p5, int32 p6, uint8 p7, uint32 p8, uint32 p9, uint8 p10[4], uint8 p11)';
-def.OutputFcnSpec = 'void OutputDriverMulticastUDPReceive(uint16 p1, uint32 p4, uint32 p8, uint16 y1[5*p8], uint8 y2[p4*p8], uint32 y3[p8], double y4[p8], uint32 y5[1], uint32 y6[1])';
-def.TerminateFcnSpec = 'void DeleteDriverMulticastUDPReceive()';
-def.HeaderFiles   = {'DriverMulticastUDPReceive.h'};
-def.SourceFiles   = {'DriverMulticastUDPReceive.cpp','HostImplementation.cpp'};
+def.SFunctionName = 'SFunctionGTDriverMulticastUDPReceive';
+def.StartFcnSpec  = 'void GT_CreateDriverMulticastUDPReceive(uint16 p1, uint8 p2[4], uint8 p3[4], uint32 p4, int32 p5, int32 p6, uint8 p7, uint32 p8, uint32 p9, uint8 p10[4], uint8 p11)';
+def.OutputFcnSpec = 'void GT_OutputDriverMulticastUDPReceive(uint16 p1, uint32 p4, uint32 p8, uint16 y1[5*p8], uint8 y2[p4*p8], uint32 y3[p8], double y4[p8], uint32 y5[1], uint32 y6[1])';
+def.TerminateFcnSpec = 'void GT_DeleteDriverMulticastUDPReceive()';
+def.HeaderFiles   = {'GT_DriverMulticastUDPReceive.h'};
+def.SourceFiles   = {'GT_DriverMulticastUDPReceive.cpp','GT_HostImplementation.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
@@ -93,15 +93,15 @@ defs = [defs; def];
 
 
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% Driver: Timer Simulation
+% Driver: Timer Software
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionDriverTimerSimulation';
-def.StartFcnSpec  = 'void CreateDriverTimerSimulation()';
-def.OutputFcnSpec = 'void OutputDriverTimerSimulation(double y1[1])';
-def.TerminateFcnSpec = 'void DeleteDriverTimerSimulation()';
-def.HeaderFiles   = {'DriverTimerSimulation.h'};
-def.SourceFiles   = {'DriverTimerSimulation.cpp','HostImplementation.cpp'};
+def.SFunctionName = 'SFunctionGTDriverTimerSoftware';
+def.StartFcnSpec  = 'void GT_CreateDriverTimerSoftware()';
+def.OutputFcnSpec = 'void GT_OutputDriverTimerSoftware(double y1[1])';
+def.TerminateFcnSpec = 'void GT_DeleteDriverTimerSoftware()';
+def.HeaderFiles   = {'GT_DriverTimerSoftware.h'};
+def.SourceFiles   = {'GT_DriverTimerSoftware.cpp','GT_HostImplementation.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
@@ -113,15 +113,15 @@ defs = [defs; def];
 
 
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% Driver: Timer Model
+% Driver: Timer Hardware
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionDriverTimerModel';
-def.StartFcnSpec  = 'void CreateDriverTimerModel()';
-def.OutputFcnSpec = 'void OutputDriverTimerModel(double y1[1])';
-def.TerminateFcnSpec = 'void DeleteDriverTimerModel()';
-def.HeaderFiles   = {'DriverTimerModel.h'};
-def.SourceFiles   = {'DriverTimerModel.cpp','HostImplementation.cpp'};
+def.SFunctionName = 'SFunctionGTDriverTimerHardware';
+def.StartFcnSpec  = 'void GT_CreateDriverTimerHardware()';
+def.OutputFcnSpec = 'void GT_OutputDriverTimerHardware(double y1[1])';
+def.TerminateFcnSpec = 'void GT_DeleteDriverTimerHardware()';
+def.HeaderFiles   = {'GT_DriverTimerHardware.h'};
+def.SourceFiles   = {'GT_DriverTimerHardware.cpp','GT_HostImplementation.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
@@ -136,12 +136,12 @@ defs = [defs; def];
 % Driver: Timer UNIX
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionDriverTimerUNIX';
-def.StartFcnSpec  = 'void CreateDriverTimerUNIX()';
-def.OutputFcnSpec = 'void OutputDriverTimerUNIX(double y1[1])';
-def.TerminateFcnSpec = 'void DeleteDriverTimerUNIX()';
-def.HeaderFiles   = {'DriverTimerUNIX.h'};
-def.SourceFiles   = {'DriverTimerUNIX.cpp','HostImplementation.cpp'};
+def.SFunctionName = 'SFunctionGTDriverTimerUNIX';
+def.StartFcnSpec  = 'void GT_CreateDriverTimerUNIX()';
+def.OutputFcnSpec = 'void GT_OutputDriverTimerUNIX(double y1[1])';
+def.TerminateFcnSpec = 'void GT_DeleteDriverTimerUNIX()';
+def.HeaderFiles   = {'GT_DriverTimerUNIX.h'};
+def.SourceFiles   = {'GT_DriverTimerUNIX.cpp','GT_HostImplementation.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
@@ -156,12 +156,12 @@ defs = [defs; def];
 % Driver: Timer UTC
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionDriverTimerUTC';
-def.StartFcnSpec  = 'void CreateDriverTimerUTC()';
-def.OutputFcnSpec = 'void OutputDriverTimerUTC(int32 y1[1], int32 y2[1], int32 y3[1], int32 y4[1], int32 y5[1], int32 y6[1], int32 y7[1], int32 y8[1], int32 y9[1], int32 y10[1])';
-def.TerminateFcnSpec = 'void DeleteDriverTimerUTC()';
-def.HeaderFiles   = {'DriverTimerUTC.h'};
-def.SourceFiles   = {'DriverTimerUTC.cpp','HostImplementation.cpp'};
+def.SFunctionName = 'SFunctionGTDriverTimerUTC';
+def.StartFcnSpec  = 'void GT_CreateDriverTimerUTC()';
+def.OutputFcnSpec = 'void GT_OutputDriverTimerUTC(int32 y1[1], int32 y2[1], int32 y3[1], int32 y4[1], int32 y5[1], int32 y6[1], int32 y7[1], int32 y8[1], int32 y9[1], int32 y10[1])';
+def.TerminateFcnSpec = 'void GT_DeleteDriverTimerUTC()';
+def.HeaderFiles   = {'GT_DriverTimerUTC.h'};
+def.SourceFiles   = {'GT_DriverTimerUTC.cpp','GT_HostImplementation.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
@@ -176,12 +176,12 @@ defs = [defs; def];
 % Driver: Timer Local
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionDriverTimerLocal';
-def.StartFcnSpec  = 'void CreateDriverTimerLocal()';
-def.OutputFcnSpec = 'void OutputDriverTimerLocal(int32 y1[1], int32 y2[1], int32 y3[1], int32 y4[1], int32 y5[1], int32 y6[1], int32 y7[1], int32 y8[1], int32 y9[1], int32 y10[1])';
-def.TerminateFcnSpec = 'void DeleteDriverTimerLocal()';
-def.HeaderFiles   = {'DriverTimerLocal.h'};
-def.SourceFiles   = {'DriverTimerLocal.cpp','HostImplementation.cpp'};
+def.SFunctionName = 'SFunctionGTDriverTimerLocal';
+def.StartFcnSpec  = 'void GT_CreateDriverTimerLocal()';
+def.OutputFcnSpec = 'void GT_OutputDriverTimerLocal(int32 y1[1], int32 y2[1], int32 y3[1], int32 y4[1], int32 y5[1], int32 y6[1], int32 y7[1], int32 y8[1], int32 y9[1], int32 y10[1])';
+def.TerminateFcnSpec = 'void GT_DeleteDriverTimerLocal()';
+def.HeaderFiles   = {'GT_DriverTimerLocal.h'};
+def.SourceFiles   = {'GT_DriverTimerLocal.cpp','GT_HostImplementation.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
@@ -196,12 +196,12 @@ defs = [defs; def];
 % Driver: Bus Log (scalar doubles only)
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionDriverBusLog';
-def.StartFcnSpec  = 'void CreateDriverBusLog(uint32 p1, uint8 p2[], uint32 p3, uint32 p4, uint32 p5)';
-def.OutputFcnSpec = 'void OutputDriverBusLog(uint32 p1, double u1[], uint32 p4)';
-def.TerminateFcnSpec = 'void DeleteDriverBusLog()';
-def.HeaderFiles   = {'DriverBusLog.h'};
-def.SourceFiles   = {'DriverBusLog.cpp','HostImplementation.cpp'};
+def.SFunctionName = 'SFunctionGTDriverBusLog';
+def.StartFcnSpec  = 'void GT_CreateDriverBusLog(uint32 p1, uint8 p2[], uint32 p3, uint32 p4, uint32 p5)';
+def.OutputFcnSpec = 'void GT_OutputDriverBusLog(uint32 p1, double u1[], uint32 p4)';
+def.TerminateFcnSpec = 'void GT_DeleteDriverBusLog()';
+def.HeaderFiles   = {'GT_DriverBusLog.h'};
+def.SourceFiles   = {'GT_DriverBusLog.cpp','GT_HostImplementation.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
@@ -216,12 +216,12 @@ defs = [defs; def];
 % Driver: Bus Object Log (complete bus)
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionDriverBusObjectLog';
-def.StartFcnSpec  = 'void CreateDriverBusObjectLog(uint32 p1, uint32 p2, uint32 p3, uint8 p4[], uint32 p5, uint8 p6[], uint32 p7, uint8 p8[], uint32 p9)';
-def.OutputFcnSpec = 'void OutputDriverBusObjectLog(uint32 p1, uint8 u1[p3], uint32 p3)';
-def.TerminateFcnSpec = 'void DeleteDriverBusObjectLog()';
-def.HeaderFiles   = {'DriverBusObjectLog.h'};
-def.SourceFiles   = {'DriverBusObjectLog.cpp','HostImplementation.cpp'};
+def.SFunctionName = 'SFunctionGTDriverBusObjectLog';
+def.StartFcnSpec  = 'void GT_CreateDriverBusObjectLog(uint32 p1, uint32 p2, uint32 p3, uint8 p4[], uint32 p5, uint8 p6[], uint32 p7, uint8 p8[], uint32 p9)';
+def.OutputFcnSpec = 'void GT_OutputDriverBusObjectLog(uint32 p1, uint8 u1[p3], uint32 p3)';
+def.TerminateFcnSpec = 'void GT_DeleteDriverBusObjectLog()';
+def.HeaderFiles   = {'GT_DriverBusObjectLog.h'};
+def.SourceFiles   = {'GT_DriverBusObjectLog.cpp','GT_HostImplementation.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
@@ -236,12 +236,12 @@ defs = [defs; def];
 % Driver: Task Execution Time
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionDriverTaskExecutionTime';
-def.StartFcnSpec  = 'void CreateDriverTaskExecutionTime()';
-def.OutputFcnSpec = 'void OutputDriverTaskExecutionTime(double p1, double y1[1])';
-def.TerminateFcnSpec = 'void DeleteDriverTaskExecutionTime()';
-def.HeaderFiles   = {'DriverTaskExecutionTime.h'};
-def.SourceFiles   = {'DriverTaskExecutionTime.cpp','HostImplementation.cpp'};
+def.SFunctionName = 'SFunctionGTDriverTaskExecutionTime';
+def.StartFcnSpec  = 'void GT_CreateDriverTaskExecutionTime()';
+def.OutputFcnSpec = 'void GT_OutputDriverTaskExecutionTime(double p1, double y1[1])';
+def.TerminateFcnSpec = 'void GT_DeleteDriverTaskExecutionTime()';
+def.HeaderFiles   = {'GT_DriverTaskExecutionTime.h'};
+def.SourceFiles   = {'GT_DriverTaskExecutionTime.cpp','GT_HostImplementation.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
@@ -256,12 +256,12 @@ defs = [defs; def];
 % Driver: Number of CPU overloads
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionDriverNumCPUOverloads';
-def.StartFcnSpec  = 'void CreateDriverNumCPUOverloads()';
-def.OutputFcnSpec = 'void OutputDriverNumCPUOverloads(double p1, uint32 y1[1])';
-def.TerminateFcnSpec = 'void DeleteDriverNumCPUOverloads()';
-def.HeaderFiles   = {'DriverNumCPUOverloads.h'};
-def.SourceFiles   = {'DriverNumCPUOverloads.cpp','HostImplementation.cpp'};
+def.SFunctionName = 'SFunctionGTDriverNumCPUOverloads';
+def.StartFcnSpec  = 'void GT_CreateDriverNumCPUOverloads()';
+def.OutputFcnSpec = 'void GT_OutputDriverNumCPUOverloads(double p1, uint32 y1[1])';
+def.TerminateFcnSpec = 'void GT_DeleteDriverNumCPUOverloads()';
+def.HeaderFiles   = {'GT_DriverNumCPUOverloads.h'};
+def.SourceFiles   = {'GT_DriverNumCPUOverloads.cpp','GT_HostImplementation.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
@@ -282,7 +282,7 @@ legacy_code('sfcn_cmex_generate', defs);
 if(ispc)
     if(useHostImplementation)
         includes = '';
-        libraries = '-DHOST_IMPLEMENTATION';
+        libraries = '-DGENERIC_TARGET_HOST_IMPLEMENTATION';
         legacy_code('compile', defs, {includes,libraries});
     else
         legacy_code('compile', defs);
@@ -290,7 +290,7 @@ if(ispc)
 elseif(isunix)
     if(useHostImplementation)
         includes = '';
-        libraries = '-DHOST_IMPLEMENTATION';
+        libraries = '-DGENERIC_TARGET_HOST_IMPLEMENTATION';
         legacy_code('compile', defs, {includes,libraries});
     else
         legacy_code('compile', defs);
@@ -299,7 +299,7 @@ else
     warning('This has never been tested for your operating system! Compilation may not work as expected!');
     if(useHostImplementation)
         includes = '';
-        libraries = '-DHOST_IMPLEMENTATION';
+        libraries = '-DGENERIC_TARGET_HOST_IMPLEMENTATION';
         legacy_code('compile', defs, {includes,libraries});
     else
         legacy_code('compile', defs);
@@ -313,7 +313,7 @@ legacy_code('sfcn_tlc_generate', defs);
 legacy_code('rtwmakecfg_generate', defs);
 
 % Generate Simulink blocks (not required, all blocks are already in the library)
-%legacy_code('slblock_generate', defs);
+% legacy_code('slblock_generate', defs);
 
 % Print information on supported host implementations
 if(useHostImplementation)
@@ -326,8 +326,8 @@ if(useHostImplementation)
     fprintf('\tInterface/Log Bus To File             no\n');
     fprintf('\tInterface/Multicast UDP Send          partially (*)\n');
     fprintf('\tInterface/Multicast UDP Receive       partially (*)\n');
-    fprintf('\tTime/Simulation Time                  no\n');
-    fprintf('\tTime/Model Time                       yes\n');
+    fprintf('\tTime/Software Time                    no\n');
+    fprintf('\tTime/Hardware Time                    yes\n');
     fprintf('\tTime/UNIX Time                        yes\n');
     fprintf('\tTime/UTC Time                         yes\n');
     fprintf('\tTime/Local Time                       yes\n');

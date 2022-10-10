@@ -1,4 +1,5 @@
-#include <Endpoint.hpp>
+#include <GenericTarget/Endpoint.hpp>
+using namespace gt;
 
 
 // Helper macros for sockaddr_in struct (win/linux)

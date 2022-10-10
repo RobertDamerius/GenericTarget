@@ -1,7 +1,10 @@
 #pragma once
 
 
-#include <UDPSocket.hpp>
+#include <GenericTarget/UDPSocket.hpp>
+
+
+namespace gt {
 
 
 typedef enum {
@@ -32,6 +35,9 @@ typedef struct {
 } udp_state_t;
 
 
+/**
+ * @brief This class represents a UDP object. It contains the receiver thread and handles socket operation for UDP unicast traffic.
+ */
 class UDPObject {
     public:
         /**
@@ -154,12 +160,14 @@ class UDPObject {
         udp_state_t state;      ///< The internal state.
         std::mutex mtxState;    ///< Protect the @ref state.
         UDPSocket socket;       ///< The internal socket object.
-        std::thread* threadRX;  ///< Receiver thread instance.
+        std::thread threadRX;   ///< Receiver thread instance.
 
         /**
          *  @brief Receiver thread function.
-         *  @param [in] obj The UDPobject that started the thread function.
          */
-        static void ThreadReceive(UDPObject* obj);
+        void ThreadReceive(void);
 };
+
+
+} /* namespace: gt */
 

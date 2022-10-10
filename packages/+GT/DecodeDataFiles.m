@@ -13,6 +13,7 @@ function data = DecodeDataFiles(dataFileNames)
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % 20210319    Robert Damerius        Initial release.
     % 20210531    Robert Damerius        Increased performance. Complete signal data is now casted and assigned at one time.
+    % 20221009    Robert Damerius        Updated verbose prints.
     % 
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -32,12 +33,12 @@ function data = DecodeDataFiles(dataFileNames)
     end
 
     % Decode/check all headers and make sure that all headers are equal
+    if(1 == numel(dataFileNames)), fprintf('[GENERIC TARGET] Decoding %d data file: reading binary data',numel(dataFileNames));
+    else, fprintf('[GENERIC TARGET] Decoding %d data files: reading binary data',numel(dataFileNames)); end
     tic();
-    fprintf('[DECODE] Decoding and checking headers of all input files:\n');
     header = struct.empty();
     numBytesSampleData = uint64(0);
     for i = 1:length(dataFileNames)
-        fprintf('         "%s"\n',dataFileNames{i});
         [success,h,chunkSizeSampleData] = DecodeHeader(dataFileNames{i});
         numBytesSampleData = numBytesSampleData + chunkSizeSampleData;
         if(~success)
@@ -61,24 +62,19 @@ function data = DecodeDataFiles(dataFileNames)
     end
 
     % Decoding header information
-    fprintf('[DECODE] Decoding header information ... ');
     [success, signalNames, dimensions, dataTypes] = ConvertHeader(header);
     if(~success)
         error('Failed to read signal names, dimensions and/or dataTypes from header!');
     end
-    fprintf('OK\n');
 
     % Endianess of this machine
     [~,~,tmp] = computer;
     thisBigEndian = ('B' == tmp);
 
     % Open all files and write all binary data to one byte stream
-    fprintf('[DECODE] Allocating memory for binary sample data (%s bytes) ... ',num2str(numBytesSampleData));
     bytes = uint8(zeros(numBytesSampleData,1));
-    fprintf('OK\n[DECODE] Reading binary sample data from all input files:\n');
     idx1 = uint64(1);
     for i = 1:length(dataFileNames)
-        fprintf('         "%s"\n',dataFileNames{i});
         fp = fopen(dataFileNames{i},'r');
         fseek(fp, 0, 'eof');
         fileDataSize = uint64(ftell(fp));
@@ -95,26 +91,20 @@ function data = DecodeDataFiles(dataFileNames)
     % Check if size of read binary data is a multiple of the size of one sample data buffer
     numberOfSamples = uint64(floor(numBytesSampleData / (uint64(8) + uint64(header.numBytesPerSample))));
     if((numberOfSamples * (uint64(8) + uint64(header.numBytesPerSample))) ~= numBytesSampleData)
-        warning('Incomplete sample data. The last sample my be missing.');
+        warning('Incomplete sample data. The last sample may be missing.');
     end
-    fprintf('[DECODE] Found %s samples!\n',num2str(numberOfSamples));
 
     % Decoding timestamps
-    fprintf('[DECODE] Decoding timestamps ... ');
-    timeVec = nan(numberOfSamples,1);
-    idx1 = uint64(1);
+    fprintf('\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bdecoding timestamps');
     stride = uint64(8 + header.numBytesPerSample);
-    for i = 1:numberOfSamples
-        timeVec(i) = typecast(bytes(idx1:(idx1+uint64(7))), 'double');
-        idx1 = idx1 + stride;
-    end
+    idx1 = reshape(repmat(stride * (uint64(0):(numberOfSamples-uint64(1))), [8,1]) + repmat(uint64(1:8)',[1,numberOfSamples]), [uint64(8)*numberOfSamples,1]);
+    timeVec = typecast(bytes(idx1), 'double');
     if(thisBigEndian ~= header.bigEndian)
         timeVec = swapbytes(timeVec);
     end
-    fprintf('OK\n');
 
     % Decode sample data
-    fprintf('[DECODE] Decoding signals ... 000 %%');
+    fprintf('\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bdecoding signals [000 %%]');
     offsetSignalData = uint64(9);
     prevProgress = int32(0);
     for k = 1:header.numSignals
@@ -130,7 +120,7 @@ function data = DecodeDataFiles(dataFileNames)
         progress = int32(floor(100.0 * (double(k - 1) / double(header.numSignals))));
         if(progress ~= prevProgress)
             prevProgress = progress;
-            fprintf('\b\b\b\b\b%03d %%',progress);
+            fprintf('\b\b\b\b\b\b%03d %%]',progress);
         end
 
         % Get strings for dimension creation and dimension assignment
@@ -165,7 +155,7 @@ function data = DecodeDataFiles(dataFileNames)
         ts = timeseries(dataVals,timeVec,'Name',layerNames{end});
         eval(['data.',name,' = ts;']);
     end
-    fprintf('\b\b\b\b\bOK\n[DECODE] Decoding finished after %f seconds\n\n',toc());
+    fprintf('\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bOK (finished after %f seconds)\n',toc());
 end
 
 function [success,header,chunkSizeSampleData] = DecodeHeader(filename)

@@ -1,13 +1,19 @@
 #pragma once
 
 
-#include <SignalObjectBase.hpp>
+#include <GenericTarget/SignalObjectBase.hpp>
+
+
+namespace gt {
 
 
 /* Forward declaration */
 class GenericTarget;
 
 
+/**
+ * @brief This class manages all signal objects for data recording.
+ */
 class SignalManager {
     public:
         /**
@@ -96,4 +102,7 @@ class SignalManager {
          */
         static bool WriteIndexFile(std::string filename, uint32_t date_year, uint8_t date_month, uint8_t date_mday, uint8_t date_hour, uint8_t date_min, uint8_t date_sec);
 };
+
+
+} /* namespace: gt */
 

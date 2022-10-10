@@ -1,9 +1,15 @@
 #pragma once
 
 
-#include <Endpoint.hpp>
+#include <GenericTarget/Endpoint.hpp>
 
 
+namespace gt {
+
+
+/**
+ * @brief This class represents a socket to be used for UDP operation. Unicast and multicast is supported.
+ */
 class UDPSocket {
     public:
         /**
@@ -49,15 +55,6 @@ class UDPSocket {
         int Bind(uint16_t port, const char *ip = nullptr);
 
         /**
-         *  @brief Bind the next free port between portBegin and portEnd to the socket. The socket must be opened. If portBegin is greater than portEnd they will be swapped.
-         *  @param [in] portBegin The beginning port that should be bound to the socket.
-         *  @param [in] portEnd The ending port that should be bound to the socket.
-         *  @param [in] ip The IP for this socket/interface, default to nullptr. Example: "127.0.0.1". If nullptr is set as parameter, INADDR_ANY will be used.
-         *  @return The port that was bound with success, < 0 if failure or already bound.
-         */
-        int Bind(uint16_t portBegin, uint16_t portEnd, const char *ip = nullptr);
-
-        /**
          *  @brief Set socket options using the setsockopt() function.
          *  @param [in] level The level at which the option is defined (for example, SOL_SOCKET).
          *  @param [in] optname The socket option for which the value is to be set (for example, SO_BROADCAST).
@@ -99,16 +96,6 @@ class UDPSocket {
          *  @return Number of bytes that have been sent. If an error occurred, the return value is < 0.
          */
         int SendTo(Endpoint& endpoint, uint8_t *bytes, int size);
-
-        /**
-         *  @brief Send a single broadcast message.
-         *  @param [in] destinationPort The destination port for the broadcast message.
-         *  @param [in] bytes Bytes that should be sent.
-         *  @param [in] size Number of bytes.
-         *  @return Number of bytes that have been sent. If an error occurred, the return value is < 0.
-         *  @details The socket option will be changed from unicast to broadcast. After transmission the socket option will be changed back to unicast.
-         */
-        int Broadcast(uint16_t destinationPort, uint8_t *bytes, int size);
 
         /**
          *  @brief Receive bytes from endpoint.
@@ -165,4 +152,7 @@ class UDPSocket {
         std::atomic<int> _socket; ///< Socket value.
         std::atomic<int> _port;   ///< Port value.
 };
+
+
+} /* namespace: gt */
 

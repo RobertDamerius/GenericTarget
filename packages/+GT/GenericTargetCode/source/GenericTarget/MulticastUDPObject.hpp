@@ -1,8 +1,11 @@
 #pragma once
 
 
-#include <UDPSocket.hpp>
-#include <UDPObject.hpp>
+#include <GenericTarget/UDPSocket.hpp>
+#include <GenericTarget/UDPObject.hpp>
+
+
+namespace gt {
 
 
 typedef struct {
@@ -29,6 +32,9 @@ typedef struct {
 } multicast_udp_state_t;
 
 
+/**
+ * @brief This class represents a multicast UDP object. It contains the receiver thread and handles socket operation for UDP multicast traffic.
+ */
 class MulticastUDPObject {
     public:
         /**
@@ -171,12 +177,14 @@ class MulticastUDPObject {
         multicast_udp_state_t state; ///< The internal state.
         std::mutex mtxState;         ///< Protect the @ref state.
         UDPSocket socket;            ///< The internal socket object.
-        std::thread* threadRX;       ///< Receiver thread instance.
+        std::thread threadRX;        ///< Receiver thread instance.
 
         /**
          *  @brief Receiver thread function.
-         *  @param [in] obj The UDPobject that started the thread function.
          */
-        static void ThreadReceive(MulticastUDPObject* obj);
+        void ThreadReceive(void);
 };
+
+
+} /* namespace gt */
 

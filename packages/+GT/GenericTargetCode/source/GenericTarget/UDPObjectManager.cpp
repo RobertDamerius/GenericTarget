@@ -1,5 +1,5 @@
-#include <UDPObjectManager.hpp>
-#include <Console.hpp>
+#include <GenericTarget/UDPObjectManager.hpp>
+using namespace gt;
 
 
 bool UDPObjectManager::created = false;

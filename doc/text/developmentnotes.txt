@@ -5,10 +5,10 @@
     compilation on the target. If problems occur, it may be worth looking at this page.
 
 <h3>Use the Template Simulink Model</h3>
-    The <code>GT.GenericTarget.GetTemplate()</code> command copies a template Simulink model into the current directory.
+    The <code>GT.GetTemplate()</code> command copies a template Simulink model into the current directory.
     In this template all necessary settings are set so that the code generation generates code in such a way
     that it can be further used in a correct way afterwards in the <a href="buildanddeploy.html">deployment process</a>.
-    If settings are changed, the entire deployment process may stop working.
+    If code-generation-related settings are changed, the entire deployment process may stop working.
     Different sample rates are processed in parallel on the target in different threads.
     Therefore the option <b>Allow tasks to execute concurrently on target</b> must be enabled in the simulink settings (Fixed-step solver).
 
@@ -52,4 +52,4 @@
 
 <h3>Third-Party Libraries</h3>
     If third-party libraries are used (for example with the legacy code tool), the corresponding library must also be installed on the target.
-    To ensure that linking is performed correctly when compiling the application, these third-party libraries must then be added manually to the Makefile on the target under <code>LIBS_LINUX</code>.
+    To ensure that linking is performed correctly when compiling the application, these third-party libraries must then be added manually to the Makefile on the target (line starts with <code>LIBS_LINUX</code>).

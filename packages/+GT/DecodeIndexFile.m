@@ -12,6 +12,7 @@ function info = DecodeIndexFile(filename)
     % Version     Author                 Changes
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % 20210319    Robert Damerius        Initial release.
+    % 20221009    Robert Damerius        Updated verbose prints.
     % 
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -24,7 +25,7 @@ function info = DecodeIndexFile(filename)
     if(fp < 0)
         error('Could not open index file "%s"\n',filename);
     end
-    fprintf('[DECODE] Decoding index file "%s" ... ',filename);
+    fprintf('[GENERIC TARGET] Decoding index file "%s" ...',filename);
 
     % Header should be: 'G' (71), 'T' (84), 'I' (73), 'D' (68), 'X' (88)
     bytesHeader = uint8(fread(fp, 5));
@@ -107,6 +108,6 @@ function info = DecodeIndexFile(filename)
         info.dateOfCompilation = [info.dateOfCompilation, char(byte)];
     end
     fclose(fp);
-    fprintf('OK\n\n');
+    fprintf('\b\b\b\b: OK\n');
 end
 

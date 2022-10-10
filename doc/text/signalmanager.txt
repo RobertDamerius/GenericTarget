@@ -274,7 +274,7 @@
             <td style="font-family: Courier New;"><b>SampleData</b></td>
             <td style="font-family: Courier New;"></td>
             <td>Contains <span style="font-family: Courier New;">1 + numSignals</span> values of type <span style="font-family: Courier New;">double</span>.
-            Each sample data contains one <span style="font-family: Courier New;">double</span>, which specifies the <a href="timingscheduling.html">simulation time</a>, followed by
+            Each sample data contains one <span style="font-family: Courier New;">double</span>, which specifies the <a href="timingscheduling.html">software time</a>, followed by
             <span style="font-family: Courier New;">numSignals</span> values of type <span style="font-family: Courier New;">double</span> that indicate the bus signal data.</td>
         </tr>
     </table>
@@ -368,7 +368,7 @@
             <td style="font-family: Courier New;"><b>SampleData</b></td>
             <td style="font-family: Courier New;"></td>
             <td>Contains <span style="font-family: Courier New;">8 + numBytesPerSample</span> bytes.
-            Each sample data contains one <span style="font-family: Courier New;">double</span> at the beginning (first 8 byte), which specify the <a href="timingscheduling.html">simulation time</a>, followed by
+            Each sample data contains one <span style="font-family: Courier New;">double</span> at the beginning (first 8 byte), which specify the <a href="timingscheduling.html">software time</a>, followed by
             <span style="font-family: Courier New;">numBytesPerSample</span> bytes that indicate the bus signal data. Dimension and data type is given by the two strings <span style="font-family: Courier New;">dimensions</span> and <span style="font-family: Courier New;">dataTypes</span>.</td>
         </tr>
     </table>

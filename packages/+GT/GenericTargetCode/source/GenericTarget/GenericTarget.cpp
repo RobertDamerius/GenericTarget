@@ -1,13 +1,13 @@
-#include <GenericTarget.hpp>
-#include <Console.hpp>
-#include <Common.hpp>
-#include <SimulinkInterface.hpp>
-#include <UDPObjectManager.hpp>
-#include <MulticastUDPObjectManager.hpp>
-#include <SignalManager.hpp>
+#include <GenericTarget/GenericTarget.hpp>
+#include <GenericTarget/Common.hpp>
+#include <SimulinkCodeGeneration/SimulinkInterface.hpp>
+#include <GenericTarget/UDPObjectManager.hpp>
+#include <GenericTarget/MulticastUDPObjectManager.hpp>
+#include <GenericTarget/SignalManager.hpp>
+using namespace gt;
 
 
-#ifdef    _WIN32
+#ifdef _WIN32
 static WSADATA __gt_net_wsadata;
 #endif
 
@@ -22,18 +22,23 @@ void GenericTarget::ShouldTerminate(void){
     GenericTarget::appSocket.Close();
 }
 
-void GenericTarget::GetAppDirectory(std::string& path, std::string& file, int bufSize){
-    char* buffer = new char[bufSize];
+std::string GenericTarget::GetAppDirectory(void){
+    std::string result;
     #ifdef _WIN32
-    DWORD len = GetModuleFileName(NULL, (LPSTR)(&buffer[0]), (DWORD)bufSize);
-    #else
-    ssize_t len = readlink("/proc/self/exe", &buffer[0], bufSize);
-    #endif
+    char* buffer = new char[65536];
+    DWORD len = GetModuleFileNameA(NULL, &buffer[0], 65536);
     std::string str(buffer, len);
-    auto found = str.find_last_of("/\\");
-    path = str.substr(0, found);
-    file = str.substr(found + 1);
     delete[] buffer;
+    #else
+    std::string str("/proc/self/exe");
+    #endif
+    try {
+        std::filesystem::path p = std::filesystem::canonical(str);
+        p.remove_filename();
+        result = p.string();
+    }
+    catch(...){ }
+    return result;
 }
 
 std::string GenericTarget::GetTimeStringUTC(void){
@@ -87,7 +92,6 @@ bool GenericTarget::Initialize(int argc, char**argv){
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if(appSocket.Open() < 0){
             LogE("[GENERIC TARGET] Could not open application socket!\n");
-            GenericTarget::NetworkTerminate();
             goto error;
         }
         if(appSocket.Bind(SimulinkInterface::portAppSocket) < 0){
@@ -124,7 +128,7 @@ bool GenericTarget::Initialize(int argc, char**argv){
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         Log("[GENERIC TARGET] Initializing simulink model\n");
         SimulinkInterface::Initialize();
-        Log("[GENERIC TARGET] Creating UDP sockets\n");
+        Log("[GENERIC TARGET] Creating unicast UDP sockets\n");
         if(!UDPObjectManager::Create()){
             goto error;
         }
@@ -169,7 +173,7 @@ void GenericTarget::Terminate(void){
         SimulinkInterface::Terminate();
         Log("[GENERIC TARGET] Destroying multicast UDP sockets\n");
         MulticastUDPObjectManager::Destroy();
-        Log("[GENERIC TARGET] Destroying UDP sockets\n");
+        Log("[GENERIC TARGET] Destroying unicast UDP sockets\n");
         UDPObjectManager::Destroy();
         Log("[GENERIC TARGET] Destroying signal logs\n");
         SignalManager::Destroy();
@@ -196,7 +200,7 @@ void GenericTarget::MainLoop(void){
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Start the base rate scheduler for the simulink model
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        Log("[GENERIC TARGET] Starting simulink model, timer will be reset\n");
+        Log("[GENERIC TARGET] Starting simulink model\n");
         scheduler.Start();
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

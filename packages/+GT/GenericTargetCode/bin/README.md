@@ -4,7 +4,7 @@ This directory contains the built software and the log files. To start the appli
 sudo ./GenericTarget
 ```
 If the application is to be started without waiting for termination, the following command can be executed.
-The console output will be redirected to the file ``log``.
+The console output will be redirected to the file ``log.txt``.
 ```
-sudo nohup ./GenericTarget &> log &
+sudo nohup ./GenericTarget &> log.txt &
 ```

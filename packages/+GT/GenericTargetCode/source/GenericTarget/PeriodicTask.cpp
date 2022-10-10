@@ -1,9 +1,10 @@
-#include <PeriodicTask.hpp>
-#include <SimulinkInterface.hpp>
-#include <Console.hpp>
+#include <GenericTarget/PeriodicTask.hpp>
+#include <GenericTarget/GenericTarget.hpp>
+#include <SimulinkCodeGeneration/SimulinkInterface.hpp>
+using namespace gt;
 
 
-PeriodicTask::PeriodicTask(const uint32_t taskID): taskID((taskID < SIMULINKINTERFACE_NUM_TIMINGS) ? taskID : 0){
+PeriodicTask::PeriodicTask(const uint32_t taskID): taskID((taskID < SIMULINK_INTERFACE_NUM_TIMINGS) ? taskID : 0){
     ticks = 1;
     numOverloads = 0;
     jobRunning = false;
@@ -85,27 +86,27 @@ void PeriodicTask::Notify(void){
     }
 }
 
-void PeriodicTask::Thread(PeriodicTask* src){
+void PeriodicTask::Thread(void){
     for(;;){
         // Wait for notification
         {
-            std::unique_lock<std::mutex> lock(src->mtx);
-            src->cv.wait(lock, [src](){ return (src->notified || src->terminate); });
-            src->notified = false;
+            std::unique_lock<std::mutex> lock(mtx);
+            cv.wait(lock, [this](){ return (notified || terminate); });
+            notified = false;
         }
 
         // Check termination flag
-        if(src->terminate){
+        if(terminate){
             break;
         }
 
         // Model step calculation
-        src->jobRunning = true;
-        auto t1 = std::chrono::high_resolution_clock::now();
-        SimulinkInterface::Step(src->taskID);
-        auto t2 = std::chrono::high_resolution_clock::now();
-        src->jobRunning = false;
-        src->taskExecutionTime = 1e-9 * double(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
+        jobRunning = true;
+        auto t1 = std::chrono::steady_clock::now();
+        SimulinkInterface::Step(taskID);
+        auto t2 = std::chrono::steady_clock::now();
+        jobRunning = false;
+        taskExecutionTime = 1e-9 * double(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
     }
 }
 

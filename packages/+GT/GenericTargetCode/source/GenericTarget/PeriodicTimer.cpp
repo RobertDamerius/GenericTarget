@@ -1,5 +1,5 @@
-#include <PeriodicTimer.hpp>
-#include <Console.hpp>
+#include <GenericTarget/PeriodicTimer.hpp>
+using namespace gt;
 
 
 PeriodicTimer::PeriodicTimer(){
@@ -15,6 +15,9 @@ PeriodicTimer::~PeriodicTimer(){}
 
 bool PeriodicTimer::Create(double sampleRate){
     const double timeToWaitBeforeStart = 0.1;
+    if(!std::chrono::steady_clock::is_steady){
+        LogW("[PERIODIC TIMER] High resolution clock is not steady!\n");
+    }
     Destroy();
     #ifdef _WIN32
     if(sampleRate < 0.001){

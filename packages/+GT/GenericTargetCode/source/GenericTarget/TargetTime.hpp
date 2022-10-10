@@ -1,6 +1,15 @@
 #pragma once
 
 
+#include <GenericTarget/Common.hpp>
+
+
+namespace gt {
+
+
+/**
+ * @brief This class represents time information including the date and the time of the day.
+ */
 class TimeInfo {
     public:
         int nanoseconds;   ///< Nanoseconds of the current second [0, 999999999].
@@ -36,14 +45,17 @@ class TimeInfo {
 };
 
 
+/**
+ * @brief This class represents the current time state of the target.
+ */
 class TargetTime {
     public:
         TimeInfo utc;      ///< UTC time.
         TimeInfo local;    ///< Local time.
-        double model;      ///< Model execution time in seconds.
+        double hardware;   ///< Hardware execution time of the model in seconds.
         uint64_t ticks;    ///< Number of ticks of the base rate.
-        double simulation; ///< Simulation time, equal to ticks * base rate.
-        double unix;       ///< UNIX time in seconds (millisecond resolution).
+        double software;   ///< Software execution time of the model in seconds: equal to ticks * base rate.
+        double unixTime;   ///< UNIX time in seconds (millisecond resolution).
 
         /**
          *  @brief Create target time.
@@ -65,4 +77,7 @@ class TargetTime {
          */
         TargetTime& operator=(const TargetTime& rhs);
 };
+
+
+} /* namespace: gt */
 

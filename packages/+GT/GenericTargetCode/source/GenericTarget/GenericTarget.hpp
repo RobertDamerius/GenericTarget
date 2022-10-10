@@ -1,12 +1,23 @@
 #pragma once
 
 
-#include <BaseRateScheduler.hpp>
-#include <TargetTime.hpp>
-#include <UDPSocket.hpp>
-#include <Common.hpp>
+#include <GenericTarget/BaseRateScheduler.hpp>
+#include <GenericTarget/TargetTime.hpp>
+#include <GenericTarget/UDPSocket.hpp>
+#include <GenericTarget/Common.hpp>
 
 
+/* Forward declaration of the main entry function. It's used as friend and has access to the protected member functions of the GenericTarget class. */
+int main(int, char**);
+
+
+namespace gt {
+
+
+/**
+ * @brief This class represents the main application of the generic target framework. It initializes all modules
+ * and starts the scheduler. This class also handles the application socket.
+ */
 class GenericTarget {
     public:
         /**
@@ -45,11 +56,9 @@ class GenericTarget {
 
         /**
          *  @brief Get the absolute path of the application directory.
-         *  @param [out] path The absolute path of the application without a separator at the end.
-         *  @param [out] file Name of the application file including extension.
-         *  @param [in] bufSize Size of buffer required to obtain path information, defaults to MAX_LENGTH_ABSOLUTE_FILE_NAME.
+         *  @return The absolute path of the application directory.
          */
-        static void GetAppDirectory(std::string& path, std::string& file, int bufSize = MAX_LENGTH_ABSOLUTE_FILE_NAME);
+        static std::string GetAppDirectory(void);
 
         /**
          *  @brief Get the UTC time string.
@@ -58,7 +67,8 @@ class GenericTarget {
         static std::string GetTimeStringUTC(void);
 
     protected:
-        friend int main(int, char**);
+        /* Only the main entry function is allowed to access the protected member functions */
+        friend int ::main(int, char**);
 
         /**
          *  @brief Initialize the generic target application.
@@ -111,4 +121,7 @@ class GenericTarget {
          */
         static void NetworkTerminate(void);
 };
+
+
+} /* namespace: gt */
 

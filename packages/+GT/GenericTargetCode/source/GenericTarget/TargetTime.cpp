@@ -1,4 +1,5 @@
-#include <TargetTime.hpp>
+#include <GenericTarget/TargetTime.hpp>
+using namespace gt;
 
 
 TimeInfo::TimeInfo(){
@@ -44,19 +45,19 @@ TimeInfo& TimeInfo::operator=(const TimeInfo& rhs){
 }
 
 TargetTime::TargetTime(){
-    model = 0.0;
+    hardware = 0.0;
     ticks = 0;
-    simulation = 0.0;
-    unix = 0.0;
+    software = 0.0;
+    unixTime = 0.0;
 }
 
 TargetTime::TargetTime(const TargetTime& time){
     this->utc = time.utc;
     this->local = time.local;
-    this->model = time.model;
+    this->hardware = time.hardware;
     this->ticks = time.ticks;
-    this->simulation = time.simulation;
-    this->unix = time.unix;
+    this->software = time.software;
+    this->unixTime = time.unixTime;
 }
 
 TargetTime::~TargetTime(){}
@@ -64,10 +65,10 @@ TargetTime::~TargetTime(){}
 TargetTime& TargetTime::operator=(const TargetTime& rhs){
     this->utc = rhs.utc;
     this->local = rhs.local;
-    this->model = rhs.model;
+    this->hardware = rhs.hardware;
     this->ticks = rhs.ticks;
-    this->simulation = rhs.simulation;
-    this->unix = rhs.unix;
+    this->software = rhs.software;
+    this->unixTime = rhs.unixTime;
     return *this;
 }
 
