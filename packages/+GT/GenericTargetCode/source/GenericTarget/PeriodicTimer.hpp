@@ -50,12 +50,26 @@ class PeriodicTimer {
          */
         double GetTimeToStart(void);
 
+        /**
+         *  @brief Get the number of CPU overloads that have been occurred since the creation of this timer.
+         *  @return The number of CPU overloads.
+         */
+        inline uint64_t GetNumCPUOverloads(void){ return numCPUOverloads; }
+
+        /**
+         *  @brief Get the number of lost ticks that have been occurred since the creation of this timer.
+         *  @return The number of lost ticks.
+         */
+        inline uint64_t GetNumLostTicks(void){ return numLostTicks; }
+
     private:
-        std::chrono::time_point<std::chrono::steady_clock> timeOfStart;
+        std::chrono::time_point<std::chrono::steady_clock> timeOfStart;   ///< Timepoint of start. This timepoint is set during construction, @ref Create and during @ref WaitForSignal, if resetTimeOfStart is set to true.
+        std::atomic<uint64_t> numCPUOverloads;                            ///< Number of CPU overloads that have been occurred since @ref Create. If the timer is expired by more than one tick, this value is incremented by one.
+        std::atomic<uint64_t> numLostTicks;                               ///< Number of lost ticks from the timer since @ref Create. If the timer is expired by more than one tick, this value is incremented by the number of additional expired ticks (lost ticks).
         #ifdef _WIN32
-        HANDLE hTimer;
+        HANDLE hTimer;                                                    ///< [Windows] Handle for timer object.
         #else
-        int fdTimer;
+        int fdTimer;                                                      ///< [Linux] File descriptor for timer object.
         #endif
 };
 

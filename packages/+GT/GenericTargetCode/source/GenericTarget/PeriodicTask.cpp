@@ -6,7 +6,7 @@ using namespace gt;
 
 PeriodicTask::PeriodicTask(const uint32_t taskID): taskID((taskID < SIMULINK_INTERFACE_NUM_TIMINGS) ? taskID : 0){
     ticks = 1;
-    numOverloads = 0;
+    numTaskOverloads = 0;
     jobRunning = false;
     started = false;
     terminate = false;
@@ -25,7 +25,7 @@ void PeriodicTask::Start(void){
     // Start thread
     started = true;
     ticks = 1;
-    numOverloads = 0;
+    numTaskOverloads = 0;
     t = std::thread(&PeriodicTask::Thread, this);
 
     // Set priority
@@ -66,11 +66,11 @@ void PeriodicTask::Notify(void){
             // Reset tick counter to specified model sample ticks
             ticks = SimulinkInterface::sampleTicks[taskID];
 
-            // If a job is still running: overload
+            // If a job is still running: task overload
             if(jobRunning){
-                uint32_t n = ++numOverloads;
-                LogE("[PERIODIC TASK] CPU overload (task=\"%s\", priority=%d, sampletime=%lf, overloads=%d)\n", SimulinkInterface::taskNames[taskID], SimulinkInterface::priorities[taskID], SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]), n);
-                if(SimulinkInterface::terminateAtCPUOverload){
+                uint64_t n = ++numTaskOverloads;
+                LogE("[PERIODIC TASK] Task overload (task=\"%s\", priority=%d, sampletime=%lf, overloads=%lu)\n", SimulinkInterface::taskNames[taskID], SimulinkInterface::priorities[taskID], SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]), n);
+                if(SimulinkInterface::terminateAtTaskOverload){
                     GenericTarget::ShouldTerminate();
                     return;
                 }

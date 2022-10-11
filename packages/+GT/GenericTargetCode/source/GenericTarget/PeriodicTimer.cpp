@@ -8,6 +8,8 @@ PeriodicTimer::PeriodicTimer(){
     #else
     fdTimer = -1;
     #endif
+    numCPUOverloads = 0;
+    numLostTicks = 0;
     timeOfStart = std::chrono::steady_clock::now();
 }
 
@@ -54,6 +56,8 @@ bool PeriodicTimer::Create(double sampleRate){
         return false;
     }
     #endif
+    numCPUOverloads = 0;
+    numLostTicks = 0;
     timeOfStart = std::chrono::steady_clock::now();
     return true;
 }
@@ -86,6 +90,10 @@ bool PeriodicTimer::WaitForSignal(bool resetTimeOfStart){
         s = read(fdTimer, &exp, sizeof(exp));
         if((s == -1) && (errno == EINTR)){
             continue;
+        }
+        if(exp > 1){
+            ++numCPUOverloads;
+            numLostTicks += (exp - 1);
         }
         if(resetTimeOfStart){
             timeOfStart = std::chrono::steady_clock::now();

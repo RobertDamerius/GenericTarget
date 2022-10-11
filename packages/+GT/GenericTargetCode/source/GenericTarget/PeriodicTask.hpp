@@ -28,7 +28,7 @@ class PeriodicTask {
 
         /**
          *  @brief Start or restart the periodic task.
-         *  @details The number of overloads will be reset to zero.
+         *  @details The number of task overloads will be reset to zero.
          */
         void Start(void);
 
@@ -44,11 +44,11 @@ class PeriodicTask {
         void Notify(void);
 
         /**
-         *  @brief Get the number of overloads.
-         *  @return Number of overloads since @ref Start().
+         *  @brief Get the number of task overloads.
+         *  @return Number of task overloads since @ref Start().
          */
-        inline uint32_t GetNumOverloads(void){
-            return numOverloads;
+        inline uint64_t GetNumTaskOverloads(void){
+            return numTaskOverloads;
         }
 
         /**
@@ -68,7 +68,7 @@ class PeriodicTask {
         std::atomic<bool> started;
         std::atomic<bool> terminate;
         std::atomic<bool> jobRunning;
-        std::atomic<uint32_t> numOverloads;
+        std::atomic<uint64_t> numTaskOverloads;
         std::atomic<int> ticks;
         std::atomic<double> taskExecutionTime;
 

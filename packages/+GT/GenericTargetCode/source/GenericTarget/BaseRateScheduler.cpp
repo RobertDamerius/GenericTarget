@@ -46,7 +46,7 @@ void BaseRateScheduler::Stop(void){
     // Stop all periodic tasks
     for(size_t n = 0; n < tasks.size(); n++){
         tasks[n]->Stop();
-        Log("[BASE RATE SCHEDULER] Task \"%s\" (priority=%d, samplerate=%lf) has been stopped: %d CPU overloads\n", SimulinkInterface::taskNames[tasks[n]->taskID], SimulinkInterface::priorities[tasks[n]->taskID], SimulinkInterface::baseSampleTime*double(SimulinkInterface::sampleTicks[tasks[n]->taskID]), tasks[n]->GetNumOverloads());
+        Log("[BASE RATE SCHEDULER] Task \"%s\" (priority=%d, samplerate=%lf) has been stopped: %lu task overloads\n", SimulinkInterface::taskNames[tasks[n]->taskID], SimulinkInterface::priorities[tasks[n]->taskID], SimulinkInterface::baseSampleTime*double(SimulinkInterface::sampleTicks[tasks[n]->taskID]), tasks[n]->GetNumTaskOverloads());
         delete tasks[n];
     }
     tasks.clear();
@@ -63,9 +63,14 @@ TargetTime BaseRateScheduler::GetTargetTime(void){
 void BaseRateScheduler::Thread(){
     mtxTimeState.lock();
     timeState.ticks = 0;
+    timeState.numCPUOverloads = 0;
+    timeState.numLostTicks = 0;
     mtxTimeState.unlock();
     bool firstCall = true;
     double hardwareTime = 0.0;
+    uint64_t numCPUOverloads = 0;
+    uint64_t numLostTicks = 0;
+    uint64_t previousCPUOverloads = 0;
 
     // Create timer
     if(!baseTimer.Create(SimulinkInterface::baseSampleTime)){
@@ -79,7 +84,19 @@ void BaseRateScheduler::Thread(){
         // Wait for signal and break if timer was destroyed
         if(!baseTimer.WaitForSignal(firstCall)) break;
         hardwareTime = baseTimer.GetTimeToStart();
+        numCPUOverloads = baseTimer.GetNumCPUOverloads();
+        numLostTicks = baseTimer.GetNumLostTicks();
         firstCall = false;
+
+        // Check for CPU overloads
+        if(previousCPUOverloads != numCPUOverloads){
+            previousCPUOverloads = numCPUOverloads;
+            LogE("[BASE RATE SCHEDULER] CPU overload (overloads=%lu, lostTicks=%lu)\n", numCPUOverloads, numLostTicks);
+            if(SimulinkInterface::terminateAtCPUOverload){
+                GenericTarget::ShouldTerminate();
+                break;
+            }
+        }
 
         // Check termination flag
         if(terminate){
@@ -88,6 +105,8 @@ void BaseRateScheduler::Thread(){
 
         // Update time state
         mtxTimeState.lock();
+        timeState.numCPUOverloads = numCPUOverloads;
+        timeState.numLostTicks = numLostTicks;
         timeState.hardware = hardwareTime;
         timeState.software = static_cast<double>(timeState.ticks++) * SimulinkInterface::baseSampleTime;
         auto timePoint = std::chrono::system_clock::now();
@@ -127,5 +146,10 @@ void BaseRateScheduler::Thread(){
 
     // Destroy timer
     baseTimer.Destroy();
+
+    // Show CPU overloads
+    mtxTimeState.lock();
+    Log("[BASE RATE SCHEDULER] Scheduler has been stopped (%lu CPU overloads, %lu lost ticks)\n", timeState.numCPUOverloads, timeState.numLostTicks);
+    mtxTimeState.unlock();
 }
 

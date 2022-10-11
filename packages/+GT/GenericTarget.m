@@ -28,6 +28,7 @@
 % 20220216    Robert Damerius        Searching for main entry functions in source files now also works for empty source files.
 % 20220518    Robert Damerius        Getting class name and header of generated code from constructor code info: codeInfo.ConstructorFunction.Prototype.
 % 20221010    Robert Damerius        Name of the simulink interface code is now hardcoded. Updated default priorities and verobse prints.
+% 20221011    Robert Damerius        Added control for task overloads.
 % 
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -68,6 +69,7 @@ classdef GenericTarget < handle
         targetIPAddress;         % IPv4 address of the target PC.
         targetSoftwareDirectory; % Directory for software on target (default: "~/GenericTarget/"). MUST BEGIN WITH '~/' AND END WITH '/'!
         targetUsername;          % User name of target PC required to login on target via SSH/SCP.
+        terminateAtTaskOverload; % True if application should terminate at task overload, false otherwise (default: true).
         terminateAtCPUOverload;  % True if application should terminate at CPU overload, false otherwise (default: true).
         upperThreadPriority;     % Upper task priority in range [0, 99] (default: 89).
         customCode;              % Cell-array of directories containing custom code to be uploaded along with the generated code.
@@ -103,6 +105,7 @@ classdef GenericTarget < handle
             obj.priorityLog = uint32(30);
             obj.portAppSocket = uint16(65535);
             obj.upperThreadPriority = int32(89);
+            obj.terminateAtTaskOverload = true;
             obj.terminateAtCPUOverload = true;
             obj.portSSH = uint16(22);
             obj.customCode = cell.empty();
@@ -310,7 +313,7 @@ classdef GenericTarget < handle
 
             % Generate interface code from code information and write to header file (.hpp) and source file (.cpp) to code generation directory
             fprintf('[GENERIC TARGET] Generating code for model interface: SimulinkInterface\n');
-            [strInterfaceHeader, strInterfaceSource] = GT.GenericTarget.GenerateInterfaceCode(modelName, codeInfo, obj.priorityLog, obj.portAppSocket, obj.upperThreadPriority, obj.terminateAtCPUOverload);
+            [strInterfaceHeader, strInterfaceSource] = GT.GenericTarget.GenerateInterfaceCode(modelName, codeInfo, obj.priorityLog, obj.portAppSocket, obj.upperThreadPriority, obj.terminateAtTaskOverload, obj.terminateAtCPUOverload);
             fidHeader = fopen([dirCodeGen subDirModelCode 'SimulinkInterface.hpp'],'wt');
             fidSource = fopen([dirCodeGen subDirModelCode 'SimulinkInterface.cpp'],'wt');
             fprintf(fidHeader, strInterfaceHeader);
@@ -571,7 +574,7 @@ classdef GenericTarget < handle
                 end
             end
         end
-        function [strHeader, strSource] = GenerateInterfaceCode(modelName, codeInfo, priorityLog, portAppSocket, upperThreadPriority, terminateAtCPUOverload)
+        function [strHeader, strSource] = GenerateInterfaceCode(modelName, codeInfo, priorityLog, portAppSocket, upperThreadPriority, terminateAtTaskOverload, terminateAtCPUOverload)
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Check for valid input interface name
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -584,6 +587,8 @@ classdef GenericTarget < handle
             assert(isscalar(upperThreadPriority), 'GT.GenericTarget.GenerateInterfaceCode(): Input "upperThreadPriority" must be scalar!');
             upperThreadPriority = int32(upperThreadPriority);
             assert((upperThreadPriority >= 0) && (upperThreadPriority < 100), 'GT.GenericTarget.GenerateInterfaceCode(): Input "upperThreadPriority" must be in range [0, 99]!');
+            assert(isscalar(terminateAtTaskOverload), 'GT.GenericTarget.GenerateInterfaceCode(): Input "terminateAtTaskOverload" must be scalar!');
+            assert(islogical(terminateAtTaskOverload), 'GT.GenericTarget.GenerateInterfaceCode(): Input "terminateAtTaskOverload" must be logical!');
             assert(isscalar(terminateAtCPUOverload), 'GT.GenericTarget.GenerateInterfaceCode(): Input "terminateAtCPUOverload" must be scalar!');
             assert(islogical(terminateAtCPUOverload), 'GT.GenericTarget.GenerateInterfaceCode(): Input "terminateAtCPUOverload" must be logical!');
 
@@ -678,6 +683,14 @@ classdef GenericTarget < handle
             strPortAppSocket = sprintf('%d',portAppSocket);
 
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            % Get task overload behaviour
+            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            strTerminateAtTaskOverload = 'false';
+            if(terminateAtTaskOverload)
+                strTerminateAtTaskOverload = 'true';
+            end
+
+            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Get CPU overload behaviour
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             strTerminateAtCPUOverload = 'false';
@@ -719,6 +732,8 @@ classdef GenericTarget < handle
             strSource = strrep(strSource, '$PRIORITY_LOG$', strPriorityLog);
             strHeader = strrep(strHeader, '$PORT_APP_SOCKET$', strPortAppSocket);
             strSource = strrep(strSource, '$PORT_APP_SOCKET$', strPortAppSocket);
+            strHeader = strrep(strHeader, '$TERMINATE_AT_TASK_OVERLOAD$', strTerminateAtTaskOverload);
+            strSource = strrep(strSource, '$TERMINATE_AT_TASK_OVERLOAD$', strTerminateAtTaskOverload);
             strHeader = strrep(strHeader, '$TERMINATE_AT_CPU_OVERLOAD$', strTerminateAtCPUOverload);
             strSource = strrep(strSource, '$TERMINATE_AT_CPU_OVERLOAD$', strTerminateAtCPUOverload);
         end

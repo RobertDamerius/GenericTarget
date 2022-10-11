@@ -16,11 +16,11 @@ extern void GT_CreateDriverNumCPUOverloads(void);
 extern void GT_DeleteDriverNumCPUOverloads(void);
 
 /**
- *  @brief Get the number of CPU overloads for a task.
- *  @param [in] sampletime The sampletime of the task from which to obtain the latest task execution time.
- *  @param [out] numOverloads The latest CPU overload counter or zero if the sampletime doesn't indicate an existing task.
+ *  @brief Get the number of cpu overloads and the number of lost ticks.
+ *  @param [out] numCPUOverloads The latest number of CPU overloads.
+ *  @param [out] numLostTicks The latest number of lost ticks.
  */
-extern void GT_OutputDriverNumCPUOverloads(double sampletime, uint32_t* numOverloads);
+extern void GT_OutputDriverNumCPUOverloads(uint64_t* numCPUOverloads, uint64_t* numLostTicks);
 
 
 #endif /* GT_DRIVER_NUM_CPU_OVERLOADS_H */

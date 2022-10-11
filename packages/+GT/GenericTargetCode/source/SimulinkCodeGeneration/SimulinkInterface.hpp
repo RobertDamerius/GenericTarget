@@ -1,4 +1,4 @@
-/* Auto-generated code (Template Version 20221010) */
+/* Auto-generated code (Template Version 20221011) */
 #pragma once
 
 
@@ -19,7 +19,8 @@ class SimulinkInterface {
         static const int32_t sampleTicks[SIMULINK_INTERFACE_NUM_TIMINGS];   ///< Sample time scaler for model step. Sample time for model step [i] is baseSampleTime * sampleTicks[i].
         static const int32_t priorities[SIMULINK_INTERFACE_NUM_TIMINGS];    ///< Thread priorities for all model step functions.
         static const char* taskNames[SIMULINK_INTERFACE_NUM_TIMINGS];       ///< Names for all sample rate tasks.
-        static const bool terminateAtCPUOverload;                           ///< True if application should be terminated at CPU overload, false otherwise.
+        static const bool terminateAtTaskOverload;                          ///< True if application should be terminated at a task overload, false otherwise.
+        static const bool terminateAtCPUOverload;                           ///< True if application should be terminated at a CPU overload, false otherwise.
 
         /**
          *  @brief Initialize the model.

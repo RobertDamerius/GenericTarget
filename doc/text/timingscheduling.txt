@@ -34,10 +34,26 @@
     The task execution time thus indicates the computation time of the last sampling step.
     The initial value for the first step is zero.
 
+    <h3>Task Overload</h3>
+    If the task execution time of a thread becomes to large, then the corresponding thread of that task cannot be notified by the base rate scheduler.
+    If a task is still running, a <a href="#taskoverload">lost wakeup</a> occurs. The number of task overloads for that task is incremented.
+
+    <h3>CPU Overload and Lost Ticks</h3>
+    The high-priority realtime thread of the base rate scheduler waits for the event of a periodic timer that is set with the specified base sampletime of the model.
+    Due to operating-system related latency the realtime thread is not able to handle that event immediately but after some short delay. If the timer produced multiple
+    events but the realtime thread was not able to handle them in time, a <a href="#cpuoverload">lost tick event</a> occurs. In this case, the number of CPU overloads is incremented and the
+    number of lost ticks is incremented by the number of tick events that have been lost.
+
     <div class="note-orange">
 	<h3 class="note-orange">Warning</h3>
     If the host implementation was selected during the <a href="installtoolbox.html">installation</a> of the toolbox, some of these times can also be determined in simulations with the corresponding Simulink blocks.
-    However, the behavior is different in the simulation than on the target computer.
+    However, the behavior is different in the simulation than on the target computer. On the target, the whole time state is calculated once by the base rate scheduler. However, during simulation of a corresponding block
+    with host implementation support, the time is calculated immediately when the block is executed.
+    </div>
+
+    <div class="note-red">
+	<h3 class="note-red">Limited Support for Windows</h3>
+    CPU overload and lost ticks are not supported for windows operating system. Keep that in mind when deploying a model to a host running windows.
     </div>
     <br>
 
@@ -57,16 +73,17 @@
     <br>
     <br>
     Here, the <code>step0()</code> function is executed with the basic sampling rate and the <code>step1()</code> function with twice the sampling time.
+    Due to the latency of the operating system there is some delay between the timer event and the high priority thread of the BaseRateScheduler.
 
-    <a name="cpuoverload"></a>
-    <h3>Lost-Wakeup (CPU Overload)</h3>
+    <a name="taskoverload"></a>
+    <h3>Lost-Wakeup (Task Overload)</h3>
     If a thread is triggered by the BaseRateScheduler even though the corresponding step function is not yet ready, a lost wakeup occurs.
     The trigger event from the timer is lost.
-    A Lost-Wakeup is also called CPU overload in this context.
-    With a CPU overload, the generic target application is terminated by default.
-    However, the parameter <code>terminateAtCPUOverload</code> of the <a href="simulinkinterface.html">Simulink interface class</a> can be used to specify whether the application should be terminated or the CPU overload should be ignored.
-    The number of CPU overloads (for each thread) are written to the <a href="textlog.html">text log file</a> when the application is terminated.
-    If CPU overloads are ignored, the application continues.
+    A Lost-Wakeup is also called task overload in this context.
+    With a task overload, the generic target application is terminated by default.
+    However, the parameter <code>terminateAtTaskOverload</code> of the <a href="simulinkinterface.html">Simulink interface class</a> can be used to specify whether the application should be terminated or the task overload should be ignored.
+    The number of task overloads (for each thread) are written to the <a href="textlog.html">text log file</a> when the application is terminated.
+    If task overloads are ignored, the application continues.
     As stated, the tirgger event from the timer is lost.
     However, the information that one or more events have been triggered is retained.
     Therefore, another <code>step0()</code> function is called directly after the previous <code>step0()</code> function is terminated.
@@ -76,6 +93,18 @@
     <br>
     <br>
     <center><object data="../img/LostWakeup.svg" type="image/svg+xml"></object></center>
+    <br>
+    <br>
+
+    <a name="cpuoverload"></a>
+    <h3>Lost-Tick (CPU Overload)</h3>
+    The BaseRateScheduler waits for the timer event.
+    Due to operating-system related latency the realtime thread is not able to handle that event immediately but after some short delay.
+    The delay is indicated by the blue arrow. If the computational load of the BaseRateScheduler is too high compared to the base sampletime or the latency is too large, then
+    some timer events are lost. Those lost ticks indicate a CPU overload.
+    <br>
+    <br>
+    <center><object data="../img/LostTicks.svg" type="image/svg+xml"></object></center>
     <br>
     <br>
 

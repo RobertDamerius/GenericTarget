@@ -253,12 +253,32 @@ defs = [defs; def];
 
 
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Driver: Number of task overloads
+% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def = legacy_code('initialize');
+def.SFunctionName = 'SFunctionGTDriverNumTaskOverloads';
+def.StartFcnSpec  = 'void GT_CreateDriverNumTaskOverloads()';
+def.OutputFcnSpec = 'void GT_OutputDriverNumTaskOverloads(double p1, uint64 y1[1])';
+def.TerminateFcnSpec = 'void GT_DeleteDriverNumTaskOverloads()';
+def.HeaderFiles   = {'GT_DriverNumTaskOverloads.h'};
+def.SourceFiles   = {'GT_DriverNumTaskOverloads.cpp','GT_HostImplementation.cpp'};
+def.IncPaths      = {''};
+def.SrcPaths      = {''};
+def.LibPaths      = {''};
+def.HostLibFiles  = {hostLibFiles};
+def.Options.language = 'C++';
+def.Options.useTlcWithAccel = false;
+def.SampleTime = 'parameterized';
+defs = [defs; def];
+
+
+% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % Driver: Number of CPU overloads
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
 def.SFunctionName = 'SFunctionGTDriverNumCPUOverloads';
 def.StartFcnSpec  = 'void GT_CreateDriverNumCPUOverloads()';
-def.OutputFcnSpec = 'void GT_OutputDriverNumCPUOverloads(double p1, uint32 y1[1])';
+def.OutputFcnSpec = 'void GT_OutputDriverNumCPUOverloads(uint64 y1[1], uint64 y2[1])';
 def.TerminateFcnSpec = 'void GT_DeleteDriverNumCPUOverloads()';
 def.HeaderFiles   = {'GT_DriverNumCPUOverloads.h'};
 def.SourceFiles   = {'GT_DriverNumCPUOverloads.cpp','GT_HostImplementation.cpp'};
@@ -332,6 +352,7 @@ if(useHostImplementation)
     fprintf('\tTime/UTC Time                         yes\n');
     fprintf('\tTime/Local Time                       yes\n');
     fprintf('\tTime/Task Execution Time              no\n');
+    fprintf('\tTime/Task Overloads                   no\n');
     fprintf('\tTime/CPU Overloads                    no\n');
     fprintf('\tTime/UTC Timestamp                    yes\n');
     fprintf('\tTime/Time To Latest UTC Timestamp     yes\n');

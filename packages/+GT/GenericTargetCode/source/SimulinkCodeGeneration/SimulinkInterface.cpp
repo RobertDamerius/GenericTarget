@@ -1,4 +1,4 @@
-/* Auto-generated code (Template Version 20221010) */
+/* Auto-generated code (Template Version 20221011) */
 #include <SimulinkCodeGeneration/SimulinkInterface.hpp>
 
 
@@ -10,6 +10,7 @@ const double SimulinkInterface::baseSampleTime = 1.0;
 const int32_t SimulinkInterface::sampleTicks[] = {1};
 const int32_t SimulinkInterface::priorities[] = {98};
 const char* SimulinkInterface::taskNames[] = {"D1"};
+const bool SimulinkInterface::terminateAtTaskOverload = true;
 const bool SimulinkInterface::terminateAtCPUOverload = true;
 
 

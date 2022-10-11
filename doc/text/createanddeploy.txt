@@ -38,7 +38,7 @@ gt.Deploy(model);</pre>
     <h3 class="note-green">Optional Settings</h3>
     Once a GenericTarget instance is created, additional parameters can be set.
     To do so, simply change the properties of the object before the <code>Deploy</code> method is called.
-    For example, if the application should not be terminated in case of a CPU overload, set the corresponding flag to zero with <code>gt.terminateAtCPUOverload = 0;</code>.
+    For example, if the application should not be terminated in case of a task overload, set the corresponding flag to zero with <code>gt.terminateAtTaskOverload = 0;</code>.
     The list with all properties is given <a href="simulinkinterface.html">here</a>.
     </div>
 

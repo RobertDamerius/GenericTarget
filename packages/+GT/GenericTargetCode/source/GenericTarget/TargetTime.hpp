@@ -24,24 +24,9 @@ class TimeInfo {
         int isdst;         ///< Daylight Saving Time flag. The value is positive if DST is in effect, zero if not and negative if no information is available.
 
         /**
-         *  @brief Create a time info.
+         *  @brief Create a time info object.
          */
         TimeInfo();
-
-        /**
-         *  @brief Copy constructor.
-         */
-        TimeInfo(const TimeInfo& time);
-
-        /**
-         *  @brief Delete the time info.
-         */
-        ~TimeInfo();
-
-        /**
-         *  @brief Assignment operator.
-         */
-        TimeInfo& operator=(const TimeInfo& rhs);
 };
 
 
@@ -50,32 +35,19 @@ class TimeInfo {
  */
 class TargetTime {
     public:
-        TimeInfo utc;      ///< UTC time.
-        TimeInfo local;    ///< Local time.
-        double hardware;   ///< Hardware execution time of the model in seconds.
-        uint64_t ticks;    ///< Number of ticks of the base rate.
-        double software;   ///< Software execution time of the model in seconds: equal to ticks * base rate.
-        double unixTime;   ///< UNIX time in seconds (millisecond resolution).
+        TimeInfo utc;             ///< UTC time.
+        TimeInfo local;           ///< Local time.
+        double hardware;          ///< Hardware execution time of the model in seconds.
+        uint64_t ticks;           ///< Number of ticks of the base rate.
+        double software;          ///< Software execution time of the model in seconds: equal to ticks * base rate.
+        double unixTime;          ///< UNIX time in seconds (millisecond resolution).
+        uint64_t numCPUOverloads; ///< The number of total CPU overloads.
+        uint64_t numLostTicks;    ///< The number of total lost ticks.
 
         /**
-         *  @brief Create target time.
+         *  @brief Create target time object.
          */
         TargetTime();
-
-        /**
-         *  @brief Copy constructor.
-         */
-        TargetTime(const TargetTime& time);
-
-        /**
-         *  @brief Delete target time.
-         */
-        ~TargetTime();
-
-        /**
-         *  @brief Assignment operator.
-         */
-        TargetTime& operator=(const TargetTime& rhs);
 };
 
 

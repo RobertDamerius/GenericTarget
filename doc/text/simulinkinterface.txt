@@ -61,10 +61,16 @@
             <td>Username for the target computer. Required for the SSH connection.</td>
         </tr>
         <tr>
+            <td style="font-family: Courier New;">terminateAtTaskOverload</td>
+            <td style="font-family: Courier New;">boolean</td>
+            <td>Defines whether the application should be terminated if a task overload occurs or not.
+            If there is a task overload and this value is set to <code>FALSE</code>, the application is not terminated and a <a href="timingscheduling.html#taskoverload">lost wakeup</a> occurs. The default value is <code>TRUE</code>.</td>
+        </tr>
+        <tr>
             <td style="font-family: Courier New;">terminateAtCPUOverload</td>
             <td style="font-family: Courier New;">boolean</td>
-            <td>Defines whether the application should be terminated on CPU overload or not.
-            If there is a CPU-Overload and this value is set to <code>FALSE</code>, the application is not terminated and a <a href="timingscheduling.html#cpuoverload">lost wakeup</a> occurs. The default value is <code>TRUE</code>.</td>
+            <td>Defines whether the application should be terminated if a CPU overload occurs or not.
+            If there is a CPU overload and this value is set to <code>FALSE</code>, the application is not terminated and a <a href="timingscheduling.html#cpuoverload">lost tick</a> occurs. The default value is <code>TRUE</code>.</td>
         </tr>
 		<tr>
             <td style="font-family: Courier New;">upperThreadPriority</td>

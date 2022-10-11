@@ -60,14 +60,14 @@ class BaseRateScheduler {
         }
 
         /**
-         *  @brief Get the number of CPU overloads for a task.
-         *  @param [in] taskID The ID of the task from which to obtain the latest number of CPU overloads.
-         *  @return The latest CPU overload counter or zero if the taskID is invalid.
+         *  @brief Get the number of task overloads for a task.
+         *  @param [in] taskID The ID of the task from which to obtain the latest number of task overloads.
+         *  @return The latest task overload counter or zero if the taskID is invalid.
          */
-        inline uint32_t GetNumCPUOverloads(const uint32_t taskID){
+        inline uint64_t GetNumTaskOverloads(const uint32_t taskID){
             if(taskID >= (uint32_t)tasks.size())
                 return 0;
-            return tasks[taskID]->GetNumOverloads();
+            return tasks[taskID]->GetNumTaskOverloads();
         }
 
     private:
