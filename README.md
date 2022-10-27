@@ -2,7 +2,7 @@
 
 # Generic Target
 
-The Generic Target Toolbox can be used to run MATLAB/Simulink models (**>= R2022a**) on a target computer in realtime.
+The Generic Target Toolbox can be used to run MATLAB/Simulink models (**>= R2022b**) on a target computer in realtime.
 The target computer can be any computer that has at least one network interface and has a Linux operating system with
 the PREEMPT_RT realtime patch installed. All Simulink blocks that allow code generation can be used. For low-level hardware
 interfaces like network interfaces, the Generic Target Toolbox comes with its own blocks.
@@ -12,7 +12,7 @@ The directory structure of this repository is as follows.
 | File / Directory   | Description                                                                                                  |
 | :----------------- | :----------------------------------------------------------------------------------------------------------- |
 | doc                | contains the documentation that can be created with [SimpleDoc](https://github.com/RobertDamerius/SimpleDoc) |
-| lib                | contains the MATLAB Simulink library "GenericTarget" (**>= R2022a**)                                         |
+| lib                | contains the MATLAB Simulink library "GenericTarget" (**>= R2022b**)                                         |
 | packages           | contains the MATLAB package "GT"                                                                             |
 | readme.html        | forwards to the documentation                                                                                |
 | install.m          | MATLAB script to install the Generic Target Toolbox                                                          |
@@ -32,7 +32,7 @@ The directory structure of this repository is as follows.
 | 2021-03-19  | 1.2      | File logging has been extended to complete bus objects with multi-dimensional signals of common data types.                     |
 | 2021-05-31  | 1.3      | Custom code directories can now be included during code generation.                                                             |
 | 2022-05-18  | 1.4      | Updated interface code generation to support newer MATLAB versions.                                                             |
-| 2022-10-10  | 1.5      | Updated MATLAB/Simulink library to R2022a. Model and simulation time are renamed to hardware and software time, respectively.   |
+| 2022-10-10  | 1.5      | Model and simulation time are renamed to hardware and software time, respectively.                                              |
 | 2022-10-11  | 1.6      | CPU overload is replaced by task overload. Missed ticks of the base timer are interpreted as CPU overloads.                     |
 
 
