@@ -605,7 +605,7 @@ void GTHostImplementation::UDPObject::UpdateReceiveBufferSize(const uint32_t rxB
 
 void GTHostImplementation::UDPObject::UpdatePriorities(int32_t prioritySocket, int32_t priorityThread){
     prioritySocket = (prioritySocket < 0) ? 0 : ((prioritySocket > 6) ? 6 : prioritySocket);
-    priorityThread = (priorityThread < 0) ? 0 : ((priorityThread > 99) ? 99 : priorityThread);
+    priorityThread = (priorityThread < 1) ? 1 : ((priorityThread > 99) ? 99 : priorityThread);
     this->prioritySocket = (prioritySocket > this->prioritySocket) ? prioritySocket : this->prioritySocket;
     this->priorityThread = (priorityThread > this->priorityThread) ? priorityThread : this->priorityThread;
 }
@@ -1020,7 +1020,7 @@ void GTHostImplementation::MulticastUDPObject::UpdateReceiveBufferSize(const uin
 
 void GTHostImplementation::MulticastUDPObject::UpdatePriorities(int32_t prioritySocket, int32_t priorityThread){
     prioritySocket = (prioritySocket < 0) ? 0 : ((prioritySocket > 6) ? 6 : prioritySocket);
-    priorityThread = (priorityThread < 0) ? 0 : ((priorityThread > 99) ? 99 : priorityThread);
+    priorityThread = (priorityThread < 1) ? 1 : ((priorityThread > 99) ? 99 : priorityThread);
     this->prioritySocket = (prioritySocket > this->prioritySocket) ? prioritySocket : this->prioritySocket;
     this->priorityThread = (priorityThread > this->priorityThread) ? priorityThread : this->priorityThread;
 }

@@ -12,7 +12,7 @@
  *  @param [in] ipGroup The multicast group which to join.
  *  @param [in] rxBufferSize The size of the receive buffer.
  *  @param [in] prioritySocket Socket priority, range: [0, 6].
- *  @param [in] priorityThread Receiver thread priority, range: [0, 99].
+ *  @param [in] priorityThread Receiver thread priority, range: [1, 99].
  *  @param [in] ttl Time-to-live value associated with the multicast traffic.
  *  @param [in] numBuffers Number of receive buffers to be used.
  *  @param [in] bufferStrategy Either 0 (DISCARD_OLDEST) or 1 (DISCARD_RECEIVED). Unknown values are ignored.

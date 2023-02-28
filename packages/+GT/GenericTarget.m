@@ -29,6 +29,7 @@
 % 20220518    Robert Damerius        Getting class name and header of generated code from constructor code info: codeInfo.ConstructorFunction.Prototype.
 % 20221010    Robert Damerius        Name of the simulink interface code is now hardcoded. Updated default priorities and verobse prints.
 % 20221011    Robert Damerius        Added control for task overloads.
+% 20230228    Robert Damerius        Lowest thread priority is set to 1.
 % 
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -65,13 +66,13 @@ classdef GenericTarget < handle
     properties
         portAppSocket;           % The port for the application socket (default: 65535).
         portSSH;                 % The port to be used for SSH/SCP connection (default: 22).
-        priorityLog;             % Priority for the data logging threads in range [0, 99] (default: 30).
+        priorityLog;             % Priority for the data logging threads in range [1 (lowest), 99 (highest)] (default: 30).
         targetIPAddress;         % IPv4 address of the target PC.
         targetSoftwareDirectory; % Directory for software on target (default: "~/GenericTarget/"). MUST BEGIN WITH '~/' AND END WITH '/'!
         targetUsername;          % User name of target PC required to login on target via SSH/SCP.
         terminateAtTaskOverload; % True if application should terminate at task overload, false otherwise (default: true).
         terminateAtCPUOverload;  % True if application should terminate at CPU overload, false otherwise (default: true).
-        upperThreadPriority;     % Upper task priority in range [0, 99] (default: 89).
+        upperThreadPriority;     % Upper task priority in range [1 (lowest), 99 (highest)] (default: 89).
         customCode;              % Cell-array of directories containing custom code to be uploaded along with the generated code.
     end
     properties(Constant, Access = private)
@@ -581,12 +582,12 @@ classdef GenericTarget < handle
             assert(ischar(modelName), 'GT.GenericTarget.GenerateInterfaceCode(): Input "modelName" must be a string!');
             assert(isscalar(priorityLog), 'GT.GenericTarget.GenerateInterfaceCode(): Input "priorityLog" must be scalar!');
             priorityLog = uint32(priorityLog);
-            assert((priorityLog >= 0) && (priorityLog < 100), 'GT.GenericTarget.GenerateInterfaceCode(): Input "priorityLog" must be in range [0, 99]!');
+            assert((priorityLog > 0) && (priorityLog < 100), 'GT.GenericTarget.GenerateInterfaceCode(): Input "priorityLog" must be in range [1, 99]!');
             assert(isscalar(portAppSocket), 'GT.GenericTarget.GenerateInterfaceCode(): Input "portAppSocket" must be scalar!');
             portAppSocket = uint16(portAppSocket);
             assert(isscalar(upperThreadPriority), 'GT.GenericTarget.GenerateInterfaceCode(): Input "upperThreadPriority" must be scalar!');
             upperThreadPriority = int32(upperThreadPriority);
-            assert((upperThreadPriority >= 0) && (upperThreadPriority < 100), 'GT.GenericTarget.GenerateInterfaceCode(): Input "upperThreadPriority" must be in range [0, 99]!');
+            assert((upperThreadPriority > 0) && (upperThreadPriority < 100), 'GT.GenericTarget.GenerateInterfaceCode(): Input "upperThreadPriority" must be in range [1, 99]!');
             assert(isscalar(terminateAtTaskOverload), 'GT.GenericTarget.GenerateInterfaceCode(): Input "terminateAtTaskOverload" must be scalar!');
             assert(islogical(terminateAtTaskOverload), 'GT.GenericTarget.GenerateInterfaceCode(): Input "terminateAtTaskOverload" must be logical!');
             assert(isscalar(terminateAtCPUOverload), 'GT.GenericTarget.GenerateInterfaceCode(): Input "terminateAtCPUOverload" must be scalar!');

@@ -34,6 +34,7 @@ The directory structure of this repository is as follows.
 | 2022-05-18  | 1.4      | Updated interface code generation to support newer MATLAB versions.                                                             |
 | 2022-10-10  | 1.5      | Model and simulation time are renamed to hardware and software time, respectively.                                              |
 | 2022-10-11  | 1.6      | CPU overload is replaced by task overload. Missed ticks of the base timer are interpreted as CPU overloads.                     |
+| 2023-02-28  | 1.7      | Lowest valid thread priority is set to 1.                                                                                       |
 
 
 ## How To Start

@@ -10,7 +10,7 @@
  *  @param [in] port The port of this UDP socket.
  *  @param [in] ipInterface The interface that should be used. If the interface is set to [0;0;0;0] then the default interface will be used.
  *  @param [in] prioritySocket Socket priority, range: [0, 6].
- *  @param [in] priorityThread Receiver thread priority, range: [0, 99].
+ *  @param [in] priorityThread Receiver thread priority, range: [1, 99].
  */
 extern void GT_CreateDriverUDPSend(uint16_t port, uint8_t* ipInterface, int32_t prioritySocket, int32_t priorityThread);
 

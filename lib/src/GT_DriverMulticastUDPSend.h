@@ -11,7 +11,7 @@
  *  @param [in] ipInterface The interface that should be used. If the interface is set to [0;0;0;0] then the default interface will be used.
  *  @param [in] ipGroup The multicast group which to join.
  *  @param [in] prioritySocket Socket priority, range: [0, 6].
- *  @param [in] priorityThread Receiver thread priority, range: [0, 99].
+ *  @param [in] priorityThread Receiver thread priority, range: [1, 99].
  *  @param [in] ttl Time-to-live value associated with the multicast traffic.
  */
 extern void GT_CreateDriverMulticastUDPSend(uint16_t port, uint8_t* ipInterface, uint8_t* ipGroup, int32_t prioritySocket, int32_t priorityThread, uint8_t ttl);

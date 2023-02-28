@@ -53,7 +53,7 @@ void UDPObject::UpdateReceiveBufferSize(const uint32_t rxBufferSize){
 
 void UDPObject::UpdatePriorities(int32_t prioritySocket, int32_t priorityThread){
     prioritySocket = (prioritySocket < 0) ? 0 : ((prioritySocket > 6) ? 6 : prioritySocket);
-    priorityThread = (priorityThread < 0) ? 0 : ((priorityThread > 99) ? 99 : priorityThread);
+    priorityThread = (priorityThread < 1) ? 1 : ((priorityThread > 99) ? 99 : priorityThread);
     this->prioritySocket = (prioritySocket > this->prioritySocket) ? prioritySocket : this->prioritySocket;
     this->priorityThread = (priorityThread > this->priorityThread) ? priorityThread : this->priorityThread;
 }

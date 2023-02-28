@@ -25,7 +25,7 @@ typedef struct {
     uint16_t* portSender;           ///< [NUM_BUF] The source port of the message from the sender for each receive buffer.
     double* timestamp;              ///< Timestamps for each received message (seconds).
     int32_t prioritySocket;         ///< Socket priority, range: [0, 6].
-    int32_t priorityThread;         ///< Receiver thread priority, range: [0, 99].
+    int32_t priorityThread;         ///< Receiver thread priority, range: [1, 99].
     udp_buffer_strategy_t strategy; ///< The buffer strategy to be used.
     std::queue<uint32_t> idxQueue;  ///< A queue (FIFO) containing the indices of messages. The maximum queue size is NUM_BUF.
     uint32_t idxMessage;            ///< Index of the current message.
@@ -62,7 +62,7 @@ class UDPObject {
         /**
          *  @brief Update priorities.
          *  @param [in] prioritySocket Socket priority, will be clamped to range [0, 6].
-         *  @param [in] priorityThread Receiver thread priority, will be clamped to range [0, 99].
+         *  @param [in] priorityThread Receiver thread priority, will be clamped to range [1, 99].
          *  @details The higher value will be used, either the parameter or the current attribute value.
          *  @note This function has no effect if the UDP object has already been started.
          */
@@ -150,7 +150,7 @@ class UDPObject {
         uint8_t ipInterface[4]; ///< IPv4 address of the interface that should be used. If all bytes are zero, then the default IF will be used.
         uint32_t rxBufferSize;  ///< The receive buffer size to be used.
         int32_t prioritySocket; ///< Socket priority, range: [0, 6].
-        int32_t priorityThread; ///< Receiver thread priority, range: [0, 99].
+        int32_t priorityThread; ///< Receiver thread priority, range: [1, 99].
         uint32_t numBuffers;    ///< Number of buffers, must be greater than zero.
         udp_buffer_strategy_t bufferStrategy; ///< The buffer strategy.
         uint8_t ipFilter[4];    ///< IP address to be used for address filtering when receiving messages.

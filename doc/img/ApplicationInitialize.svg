@@ -2,8 +2,8 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generiert durch Microsoft Visio, SVG Export ApplicationInitialize.svg GTInitialize -->
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
-		xmlns:v="http://schemas.microsoft.com/visio/2003/SVGExtensions/" width="7.40967in" height="4.35849in"
-		viewBox="0 0 533.496 313.811" xml:space="preserve" color-interpolation-filters="sRGB" class="st13">
+		xmlns:v="http://schemas.microsoft.com/visio/2003/SVGExtensions/" width="7.40967in" height="4.76608in"
+		viewBox="0 0 533.496 343.157" xml:space="preserve" color-interpolation-filters="sRGB" class="st15">
 	<v:documentProperties v:langID="1031" v:metric="true" v:viewMarkup="false">
 		<v:userDefs>
 			<v:ud v:nameU="msvNoAutoConnect" v:val="VT0(1):26"/>
@@ -24,7 +24,9 @@
 		.st10 {fill:#50632a;font-family:Courier New;font-size:0.833336em}
 		.st11 {fill:#f2dcda;stroke:#c00000;stroke-width:1}
 		.st12 {fill:#c00000;font-family:Courier New;font-size:0.833336em;font-weight:bold}
-		.st13 {fill:none;fill-rule:evenodd;font-size:12px;overflow:visible;stroke-linecap:square;stroke-miterlimit:3}
+		.st13 {fill:#dcf1da;stroke:#13bf00;stroke-width:1}
+		.st14 {fill:#13bf00;font-family:Courier New;font-size:0.833336em;font-weight:bold}
+		.st15 {fill:none;fill-rule:evenodd;font-size:12px;overflow:visible;stroke-linecap:square;stroke-miterlimit:3}
 	]]>
 	</style>
 
@@ -37,248 +39,266 @@
 			<use xlink:href="#lend13" transform="scale(-2.44,-2.44) "/>
 		</marker>
 	</defs>
-	<g v:mID="15" v:index="8" v:groupContext="foregroundPage">
+	<g v:mID="15" v:index="7" v:groupContext="foregroundPage">
 		<title>ApplicationInitialize</title>
 		<v:pageProperties v:drawingScale="0.0393701" v:pageScale="0.0393701" v:drawingUnits="24" v:shadowOffsetX="9"
 				v:shadowOffsetY="-9"/>
-		<g id="shape13-1" v:mID="13" v:groupContext="shape" transform="translate(669.142,128.559) rotate(90)">
+		<g id="shape51-1" v:mID="51" v:groupContext="shape" transform="translate(461.63,-193.339)">
+			<title>Tabelle.51</title>
+			<path d="M0 343.16 L21.03 343.16" class="st1"/>
+		</g>
+		<g id="shape50-7" v:mID="50" v:groupContext="shape" transform="translate(471.717,313.811) rotate(90)">
+			<title>Tabelle.50</title>
+			<path d="M0 343.16 L6.85 343.16" class="st1"/>
+		</g>
+		<g id="shape13-12" v:mID="13" v:groupContext="shape" transform="translate(698.488,128.559) rotate(90)">
 			<title>Tabelle.13</title>
-			<path d="M0 313.81 L6.85 313.81" class="st1"/>
+			<path d="M0 343.16 L6.85 343.16" class="st1"/>
 		</g>
-		<g id="shape19-7" v:mID="19" v:groupContext="shape" transform="translate(234.858,-199.425)">
+		<g id="shape19-17" v:mID="19" v:groupContext="shape" transform="translate(234.858,-228.772)">
 			<title>Tabelle.19</title>
-			<path d="M0 292.55 L120.47 292.55 L120.47 306.49" class="st1"/>
+			<path d="M0 321.9 L120.47 321.9 L120.47 335.84" class="st1"/>
 		</g>
-		<g id="shape21-12" v:mID="21" v:groupContext="shape" transform="translate(461.63,-192.339)">
+		<g id="shape21-22" v:mID="21" v:groupContext="shape" transform="translate(461.63,-221.685)">
 			<title>Tabelle.21</title>
-			<path d="M0 313.81 L21.03 313.81" class="st1"/>
+			<path d="M0 343.16 L21.03 343.16" class="st1"/>
 		</g>
-		<g id="shape22-17" v:mID="22" v:groupContext="shape" transform="translate(163.992,-128.559)">
-			<title>Tabelle.22</title>
-			<path d="M191.34 285.46 L191.34 299.64 L0 299.64 L0 306.49" class="st1"/>
-		</g>
-		<g id="shape23-22" v:mID="23" v:groupContext="shape" transform="translate(256.118,-121.472)">
+		<g id="shape23-27" v:mID="23" v:groupContext="shape" transform="translate(256.118,-150.819)">
 			<title>Tabelle.23</title>
-			<path d="M0 313.81 L42.29 313.81" class="st1"/>
+			<path d="M0 343.16 L42.29 343.16" class="st1"/>
 		</g>
-		<g id="shape34-27" v:mID="34" v:groupContext="shape" transform="translate(256.118,-64.7795)">
+		<g id="shape34-32" v:mID="34" v:groupContext="shape" transform="translate(256.118,-94.126)">
 			<title>Tabelle.34</title>
-			<path d="M0 313.81 L42.29 313.81" class="st1"/>
+			<path d="M0 343.16 L42.29 343.16" class="st1"/>
 		</g>
-		<g id="shape11-32" v:mID="11" v:groupContext="shape" transform="translate(442.37,43.5197) rotate(90)">
+		<g id="shape11-37" v:mID="11" v:groupContext="shape" transform="translate(471.717,43.5197) rotate(90)">
 			<title>Tabelle.11</title>
-			<path d="M0 313.81 L6.85 313.81" class="st1"/>
+			<path d="M0 343.16 L6.85 343.16" class="st1"/>
 		</g>
-		<g id="shape12-37" v:mID="12" v:groupContext="shape" transform="translate(442.37,71.8661) rotate(90)">
+		<g id="shape12-42" v:mID="12" v:groupContext="shape" transform="translate(471.717,71.8661) rotate(90)">
 			<title>Tabelle.12</title>
-			<path d="M0 313.81 L6.85 313.81" class="st1"/>
+			<path d="M0 343.16 L6.85 343.16" class="st1"/>
 		</g>
-		<g id="shape14-42" v:mID="14" v:groupContext="shape" transform="translate(442.37,199.425) rotate(90)">
+		<g id="shape14-47" v:mID="14" v:groupContext="shape" transform="translate(471.717,199.425) rotate(90)">
 			<title>Tabelle.14</title>
-			<path d="M0 313.81 L6.85 313.81" class="st1"/>
+			<path d="M0 343.16 L6.85 343.16" class="st1"/>
 		</g>
-		<g id="shape16-47" v:mID="16" v:groupContext="shape" transform="translate(442.37,227.772) rotate(90)">
+		<g id="shape16-52" v:mID="16" v:groupContext="shape" transform="translate(471.717,227.772) rotate(90)">
 			<title>Tabelle.16</title>
-			<path d="M0 313.81 L6.85 313.81" class="st1"/>
+			<path d="M0 343.16 L6.85 343.16" class="st1"/>
 		</g>
-		<g id="shape17-52" v:mID="17" v:groupContext="shape" transform="translate(442.37,256.118) rotate(90)">
+		<g id="shape17-57" v:mID="17" v:groupContext="shape" transform="translate(471.717,256.118) rotate(90)">
 			<title>Tabelle.17</title>
-			<path d="M0 313.81 L6.85 313.81" class="st1"/>
+			<path d="M0 343.16 L6.85 343.16" class="st1"/>
 		</g>
-		<g id="shape18-57" v:mID="18" v:groupContext="shape" transform="translate(442.37,100.213) rotate(90)">
+		<g id="shape18-62" v:mID="18" v:groupContext="shape" transform="translate(471.717,100.213) rotate(90)">
 			<title>Tabelle.18</title>
-			<path d="M0 313.81 L77.72 313.81" class="st1"/>
+			<path d="M0 343.16 L77.72 343.16" class="st1"/>
 		</g>
-		<g id="shape26-62" v:mID="26" v:groupContext="shape" transform="translate(71.8661,-199.425)">
+		<g id="shape26-67" v:mID="26" v:groupContext="shape" transform="translate(71.8661,-228.772)">
 			<title>Tabelle.26</title>
 			<desc>success</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="28.3465" cy="306.724" width="56.7" height="14.1732"/>
-			<rect x="0" y="299.638" width="56.6929" height="14.1732" class="st3"/>
-			<text x="10.69" y="309.72" class="st4" v:langID="1031"><v:paragraph v:horizAlign="2"/><v:tabList/>success</text>		</g>
-		<g id="shape27-65" v:mID="27" v:groupContext="shape" transform="translate(256.118,-220.685)">
+			<v:textRect cx="28.3465" cy="336.071" width="56.7" height="14.1732"/>
+			<rect x="0" y="328.984" width="56.6929" height="14.1732" class="st3"/>
+			<text x="10.69" y="339.07" class="st4" v:langID="1031"><v:paragraph v:horizAlign="2"/><v:tabList/>success</text>		</g>
+		<g id="shape27-70" v:mID="27" v:groupContext="shape" transform="translate(256.118,-250.031)">
 			<title>Tabelle.27</title>
 			<desc>error</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="28.3465" cy="306.724" width="56.7" height="14.1732"/>
-			<rect x="0" y="299.638" width="56.6929" height="14.1732" class="st3"/>
-			<text x="4" y="309.72" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>error</text>		</g>
-		<g id="shape28-68" v:mID="28" v:groupContext="shape" transform="translate(355.331,-171.079)">
+			<v:textRect cx="28.3465" cy="336.071" width="56.7" height="14.1732"/>
+			<rect x="0" y="328.984" width="56.6929" height="14.1732" class="st3"/>
+			<text x="4" y="339.07" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>error</text>		</g>
+		<g id="shape28-73" v:mID="28" v:groupContext="shape" transform="translate(355.331,-200.425)">
 			<title>Tabelle.28</title>
 			<desc>Yes</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="14.1732" cy="306.724" width="28.35" height="14.1732"/>
-			<rect x="0" y="299.638" width="28.3465" height="14.1732" class="st3"/>
-			<text x="4" y="309.72" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>Yes</text>		</g>
-		<g id="shape29-71" v:mID="29" v:groupContext="shape" transform="translate(461.63,-192.339)">
+			<v:textRect cx="14.1732" cy="336.071" width="28.35" height="14.1732"/>
+			<rect x="0" y="328.984" width="28.3465" height="14.1732" class="st3"/>
+			<text x="4" y="339.07" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>Yes</text>		</g>
+		<g id="shape29-76" v:mID="29" v:groupContext="shape" transform="translate(461.63,-221.685)">
 			<title>Tabelle.29</title>
 			<desc>No</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="14.1732" cy="306.724" width="28.35" height="14.1732"/>
-			<rect x="0" y="299.638" width="28.3465" height="14.1732" class="st3"/>
-			<text x="4" y="309.72" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>No</text>		</g>
-		<g id="shape30-74" v:mID="30" v:groupContext="shape" transform="translate(256.118,-121.472)">
+			<v:textRect cx="14.1732" cy="336.071" width="28.35" height="14.1732"/>
+			<rect x="0" y="328.984" width="28.3465" height="14.1732" class="st3"/>
+			<text x="4" y="339.07" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>No</text>		</g>
+		<g id="shape30-79" v:mID="30" v:groupContext="shape" transform="translate(256.118,-150.819)">
 			<title>Tabelle.30</title>
 			<desc>Yes</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="14.1732" cy="306.724" width="28.35" height="14.1732"/>
-			<rect x="0" y="299.638" width="28.3465" height="14.1732" class="st3"/>
-			<text x="4" y="309.72" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>Yes</text>		</g>
-		<g id="shape31-77" v:mID="31" v:groupContext="shape" transform="translate(128.559,-100.213)">
+			<v:textRect cx="14.1732" cy="336.071" width="28.35" height="14.1732"/>
+			<rect x="0" y="328.984" width="28.3465" height="14.1732" class="st3"/>
+			<text x="4" y="339.07" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>Yes</text>		</g>
+		<g id="shape31-82" v:mID="31" v:groupContext="shape" transform="translate(128.559,-129.559)">
 			<title>Tabelle.31</title>
 			<desc>No</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="14.1732" cy="306.724" width="28.35" height="14.1732"/>
-			<rect x="0" y="299.638" width="28.3465" height="14.1732" class="st3"/>
-			<text x="4" y="309.72" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>No</text>		</g>
-		<g id="shape33-80" v:mID="33" v:groupContext="shape" transform="translate(442.37,15.1732) rotate(90)">
+			<v:textRect cx="14.1732" cy="336.071" width="28.35" height="14.1732"/>
+			<rect x="0" y="328.984" width="28.3465" height="14.1732" class="st3"/>
+			<text x="4" y="339.07" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>No</text>		</g>
+		<g id="shape33-85" v:mID="33" v:groupContext="shape" transform="translate(471.717,15.1732) rotate(90)">
 			<title>Tabelle.33</title>
-			<path d="M0 313.81 L6.85 313.81" class="st1"/>
+			<path d="M0 343.16 L6.85 343.16" class="st1"/>
 		</g>
-		<g id="shape36-85" v:mID="36" v:groupContext="shape" transform="translate(256.118,-64.7795)">
+		<g id="shape36-90" v:mID="36" v:groupContext="shape" transform="translate(256.118,-94.126)">
 			<title>Tabelle.36</title>
 			<desc>error</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="21.2598" cy="306.724" width="42.52" height="14.1732"/>
-			<rect x="0" y="299.638" width="42.5197" height="14.1732" class="st3"/>
-			<text x="4" y="309.72" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>error</text>		</g>
-		<g id="shape40-88" v:mID="40" v:groupContext="shape" transform="translate(256.118,-36.4331)">
+			<v:textRect cx="21.2598" cy="336.071" width="42.52" height="14.1732"/>
+			<rect x="0" y="328.984" width="42.5197" height="14.1732" class="st3"/>
+			<text x="4" y="339.07" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>error</text>		</g>
+		<g id="shape40-93" v:mID="40" v:groupContext="shape" transform="translate(256.118,-65.7795)">
 			<title>Tabelle.40</title>
-			<path d="M0 313.81 L42.29 313.81" class="st1"/>
+			<path d="M0 343.16 L42.29 343.16" class="st1"/>
 		</g>
-		<g id="shape41-93" v:mID="41" v:groupContext="shape" transform="translate(256.118,-8.08661)">
+		<g id="shape41-98" v:mID="41" v:groupContext="shape" transform="translate(256.118,-37.4331)">
 			<title>Tabelle.41</title>
-			<path d="M0 313.81 L42.29 313.81" class="st1"/>
+			<path d="M0 343.16 L42.29 343.16" class="st1"/>
 		</g>
-		<g id="shape42-98" v:mID="42" v:groupContext="shape" transform="translate(442.37,284.465) rotate(90)">
+		<g id="shape42-103" v:mID="42" v:groupContext="shape" transform="translate(471.717,284.465) rotate(90)">
 			<title>Tabelle.42</title>
-			<path d="M0 313.81 L6.85 313.81" class="st1"/>
+			<path d="M0 343.16 L6.85 343.16" class="st1"/>
 		</g>
-		<g id="shape47-103" v:mID="47" v:groupContext="shape" transform="translate(256.118,-8.08661)">
+		<g id="shape47-108" v:mID="47" v:groupContext="shape" transform="translate(256.118,-37.4331)">
 			<title>Tabelle.47</title>
 			<desc>error</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="21.2598" cy="306.724" width="42.52" height="14.1732"/>
-			<rect x="0" y="299.638" width="42.5197" height="14.1732" class="st3"/>
-			<text x="4" y="309.72" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>error</text>		</g>
-		<g id="shape1-106" v:mID="1" v:groupContext="shape" transform="translate(1,-270.291)">
+			<v:textRect cx="21.2598" cy="336.071" width="42.52" height="14.1732"/>
+			<rect x="0" y="328.984" width="42.5197" height="14.1732" class="st3"/>
+			<text x="4" y="339.07" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>error</text>		</g>
+		<g id="shape1-111" v:mID="1" v:groupContext="shape" transform="translate(1,-299.638)">
 			<title>Tabelle.1</title>
 			<desc>2. Parse Arguments (arg)</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="127.559" cy="306.724" width="255.12" height="14.1732"/>
-			<rect x="0" y="299.638" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st5"/>
-			<text x="4" y="309.72" class="st6" v:langID="1031"><v:paragraph/><v:tabList/>2. Parse Arguments (arg)</text>		</g>
-		<g id="shape2-109" v:mID="2" v:groupContext="shape" transform="translate(1,-241.945)">
+			<v:textRect cx="127.559" cy="336.071" width="255.12" height="14.1732"/>
+			<rect x="0" y="328.984" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st5"/>
+			<text x="4" y="339.07" class="st6" v:langID="1031"><v:paragraph/><v:tabList/>2. Parse Arguments (arg)</text>		</g>
+		<g id="shape2-114" v:mID="2" v:groupContext="shape" transform="translate(1,-271.291)">
 			<title>Tabelle.2</title>
 			<desc>3. Open AppSocket (UDP Socket)</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="127.559" cy="306.724" width="255.12" height="14.1732"/>
-			<rect x="0" y="299.638" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
-			<text x="4" y="309.72" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>3. Open AppSocket (UDP Socket)</text>		</g>
-		<g id="shape3-112" v:mID="3" v:groupContext="shape" transform="translate(1.00001,-213.598)">
+			<v:textRect cx="127.559" cy="336.071" width="255.12" height="14.1732"/>
+			<rect x="0" y="328.984" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
+			<text x="4" y="339.07" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>3. Open AppSocket (UDP Socket)</text>		</g>
+		<g id="shape3-117" v:mID="3" v:groupContext="shape" transform="translate(1.00001,-242.945)">
 			<title>Tabelle.3</title>
 			<desc>4. Bind Port for AppSocket</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="127.559" cy="306.724" width="255.12" height="14.1732"/>
-			<rect x="0" y="299.638" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
-			<text x="4" y="309.72" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>4. Bind Port for AppSocket</text>		</g>
-		<g id="shape4-115" v:mID="4" v:groupContext="shape" transform="translate(249.032,-185.252)">
+			<v:textRect cx="127.559" cy="336.071" width="255.12" height="14.1732"/>
+			<rect x="0" y="328.984" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
+			<text x="4" y="339.07" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>4. Bind Port for AppSocket</text>		</g>
+		<g id="shape4-120" v:mID="4" v:groupContext="shape" transform="translate(249.032,-214.598)">
 			<title>Tabelle.4</title>
 			<desc>5. If (arg == „--stop“)</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="106.299" cy="306.724" width="212.6" height="14.1732"/>
-			<rect x="0" y="299.638" width="212.598" height="14.1732" rx="5.66929" ry="5.66929" class="st5"/>
-			<text x="4" y="309.72" class="st6" v:langID="1031"><v:paragraph/><v:tabList/>5. If (arg == „--stop“)</text>		</g>
-		<g id="shape5-118" v:mID="5" v:groupContext="shape" transform="translate(249.032,-156.905)">
+			<v:textRect cx="106.299" cy="336.071" width="212.6" height="14.1732"/>
+			<rect x="0" y="328.984" width="212.598" height="14.1732" rx="5.66929" ry="5.66929" class="st5"/>
+			<text x="4" y="339.07" class="st6" v:langID="1031"><v:paragraph/><v:tabList/>5. If (arg == „--stop“)</text>		</g>
+		<g id="shape5-123" v:mID="5" v:groupContext="shape" transform="translate(249.032,-186.252)">
 			<title>Tabelle.5</title>
 			<desc>6. Send UDP Termination Message</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="106.299" cy="306.724" width="212.6" height="14.1732"/>
-			<rect x="0" y="299.638" width="212.598" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
-			<text x="4" y="309.72" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>6. Send UDP Termination Message</text>		</g>
-		<g id="shape6-121" v:mID="6" v:groupContext="shape" transform="translate(1,-114.386)">
+			<v:textRect cx="106.299" cy="336.071" width="212.6" height="14.1732"/>
+			<rect x="0" y="328.984" width="212.598" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
+			<text x="4" y="339.07" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>6. Send UDP Termination Message</text>		</g>
+		<g id="shape6-126" v:mID="6" v:groupContext="shape" transform="translate(1,-143.732)">
 			<title>Tabelle.6</title>
 			<desc>7. If (arg == „--stop“)</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="127.559" cy="306.724" width="255.12" height="14.1732"/>
-			<rect x="0" y="299.638" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st5"/>
-			<text x="4" y="309.72" class="st6" v:langID="1031"><v:paragraph/><v:tabList/>7. If (arg == „--stop“)</text>		</g>
-		<g id="shape7-124" v:mID="7" v:groupContext="shape" transform="translate(1,-86.0394)">
+			<v:textRect cx="127.559" cy="336.071" width="255.12" height="14.1732"/>
+			<rect x="0" y="328.984" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st5"/>
+			<text x="4" y="339.07" class="st6" v:langID="1031"><v:paragraph/><v:tabList/>7. If (arg == „--stop“)</text>		</g>
+		<g id="shape7-129" v:mID="7" v:groupContext="shape" transform="translate(1,-115.386)">
 			<title>Tabelle.7</title>
 			<desc>8. SimulinkInterface::Initialize()</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="127.559" cy="306.724" width="255.12" height="14.1732"/>
-			<rect x="0" y="299.638" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st9"/>
-			<text x="4" y="309.72" class="st10" v:langID="1031"><v:paragraph/><v:tabList/>8. SimulinkInterface::Initialize()</text>		</g>
-		<g id="shape8-127" v:mID="8" v:groupContext="shape" transform="translate(1,-57.6929)">
+			<v:textRect cx="127.559" cy="336.071" width="255.12" height="14.1732"/>
+			<rect x="0" y="328.984" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st9"/>
+			<text x="4" y="339.07" class="st10" v:langID="1031"><v:paragraph/><v:tabList/>8. SimulinkInterface::Initialize()</text>		</g>
+		<g id="shape8-132" v:mID="8" v:groupContext="shape" transform="translate(1,-87.0394)">
 			<title>Tabelle.8</title>
 			<desc>9. UDPObjectManager::Create()</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="127.559" cy="306.724" width="255.12" height="14.1732"/>
-			<rect x="0" y="299.638" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
-			<text x="4" y="309.72" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>9. UDPObjectManager::Create()</text>		</g>
-		<g id="shape32-130" v:mID="32" v:groupContext="shape" transform="translate(1,-298.638)">
+			<v:textRect cx="127.559" cy="336.071" width="255.12" height="14.1732"/>
+			<rect x="0" y="328.984" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
+			<text x="4" y="339.07" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>9. UDPObjectManager::Create()</text>		</g>
+		<g id="shape32-135" v:mID="32" v:groupContext="shape" transform="translate(1,-327.984)">
 			<title>Tabelle.32</title>
 			<desc>1. Log Application Information</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="127.559" cy="306.724" width="255.12" height="14.1732"/>
-			<rect x="0" y="299.638" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
-			<text x="4" y="309.72" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>1. Log Application Information</text>		</g>
-		<g id="shape43-133" v:mID="43" v:groupContext="shape" transform="translate(1.00001,-29.3465)">
+			<v:textRect cx="127.559" cy="336.071" width="255.12" height="14.1732"/>
+			<rect x="0" y="328.984" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
+			<text x="4" y="339.07" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>1. Log Application Information</text>		</g>
+		<g id="shape43-138" v:mID="43" v:groupContext="shape" transform="translate(1.00001,-58.6929)">
 			<title>Tabelle.43</title>
 			<desc>10. MulticastUDPObjectManager::Create()</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="127.559" cy="306.724" width="255.12" height="14.1732"/>
-			<rect x="0" y="299.638" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
-			<text x="4" y="309.72" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>10. MulticastUDPObjectManager::Create()</text>		</g>
-		<g id="shape44-136" v:mID="44" v:groupContext="shape" transform="translate(1.00001,-1)">
+			<v:textRect cx="127.559" cy="336.071" width="255.12" height="14.1732"/>
+			<rect x="0" y="328.984" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
+			<text x="4" y="339.07" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>10. MulticastUDPObjectManager::Create()</text>		</g>
+		<g id="shape44-141" v:mID="44" v:groupContext="shape" transform="translate(1.00001,-30.3465)">
 			<title>Tabelle.44</title>
-			<desc>13. SignalManager::Create()</desc>
+			<desc>11. SignalManager::Create()</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="127.559" cy="306.724" width="255.12" height="14.1732"/>
-			<rect x="0" y="299.638" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
-			<text x="4" y="309.72" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>13. SignalManager::Create()</text>		</g>
-		<g id="shape24-139" v:mID="24" v:groupContext="shape" transform="translate(305.724,-114.386)">
+			<v:textRect cx="127.559" cy="336.071" width="255.12" height="14.1732"/>
+			<rect x="0" y="328.984" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
+			<text x="4" y="339.07" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>11. SignalManager::Create()</text>		</g>
+		<g id="shape24-144" v:mID="24" v:groupContext="shape" transform="translate(305.724,-143.732)">
 			<title>Tabelle.24</title>
 			<desc>Stop</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="21.2598" cy="306.724" width="42.52" height="14.1732"/>
-			<rect x="0" y="299.638" width="42.5197" height="14.1732" rx="5.66929" ry="5.66929" class="st11"/>
-			<text x="9.26" y="309.72" class="st12" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Stop</text>		</g>
-		<g id="shape25-142" v:mID="25" v:groupContext="shape" transform="translate(489.976,-185.252)">
+			<v:textRect cx="21.2598" cy="336.071" width="42.52" height="14.1732"/>
+			<rect x="0" y="328.984" width="42.5197" height="14.1732" rx="5.66929" ry="5.66929" class="st11"/>
+			<text x="9.26" y="339.07" class="st12" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Stop</text>		</g>
+		<g id="shape25-147" v:mID="25" v:groupContext="shape" transform="translate(489.976,-214.598)">
 			<title>Tabelle.25</title>
 			<desc>Stop</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="21.2598" cy="306.724" width="42.52" height="14.1732"/>
-			<rect x="0" y="299.638" width="42.5197" height="14.1732" rx="5.66929" ry="5.66929" class="st11"/>
-			<text x="9.26" y="309.72" class="st12" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Stop</text>		</g>
-		<g id="shape35-145" v:mID="35" v:groupContext="shape" transform="translate(305.724,-57.6929)">
+			<v:textRect cx="21.2598" cy="336.071" width="42.52" height="14.1732"/>
+			<rect x="0" y="328.984" width="42.5197" height="14.1732" rx="5.66929" ry="5.66929" class="st11"/>
+			<text x="9.26" y="339.07" class="st12" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Stop</text>		</g>
+		<g id="shape35-150" v:mID="35" v:groupContext="shape" transform="translate(305.724,-87.0394)">
 			<title>Tabelle.35</title>
 			<desc>Stop</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="21.2598" cy="306.724" width="42.52" height="14.1732"/>
-			<rect x="0" y="299.638" width="42.5197" height="14.1732" rx="5.66929" ry="5.66929" class="st11"/>
-			<text x="9.26" y="309.72" class="st12" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Stop</text>		</g>
-		<g id="shape45-148" v:mID="45" v:groupContext="shape" transform="translate(305.724,-29.3465)">
+			<v:textRect cx="21.2598" cy="336.071" width="42.52" height="14.1732"/>
+			<rect x="0" y="328.984" width="42.5197" height="14.1732" rx="5.66929" ry="5.66929" class="st11"/>
+			<text x="9.26" y="339.07" class="st12" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Stop</text>		</g>
+		<g id="shape45-153" v:mID="45" v:groupContext="shape" transform="translate(305.724,-58.6929)">
 			<title>Tabelle.45</title>
 			<desc>Stop</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="21.2598" cy="306.724" width="42.52" height="14.1732"/>
-			<rect x="0" y="299.638" width="42.5197" height="14.1732" rx="5.66929" ry="5.66929" class="st11"/>
-			<text x="9.26" y="309.72" class="st12" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Stop</text>		</g>
-		<g id="shape46-151" v:mID="46" v:groupContext="shape" transform="translate(305.724,-1)">
+			<v:textRect cx="21.2598" cy="336.071" width="42.52" height="14.1732"/>
+			<rect x="0" y="328.984" width="42.5197" height="14.1732" rx="5.66929" ry="5.66929" class="st11"/>
+			<text x="9.26" y="339.07" class="st12" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Stop</text>		</g>
+		<g id="shape46-156" v:mID="46" v:groupContext="shape" transform="translate(305.724,-30.3465)">
 			<title>Tabelle.46</title>
 			<desc>Stop</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="21.2598" cy="306.724" width="42.52" height="14.1732"/>
-			<rect x="0" y="299.638" width="42.5197" height="14.1732" rx="5.66929" ry="5.66929" class="st11"/>
-			<text x="9.26" y="309.72" class="st12" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Stop</text>		</g>
-		<g id="shape48-154" v:mID="48" v:groupContext="shape" transform="translate(256.118,-36.4331)">
+			<v:textRect cx="21.2598" cy="336.071" width="42.52" height="14.1732"/>
+			<rect x="0" y="328.984" width="42.5197" height="14.1732" rx="5.66929" ry="5.66929" class="st11"/>
+			<text x="9.26" y="339.07" class="st12" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Stop</text>		</g>
+		<g id="shape48-159" v:mID="48" v:groupContext="shape" transform="translate(256.118,-65.7795)">
 			<title>Tabelle.48</title>
 			<desc>error</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="21.2598" cy="306.724" width="42.52" height="14.1732"/>
-			<rect x="0" y="299.638" width="42.5197" height="14.1732" class="st3"/>
-			<text x="4" y="309.72" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>error</text>		</g>
+			<v:textRect cx="21.2598" cy="336.071" width="42.52" height="14.1732"/>
+			<rect x="0" y="328.984" width="42.5197" height="14.1732" class="st3"/>
+			<text x="4" y="339.07" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>error</text>		</g>
+		<g id="shape49-162" v:mID="49" v:groupContext="shape" transform="translate(1.00001,-1)">
+			<title>Tabelle.49</title>
+			<desc>Initialization Succeeded</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="127.559" cy="336.071" width="255.12" height="14.1732"/>
+			<rect x="0" y="328.984" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st13"/>
+			<text x="55.55" y="339.07" class="st14" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Initialization Succeeded</text>		</g>
+		<g id="shape52-165" v:mID="52" v:groupContext="shape" transform="translate(489.976,-186.252)">
+			<title>Tabelle.52</title>
+			<desc>Stop</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="21.2598" cy="336.071" width="42.52" height="14.1732"/>
+			<rect x="0" y="328.984" width="42.5197" height="14.1732" rx="5.66929" ry="5.66929" class="st11"/>
+			<text x="9.26" y="339.07" class="st12" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Stop</text>		</g>
 	</g>
 </svg>

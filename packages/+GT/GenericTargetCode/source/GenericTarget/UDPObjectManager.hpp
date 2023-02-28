@@ -22,7 +22,7 @@ class UDPObjectManager {
          *  @param [in] port Local port of the UDP socket. The port is used as a unique key.
          *  @param [in] rxBufferSize Size of the receive buffer. 0 will be replace by 1 internally.
          *  @param [in] prioritySocket Socket priority, range: [0, 6].
-         *  @param [in] priorityThread Receiver thread priority, range: [0, 99].
+         *  @param [in] priorityThread Receiver thread priority, range: [1, 99].
          *  @param [in] numBuffers Number of receive buffers to be used.
          *  @param [in] bufferStrategy Either DISCARD_OLDEST or DISCARD_RECEIVED. Unknown values are ignored.
          *  @param [in] ipFilter Array of 4 bytes containing IPv4 address of the sender address that should be allowed. If no filter should be used, all bytes must be zero.
