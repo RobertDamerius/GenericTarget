@@ -1,6 +1,12 @@
 #ifndef RTW_WINDOWS_H
 #define RTW_WINDOWS_H
 
+
+#include <cstdlib>
+#include <mutex>
+#include <semaphore.h>
+
+
 // Mutex (use std::mutex)
 #define rtw_win_mutex_create( mutexDW ) \
     *mutexDW = new std::mutex();

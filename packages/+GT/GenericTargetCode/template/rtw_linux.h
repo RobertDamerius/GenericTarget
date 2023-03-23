@@ -1,6 +1,12 @@
 #ifndef RTW_LINUX_H
 #define RTW_LINUX_H
 
+
+#include <cstdlib>
+#include <mutex>
+#include <semaphore.h>
+
+
 // Mutex (use std::mutex)
 #define rtw_pthread_mutex_init( mutexDW ) \
     *mutexDW = new std::mutex();
