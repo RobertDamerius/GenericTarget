@@ -50,7 +50,7 @@
     This UDP socket is called AppSocket.
     The port of the AppSocket cannot be used for communication via UDP within the Simulink model.
     The port can be set using the MATLAB class <code><a href="simulinkinterface.html">GT.GenericTarget</a></code>.
-    The default port is 65535.
+    The default port is 44000.
 
     <h3>4. Bind Port for AppSocket</h3>
     At this point the port for the application socket is bound.

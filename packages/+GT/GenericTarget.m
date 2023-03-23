@@ -64,7 +64,7 @@ classdef GenericTarget < handle
     % gt.DeleteAllData();
 
     properties
-        portAppSocket;           % The port for the application socket (default: 65535).
+        portAppSocket;           % The port for the application socket (default: 44000).
         portSSH;                 % The port to be used for SSH/SCP connection (default: 22).
         priorityLog;             % Priority for the data logging threads in range [1 (lowest), 99 (highest)] (default: 30).
         targetIPAddress;         % IPv4 address of the target PC.
@@ -104,7 +104,7 @@ classdef GenericTarget < handle
             obj.targetUsername = targetUsername;
             obj.targetSoftwareDirectory = '~/GenericTarget/';
             obj.priorityLog = uint32(30);
-            obj.portAppSocket = uint16(65535);
+            obj.portAppSocket = uint16(44000);
             obj.upperThreadPriority = int32(89);
             obj.terminateAtTaskOverload = true;
             obj.terminateAtCPUOverload = true;

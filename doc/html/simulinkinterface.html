@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20230321</div>
+<div class="header_version">Version 20230323</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -74,8 +74,8 @@
             <td style="font-family: Courier New;">portAppSocket</td>
             <td style="font-family: Courier New;">uint16</td>
             <td>UDP port of the AppSocket.
-            The default value is 65535.
-            If several generic target applications are to be executed on one target computer, the port for the application socket can be adapted.</td>
+            The default value is 44000.
+            If several generic target applications are to be executed on one target computer, the port for the application socket can be adapted but should be in range [1024, 49151].</td>
         </tr>
         <tr>
             <td style="font-family: Courier New;">portSSH</td>

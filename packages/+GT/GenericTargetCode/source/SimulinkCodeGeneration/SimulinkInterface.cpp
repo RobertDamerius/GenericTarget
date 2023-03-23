@@ -4,7 +4,7 @@
 
 const std::string SimulinkInterface::modelName("Model");
 const std::string SimulinkInterface::strCompiled(__DATE__ " " __TIME__);
-const uint16_t SimulinkInterface::portAppSocket = 65535;
+const uint16_t SimulinkInterface::portAppSocket = 44000;
 const int32_t SimulinkInterface::priorityLog = 30;
 const double SimulinkInterface::baseSampleTime = 1.0;
 const int32_t SimulinkInterface::sampleTicks[] = {1};
