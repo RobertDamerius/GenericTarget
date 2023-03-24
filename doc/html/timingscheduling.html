@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20230323</div>
+<div class="header_version">Version 20230324</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -58,6 +58,10 @@
 
     <h3>UTC Time</h3>
     The UTC time of the target computer.
+    This time is determined once for each time step (with the basic sample rate).
+
+    <h3>UTC Timestamp</h3>
+    The seconds of the day according to UTC (range: [0, 86400)).
     This time is determined once for each time step (with the basic sample rate).
 
     <h3>Hardware Time</h3>
