@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20230324</div>
+<div class="header_version">Version 20230406</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -81,6 +81,11 @@
             <td style="font-family: Courier New;">portSSH</td>
             <td style="font-family: Courier New;">uint16</td>
             <td>The port to be used for SSH/SCP connection. The default value is 22.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">connectTimeout</td>
+            <td style="font-family: Courier New;">uint32</td>
+            <td>Connect timeout in seconds for SSH/SCP connection. The default value is 3.</td>
         </tr>
 		<tr>
             <td style="font-family: Courier New;">priorityLog</td>
