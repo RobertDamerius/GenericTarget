@@ -21,9 +21,9 @@ function info = DecodeIndexFile(filename)
     info = struct();
 
     % Open index file
-    fp = fopen(filename,'r');
+    [fp,errmsg] = fopen(filename,'r');
     if(fp < 0)
-        error('Could not open index file "%s"\n',filename);
+        error('Could not open index file "%s": %s',filename,errmsg);
     end
     fprintf('[GENERIC TARGET] Decoding index file "%s" ...',filename);
 
@@ -31,14 +31,14 @@ function info = DecodeIndexFile(filename)
     bytesHeader = uint8(fread(fp, 5));
     if((5 ~= length(bytesHeader)) || (uint8(71) ~= bytesHeader(1)) || (uint8(84) ~= bytesHeader(2)) || (uint8(73) ~= bytesHeader(3)) || (uint8(68) ~= bytesHeader(4)) || (uint8(88) ~= bytesHeader(5)))
         fclose(fp);
-        error('Invalid header of file: "%s"\n',filename);
+        error('Invalid header of file: "%s"',filename);
     end
 
     % Decode date
     bytesDate = uint8(fread(fp, 9));
     if(9 ~= length(bytesDate))
         fclose(fp);
-        error('Invalid header of file: "%s"\n',filename);
+        error('Invalid header of file: "%s"',filename);
     end
     info.dateUTC.year = uint32(bitor(bitor(bitshift(uint32(bytesDate(1)),24),bitshift(uint32(bytesDate(2)),16)),bitor(bitshift(uint32(bytesDate(3)),8),uint32(bytesDate(4)))));
     info.dateUTC.month = bytesDate(5);
@@ -51,7 +51,7 @@ function info = DecodeIndexFile(filename)
     bytesNumIDs = uint8(fread(fp, 4));
     if(4 ~= length(bytesNumIDs))
         fclose(fp);
-        error('Invalid header of file: "%s"\n',filename);
+        error('Invalid header of file: "%s"',filename);
     end
     numIDs = uint32(bitor(bitor(bitshift(uint32(bytesNumIDs(1)),24),bitshift(uint32(bytesNumIDs(2)),16)),bitor(bitshift(uint32(bytesNumIDs(3)),8),uint32(bytesNumIDs(4)))));
 
@@ -61,7 +61,7 @@ function info = DecodeIndexFile(filename)
         bytes = uint8(fread(fp, 4));
         if(4 ~= length(bytes))
             fclose(fp);
-            error('Invalid header of file: "%s"\n',filename);
+            error('Invalid header of file: "%s"',filename);
         end
         info.listOfIDs(i) = uint32(bitor(bitor(bitshift(uint32(bytes(1)),24),bitshift(uint32(bytes(2)),16)),bitor(bitshift(uint32(bytes(3)),8),uint32(bytes(4)))));
     end
@@ -72,7 +72,7 @@ function info = DecodeIndexFile(filename)
         byte = uint8(fread(fp, 1));
         if(1 ~= length(byte))
             fclose(fp);
-            error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!\n',length(byte),filename);
+            error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!',length(byte),filename);
         end
         if(~byte)
             break;
@@ -86,7 +86,7 @@ function info = DecodeIndexFile(filename)
         byte = uint8(fread(fp, 1));
         if(1 ~= length(byte))
             fclose(fp);
-            error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!\n',length(byte),filename);
+            error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!',length(byte),filename);
         end
         if(~byte)
             break;
@@ -100,7 +100,7 @@ function info = DecodeIndexFile(filename)
         byte = uint8(fread(fp, 1));
         if(1 ~= length(byte))
             fclose(fp);
-            error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!\n',length(byte),filename);
+            error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!',length(byte),filename);
         end
         if(~byte)
             break;

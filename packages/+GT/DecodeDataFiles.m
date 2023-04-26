@@ -14,6 +14,7 @@ function data = DecodeDataFiles(dataFileNames)
     % 20210319    Robert Damerius        Initial release.
     % 20210531    Robert Damerius        Increased performance. Complete signal data is now casted and assigned at one time.
     % 20221009    Robert Damerius        Updated verbose prints.
+    % 20230426    Robert Damerius        Fixed bug concerning the calculation of numberOfSamples in case of incomplete data.
     % 
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -75,7 +76,10 @@ function data = DecodeDataFiles(dataFileNames)
     bytes = uint8(zeros(numBytesSampleData,1));
     idx1 = uint64(1);
     for i = 1:length(dataFileNames)
-        fp = fopen(dataFileNames{i},'r');
+        [fp,errmsg] = fopen(dataFileNames{i},'r');
+        if(fp < 0)
+            error('Could not open file "%s": %s',dataFileNames{i},errmsg);
+        end
         fseek(fp, 0, 'eof');
         fileDataSize = uint64(ftell(fp));
         if(fileDataSize < uint64(header.offsetSampleData))
@@ -89,7 +93,7 @@ function data = DecodeDataFiles(dataFileNames)
     end
 
     % Check if size of read binary data is a multiple of the size of one sample data buffer
-    numberOfSamples = uint64(floor(numBytesSampleData / (uint64(8) + uint64(header.numBytesPerSample))));
+    numberOfSamples = uint64(floor(double(numBytesSampleData) / double(uint64(8) + uint64(header.numBytesPerSample))));
     if((numberOfSamples * (uint64(8) + uint64(header.numBytesPerSample))) ~= numBytesSampleData)
         warning('Incomplete sample data. The last sample may be missing.');
     end
@@ -172,8 +176,10 @@ function [success,header,chunkSizeSampleData] = DecodeHeader(filename)
     chunkSizeSampleData = uint64(0);
 
     % Open file
-    fp = fopen(filename,'r');
-    if(fp < 0), return; end
+    [fp,errmsg] = fopen(filename,'r');
+    if(fp < 0)
+        error('Could not open file "%s": %s',filename,errmsg);
+    end
 
     % Read header ID
     bytes = uint8(fread(fp,5));
