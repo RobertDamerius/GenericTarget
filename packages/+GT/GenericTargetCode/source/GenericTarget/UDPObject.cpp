@@ -221,8 +221,8 @@ void UDPObject::Stop(void){
 }
 
 int32_t UDPObject::Send(const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
-    Endpoint ep((uint8_t)(0x00FF & destination[0]), (uint8_t)(0x00FF & destination[1]), (uint8_t)(0x00FF & destination[2]), (uint8_t)(0x00FF & destination[3]), destination[4]);
-    return socket.SendTo(ep, (uint8_t*)bytes, length);
+    Address address((uint8_t)(0x00FF & destination[0]), (uint8_t)(0x00FF & destination[1]), (uint8_t)(0x00FF & destination[2]), (uint8_t)(0x00FF & destination[3]), destination[4]);
+    return socket.SendTo(address, (uint8_t*)bytes, length);
 }
 
 void UDPObject::Receive(uint16_t* sources, uint8_t* bytes, uint32_t* lengths, double* timestamps, uint32_t* numMessagesReceived, uint32_t* numMessagesDiscarded, const uint32_t maxMessageSize, const uint32_t maxNumMessages){
@@ -270,7 +270,7 @@ void UDPObject::ThreadReceive(void){
     ClearQueue(state.idxQueue);
     mtxState.unlock();
     uint8_t* rxBuffer = new uint8_t[rxBufferSize];
-    Endpoint ep;
+    Address ep;
     while(socket.IsOpen()){
         // Receive message
         int rx = socket.ReceiveFrom(ep, &rxBuffer[0], rxBufferSize);

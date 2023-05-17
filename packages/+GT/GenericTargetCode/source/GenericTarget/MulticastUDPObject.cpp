@@ -44,7 +44,7 @@ MulticastUDPObject::MulticastUDPObject(uint16_t port){
     state.idxMessage = 0;
     state.timestamp = nullptr;
     state.ttl = 1;
-    state.group = Endpoint(239,0,0,0,0);
+    state.group = Address(239,0,0,0,0);
     state.discardCounter = 0;
     state.ipFilter[0] = state.ipFilter[1] = state.ipFilter[2] = state.ipFilter[3] = 0;
     state.countAsDiscarded = true;
@@ -147,7 +147,7 @@ bool MulticastUDPObject::Start(void){
     state.idxMessage = 0;
     state.timestamp = new double[state.numBuffers];
     state.ttl = this->ttl;
-    state.group = Endpoint(this->group[0], this->group[1], this->group[2], this->group[3], this->port);
+    state.group = Address(this->group[0], this->group[1], this->group[2], this->group[3], this->port);
     state.discardCounter = 0;
     state.ipFilter[0] = this->ipFilter[0];
     state.ipFilter[1] = this->ipFilter[1];
@@ -287,7 +287,7 @@ void MulticastUDPObject::Stop(void){
 }
 
 int32_t MulticastUDPObject::Send(const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
-    Endpoint ep((uint8_t)(0x00FF & destination[0]), (uint8_t)(0x00FF & destination[1]), (uint8_t)(0x00FF & destination[2]), (uint8_t)(0x00FF & destination[3]), destination[4]);
+    Address ep((uint8_t)(0x00FF & destination[0]), (uint8_t)(0x00FF & destination[1]), (uint8_t)(0x00FF & destination[2]), (uint8_t)(0x00FF & destination[3]), destination[4]);
     return socket.SendTo(ep, (uint8_t*)bytes, length);
 }
 
@@ -336,7 +336,7 @@ void MulticastUDPObject::ThreadReceive(void){
     ClearQueue(state.idxQueue);
     mtxState.unlock();
     uint8_t* rxBuffer = new uint8_t[rxBufferSize];
-    Endpoint ep;
+    Address ep;
     while(socket.IsOpen()){
         // Receive message
         int rx = socket.ReceiveFrom(ep, &rxBuffer[0], rxBufferSize);

@@ -61,11 +61,11 @@ static void __network_terminate(void){
 
 
 // Helper macros for sockaddr_in struct (win/linux)
-#define    ENDPOINT_PORT(x)    x.sin_port
+#define ADDRESS_PORT(x)  x.sin_port
 #ifdef _WIN32
-#define    ENDPOINT_IP(x)        x.sin_addr.S_un.S_addr
+#define ADDRESS_IP(x)    x.sin_addr.S_un.S_addr
 #else
-#define    ENDPOINT_IP(x)        x.sin_addr.s_addr
+#define ADDRESS_IP(x)    x.sin_addr.s_addr
 #endif
 
 
@@ -264,57 +264,57 @@ void GTHostImplementation::OutputDriverTimerLocal(int32_t* nanoseconds, int32_t*
 }
 
 
-GTHostImplementation::Endpoint::Endpoint(){
+GTHostImplementation::Address::Address(){
     Reset();
 }
 
-GTHostImplementation::Endpoint::Endpoint(uint8_t ipv4_A, uint8_t ipv4_B, uint8_t ipv4_C, uint8_t ipv4_D, uint16_t port){
+GTHostImplementation::Address::Address(uint8_t ipv4_A, uint8_t ipv4_B, uint8_t ipv4_C, uint8_t ipv4_D, uint16_t port){
     Reset();
     SetIPv4(ipv4_A, ipv4_B, ipv4_C, ipv4_D);
     SetPort(port);
     UpdateID();
 }
 
-GTHostImplementation::Endpoint::~Endpoint(){}
+GTHostImplementation::Address::~Address(){}
 
-void GTHostImplementation::Endpoint::Reset(void){
+void GTHostImplementation::Address::Reset(void){
     addr.sin_family = AF_INET;
     memset((void*) &addr.sin_zero[0], 0, 8);
-    ENDPOINT_PORT(addr) = (unsigned short)0;
-    ENDPOINT_IP(addr) = (unsigned long)0;
+    ADDRESS_PORT(addr) = (unsigned short)0;
+    ADDRESS_IP(addr) = (unsigned long)0;
     UpdateID();
 }
 
-void GTHostImplementation::Endpoint::SetAddress(sockaddr_in address){
+void GTHostImplementation::Address::SetAddress(sockaddr_in address){
     addr.sin_family = address.sin_family;
     memcpy(&addr.sin_zero[0], &address.sin_zero[0], 8);
-    ENDPOINT_PORT(addr) = ENDPOINT_PORT(address);
-    ENDPOINT_IP(addr) = ENDPOINT_IP(address);
+    ADDRESS_PORT(addr) = ADDRESS_PORT(address);
+    ADDRESS_IP(addr) = ADDRESS_IP(address);
     UpdateID();
 }
 
-void GTHostImplementation::Endpoint::SetAddress(in_addr address){
-    ENDPOINT_IP(addr) = address.s_addr;
+void GTHostImplementation::Address::SetAddress(in_addr address){
+    ADDRESS_IP(addr) = address.s_addr;
     UpdateID();
 }
 
-void GTHostImplementation::Endpoint::SetPort(uint16_t port){
-    ENDPOINT_PORT(addr) = htons(port);
+void GTHostImplementation::Address::SetPort(uint16_t port){
+    ADDRESS_PORT(addr) = htons(port);
     UpdateID();
 }
 
-void GTHostImplementation::Endpoint::SetIPv4(uint8_t ipv4_A, uint8_t ipv4_B, uint8_t ipv4_C, uint8_t ipv4_D){
-    ENDPOINT_IP(addr) = htonl((0xFF000000 & (ipv4_A << 24)) | (0x00FF0000 & (ipv4_B << 16)) | (0x0000FF00 & (ipv4_C << 8)) | (0x000000FF & ipv4_D));
+void GTHostImplementation::Address::SetIPv4(uint8_t ipv4_A, uint8_t ipv4_B, uint8_t ipv4_C, uint8_t ipv4_D){
+    ADDRESS_IP(addr) = htonl((0xFF000000 & (ipv4_A << 24)) | (0x00FF0000 & (ipv4_B << 16)) | (0x0000FF00 & (ipv4_C << 8)) | (0x000000FF & ipv4_D));
     UpdateID();
 }
 
-uint16_t GTHostImplementation::Endpoint::GetPort(void){
-    return (uint16_t)ntohs(ENDPOINT_PORT(addr));
+uint16_t GTHostImplementation::Address::GetPort(void){
+    return (uint16_t)ntohs(ADDRESS_PORT(addr));
 }
 
-void GTHostImplementation::Endpoint::GetIPv4(uint8_t *ipv4){
+void GTHostImplementation::Address::GetIPv4(uint8_t *ipv4){
     if(ipv4){
-        uint32_t u32 = ntohl(ENDPOINT_IP(addr));
+        uint32_t u32 = ntohl(ADDRESS_IP(addr));
         ipv4[0] = (uint8_t)(0x000000FF & (u32 >> 24));
         ipv4[1] = (uint8_t)(0x000000FF & (u32 >> 16));
         ipv4[2] = (uint8_t)(0x000000FF & (u32 >> 8));
@@ -322,33 +322,33 @@ void GTHostImplementation::Endpoint::GetIPv4(uint8_t *ipv4){
     }
 }
 
-std::string GTHostImplementation::Endpoint::ToString(void){
+std::string GTHostImplementation::Address::ToString(void){
     char buf[24];
     uint8_t ipv4[4];
-    uint32_t u32 = ntohl(ENDPOINT_IP(addr));
+    uint32_t u32 = ntohl(ADDRESS_IP(addr));
     ipv4[0] = (uint8_t)(0x000000FF & (u32 >> 24));
     ipv4[1] = (uint8_t)(0x000000FF & (u32 >> 16));
     ipv4[2] = (uint8_t)(0x000000FF & (u32 >> 8));
     ipv4[3] = (uint8_t)(0x000000FF & (u32));
-    sprintf(buf, "%d.%d.%d.%d:%d", (int)ipv4[0], (int)ipv4[1], (int)ipv4[2], (int)ipv4[3], (int)ntohs(ENDPOINT_PORT(addr)));
+    sprintf(buf, "%d.%d.%d.%d:%d", (int)ipv4[0], (int)ipv4[1], (int)ipv4[2], (int)ipv4[3], (int)ntohs(ADDRESS_PORT(addr)));
     return std::string(buf);
 }
 
-bool GTHostImplementation::Endpoint::DecodeFromString(std::string strEndpoint){
+bool GTHostImplementation::Address::DecodeFromString(std::string strAddress){
     std::string strAddr[4];
     std::string strPort;
     int index = 0;
-    for(uint32_t n = 0; n < (uint32_t)strEndpoint.size(); n++){
-        if((strEndpoint[n] >= '0') && (strEndpoint[n] <= '9'))
-            strAddr[index].push_back(strEndpoint[n]);
-        else if('.' == strEndpoint[n]){
+    for(uint32_t n = 0; n < (uint32_t)strAddress.size(); n++){
+        if((strAddress[n] >= '0') && (strAddress[n] <= '9'))
+            strAddr[index].push_back(strAddress[n]);
+        else if('.' == strAddress[n]){
             if(++index > 3)
                 return false;
         }
-        else if(':' == strEndpoint[n]){
+        else if(':' == strAddress[n]){
             if(3 != index)
                 return false;
-            strPort = strEndpoint.substr(n + 1);
+            strPort = strAddress.substr(n + 1);
             break;
         }
         else
@@ -366,51 +366,51 @@ bool GTHostImplementation::Endpoint::DecodeFromString(std::string strEndpoint){
         int P = atoi(strPort.c_str());
         if((P < 0) || (P > 65535))
             return false;
-        GTHostImplementation::Endpoint::SetPort((uint16_t)P);
+        GTHostImplementation::Address::SetPort((uint16_t)P);
     }
-    GTHostImplementation::Endpoint::SetIPv4((uint8_t)A, (uint8_t)B, (uint8_t)C, (uint8_t)D);
+    GTHostImplementation::Address::SetIPv4((uint8_t)A, (uint8_t)B, (uint8_t)C, (uint8_t)D);
     UpdateID();
     return true;
 }
 
-bool GTHostImplementation::Endpoint::CompareIPv4(const uint8_t ipv4_A, const uint8_t ipv4_B, const uint8_t ipv4_C, const uint8_t ipv4_D){
-    uint32_t u32 = ntohl(ENDPOINT_IP(addr));
+bool GTHostImplementation::Address::CompareIPv4(const uint8_t ipv4_A, const uint8_t ipv4_B, const uint8_t ipv4_C, const uint8_t ipv4_D){
+    uint32_t u32 = ntohl(ADDRESS_IP(addr));
     return ((ipv4_A == (uint8_t)(0x000000FF & (u32 >> 24))) && (ipv4_B == (uint8_t)(0x000000FF & (u32 >> 16))) && (ipv4_C == (uint8_t)(0x000000FF & (u32 >> 8))) && (ipv4_D == (uint8_t)(0x000000FF & (u32))));
 }
 
-bool GTHostImplementation::Endpoint::CompareIPv4(const GTHostImplementation::Endpoint& endpoint){
-    return (ENDPOINT_IP(this->addr) == ENDPOINT_IP(endpoint.addr));
+bool GTHostImplementation::Address::CompareIPv4(const GTHostImplementation::Address& address){
+    return (ADDRESS_IP(this->addr) == ADDRESS_IP(address.addr));
 }
 
-bool GTHostImplementation::Endpoint::ComparePort(const uint16_t port){
-    return (port == (uint16_t)(ntohs(ENDPOINT_PORT(this->addr))));
+bool GTHostImplementation::Address::ComparePort(const uint16_t port){
+    return (port == (uint16_t)(ntohs(ADDRESS_PORT(this->addr))));
 }
 
-bool GTHostImplementation::Endpoint::ComparePort(const GTHostImplementation::Endpoint& endpoint){
-    return (ENDPOINT_PORT(this->addr) == ENDPOINT_PORT(endpoint.addr));
+bool GTHostImplementation::Address::ComparePort(const GTHostImplementation::Address& address){
+    return (ADDRESS_PORT(this->addr) == ADDRESS_PORT(address.addr));
 }
 
-GTHostImplementation::Endpoint& GTHostImplementation::Endpoint::operator=(const GTHostImplementation::Endpoint& rhs){
+GTHostImplementation::Address& GTHostImplementation::Address::operator=(const GTHostImplementation::Address& rhs){
     if(this != &rhs){
         this->addr.sin_family = rhs.addr.sin_family;
         memcpy(&this->addr.sin_zero[0], &rhs.addr.sin_zero[0], 8);
-        ENDPOINT_PORT(this->addr) = ENDPOINT_PORT(rhs.addr);
-        ENDPOINT_IP(this->addr) = ENDPOINT_IP(rhs.addr);
+        ADDRESS_PORT(this->addr) = ADDRESS_PORT(rhs.addr);
+        ADDRESS_IP(this->addr) = ADDRESS_IP(rhs.addr);
         this->id = rhs.id;
     }
     return *this;
 }
 
-bool GTHostImplementation::Endpoint::operator==(const GTHostImplementation::Endpoint& rhs)const{
+bool GTHostImplementation::Address::operator==(const GTHostImplementation::Address& rhs)const{
     return (this->id == rhs.id);
 }
 
-bool GTHostImplementation::Endpoint::operator!=(const GTHostImplementation::Endpoint& rhs)const{
+bool GTHostImplementation::Address::operator!=(const GTHostImplementation::Address& rhs)const{
     return (this->id != rhs.id);
 }
 
-void GTHostImplementation::Endpoint::UpdateID(void){
-    uint32_t u32 = ntohl(ENDPOINT_IP(addr));
+void GTHostImplementation::Address::UpdateID(void){
+    uint32_t u32 = ntohl(ADDRESS_IP(addr));
     uint8_t ipv4_A = (uint8_t)(0x000000FF & (u32 >> 24));
     uint8_t ipv4_B = (uint8_t)(0x000000FF & (u32 >> 16));
     uint8_t ipv4_C = (uint8_t)(0x000000FF & (u32 >> 8));
@@ -504,27 +504,27 @@ int GTHostImplementation::UDPSocket::Bind(uint16_t port, const char *ip){
     return -1;
 }
 
-int GTHostImplementation::UDPSocket::SendTo(GTHostImplementation::Endpoint& endpoint, uint8_t *bytes, int size){
+int GTHostImplementation::UDPSocket::SendTo(GTHostImplementation::Address& address, uint8_t *bytes, int size){
     if(!bytes)
         return -1;
-    return sendto(_socket, (const char*) bytes, size, 0, (const struct sockaddr*) &endpoint.addr, sizeof(endpoint.addr));
+    return sendto(_socket, (const char*) bytes, size, 0, (const struct sockaddr*) &address.addr, sizeof(address.addr));
 }
 
-int GTHostImplementation::UDPSocket::ReceiveFrom(GTHostImplementation::Endpoint& endpoint, uint8_t *bytes, int size){
+int GTHostImplementation::UDPSocket::ReceiveFrom(GTHostImplementation::Address& address, uint8_t *bytes, int size){
     if(!bytes)
         return -1;
-    endpoint.Reset();
+    address.Reset();
     #ifndef _WIN32
-    socklen_t address_size = sizeof(endpoint.addr);
+    socklen_t address_size = sizeof(address.addr);
     #else
-    int address_size = sizeof(endpoint.addr);
+    int address_size = sizeof(address.addr);
     #endif
-    int result = recvfrom(_socket, (char*) bytes, size, 0, (struct sockaddr*) &endpoint.addr, &address_size);
-    endpoint.UpdateID();
+    int result = recvfrom(_socket, (char*) bytes, size, 0, (struct sockaddr*) &address.addr, &address_size);
+    address.UpdateID();
     return result;
 }
 
-int GTHostImplementation::UDPSocket::ReceiveFrom(GTHostImplementation::Endpoint& endpoint, uint8_t *bytes, int size, uint32_t timeout_s){
+int GTHostImplementation::UDPSocket::ReceiveFrom(GTHostImplementation::Address& address, uint8_t *bytes, int size, uint32_t timeout_s){
     fd_set fds;
     struct timeval tv;
     FD_ZERO(&fds);
@@ -533,7 +533,7 @@ int GTHostImplementation::UDPSocket::ReceiveFrom(GTHostImplementation::Endpoint&
     tv.tv_usec = 0;
     if(select(_socket, &fds, 0, 0, &tv) <= 0)
         return -1;
-    return ReceiveFrom(endpoint, bytes, size);
+    return ReceiveFrom(address, bytes, size);
 }
 
 int GTHostImplementation::UDPSocket::JoinMulticastGroup(const char* strGroup, const char* strInterface){
@@ -771,8 +771,8 @@ void GTHostImplementation::UDPObject::Stop(void){
 }
 
 int32_t GTHostImplementation::UDPObject::Send(const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
-    GTHostImplementation::Endpoint ep((uint8_t)(0x00FF & destination[0]), (uint8_t)(0x00FF & destination[1]), (uint8_t)(0x00FF & destination[2]), (uint8_t)(0x00FF & destination[3]), destination[4]);
-    return socket.SendTo(ep, (uint8_t*)bytes, length);
+    GTHostImplementation::Address destination((uint8_t)(0x00FF & destination[0]), (uint8_t)(0x00FF & destination[1]), (uint8_t)(0x00FF & destination[2]), (uint8_t)(0x00FF & destination[3]), destination[4]);
+    return socket.SendTo(destination, (uint8_t*)bytes, length);
 }
 
 void GTHostImplementation::UDPObject::Receive(uint16_t* sources, uint8_t* bytes, uint32_t* lengths, double* timestamps, uint32_t* numMessagesReceived, uint32_t* numMessagesDiscarded, const uint32_t maxMessageSize, const uint32_t maxNumMessages){
@@ -819,17 +819,17 @@ void GTHostImplementation::UDPObject::ThreadReceive(void){
     ClearQueue(state.idxQueue);
     mtxState.unlock();
     uint8_t* rxBuffer = new uint8_t[rxBufferSize];
-    GTHostImplementation::Endpoint ep;
+    GTHostImplementation::Address source;
     while(socket.IsOpen()){
         // Receive message
-        int rx = socket.ReceiveFrom(ep, &rxBuffer[0], rxBufferSize);
+        int rx = socket.ReceiveFrom(source, &rxBuffer[0], rxBufferSize);
         if((rx < 0) || !socket.IsOpen() || (socket.GetPort() < 0)){
             break;
         }
 
         // Copy to state
         mtxState.lock();
-        if((state.ipFilter[0] || state.ipFilter[1] || state.ipFilter[2] || state.ipFilter[3]) && !ep.CompareIPv4(state.ipFilter[0],state.ipFilter[1],state.ipFilter[2],state.ipFilter[3])){
+        if((state.ipFilter[0] || state.ipFilter[1] || state.ipFilter[2] || state.ipFilter[3]) && !source.CompareIPv4(state.ipFilter[0],state.ipFilter[1],state.ipFilter[2],state.ipFilter[3])){
             // IP filter is set and sender IP does not match: discard message
             if(state.countAsDiscarded)
                 state.discardCounter++;
@@ -844,8 +844,8 @@ void GTHostImplementation::UDPObject::ThreadReceive(void){
                     state.timestamp[state.idxMessage] = __host_implementation_GetTimeToStart();
                     state.rxLength[state.idxMessage] = (uint32_t(rx) < rxBufferSize) ? rx : rxBufferSize;
                     memcpy(&state.buffer[state.idxMessage * rxBufferSize], &rxBuffer[0], state.rxLength[state.idxMessage]);
-                    ep.GetIPv4(&state.ipSender[state.idxMessage * 4]);
-                    state.portSender[state.idxMessage] = ep.GetPort();
+                    source.GetIPv4(&state.ipSender[state.idxMessage * 4]);
+                    state.portSender[state.idxMessage] = source.GetPort();
                     break;
                 case DISCARD_RECEIVED:
                     break;
@@ -858,8 +858,8 @@ void GTHostImplementation::UDPObject::ThreadReceive(void){
             state.timestamp[state.idxMessage] = __host_implementation_GetTimeToStart();
             state.rxLength[state.idxMessage] = (uint32_t(rx) < rxBufferSize) ? rx : rxBufferSize;
             memcpy(&state.buffer[state.idxMessage * rxBufferSize], &rxBuffer[0], state.rxLength[state.idxMessage]);
-            ep.GetIPv4(&state.ipSender[state.idxMessage * 4]);
-            state.portSender[state.idxMessage] = ep.GetPort();
+            source.GetIPv4(&state.ipSender[state.idxMessage * 4]);
+            state.portSender[state.idxMessage] = source.GetPort();
             state.idxQueue.push(state.idxMessage);
         }
         mtxState.unlock();
@@ -1004,7 +1004,7 @@ GTHostImplementation::MulticastUDPObject::MulticastUDPObject(uint16_t port){
     state.idxMessage = 0;
     state.timestamp = nullptr;
     state.ttl = 1;
-    state.group = Endpoint(239,0,0,0,0);
+    state.group = Address(239,0,0,0,0);
     state.discardCounter = 0;
     state.ipFilter[0] = state.ipFilter[1] = state.ipFilter[2] = state.ipFilter[3] = 0;
     state.countAsDiscarded = true;
@@ -1107,7 +1107,7 @@ bool GTHostImplementation::MulticastUDPObject::Start(void){
     state.idxMessage = 0;
     state.timestamp = new double[state.numBuffers];
     state.ttl = this->ttl;
-    state.group = GTHostImplementation::Endpoint(this->group[0], this->group[1], this->group[2], this->group[3], this->port);
+    state.group = GTHostImplementation::Address(this->group[0], this->group[1], this->group[2], this->group[3], this->port);
     state.discardCounter = 0;
     state.ipFilter[0] = this->ipFilter[0];
     state.ipFilter[1] = this->ipFilter[1];
@@ -1245,8 +1245,8 @@ void GTHostImplementation::MulticastUDPObject::Stop(void){
 }
 
 int32_t GTHostImplementation::MulticastUDPObject::Send(const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
-    GTHostImplementation::Endpoint ep((uint8_t)(0x00FF & destination[0]), (uint8_t)(0x00FF & destination[1]), (uint8_t)(0x00FF & destination[2]), (uint8_t)(0x00FF & destination[3]), destination[4]);
-    return socket.SendTo(ep, (uint8_t*)bytes, length);
+    GTHostImplementation::Address destination((uint8_t)(0x00FF & destination[0]), (uint8_t)(0x00FF & destination[1]), (uint8_t)(0x00FF & destination[2]), (uint8_t)(0x00FF & destination[3]), destination[4]);
+    return socket.SendTo(destination, (uint8_t*)bytes, length);
 }
 
 void GTHostImplementation::MulticastUDPObject::Receive(uint16_t* sources, uint8_t* bytes, uint32_t* lengths, double* timestamps, uint32_t* numMessagesReceived, uint32_t* numMessagesDiscarded, const uint32_t maxMessageSize, const uint32_t maxNumMessages){
@@ -1293,17 +1293,17 @@ void GTHostImplementation::MulticastUDPObject::ThreadReceive(void){
     ClearQueue(state.idxQueue);
     mtxState.unlock();
     uint8_t* rxBuffer = new uint8_t[rxBufferSize];
-    GTHostImplementation::Endpoint ep;
+    GTHostImplementation::Address source;
     while(socket.IsOpen()){
         // Receive message
-        int rx = socket.ReceiveFrom(ep, &rxBuffer[0], rxBufferSize);
+        int rx = socket.ReceiveFrom(source, &rxBuffer[0], rxBufferSize);
         if((rx < 0) || !socket.IsOpen() || (socket.GetPort() < 0)){
             break;
         }
 
         // Copy to state
         mtxState.lock();
-        if((state.ipFilter[0] || state.ipFilter[1] || state.ipFilter[2] || state.ipFilter[3]) && !ep.CompareIPv4(state.ipFilter[0],state.ipFilter[1],state.ipFilter[2],state.ipFilter[3])){
+        if((state.ipFilter[0] || state.ipFilter[1] || state.ipFilter[2] || state.ipFilter[3]) && !source.CompareIPv4(state.ipFilter[0],state.ipFilter[1],state.ipFilter[2],state.ipFilter[3])){
             // IP filter is set and sender IP does not match: discard message
             if(state.countAsDiscarded)
                 state.discardCounter++;
@@ -1318,8 +1318,8 @@ void GTHostImplementation::MulticastUDPObject::ThreadReceive(void){
                     state.timestamp[state.idxMessage] = __host_implementation_GetTimeToStart();
                     state.rxLength[state.idxMessage] = (uint32_t(rx) < rxBufferSize) ? rx : rxBufferSize;
                     memcpy(&state.buffer[state.idxMessage * rxBufferSize], &rxBuffer[0], state.rxLength[state.idxMessage]);
-                    ep.GetIPv4(&state.ipSender[state.idxMessage * 4]);
-                    state.portSender[state.idxMessage] = ep.GetPort();
+                    source.GetIPv4(&state.ipSender[state.idxMessage * 4]);
+                    state.portSender[state.idxMessage] = source.GetPort();
                     break;
                 case DISCARD_RECEIVED:
                     break;
@@ -1332,8 +1332,8 @@ void GTHostImplementation::MulticastUDPObject::ThreadReceive(void){
             state.timestamp[state.idxMessage] = __host_implementation_GetTimeToStart();
             state.rxLength[state.idxMessage] = (uint32_t(rx) < rxBufferSize) ? rx : rxBufferSize;
             memcpy(&state.buffer[state.idxMessage * rxBufferSize], &rxBuffer[0], state.rxLength[state.idxMessage]);
-            ep.GetIPv4(&state.ipSender[state.idxMessage * 4]);
-            state.portSender[state.idxMessage] = ep.GetPort();
+            source.GetIPv4(&state.ipSender[state.idxMessage * 4]);
+            state.portSender[state.idxMessage] = source.GetPort();
             state.idxQueue.push(state.idxMessage);
         }
         mtxState.unlock();

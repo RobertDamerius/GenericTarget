@@ -62,7 +62,7 @@ bool GenericTarget::Initialize(int argc, char**argv){
         if(initialized){
             Terminate();
         }
-        Endpoint local(127,0,0,1,SimulinkInterface::portAppSocket);
+        Address local(127,0,0,1,SimulinkInterface::portAppSocket);
         const uint8_t msgTerminate[] = {0x47,0x54,0xDE,0xAD};
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -207,14 +207,14 @@ void GenericTarget::MainLoop(void){
     // Wait until application socket is closed or a termination message
     // is received
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        Endpoint ep;
+        Address source;
         uint8_t u[4];
         while(appSocket.IsOpen()){
-            int rx = appSocket.ReceiveFrom(ep, &u[0], 4);
+            int rx = appSocket.ReceiveFrom(source, &u[0], 4);
             if(rx < 0){
                 break;
             }
-            if(ep.CompareIPv4(127,0,0,1) && (4 == rx) && (0x47 == u[0]) && (0x54 == u[1]) && (0xDE == u[2]) && (0xAD == u[3])){
+            if(source.CompareIPv4(127,0,0,1) && (4 == rx) && (0x47 == u[0]) && (0x54 == u[1]) && (0xDE == u[2]) && (0xAD == u[3])){
                 break;
             }
         }

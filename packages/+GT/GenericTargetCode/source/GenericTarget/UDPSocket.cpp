@@ -91,27 +91,27 @@ int UDPSocket::ReusePort(bool reuse){
     #endif
 }
 
-int UDPSocket::SendTo(Endpoint& endpoint, uint8_t *bytes, int size){
+int UDPSocket::SendTo(Address& address, uint8_t *bytes, int size){
     if(!bytes)
         return -1;
-    return sendto(_socket, (const char*) bytes, size, 0, (const struct sockaddr*) &endpoint.addr, sizeof(endpoint.addr));
+    return sendto(_socket, (const char*) bytes, size, 0, (const struct sockaddr*) &address.addr, sizeof(address.addr));
 }
 
-int UDPSocket::ReceiveFrom(Endpoint& endpoint, uint8_t *bytes, int size){
+int UDPSocket::ReceiveFrom(Address& address, uint8_t *bytes, int size){
     if(!bytes)
         return -1;
-    endpoint.Reset();
+    address.Reset();
     #ifndef _WIN32
-    socklen_t address_size = sizeof(endpoint.addr);
+    socklen_t address_size = sizeof(address.addr);
     #else
-    int address_size = sizeof(endpoint.addr);
+    int address_size = sizeof(address.addr);
     #endif
-    int result = recvfrom(_socket, (char*) bytes, size, 0, (struct sockaddr*) &endpoint.addr, &address_size);
-    endpoint.UpdateID();
+    int result = recvfrom(_socket, (char*) bytes, size, 0, (struct sockaddr*) &address.addr, &address_size);
+    address.UpdateID();
     return result;
 }
 
-int UDPSocket::ReceiveFrom(Endpoint& endpoint, uint8_t *bytes, int size, uint32_t timeout_s){
+int UDPSocket::ReceiveFrom(Address& address, uint8_t *bytes, int size, uint32_t timeout_s){
     fd_set fds;
     struct timeval tv;
     FD_ZERO(&fds);
@@ -120,7 +120,7 @@ int UDPSocket::ReceiveFrom(Endpoint& endpoint, uint8_t *bytes, int size, uint32_
     tv.tv_usec = 0;
     if(select(_socket, &fds, 0, 0, &tv) <= 0)
         return -1;
-    return ReceiveFrom(endpoint, bytes, size);
+    return ReceiveFrom(address, bytes, size);
 }
 
 int UDPSocket::JoinMulticastGroup(const char* strGroup, const char* strInterface){

@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include <GenericTarget/Endpoint.hpp>
+#include <GenericTarget/Address.hpp>
 
 
 namespace gt {
@@ -89,33 +89,33 @@ class UDPSocket {
         int ReusePort(bool reuse);
 
         /**
-         *  @brief Send bytes to endpoint.
-         *  @param [in] endpoint The endpoint where to send the bytes to.
+         *  @brief Send bytes to address.
+         *  @param [in] address The address where to send the bytes to.
          *  @param [in] bytes Bytes that should be sent.
          *  @param [in] size Number of bytes.
          *  @return Number of bytes that have been sent. If an error occurred, the return value is < 0.
          */
-        int SendTo(Endpoint& endpoint, uint8_t *bytes, int size);
+        int SendTo(Address& address, uint8_t *bytes, int size);
 
         /**
-         *  @brief Receive bytes from endpoint.
-         *  @param [out] endpoint Endpoint, where to store the sender information.
+         *  @brief Receive bytes from address.
+         *  @param [out] address Address, where to store the sender information.
          *  @param [out] bytes Pointer to data array, where received bytes should be stored.
          *  @param [in] size The size of the data array.
          *  @return Number of bytes that have been received. If an error occurred, the return value is < 0.
          */
-        int ReceiveFrom(Endpoint& endpoint, uint8_t *bytes, int size);
+        int ReceiveFrom(Address& address, uint8_t *bytes, int size);
 
         /**
-         *  @brief Receive bytes from endpoint or time out.
-         *  @param [out] endpoint Endpoint, where to store the sender information.
+         *  @brief Receive bytes from address or time out.
+         *  @param [out] address Address, where to store the sender information.
          *  @param [out] bytes Pointer to data array, where received bytes should be stored.
          *  @param [in] size The size of the data array.
          *  @param [in] timeout_s Timeout in seconds.
          *  @return Number of bytes that have been received. If an error or timeout occurred, the return value is < 0.
          *  @note IMPORTANT: DO NOT USE THIS MEMBER FUNCTION TO RECEIVE MULTICAST MESSAGES.
          */
-        int ReceiveFrom(Endpoint& endpoint, uint8_t *bytes, int size, uint32_t timeout_s);
+        int ReceiveFrom(Address& address, uint8_t *bytes, int size, uint32_t timeout_s);
 
         /**
          *  @brief Join a multicast group.

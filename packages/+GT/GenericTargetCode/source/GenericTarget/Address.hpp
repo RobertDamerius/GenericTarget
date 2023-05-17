@@ -12,37 +12,37 @@ class UDPSocket;
 
 
 /**
- *  @brief Class: Endpoint
- *  @details Stores information like IPv4 address and port for an endpoint.
+ *  @brief Class: Address
+ *  @details Stores network address including IPv4 address and port.
  */
-class Endpoint {
+class Address {
         friend UDPSocket;
 
     public:
         /**
-         *  @brief Create an endpoint object.
+         *  @brief Create an address object.
          */
-        Endpoint();
+        Address();
 
         /**
          *  @brief Default copy constructor.
          */
-        Endpoint(const Endpoint& e) = default;
+        Address(const Address& e) = default;
 
         /**
-         *  @brief Create an endpoint object.
+         *  @brief Create an address object.
          *  @param [in] ipv4_A Byte one of IPv4 address.
          *  @param [in] ipv4_B Byte two of IPv4 address.
          *  @param [in] ipv4_C Byte three of IPv4 address.
          *  @param [in] ipv4_D Byte four of IPv4 address.
          *  @param [in] port Port value.
          */
-        Endpoint(uint8_t ipv4_A, uint8_t ipv4_B, uint8_t ipv4_C, uint8_t ipv4_D, uint16_t port);
+        Address(uint8_t ipv4_A, uint8_t ipv4_B, uint8_t ipv4_C, uint8_t ipv4_D, uint16_t port);
 
         /**
-         *  @brief Destroy the endpoint object.
+         *  @brief Destroy the address object.
          */
-        ~Endpoint();
+        ~Address();
 
         /**
          *  @brief Reset the address.
@@ -78,7 +78,7 @@ class Endpoint {
 
         /**
          *  @brief Get the current port.
-         *  @return Port of this endpoint.
+         *  @return Port of this address.
          */
         uint16_t GetPort(void);
 
@@ -95,7 +95,7 @@ class Endpoint {
         inline uint64_t GetID(void)const{ return this->id; }
 
         /**
-         *  @brief Compare IPv4 address of this endpoint to a given IPv4 address.
+         *  @brief Compare IPv4 address of this address to a given IPv4 address.
          *  @param [in] ipv4_A Byte one of IPv4 address.
          *  @param [in] ipv4_B Byte two of IPv4 address.
          *  @param [in] ipv4_C Byte three of IPv4 address.
@@ -105,46 +105,46 @@ class Endpoint {
         bool CompareIPv4(const uint8_t ipv4_A, const uint8_t ipv4_B, const uint8_t ipv4_C, const uint8_t ipv4_D);
 
         /**
-         *  @brief Compare IPv4 address of this endpoint to a given endpoint.
-         *  @param [in] endpoint A reference to another endpoint that should be compared with this endpoint.
+         *  @brief Compare IPv4 address of this address to a given address.
+         *  @param [in] address A reference to another address that should be compared with this address.
          *  @return True, if IPv4 addresses match, false otherwise.
          */
-        bool CompareIPv4(const Endpoint& endpoint);
+        bool CompareIPv4(const Address& address);
 
         /**
-         *  @brief Compare port of this endpoint to a given port.
-         *  @param [in] port A port that should be compared to the port of this endpoint.
+         *  @brief Compare port of this address to a given port.
+         *  @param [in] port A port that should be compared to the port of this address.
          *  @return True, if ports match, false otherwise.
          */
         bool ComparePort(const uint16_t port);
 
         /**
-         *  @brief Compare port of this endpoint to a port of a given endpoint.
-         *  @param [in] endpoint A reference to another endpoint that should be compared with this endpoint.
+         *  @brief Compare port of this address to a port of a given address.
+         *  @param [in] address A reference to another address that should be compared with this address.
          *  @return True, if ports match, false otherwise.
          */
-        bool ComparePort(const Endpoint& endpoint);
+        bool ComparePort(const Address& address);
 
         /**
          *  @brief Operator=
-         *  @return Reference to this endpoint.
-         *  @details Copy address and port from another endpoint.
+         *  @return Reference to this address.
+         *  @details Copy address and port from another address.
          */
-        Endpoint& operator=(const Endpoint& rhs);
+        Address& operator=(const Address& rhs);
 
         /**
          *  @brief Operator==
          *  @return Returns true, if IPv4 address and port matches.
          *  @details Internally, the @ref id is compared.
          */
-        bool operator==(const Endpoint& rhs)const;
+        bool operator==(const Address& rhs)const;
 
         /**
          *  @brief Operator!=
          *  @return Returns false, if IPv4 address and port matches.
          *  @details Internally, the @ref id is compared.
          */
-        bool operator!=(const Endpoint& rhs)const;
+        bool operator!=(const Address& rhs)const;
 
         /**
          *  @brief Convert to a string.
@@ -154,10 +154,10 @@ class Endpoint {
 
         /**
          *  @brief Decode the address and port from a string.
-         *  @param [in] strEndpoint The IPv4-(port) string that should be decoded. The Format can be either "A.B.C.D" or "A.B.C.D:Port".
+         *  @param [in] strAddress The IPv4-(port) string that should be decoded. The Format can be either "A.B.C.D" or "A.B.C.D:Port".
          *  @return True if success, false otherwise.
          */
-        bool DecodeFromString(std::string strEndpoint);
+        bool DecodeFromString(std::string strAddress);
 
     private:
         sockaddr_in addr;

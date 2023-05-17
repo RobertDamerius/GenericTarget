@@ -25,7 +25,7 @@ typedef struct {
     udp_buffer_strategy_t strategy; ///< The buffer strategy to be used.
     std::queue<uint32_t> idxQueue;  ///< A queue (FIFO) containing the indices of messages. The maximum queue size is NUM_BUF.
     uint32_t idxMessage;            ///< Index of the current message.
-    Endpoint group;                 ///< The multicast group address (IPv4 and port).
+    Address group;                 ///< The multicast group address (IPv4 and port).
     uint32_t discardCounter;        ///< Number of messages that have been discarded.
     uint8_t ipFilter[4];            ///< IP address to be used for address filtering when receiving messages.
     bool countAsDiscarded;          ///< True if out-filtered messages should be counted as discarded.
