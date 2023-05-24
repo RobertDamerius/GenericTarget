@@ -13,6 +13,7 @@ function info = DecodeIndexFile(filename)
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % 20210319    Robert Damerius        Initial release.
     % 20221009    Robert Damerius        Updated verbose prints.
+    % 20230523    Robert Damerius        Updated file protocol.
     % 
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -35,8 +36,8 @@ function info = DecodeIndexFile(filename)
     end
 
     % Decode date
-    bytesDate = uint8(fread(fp, 9));
-    if(9 ~= length(bytesDate))
+    bytesDate = uint8(fread(fp, 11));
+    if(11 ~= length(bytesDate))
         fclose(fp);
         error('Invalid header of file: "%s"',filename);
     end
@@ -46,6 +47,7 @@ function info = DecodeIndexFile(filename)
     info.dateUTC.hour = bytesDate(7);
     info.dateUTC.minute = bytesDate(8);
     info.dateUTC.second = bytesDate(9);
+    info.dateUTC.millisecond = uint16(bitor(bitshift(uint16(bytesDate(10)),8),uint16(bytesDate(11))));
 
     % Number of IDs
     bytesNumIDs = uint8(fread(fp, 4));

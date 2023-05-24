@@ -94,9 +94,11 @@
     <h3 class="note-green">Starting Application</h3>
     The application is not started automatically at the end of the deploy procedure. To start the application the <code>Start()</code> method of the <code>GT.GenericTarget</code> object must be called explicitly.
     The application is started with the appropriate authorization (sudo). The corresponding command looks like this:
-    <pre>sudo nohup ~/GenericTarget/bin/GenericTarget &> ~/GenericTarget/bin/log.txt &</pre>
-    The nohup command ensures that the output is not routed to the SSH console.
-    At the same time, the expression <code>&> ~/GenericTarget/bin/log.txt</code> ensures that the output is redirected to a text file.
+    <pre>sudo nohup ~/GenericTarget/bin/GenericTarget &> ~/GenericTarget/bin/out.txt &</pre>
+    The nohup command ensures that the output is not routed to the SSH console and <code>&> ~/GenericTarget/bin/out.txt</code> is used to write all console outputs to a out.txt file.
     The &amp;-character at the end of the command ensures that the console does not wait for the end of the application.
     This is necessary because otherwise the SSH connection to the target computer remains active until the generic target application is terminated.
+    The target application automatically redirects prints to a protocol (text) file.
+    If you want to start the application in a console without redirecting prints to a file, start the application with the argument <code>--console</code>:
+    <pre>sudo ~/GenericTarget/bin/GenericTarget --console</pre>
     </div>

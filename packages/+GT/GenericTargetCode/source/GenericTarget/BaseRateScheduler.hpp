@@ -3,7 +3,6 @@
 
 #include <GenericTarget/PeriodicTimer.hpp>
 #include <GenericTarget/PeriodicTask.hpp>
-#include <GenericTarget/TargetTime.hpp>
 
 
 namespace gt {
@@ -15,43 +14,43 @@ namespace gt {
 class BaseRateScheduler {
     public:
         /**
-         *  @brief Create a base-rate scheduler.
+         * @brief Construct a new base-rate scheduler object.
          */
         BaseRateScheduler();
 
         /**
-         *  @brief Delete the base-rate scheduler.
-         */
-        ~BaseRateScheduler();
-
-        /**
-         *  @brief Start or restart the base-rate scheduler.
+         * @brief Start or restart the base-rate scheduler.
          */
         void Start(void);
 
         /**
-         *  @brief Stop the base-rate scheduler.
+         * @brief Stop the base-rate scheduler.
          */
         void Stop(void);
 
         /**
-         *  @brief Get the elapsed time to the start of the base-rate scheduler.
-         *  @return Elapsed time in seconds.
+         * @brief Get the target execution time (steady clock), that is, the elapsed time to the start of the master clock.
+         * @return Target execution time in seconds.
          */
-        inline double GetTimeToStart(void){ return baseTimer.GetTimeToStart(); }
+        inline double GetTargetExecutionTime(void){ return masterClock.GetTimeToStart(); }
 
         /**
-         *  @brief Get the latest target time.
-         *  @return Latest target time.
-         *  @details The target time is updated with the base rate before notifying the model tasks.
+         * @brief Get the number of CPU overloads that have been occurred since the start of the base-rate scheduler.
+         * @return The number of CPU overloads.
          */
-        TargetTime GetTargetTime(void);
+        inline uint64_t GetNumCPUOverloads(void){ return masterClock.GetNumCPUOverloads(); }
 
         /**
-         *  @brief Get the latest task execution time for a task.
-         *  @param [in] taskID The ID of the task from which to obtain the latest task execution time.
-         *  @return The latest task execution time in seconds or a negative value if the taskID is invalid.
-         *  @details The task execution time is the computation time required by the step function of the model.
+         * @brief Get the number of lost ticks that have been occurred since the start of the base-rate scheduler.
+         * @return The number of lost ticks.
+         */
+        inline uint64_t GetNumLostTicks(void){ return masterClock.GetNumLostTicks(); }
+
+        /**
+         * @brief Get the latest task execution time for a task.
+         * @param [in] taskID The ID of the task from which to obtain the latest task execution time.
+         * @return The latest task execution time in seconds or a negative value if the taskID is invalid.
+         * @details The task execution time is the computation time required by the step function of the model.
          */
         inline double GetTaskExecutionTime(const uint32_t taskID){
             if(taskID >= (uint32_t)tasks.size())
@@ -60,9 +59,9 @@ class BaseRateScheduler {
         }
 
         /**
-         *  @brief Get the number of task overloads for a task.
-         *  @param [in] taskID The ID of the task from which to obtain the latest number of task overloads.
-         *  @return The latest task overload counter or zero if the taskID is invalid.
+         * @brief Get the number of task overloads for a task.
+         * @param [in] taskID The ID of the task from which to obtain the latest number of task overloads.
+         * @return The latest task overload counter or zero if the taskID is invalid.
          */
         inline uint64_t GetNumTaskOverloads(const uint32_t taskID){
             if(taskID >= (uint32_t)tasks.size())
@@ -71,20 +70,35 @@ class BaseRateScheduler {
         }
 
     private:
-        std::thread t;
-        std::atomic<bool> started;
-        std::atomic<bool> terminate;
-        PeriodicTimer baseTimer;
-        std::vector<PeriodicTask*> tasks;
-
-        /* Time state, updated at base sample rate before notifying any task */
-        TargetTime timeState;
-        std::shared_mutex mtxTimeState;  ///< Protect the @ref timeState.
+        std::thread masterThread;           ///< Thread object for the master thread.
+        std::atomic<bool> terminate;        ///< Termination flag: true if master thread is to be terminated, false otherwise.
+        std::vector<PeriodicTask*> tasks;   ///< A list of periodic worker tasks.
+        PeriodicTimer masterClock;          ///< A periodic timer that represents the master clock.
 
         /**
-         *  @brief Thread function.
+         * @brief Internal master thread function.
          */
-        void Thread(void);
+        void MasterThread(void);
+
+        /**
+         * @brief Start all worker threads.
+         */
+        void StartWorkerThreads(void);
+
+        /**
+         * @brief Stop all worker threads.
+         */
+        void StopWorkerThreads(void);
+
+        /**
+         * @brief Start the master thread.
+         */
+        void StartMasterThread(void);
+
+        /**
+         * @brief Stop the master thread.
+         */
+        void StopMasterThread(void);
 };
 
 

@@ -19,11 +19,6 @@
             <th width="150px">Data Type</th>
             <th>Description</th>
         </tr>
-        <tr>
-            <td style="font-family: Courier New;">customCode</td>
-            <td style="font-family: Courier New;">cell-array (str)</td>
-            <td>List of directories that should be copied to the target along with the generated code.</td>
-        </tr>
 		<tr>
             <td style="font-family: Courier New;">portAppSocket</td>
             <td style="font-family: Courier New;">uint16</td>
@@ -42,7 +37,7 @@
             <td>Connect timeout in seconds for SSH/SCP connection. The default value is 3.</td>
         </tr>
 		<tr>
-            <td style="font-family: Courier New;">priorityLog</td>
+            <td style="font-family: Courier New;">priorityDataRecorder</td>
             <td style="font-family: Courier New;">uint32</td>
             <td>Priority for <a href="threads.html">threads</a> that record data. The default value is 30.</td>
         </tr>
@@ -81,5 +76,15 @@
             <td style="font-family: Courier New;">upperThreadPriority</td>
             <td style="font-family: Courier New;">int32</td>
             <td>Highest priority value for model threads. The default value is 89.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">customCode</td>
+            <td style="font-family: Courier New;">cell-array (str)</td>
+            <td>List of directories that should be copied to the target along with the generated code.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">numberOfOldProtocolFiles</td>
+            <td style="font-family: Courier New;">uint32</td>
+            <td>The number of old protocol files to keep when redirecting the output to protocol text files.</td>
         </tr>
     </table>

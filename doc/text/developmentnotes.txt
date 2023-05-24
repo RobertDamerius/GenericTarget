@@ -24,7 +24,7 @@
     At the same time, an already assigned port means that an application is already running on that port (this can be any application).
     This helps to avoid that the same target application is executed multiple times.
     The port itself can be set before the code generation with the attribute <code>portAppSocket</code> in the <code>GT.GenericTarget</code> MATLAB class.
-    The port can no longer be used within the Simulink model.
+    The port should no longer be used within the Simulink model as it will never bind successfully.
 
 <h3>Multiple Applications</h3>
     If multiple generic target applications are to run on the same target, the application port must be different for each application.
@@ -39,16 +39,17 @@
 
 <h3>Avoid Console Outputs</h3>
     The console output of the application is redirected to a text file.
-    Many console outputs can thus result in a large text log file.
+    Many console outputs can thus result in a large text file.
     In addition, the output can come from multiple threads at the same time, so that multiple console outputs get mixed up.
 
 <h3>Legacy Code Tool: Use Unique Filenames</h3>
     The MATLAB legacy code tool can be used to generate a simulink block directly from a given C/C++ code.
-    Most of the Generic Target library blocks are created with the legacy code tool.
+    The Generic Target library blocks are created with the legacy code tool.
     When generating code for a Simulink model, all code files belonging to the blocks generated with the legacy code tool are copied to one directory.
     If the same file names are used, this leads to the corresponding files being overwritten several times.
     Therefore, unique file names should be used.
     Also the function names within the code files must not be ambiguous.
+    For all driver functions of the generic target toolbox the prefix <code>GT_</code> is used.
 
 <h3>Third-Party Libraries</h3>
     If third-party libraries are used (for example with the legacy code tool), the corresponding library must also be installed on the target.

@@ -239,11 +239,11 @@
 			<text x="4" y="339.07" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>10. MulticastUDPObjectManager::Create()</text>		</g>
 		<g id="shape44-141" v:mID="44" v:groupContext="shape" transform="translate(1.00001,-30.3465)">
 			<title>Tabelle.44</title>
-			<desc>11. SignalManager::Create()</desc>
+			<desc>11. DataRecorderManager::Create()</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="127.559" cy="336.071" width="255.12" height="14.1732"/>
 			<rect x="0" y="328.984" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
-			<text x="4" y="339.07" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>11. SignalManager::Create()</text>		</g>
+			<text x="4" y="339.07" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>11. DataRecorderManager::Create()</text>		</g>
 		<g id="shape24-144" v:mID="24" v:groupContext="shape" transform="translate(305.724,-143.732)">
 			<title>Tabelle.24</title>
 			<desc>Stop</desc>

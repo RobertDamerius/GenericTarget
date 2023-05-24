@@ -1,19 +1,21 @@
-fprintf('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n I N S T A L L   -  GenericTarget\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
+fprintf('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n G E N E R I C   T A R G E T   I N S T A L L A T I O N \n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
 
 % Add directories to MATLAB path
-addpath('lib');
-addpath(['lib' filesep 'src']);
-addpath('packages');
-
-% Compile sources
-run(['lib' filesep 'src' filesep 'build.m']);
+fprintf('Adding directories to MATLAB path\n');
+thisDirectory = extractBefore(mfilename('fullpath'),strlength(mfilename('fullpath')) - strlength(mfilename) + 1);
+directories = {fullfile(thisDirectory,'lib'), fullfile(thisDirectory,'lib','src'), fullfile(thisDirectory,'packages')};
+for i = 1:numel(directories)
+    fprintf('    "%s"\n',directories{i});
+    addpath(directories{i});
+end
 
 % Save path
-str = input('Save path? [y]:  ','s');
+str = input('\nSave path? [y]: ','s');
 if(strcmp('y',str))
-    fprintf('Saving path\n');
     savepath;
+    fprintf('Path saved\n');
 else
     fprintf('Path is not saved\n');
 end
-fprintf('Installation completed\n');
+fprintf('Installation completed\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
+

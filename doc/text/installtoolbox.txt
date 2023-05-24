@@ -1,10 +1,10 @@
 <h1>Install the Generic Target Toolbox (MATLAB)</h1>
     The Generic Target Toolbox for Matlab must be installed on the host computer.
     For this purpose, the Toolbox directory can be copied to any location on the host PC.
-    During installation, the absolute path to this directory is added to the MATLAB path.
+    When calling the <code>install.m</code> installation script, the absolute path to this directory is added to the MATLAB path and the user is aksed whether the path should be saved or not.
     Afterwards, the toolbox directory must not be moved.
     When using multiple host PCs, it is recommended that each host PC installs the Toolbox locally, since different host PCs generally have different operating systems, MATLAB versions, compilers, etc.
-    However, it's also possible to copy the toolbox to a simulink project and add it to the project path.
+    When working with simulink projects, however, it's also possible to copy the toolbox to a simulink project and add it to the project path.
     The directory structure of the <b>Generic Target Toolbox</b> is as follows:
 	<ul class="dir">
 		<li>doc</li>
@@ -13,7 +13,6 @@
 	</ul>
 	<ul class="file">
         <li>install.m</li>
-        <li>uninstall.m</li>
 	</ul>
     <br>
     <table>
@@ -25,9 +24,7 @@
         <tr><td><b>packages</b></td><td>
             Contains the MATLAB package "GT".</td></tr>
         <tr><td><b>install.m</b></td><td>
-            MATLAB script to install the Generic Target Toolbox.</td></tr>
-        <tr><td><b>uninstall.m</b></td><td>
-            MATLAB script to uninstall the Generic Target Toolbox.</td></tr>
+            MATLAB script to install the Generic Target Toolbox and save it to the MATLAB path.</td></tr>
 	</table>
 
     <div class="note-red">
@@ -37,59 +34,54 @@
 
     <h2>Install</h2>
     Run the installation script <code>install.m</code>.
-    The script simply adds the necessary directory paths to the MATLAB path if desired.
-    Furthermore, the build script is executed from the <code>lib/src/</code> subdirectory to generate the necessary mex and tlc files for the driver blocks of the Simulink library.
+    The script simply adds the necessary directory paths to the MATLAB path.
+    The toolbox is shipped with prebuild library blocks for Windows and Linux.
+    If you want to rebuild the driver, run the build script from the <code>lib/src/</code> subdirectory to generate the necessary mex and tlc files for the driver blocks of the Simulink library.
     The prerequisite is that a C/C++ compiler is set in MATLAB (<a href="http://de.mathworks.com/help/matlab/matlab_external/choose-c-or-c-compilers.html" target="_blank">mex -setup</a>).
-    During this process, a prompt appears asking if the host implementation should be used.
-    With the host implementation, many blocks of the toolbox can also be used in Simulink simulations.
-    More detailed information about the behavior of a block is found in the corresponding mask description of each block.
 
     <div class="note-green">
-	<h3 class="note-green">Supported blocks for host implementation</h3>
-    If the option "Host Implementation" is set during the installation of the toolbox, some blocks will also be usable for simulation in Simulink.
-    If the "Host Implementation" option is disabled, most blocks have no effect during a simulation and serve only as code placeholders for the application on the target PC.
+	<h3 class="note-green">Simulink Support</h3>
+    If the option "simulink support" is set during the building of the library driver blocks, most of them will also be usable for simulation in Simulink.
+    If the "simulink support" option is disabled, most blocks have no effect during simulation and serve only as code placeholders for the application on the target PC.
     On the target, all blocks have a function.
     The following table shows all blocks that can be used during a simulation in Simulink.
     <br>
     <br>
     <table>
-		<tr><th>Block</th><th>No Host Implementation</th><th>With Host Implementation</th></tr>
+		<tr><th>Block</th><th>No Simulink Support</th><th>With Simulink Support</th></tr>
         <tr><td>Interface/UDP Send                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
         <tr><td>Interface/UDP Receive                 </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
-        <tr><td>Interface/Log Doubles To File         </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
-        <tr><td>Interface/Log Bus To File             </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
+        <tr><td>Interface/Write Scalar Doubles To File</td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
+        <tr><td>Interface/Write Bus To File           </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
         <tr><td>Interface/Multicast UDP Send          </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
         <tr><td>Interface/Multicast UDP Receive       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
-        <tr><td>Time/Software Time                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
-        <tr><td>Time/Hardware Time                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>**</b></span></td></tr>
-        <tr><td>Time/UNIX Time                        </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>**</b></span></td></tr>
-        <tr><td>Time/UTC Time                         </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>**</b></span></td></tr>
-        <tr><td>Time/Local Time                       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>**</b></span></td></tr>
+        <tr><td>Time/Target Execution Time            </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>**</b></span></td></tr>
+        <tr><td>Time/UNIX Time                        </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
+        <tr><td>Time/UTC Time                         </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
+        <tr><td>Time/Local Time                       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
         <tr><td>Time/Task Execution Time              </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
         <tr><td>Time/Task Overloads                   </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
         <tr><td>Time/CPU Overloads                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
-        <tr><td>Time/UTC Timestamp                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>**</b></span></td></tr>
+        <tr><td>Time/UTC Timestamp                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
         <tr><td>Time/Time To Latest UTC Timestamp     </td><td align="center" style="color: #0b0;">OK</td><td align="center" style="color: #0b0;">OK</td></tr>
     </table>
     <b>*</b>
-    These blocks behave different during simulations with Simulink.
-    When using UDP interface blocks in Simulink models a local port must be specified only once!
+    These blocks behave different during simulation with Simulink.
+    When using UDP interface blocks in Simulink models a local port must be specified only once to work as expected!
     It is not possible to receive and send from one port at the same time.
     This only works with the deployed code.
+    The reason for that is, that each block runs in its own environment during simulation.
+    Thus a Send and a Receive block do not share the internal network socket and each block generates its own receive thread.
     <br>
     <br>
     <b>**</b>
     These blocks have a different function in the simulation than on the target!
-    On the target computer all <a href="timingscheduling.html">time information</a> (UTC, UNIX, Local, Software, Hardware) is determined only once during each base sampletime.
-    The times are determined in the <a href="threads.html">BaseRateScheduler</a> before all other threads are triggered.
-    This has the advantage that all blocks, which provide such time information, always consistently provide the same value within one sample rate.
-    However, this is not the case with a simulation in Simulink (with host implementation), because there is no BaseRateScheduler (Simulink does the scheduling).
-    Each "time block" independently determines the corresponding time in the simulation.
-    This means that, for example, two "Hardware Time" blocks executed at the same sample rate will produce different results during simulation.
+    On the target computer, the initial timepoint of the target execution time indicates the starting timepoint of the scheduler.
+    For simulation, however, the scheduler of the generic target framework does not exist.
+    Because of that, each block in the model has its own initial timepoint when simulating.
 	</div>
-    At the moment only <b>gcc</b> (Linux) and <b>MSYS2/MinGW64</b> (Windows) are supported as compilers to create blocks with host implementation.
-    For compilers that are not yet supported, the host implementation can be skipped.
+    At the moment only <b>gcc</b> (Linux) and <b>MSYS2/MinGW64</b> (Windows) are supported as compilers to create blocks with simulink support.
+    For compilers that are not yet supported, the simulink support option can be skipped.
 
     <h2>Uninstall</h2>
-    To uninstall the Generic Target Toolbox, execute the uninstall script <code>uninstall.m</code>.
-    The script only removes the paths set during installation from the MATLAB path.
+    There's nothing to do to uninstall the toolbox. If some directories have been added to the MATLAB path during installation, simply remove them.

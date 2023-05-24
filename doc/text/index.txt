@@ -9,7 +9,7 @@
     Often only network interfaces are used anyway.
     For applications where network interfaces alone are sufficient, the Generic Target Toolbox can be used to realize hardware-independent realtime applications with MATLAB/Simulink.
     In principle, any computer can be used as target computer as long as a Linux operating system is used with the PREEMPT_RT patch.
-    Using a Linux operating system also has the advantage that additional software libraries can be easily integrated. The toolbox includes the following modules:
+    Using a Linux operating system also has the advantage that additional software libraries can be easily integrated. The toolbox includes the following components:
     <br>
     <br>
     <table style="border:none;">
@@ -24,18 +24,17 @@
             <h4>Simulink Library</h4>
             The Simulink library contains driver blocks.
             These blocks generally have no effect in a simulation and serve as code placeholders for the target application.
-            However, a host implementation can be used during the <a href="installtoolbox.html">toolbox installation</a>.
-            This allows many of the blocks to be used in the simulation.
+            However, a simulink support is implemented which allows many of the blocks to be used in the simulation (some with limitations).
             </td><tr>
         <tr><td style="border:none;"><img src="../img/TemplateModel.svg"></td><td style="border:none;"></td><td valign="top" style="border:none;">
             <h4>Template Model</h4>
             The MATLAB package includes a template for a Simulink model.
             Based on this model, the software for the generic target application can be implemented.
-            This template is configured with all necessary settings.
+            This template is pre-configured with all necessary settings.
             </td><tr>
         <tr><td style="border:none;"><img src="../img/GenericTargetSoftware.svg"></td><td style="border:none;"></td><td valign="top" style="border:none;">
             <h4>Generic Target Software</h4>
-            The MATLAB package contains the source code for the realtime application running on the target computer.
+            The MATLAB package contains the source code for the realtime application to be deployed to the target computer.
             The build procedure compiles this source code together with the generated code of the Simulink model on the target computer.
             </td><tr>
     </table>
@@ -58,7 +57,7 @@
     <br>
     <center><object data="../img/Overview.svg" type="image/svg+xml"></object></center>
     <br>
-    The source code for the generic target software is included in the MATLAB package and is copied once to the target computer.
+    The source code for the generic target software is included in the MATLAB package and is copied to the target computer once.
     In contrast, the source code for the Simulink interface class and the source code for the actual model is generated during each build procedure and copied to the target computer.
     The software is then compiled on the target computer.
     When running the generic target application, the <code>initialize()</code> method is executed once at the beginning.
@@ -74,5 +73,5 @@
 	<h3 class="note-orange">Note about the Rate-Transition block</h3>
     Different samplerates in the model are connected by rate transition blocks.
     On the target computer the threads are executed in concurrence to each other.
-    To ensure data integrity, the option <b>Ensure data integrity during data transfer</b> must be enabled in the rate-transition block.
+    To ensure data integrity, the option <b>Ensure data integrity during data transfer</b> must be enabled in the rate-transition block mask.
 	</div>

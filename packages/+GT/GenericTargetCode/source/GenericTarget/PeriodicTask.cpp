@@ -32,7 +32,7 @@ void PeriodicTask::Start(void){
     struct sched_param param;
     param.sched_priority = SimulinkInterface::priorities[taskID];
     if(0 != pthread_setschedparam(t.native_handle(), SCHED_FIFO, &param)){
-        LogE("[PERIODIC TASK] Could not set thread priority %d for task \"%s\" (sampletime=%lf)\n", SimulinkInterface::priorities[taskID], SimulinkInterface::taskNames[taskID], SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]));
+        PrintW("Could not set thread priority %d for task \"%s\" (sampletime=%lf)\n", SimulinkInterface::priorities[taskID], SimulinkInterface::taskNames[taskID], SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]));
     }
 }
 
@@ -69,7 +69,7 @@ void PeriodicTask::Notify(void){
             // If a job is still running: task overload
             if(jobRunning){
                 uint64_t n = ++numTaskOverloads;
-                LogE("[PERIODIC TASK] Task overload (task=\"%s\", priority=%d, sampletime=%lf, overloads=%lu)\n", SimulinkInterface::taskNames[taskID], SimulinkInterface::priorities[taskID], SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]), n);
+                PrintE("Task overload (task=\"%s\", priority=%d, sampletime=%lf, overloads=%lu)\n", SimulinkInterface::taskNames[taskID], SimulinkInterface::priorities[taskID], SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]), n);
                 if(SimulinkInterface::terminateAtTaskOverload){
                     GenericTarget::ShouldTerminate();
                     return;

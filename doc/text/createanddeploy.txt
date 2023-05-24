@@ -7,8 +7,8 @@
     <br>
     <br>
     The template model contains a simple test to evaluate the latency.
-    Here the <a href="timingscheduling.html">software time</a> is subtracted from the <a href="timingscheduling.html">hardware time</a>.
-    The software time is a value which is incremented with the sampletime at each sampling step and gives the expected time.
+    Here the expected simulation time is subtracted from the <a href="timingscheduling.html">target execution time</a>.
+    The digital clock gives the expected time.
     The hardware time is a measured execution time with respect to the model start.
     In this example the difference of both times is recorded and written to a file.
     <br>
@@ -32,36 +32,36 @@
 address  = '192.168.0.100';          % Set address of target pc
 model    = 'GenericTargetTemplate';  % Name of the simulink model that is to be deployed
 
-gt = GT.GenericTarget(username, address);
-gt.Deploy(model);</pre>
+target = GT.GenericTarget(username, address);
+target.Deploy(model);</pre>
     <div class="note-green">
     <h3 class="note-green">Optional Settings</h3>
     Once a GenericTarget instance is created, additional parameters can be set.
     To do so, simply change the properties of the object before the <code>Deploy</code> method is called.
-    For example, if the application should not be terminated in case of a task overload, set the corresponding flag to zero with <code>gt.terminateAtTaskOverload = 0;</code>.
+    For example, if the application should not be terminated in case of a task overload, set the corresponding flag to zero with <code>target.terminateAtTaskOverload = 0;</code>.
     The list with all properties is given <a href="simulinkinterface.html">here</a>.
     </div>
 
     <div class="note-green">
-    <h3 class="note-green">Alternative Deployment</h3>
+    <h3 class="note-green">Alternative Two-Step Deployment</h3>
     As an alternative, the code can also be generated first and then deployed to the target computer later.
-    With the function <code>gt.GenerateCode()</code> only the code is generated and packed into a zip archive.
-    This zip archive can later be copied to the target and compiled there with the command <code>gt.DeployGeneratedCode()</code>.
+    With the function <code>target.GenerateCode()</code> only the code is generated and packed into a zip archive.
+    This zip archive can later be copied to the target and compiled there with the command <code>target.DeployGeneratedCode()</code>.
     </div>
 
     <br>
     <h3>Start and stop application</h3>
-    After the model has been successfully deployed to the target hardware, the application is started with <code>gt.Start()</code> and stopped with <code>gt.Stop()</code>.
+    After the model has been successfully deployed to the target hardware, the application is started with <code>target.Start()</code> and stopped with <code>target.Stop()</code>.
 
     <br>
     <br>
     <h3>Download data</h3>
-    Make sure that the model is stopped and download the data with <code>gt.DownloadDataDirectory()</code>.
+    Make sure that the model is stopped and download the data with <code>target.DownloadDataDirectory()</code>.
     During the process you will be asked which folder should be downloaded.
     The folder names correspond to the UTC time of the model start.
     The data can also be downloaded manually.
     The function <code>GT.DecodeLogDirectory()</code> is used to decode the recorded data.
-    Information about the file format of data recordings are given <a href="signalmanager.html#protocol">here</a>.
+    Information about the file format of data recordings are given <a href="datarecorder.html#protocol">here</a>.
 
     <br>
     <div class="note-orange">

@@ -25,17 +25,18 @@ The directory structure of this repository is as follows.
 > The toolbox is currently in the first stage of development and testing.
 
 ### Revision History
-| Date        | Version  | Description                                                                                                                     |
-| :---------- | :------- | :------------------------------------------------------------------------------------------------------------------------------ |
-| 2021-01-26  | 1.0      | Initial release                                                                                                                 |
-| 2021-02-08  | 1.1      | File logging has been updated. Bus signals can now be recorded directly (scalar doubles only).                                  |
-| 2021-03-19  | 1.2      | File logging has been extended to complete bus objects with multi-dimensional signals of common data types.                     |
-| 2021-05-31  | 1.3      | Custom code directories can now be included during code generation.                                                             |
-| 2022-05-18  | 1.4      | Updated interface code generation to support newer MATLAB versions.                                                             |
-| 2022-10-10  | 1.5      | Model and simulation time are renamed to hardware and software time, respectively.                                              |
-| 2022-10-11  | 1.6      | CPU overload is replaced by task overload. Missed ticks of the base timer are interpreted as CPU overloads.                     |
-| 2023-02-28  | 1.7      | Lowest valid thread priority is set to 1.                                                                                       |
-| 2023-03-23  | 1.8      | Default port of application socket is set to 44000.                                                                             |
+| Date        | Version  | Description                                                                                                                                                              |
+| :---------- | :------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2021-01-26  | 1.0      | Initial release                                                                                                                                                          |
+| 2021-02-08  | 1.1      | File logging has been updated. Bus signals can now be recorded directly (scalar doubles only).                                                                           |
+| 2021-03-19  | 1.2      | File logging has been extended to complete bus objects with multi-dimensional signals of common data types.                                                              |
+| 2021-05-31  | 1.3      | Custom code directories can now be included during code generation.                                                                                                      |
+| 2022-05-18  | 1.4      | Updated interface code generation to support newer MATLAB versions.                                                                                                      |
+| 2022-10-10  | 1.5      | Model and simulation time are renamed to hardware and software time, respectively.                                                                                       |
+| 2022-10-11  | 1.6      | CPU overload is replaced by task overload. Missed ticks of the base timer are interpreted as CPU overloads.                                                              |
+| 2023-02-28  | 1.7      | Lowest valid thread priority is set to 1.                                                                                                                                |
+| 2023-03-23  | 1.8      | Default port of application socket is set to 44000.                                                                                                                      |
+| 2023-05-24  | 2.0      | Added automatic network initialization, added protocol files, added backtrace for DEBUG mode, updated timing blocks, added prebuild driver blocks for Windows and Linux. |
 
 
 ## How To Start

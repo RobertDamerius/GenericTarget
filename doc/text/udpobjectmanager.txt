@@ -93,6 +93,9 @@
 		<tr><td>result</td><td>
             An integer indicating the number of bytes that have been transmitted or a negative value in case of errors.
             </td></tr>
+        <tr><td>lastErrorCode</td><td>
+            An integer indicating the last error code from the UDP socket. 0 means no error. The socket is automatically tried to open as long as errors are present.
+            </td></tr>
     </table>
 
     <h3>Receive</h3>
@@ -128,8 +131,7 @@
             </td></tr>
         <tr><td>timestamps</td><td>
             A timestamp indicates the time at which a message was received.
-            This time corresponds to the measured time in seconds since the scheduler was started.
-            This time is comparable to the <a href="timingscheduling.html">hardware time</a>, but can also be between two sampling steps.
+            This time corresponds to the measured <a href="timingscheduling.html">target execution time</a> in seconds since the scheduler was started.
             There is a time for each message from the message buffer.
             </td></tr>
         <tr><td>numMessagesReceived</td><td>
@@ -137,5 +139,8 @@
             </td></tr>
         <tr><td>numMessagesDiscarded</td><td>
             The number of messages that have been discarded.
+            </td></tr>
+        <tr><td>lastErrorCode</td><td>
+            An integer indicating the last error code from the UDP socket. 0 means no error. The socket is automatically tried to open as long as errors are present.
             </td></tr>
     </table>

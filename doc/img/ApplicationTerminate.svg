@@ -82,11 +82,11 @@
 			<text x="4" y="182.17" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>4. UDPObjectManager::Destroy()</text>		</g>
 		<g id="shape5-41" v:mID="5" v:groupContext="shape" transform="translate(1.00001,-57.6929)">
 			<title>Tabelle.5</title>
-			<desc>5. SignalManager::Destroy()</desc>
+			<desc>5. DataRecorderManager::Destroy()</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="127.559" cy="179.165" width="255.12" height="14.1732"/>
 			<rect x="0" y="172.079" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st3"/>
-			<text x="4" y="182.17" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>5. SignalManager::Destroy()</text>		</g>
+			<text x="4" y="182.17" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>5. DataRecorderManager::Destroy()</text>		</g>
 		<g id="shape7-44" v:mID="7" v:groupContext="shape" transform="translate(1.00001,-29.3465)">
 			<title>Tabelle.7</title>
 			<desc>6. Close AppSocket</desc>

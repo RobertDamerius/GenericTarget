@@ -159,8 +159,8 @@
 <pre>username = 'user';           % Set username of target computer
 address  = '192.168.0.100';  % Set address of target computer
 
-gt = GT.GenericTarget(username, address);
-gt.Setup();</pre>
+target = GT.GenericTarget(username, address);
+target.Setup();</pre>
     <div class="note-green">
     <h3 class="note-green">Note</h3>
     The default directory on the target computer is <code>~/GenericTarget/</code>, which is created in the home directory.

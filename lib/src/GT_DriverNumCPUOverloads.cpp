@@ -1,22 +1,20 @@
-#include "GT_DriverNumCPUOverloads.h"
-#ifdef GENERIC_TARGET_IMPLEMENTATION
-#include <GenericTarget/GenericTarget.hpp>
-#include <SimulinkCodeGeneration/SimulinkInterface.hpp>
+#include "GT_DriverNumCPUOverloads.hpp"
+#if defined(GENERIC_TARGET_IMPLEMENTATION)
+    #include <GenericTarget/GenericTarget.hpp>
 #endif
 
 
-void GT_CreateDriverNumCPUOverloads(void){}
+void GT_DriverNumCPUOverloadsInitialize(void){}
 
-void GT_DeleteDriverNumCPUOverloads(void){}
+void GT_DriverNumCPUOverloadsTerminate(void){}
 
-void GT_OutputDriverNumCPUOverloads(uint64_t* numCPUOverloads, uint64_t* numLostTicks){
-    #ifdef GENERIC_TARGET_IMPLEMENTATION
-    gt::TargetTime t = gt::GenericTarget::GetTargetTime();
-    *numCPUOverloads = t.numCPUOverloads;
-    *numLostTicks = t.numLostTicks;
+void GT_DriverNumCPUOverloadsStep(uint64_t* numCPUOverloads, uint64_t* numLostTicks){
+    #if defined(GENERIC_TARGET_IMPLEMENTATION)
+        *numCPUOverloads = gt::GenericTarget::GetNumCPUOverloads();
+        *numLostTicks = gt::GenericTarget::GetNumLostTicks();
     #else
-    *numCPUOverloads = 0;
-    *numLostTicks = 0;
+        *numCPUOverloads = 0;
+        *numLostTicks = 0;
     #endif
 }
 

@@ -31,7 +31,11 @@
 % 20221011    Robert Damerius        Added control for task overloads.
 % 20230228    Robert Damerius        Lowest thread priority is set to 1.
 % 20230406    Robert Damerius        Added ConnectTimeout option for SSH and SCP.
-% 
+% 20230524    Robert Damerius        Renamed log directory to data directory and added protocol directory.
+%                                    Added number of old protocol files to keep.
+%                                    Updated Start() and Stop() command. Removed command for redirecting into text file as protocol writing is now handled by the target application.
+%                                    Added ShowLatestProtocol(), DeleteAllProtocols(), DownloadAllProtocols().
+%
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 classdef GenericTarget < handle
@@ -55,33 +59,30 @@ classdef GenericTarget < handle
     % gt.ShowPID(); % Check if the process is running
     % gt.Stop();
     % 
-    % EXAMPLE: Show event log (text log from application)
-    % gt = GT.GenericTarget('user','192.168.0.100');
-    % gt.ShowLog();
-    % 
     % EXAMPLE: Download recorded data / delete all data
     % gt = GT.GenericTarget('user','192.168.0.100');
     % gt.DownloadDataDirectory();
     % gt.DeleteAllData();
 
     properties
-        portAppSocket;           % The port for the application socket (default: 44000).
-        portSSH;                 % The port to be used for SSH/SCP connection (default: 22).
-        connectTimeout;          % Connect timeout in seconds for SSH/SCP connection (default: 3).
-        priorityLog;             % Priority for the data logging threads in range [1 (lowest), 99 (highest)] (default: 30).
-        targetIPAddress;         % IPv4 address of the target PC.
-        targetSoftwareDirectory; % Directory for software on target (default: "~/GenericTarget/"). MUST BEGIN WITH '~/' AND END WITH '/'!
-        targetUsername;          % User name of target PC required to login on target via SSH/SCP.
-        terminateAtTaskOverload; % True if application should terminate at task overload, false otherwise (default: true).
-        terminateAtCPUOverload;  % True if application should terminate at CPU overload, false otherwise (default: true).
-        upperThreadPriority;     % Upper task priority in range [1 (lowest), 99 (highest)] (default: 89).
-        customCode;              % Cell-array of directories containing custom code to be uploaded along with the generated code.
+        portAppSocket;             % The port for the application socket (default: 44000).
+        portSSH;                   % The port to be used for SSH/SCP connection (default: 22).
+        connectTimeout;            % Connect timeout in seconds for SSH/SCP connection (default: 3).
+        priorityDataRecorder;      % Priority for the data recording threads in range [1 (lowest), 99 (highest)] (default: 30).
+        targetIPAddress;           % IPv4 address of the target PC.
+        targetSoftwareDirectory;   % Directory for software on target (default: "~/GenericTarget/"). MUST BEGIN WITH '~/' AND END WITH '/'!
+        targetUsername;            % User name of target PC required to login on target via SSH/SCP.
+        terminateAtTaskOverload;   % True if application should terminate at task overload, false otherwise (default: true).
+        terminateAtCPUOverload;    % True if application should terminate at CPU overload, false otherwise (default: true).
+        upperThreadPriority;       % Upper task priority in range [1 (lowest), 99 (highest)] (default: 89).
+        customCode;                % Cell-array of directories containing custom code to be uploaded along with the generated code.
+        numberOfOldProtocolFiles;  % The number of old protocol files to keep when redirecting the output to protocol text files.
     end
     properties(Constant, Access = private)
-        GENERIC_TARGET_SUBDIRECTORY_CODE = 'GenericTargetCode';  % Subdirectory in package directory that contains application code and templates.
-        GENERIC_TARGET_SOFTWARE_NAME     = 'GenericTarget';      % Executable name for generic target application.
-        GENERIC_TARGET_LOGFILE_NAME      = 'log.txt';            % Name of text log file on target.
-        GENERIC_TARGET_DIRECTORY_LOG     = 'log/';               % Name of log directory on target.
+        GENERIC_TARGET_SUBDIRECTORY_CODE  = 'GenericTargetCode';  % Subdirectory in package directory that contains application code and templates.
+        GENERIC_TARGET_SOFTWARE_NAME      = 'GenericTarget';      % Executable name for generic target application.
+        GENERIC_TARGET_DIRECTORY_DATA     = 'data/';              % Name of data directory on target.
+        GENERIC_TARGET_DIRECTORY_PROTOCOL = 'protocol/';          % Name of protocol directory on target.
     end
     methods
         function obj = GenericTarget(targetUsername, targetIPAddress)
@@ -105,7 +106,7 @@ classdef GenericTarget < handle
             obj.targetIPAddress = targetIPAddress;
             obj.targetUsername = targetUsername;
             obj.targetSoftwareDirectory = '~/GenericTarget/';
-            obj.priorityLog = uint32(30);
+            obj.priorityDataRecorder = uint32(30);
             obj.portAppSocket = uint16(44000);
             obj.upperThreadPriority = int32(89);
             obj.terminateAtTaskOverload = true;
@@ -113,6 +114,7 @@ classdef GenericTarget < handle
             obj.portSSH = uint16(22);
             obj.connectTimeout = uint32(3);
             obj.customCode = cell.empty();
+            obj.numberOfOldProtocolFiles = uint32(100);
         end
         function commands = Setup(obj, targetSoftwareDirectory)
             %GT.GenericTarget.Setup Setup the software for the target computer. The software will be compressed to a zip file and transferred to the
@@ -147,8 +149,7 @@ classdef GenericTarget < handle
 
             % Create build environment and compile (empty model)
             fprintf('\n[GENERIC TARGET] Setting up build environment for target %s\n',obj.targetIPAddress);
-            cmdSSH = ['ssh -o ConnectTimeout=' num2str(obj.connectTimeout) ' -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "sudo rm -r -f ' obj.targetSoftwareDirectory ' ; mkdir -p ' obj.targetSoftwareDirectory ' ; unzip -o Software.zip -d ' obj.targetSoftwareDirectory ' ; rm Software.zip' ' ; cd ' obj.targetSoftwareDirectory ' && make clean && make -j8"'];
-            obj.RunCommand(cmdSSH);
+            cmdSSH = obj.RunCommandOnTarget(['sudo rm -r -f ' obj.targetSoftwareDirectory ' ; mkdir -p ' obj.targetSoftwareDirectory ' ; unzip -o Software.zip -d ' obj.targetSoftwareDirectory ' ; rm Software.zip' ' ; cd ' obj.targetSoftwareDirectory ' && make clean && make -j8']);
             commands = {cmdSCP; cmdSSH};
 
             % Clean up
@@ -206,8 +207,7 @@ classdef GenericTarget < handle
 
             % SSH: remove old sources/cache, unzip new source and compile
             fprintf(['[GENERIC TARGET] SSH: Build new software on target ' obj.targetIPAddress '\n']);
-            cmdSSH = ['ssh -o ConnectTimeout=' num2str(obj.connectTimeout) ' -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "sudo rm -r -f ' obj.targetSoftwareDirectory 'source/SimulinkCodeGeneration ' obj.targetSoftwareDirectory 'build/source/SimulinkCodeGeneration ; sudo unzip -qq -o ' targetZipFile ' -d ' obj.targetSoftwareDirectory 'source/SimulinkCodeGeneration ; sudo rm ' targetZipFile ' ; cd ' obj.targetSoftwareDirectory ' && make -j8"'];
-            obj.RunCommand(cmdSSH);
+            cmdSSH = obj.RunCommandOnTarget(['sudo rm -r -f ' obj.targetSoftwareDirectory 'source/SimulinkCodeGeneration ' obj.targetSoftwareDirectory 'build/source/SimulinkCodeGeneration ; sudo unzip -qq -o ' targetZipFile ' -d ' obj.targetSoftwareDirectory 'source/SimulinkCodeGeneration ; sudo rm ' targetZipFile ' ; cd ' obj.targetSoftwareDirectory ' && make -j8']);
             fprintf('\n[GENERIC TARGET] Deployment completed\n');
             commands = {cmdSCP; cmdSSH};
         end
@@ -317,7 +317,7 @@ classdef GenericTarget < handle
 
             % Generate interface code from code information and write to header file (.hpp) and source file (.cpp) to code generation directory
             fprintf('[GENERIC TARGET] Generating code for model interface: SimulinkInterface\n');
-            [strInterfaceHeader, strInterfaceSource] = GT.GenericTarget.GenerateInterfaceCode(modelName, codeInfo, obj.priorityLog, obj.portAppSocket, obj.upperThreadPriority, obj.terminateAtTaskOverload, obj.terminateAtCPUOverload);
+            [strInterfaceHeader, strInterfaceSource] = GT.GenericTarget.GenerateInterfaceCode(modelName, codeInfo, obj.priorityDataRecorder, obj.portAppSocket, obj.upperThreadPriority, obj.terminateAtTaskOverload, obj.terminateAtCPUOverload, obj.numberOfOldProtocolFiles);
             fidHeader = fopen([dirCodeGen subDirModelCode 'SimulinkInterface.hpp'],'wt');
             fidSource = fopen([dirCodeGen subDirModelCode 'SimulinkInterface.cpp'],'wt');
             fprintf(fidHeader, strInterfaceHeader);
@@ -354,8 +354,7 @@ classdef GenericTarget < handle
             % RETURN
             % commands ... The commands that were executed on the host.
             fprintf('[GENERIC TARGET] Starting target software on %s at %s\n',obj.targetUsername,obj.targetIPAddress);
-            cmdSSH = ['ssh -o ConnectTimeout=' num2str(obj.connectTimeout) ' -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "sudo nohup ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME ' &> ' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_LOGFILE_NAME ' &"'];
-            obj.RunCommand(cmdSSH);
+            cmdSSH = obj.RunCommandOnTarget(['sudo nohup ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME ' &> ' obj.targetSoftwareDirectory 'bin/out.txt &']);
             commands = {cmdSSH};
         end
         function commands = Stop(obj)
@@ -365,8 +364,7 @@ classdef GenericTarget < handle
             % RETURN
             % commands ... The commands that were executed on the host.
             fprintf('[GENERIC TARGET] Stopping target software on %s at %s\n',obj.targetUsername,obj.targetIPAddress);
-            cmdSSH = ['ssh -o ConnectTimeout=' num2str(obj.connectTimeout) ' -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "sudo ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME ' --stop"'];
-            obj.RunCommand(cmdSSH);
+            cmdSSH = obj.RunCommandOnTarget(['sudo ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME ' --console --stop']);
             commands = {cmdSSH};
         end
         function commands = Reboot(obj)
@@ -375,8 +373,7 @@ classdef GenericTarget < handle
             % RETURN
             % commands ... The commands that were executed on the host.
             fprintf('[GENERIC TARGET] Rebooting target %s at %s\n',obj.targetUsername,obj.targetIPAddress);
-            cmdSSH = ['ssh -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "sudo reboot"'];
-            obj.RunCommand(cmdSSH);
+            cmdSSH = obj.RunCommandOnTarget('sudo reboot');
             commands = {cmdSSH};
         end
         function commands = Shutdown(obj)
@@ -385,8 +382,7 @@ classdef GenericTarget < handle
             % RETURN
             % commands ... The commands that were executed on the host.
             fprintf('[GENERIC TARGET] Shutting down target %s at %s\n',obj.targetUsername,obj.targetIPAddress);
-            cmdSSH = ['ssh -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "sudo shutdown -h now"'];
-            obj.RunCommand(cmdSSH);
+            cmdSSH = obj.RunCommandOnTarget('sudo shutdown -h now');
             commands = {cmdSSH};
         end
         function commands = ShowPID(obj)
@@ -395,42 +391,72 @@ classdef GenericTarget < handle
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            cmdSSH = ['ssh -o ConnectTimeout=' num2str(obj.connectTimeout) ' -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "pidof ' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME '"'];
-            obj.RunCommand(cmdSSH);
+            cmdSSH = obj.RunCommandOnTarget(['pidof ' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME]);
             commands = {cmdSSH};
         end
-        function commands = ShowLog(obj)
-            %GT.GenericTarget.ShowLog Show the log file from the target.
+        function commands = ShowLatestProtocol(obj)
+            %GT.GenericTarget.ShowLatestProtocol Show the latest protocol file from the target.
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            cmdSSH = ['ssh -o ConnectTimeout=' num2str(obj.connectTimeout) ' -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "cat ' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_LOGFILE_NAME '"'];
-            obj.RunCommand(cmdSSH);
-            commands = {cmdSSH};
+            [cmd1, cmdout] = obj.RunCommandOnTarget(['ls -rt ' obj.targetSoftwareDirectory, 'bin/protocol/*.txt | tail -n1']);
+            protocolFileOnTarget = strtrim(cmdout);
+            [~,f,e] = fileparts(protocolFileOnTarget);
+            if(strcmp(f,'*') || ~strcmp(e,'.txt'))
+                fprintf('ERROR: Could not find a protocol file on the target!\n');
+                commands = {cmd1};
+                return;
+            end
+            cmd2 = obj.RunCommandOnTarget(['cat ' protocolFileOnTarget]);
+            commands = {cmd1; cmd2};
         end
-        function [commands,cmdout] = RunCommandOnTarget(obj, cmd)
-            %GT.GenericTarget.RunCommandOnTarget Run a command to the target computer. The command is executed via SSH.
+        function commands = DownloadAllProtocols(obj, hostDirectory)
+            %GT.GenericTarget.DownloadAllProtocols Download all protocol files from the target. The downloaded text will be written to the specified hostDirectory.
             % 
             % PARAMETERS
-            % cmd  ... The command string to be executed on the target computer, e.g. 'ls'.
+            % hostDirectory ... The destination directory (absolute path) on the host where to write the downloaded files to.
+            %                   If the directory does not exist, then it will be created. If this argument is not given, then
+            %                   the current working directory is used as default directory.
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            % cmdout   ... The output that have been returned by the command window.
-            cmdSSH = ['ssh -o ConnectTimeout=' num2str(obj.connectTimeout) ' -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "' cmd '"'];
-            [~,cmdout] = obj.RunCommand(cmdSSH);
+
+            % Default directory
+            if(2 ~= nargin)
+                hostDirectory = pwd;
+            end
+            assert(ischar(hostDirectory), 'GT.GenericTarget.DownloadAllProtocols(): Input "hostDirectory" must be a string!');
+            if(filesep ~= hostDirectory(end))
+                hostDirectory = [hostDirectory filesep];
+            end
+
+            % Download directory via SCP
+            fprintf('[GENERIC TARGET] Downloading all protocols (%s) from target %s at %s to host (%s)\n',[obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_PROTOCOL],obj.targetUsername,obj.targetIPAddress,hostDirectory);
+            [~,~] = mkdir(hostDirectory);
+            cmdSCP = ['scp -o ConnectTimeout=' num2str(obj.connectTimeout) ' -P ' num2str(obj.portSSH) ' -r ' obj.targetUsername '@' obj.targetIPAddress ':' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_PROTOCOL ' ' hostDirectory];
+            obj.RunCommand(cmdSCP);
+            commands = {cmdSCP};
+            fprintf('[GENERIC TARGET] Download completed\n');
+        end
+        function commands = DeleteAllProtocols(obj)
+            %GT.GenericTarget.DeleteAllProtocols Delete all protocol text files on the target. This will also stop a running target application.
+            % 
+            % RETURN
+            % commands ... The commands that were executed on the host.
+            fprintf('[GENERIC TARGET] Stopping target application and deleting all protocol files (%s) from target %s at %s\n',[obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_PROTOCOL],obj.targetUsername,obj.targetIPAddress);
+            cmdSSH = obj.RunCommandOnTarget(['sudo ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME ' --console --stop ; sudo rm -r -f ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_DIRECTORY_PROTOCOL]);
             commands = {cmdSSH};
         end
-        function commands = DownloadDataDirectory(obj, hostDirectory, targetLogDirectory)
+        function commands = DownloadDataDirectory(obj, hostDirectory, targetDataDirectory)
             %GT.GenericTarget.DownloadDataDirectory Download recorded data from the target. The downloaded data will be written to the specified hostDirectory.
             % 
             % PARAMETERS
-            % hostDirectory      ... The destination directory (absolute path) on the host where to write the downloaded data to.
-            %                        If the directory does not exist, then it will be created. If this argument is not given, then
-            %                        the current working directory is used as default directory.
-            % targetLogDirectory ... Optional string indicating the log directory name on the target to be downloaded, e.g. "20210319_123456".
-            %                        If this parameter is not given, all log directories existing on the target will be displayed and the user has to
-            %                        specify the name manually.
+            % hostDirectory       ... The destination directory (absolute path) on the host where to write the downloaded data to.
+            %                         If the directory does not exist, then it will be created. If this argument is not given, then
+            %                         the current working directory is used as default directory.
+            % targetDataDirectory ... Optional string indicating the data directory name on the target to be downloaded, e.g. "20210319_123456789".
+            %                         If this parameter is not given, all data directories existing on the target will be displayed and the user has to
+            %                         specify the name manually.
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
@@ -440,35 +466,34 @@ classdef GenericTarget < handle
                 hostDirectory = pwd;
             end
             if(nargin < 3)
-                targetLogDirectory = char.empty();
+                targetDataDirectory = char.empty();
             end
             assert(ischar(hostDirectory), 'GT.GenericTarget.DownloadDataDirectory(): Input "hostDirectory" must be a string!');
-            assert(ischar(targetLogDirectory), 'GT.GenericTarget.DownloadDataDirectory(): Input "targetLogDirectory" must be a string!');
+            assert(ischar(targetDataDirectory), 'GT.GenericTarget.DownloadDataDirectory(): Input "targetDataDirectory" must be a string!');
             if(filesep ~= hostDirectory(end))
                 hostDirectory = [hostDirectory filesep];
             end
 
-            % Check if user specified log directory
+            % Check if user specified data directory
             cmdSSH = char.empty();
-            if(isempty(targetLogDirectory))
+            if(isempty(targetDataDirectory))
                 % Get all directory names
-                fprintf('[GENERIC TARGET] Listing available log directories on target %s at %s\n',obj.targetUsername,obj.targetIPAddress);
-                cmdSSH = ['ssh -o ConnectTimeout=' num2str(obj.connectTimeout) ' -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "cd ' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG ' && ls"'];
-                obj.RunCommand(cmdSSH);
+                fprintf('[GENERIC TARGET] Listing available data directories on target %s at %s\n',obj.targetUsername,obj.targetIPAddress);
+                cmdSSH = obj.RunCommandOnTarget(['cd ' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_DATA ' && ls']);
 
                 % Get directory name from user input
-                targetLogDirectory = input('[GENERIC TARGET] Choose directory name to download: ','s');
+                targetDataDirectory = input('[GENERIC TARGET] Choose directory name to download: ','s');
             end
 
             % Download directory via SCP
-            fprintf('[GENERIC TARGET] Downloading %s from target %s at %s\n',targetLogDirectory,obj.targetUsername,obj.targetIPAddress);
+            fprintf('[GENERIC TARGET] Downloading %s from target %s at %s\n',targetDataDirectory,obj.targetUsername,obj.targetIPAddress);
             [~,~] = mkdir(hostDirectory);
-            cmdSCP = ['scp -o ConnectTimeout=' num2str(obj.connectTimeout) ' -P ' num2str(obj.portSSH) ' -r ' obj.targetUsername '@' obj.targetIPAddress ':' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG targetLogDirectory ' ' hostDirectory targetLogDirectory];
+            cmdSCP = ['scp -o ConnectTimeout=' num2str(obj.connectTimeout) ' -P ' num2str(obj.portSSH) ' -r ' obj.targetUsername '@' obj.targetIPAddress ':' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_DATA targetDataDirectory ' ' hostDirectory targetDataDirectory];
             obj.RunCommand(cmdSCP);
             if(isempty(cmdSSH))
                 commands = {cmdSCP};
             else
-                commands = {cmdSSH,cmdSCP};
+                commands = {cmdSSH; cmdSCP};
             end
             fprintf('[GENERIC TARGET] Download completed\n');
         end
@@ -493,15 +518,15 @@ classdef GenericTarget < handle
             end
 
             % Download directory via SCP
-            fprintf('[GENERIC TARGET] Downloading all data (%s) from target %s at %s to host (%s)\n',[obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG],obj.targetUsername,obj.targetIPAddress,hostDirectory);
+            fprintf('[GENERIC TARGET] Downloading all data (%s) from target %s at %s to host (%s)\n',[obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_DATA],obj.targetUsername,obj.targetIPAddress,hostDirectory);
             [~,~] = mkdir(hostDirectory);
-            cmdSCP = ['scp -o ConnectTimeout=' num2str(obj.connectTimeout) ' -P ' num2str(obj.portSSH) ' -r ' obj.targetUsername '@' obj.targetIPAddress ':' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG ' ' hostDirectory];
+            cmdSCP = ['scp -o ConnectTimeout=' num2str(obj.connectTimeout) ' -P ' num2str(obj.portSSH) ' -r ' obj.targetUsername '@' obj.targetIPAddress ':' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_DATA ' ' hostDirectory];
             obj.RunCommand(cmdSCP);
             commands = {cmdSCP};
 
-            % Unpack from log directory
-            [~,~] = movefile([hostDirectory obj.GENERIC_TARGET_DIRECTORY_LOG '*'],hostDirectory);
-            [~,~] = rmdir([hostDirectory obj.GENERIC_TARGET_DIRECTORY_LOG], 's');
+            % Unpack from data directory
+            [~,~] = movefile([hostDirectory obj.GENERIC_TARGET_DIRECTORY_DATA '*'],hostDirectory);
+            [~,~] = rmdir([hostDirectory obj.GENERIC_TARGET_DIRECTORY_DATA], 's');
             fprintf('[GENERIC TARGET] Download completed\n');
         end
         function commands = DeleteAllData(obj)
@@ -509,17 +534,29 @@ classdef GenericTarget < handle
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            fprintf('[GENERIC TARGET] Stopping target application and deleting all data log files (%s) from target %s at %s\n',[obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_LOG],obj.targetUsername,obj.targetIPAddress);
-            cmdSSH = ['ssh -o ConnectTimeout=' num2str(obj.connectTimeout) ' -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "sudo ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME ' --stop ; sudo rm -r -f ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_DIRECTORY_LOG '"'];
-            obj.RunCommand(cmdSSH);
+            fprintf('[GENERIC TARGET] Stopping target application and deleting all data files (%s) from target %s at %s\n',[obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_DATA],obj.targetUsername,obj.targetIPAddress);
+            cmdSSH = obj.RunCommandOnTarget(['sudo ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME ' --stop ; sudo rm -r -f ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_DIRECTORY_DATA]);
             commands = {cmdSSH};
         end
-        function logDirectory = GetTargetLogDirectoryName(obj)
-            %GT.GenericTarget.GetTargetLogDirectoryName Get the absolute name of the log directory on the target.
+        function dataDirectory = GetTargetDataDirectoryName(obj)
+            %GT.GenericTarget.GetTargetDataDirectoryName Get the absolute name of the data directory on the target.
             % 
             % RETURN
-            % logDirectory ... Absolute log directory name on the target.
-            logDirectory = [obj.targetSoftwareDirectory GT.GenericTarget.GENERIC_TARGET_DIRECTORY_LOG];
+            % dataDirectory ... Absolute data directory name on the target.
+            dataDirectory = [obj.targetSoftwareDirectory GT.GenericTarget.GENERIC_TARGET_DIRECTORY_DATA];
+        end
+        function [commands,cmdout] = RunCommandOnTarget(obj, cmd)
+            %GT.GenericTarget.RunCommandOnTarget Run a command to the target computer. The command is executed via SSH.
+            % 
+            % PARAMETERS
+            % cmd  ... The command string to be executed on the target computer, e.g. 'ls'.
+            % 
+            % RETURN
+            % commands ... The commands that were executed on the host.
+            % cmdout   ... The output that have been returned by the command window.
+            cmdSSH = ['ssh -o ConnectTimeout=' num2str(obj.connectTimeout) ' -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "' cmd '"'];
+            cmdout = obj.RunCommand(cmdSSH);
+            commands = {cmdSSH};
         end
     end
     methods(Static, Access=private)
@@ -578,14 +615,12 @@ classdef GenericTarget < handle
                 end
             end
         end
-        function [strHeader, strSource] = GenerateInterfaceCode(modelName, codeInfo, priorityLog, portAppSocket, upperThreadPriority, terminateAtTaskOverload, terminateAtCPUOverload)
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        function [strHeader, strSource] = GenerateInterfaceCode(modelName, codeInfo, priorityDataRecorder, portAppSocket, upperThreadPriority, terminateAtTaskOverload, terminateAtCPUOverload, numberOfOldProtocolFiles)
             % Check for valid input interface name
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             assert(ischar(modelName), 'GT.GenericTarget.GenerateInterfaceCode(): Input "modelName" must be a string!');
-            assert(isscalar(priorityLog), 'GT.GenericTarget.GenerateInterfaceCode(): Input "priorityLog" must be scalar!');
-            priorityLog = uint32(priorityLog);
-            assert((priorityLog > 0) && (priorityLog < 100), 'GT.GenericTarget.GenerateInterfaceCode(): Input "priorityLog" must be in range [1, 99]!');
+            assert(isscalar(priorityDataRecorder), 'GT.GenericTarget.GenerateInterfaceCode(): Input "priorityDataRecorder" must be scalar!');
+            priorityDataRecorder = uint32(priorityDataRecorder);
+            assert((priorityDataRecorder > 0) && (priorityDataRecorder < 100), 'GT.GenericTarget.GenerateInterfaceCode(): Input "priorityDataRecorder" must be in range [1, 99]!');
             assert(isscalar(portAppSocket), 'GT.GenericTarget.GenerateInterfaceCode(): Input "portAppSocket" must be scalar!');
             portAppSocket = uint16(portAppSocket);
             assert(isscalar(upperThreadPriority), 'GT.GenericTarget.GenerateInterfaceCode(): Input "upperThreadPriority" must be scalar!');
@@ -595,11 +630,10 @@ classdef GenericTarget < handle
             assert(islogical(terminateAtTaskOverload), 'GT.GenericTarget.GenerateInterfaceCode(): Input "terminateAtTaskOverload" must be logical!');
             assert(isscalar(terminateAtCPUOverload), 'GT.GenericTarget.GenerateInterfaceCode(): Input "terminateAtCPUOverload" must be scalar!');
             assert(islogical(terminateAtCPUOverload), 'GT.GenericTarget.GenerateInterfaceCode(): Input "terminateAtCPUOverload" must be logical!');
+            assert(isscalar(numberOfOldProtocolFiles), 'GT.GenericTarget.GenerateInterfaceCode(): Input "numberOfOldProtocolFiles" must be scalar!');
+            numberOfOldProtocolFiles = uint32(numberOfOldProtocolFiles);
 
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Get the model name, both for function names and information
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            strModelName = codeInfo.Name;
             strNameOfModel = '';
             for i = 1:length(modelName)
                 if((uint8(modelName(i)) >= uint8(20)) && (uint8(modelName(i)) <= uint8(126)))
@@ -607,31 +641,23 @@ classdef GenericTarget < handle
                 end
             end
 
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Get name of class and corresponding header file name
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             strNameOfClass = codeInfo.ConstructorFunction.Prototype.Name;
             strNameOfClassHeader = codeInfo.ConstructorFunction.Prototype.HeaderFile;
 
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Get initialize and terminate function prototype
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             assert(isempty(codeInfo.UpdateFunctions), 'GT.GenericTarget.GenerateInterfaceCode(): Code generation information contains update functions! However, no update functions are supported!');
             assert(1 == length(codeInfo.InitializeFunctions), 'GT.GenericTarget.GenerateInterfaceCode(): Code generation information contains several initialization functions! However, only one initialization function is supported!');
             assert(1 == length(codeInfo.TerminateFunctions), 'GT.GenericTarget.GenerateInterfaceCode(): Code generation information contains several termination functions! However, only one termination function is supported!');
             strModelInitialize = codeInfo.InitializeFunctions.Prototype.Name;
             strModelTerminate = codeInfo.TerminateFunctions.Prototype.Name;
 
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Number of output functions (different sample rates)
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             numTimings = uint32(length(codeInfo.OutputFunctions));
             strNumTimings = sprintf('%d',numTimings);
             assert(numTimings > 0, 'GT.GenericTarget.GenerateInterfaceCode(): There must be at least one model step function!');
 
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Get the lowest sampletime (this is the base sample time)
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             baseSampleTime = inf;
             for n = uint32(1):numTimings
                 assert(strcmp(codeInfo.OutputFunctions(n).Timing.TimingMode,'PERIODIC'), 'GT.GenericTarget.GenerateInterfaceCode(): Timing mode for all model step functions must be "PERIODIC"!');
@@ -643,9 +669,7 @@ classdef GenericTarget < handle
             end
             strBaseSampleTime = sprintf('%.16f',baseSampleTime);
 
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Get priority array, sampleTick array, prototype names and task names
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             priorities = int32(zeros(numTimings, 1));
             sampleTicks = uint32(zeros(numTimings, 1));
             stepPrototypes = string(zeros(numTimings, 1));
@@ -657,14 +681,10 @@ classdef GenericTarget < handle
                 taskNames(n) = codeInfo.OutputFunctions(n).Timing.NonFcnCallPartitionName;
             end
 
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Set priority based on upper task priority
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             priorities = priorities + (upperThreadPriority - int32(max(priorities)));
 
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Generate strings
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             strArraySampleTicks = sprintf('%d',sampleTicks(1));
             strArrayPriorities = sprintf('%d',priorities(1));
             strArrayTaskNames = sprintf('"%s"',taskNames(1));
@@ -676,31 +696,26 @@ classdef GenericTarget < handle
                 strArrayTaskNames = [strArrayTaskNames, sprintf(', "%s"',taskNames(n))];
             end
 
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            % Get priority for data logging thread
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            strPriorityLog = sprintf('%d',priorityLog);
+            % Get priority for data recording thread
+            strpriorityDataRecorder = sprintf('%d',priorityDataRecorder);
 
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Get port for application socket
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             strPortAppSocket = sprintf('%d',portAppSocket);
 
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Get task overload behaviour
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             strTerminateAtTaskOverload = 'false';
             if(terminateAtTaskOverload)
                 strTerminateAtTaskOverload = 'true';
             end
 
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Get CPU overload behaviour
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             strTerminateAtCPUOverload = 'false';
             if(terminateAtCPUOverload)
                 strTerminateAtCPUOverload = 'true';
             end
+
+            % Get number of old protocol files to keep
+            strNumberOfOldProtocolFiles = sprintf('%d',numberOfOldProtocolFiles);
 
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Read template interface files and replace macros in both header and source template code
@@ -732,14 +747,16 @@ classdef GenericTarget < handle
             strSource = strrep(strSource, '$ARRAY_TASK_NAMES$', strArrayTaskNames);
             strHeader = strrep(strHeader, '$STEP_SWITCH$', strStepSwitch);
             strSource = strrep(strSource, '$STEP_SWITCH$', strStepSwitch);
-            strHeader = strrep(strHeader, '$PRIORITY_LOG$', strPriorityLog);
-            strSource = strrep(strSource, '$PRIORITY_LOG$', strPriorityLog);
+            strHeader = strrep(strHeader, '$PRIORITY_DATA_RECORDER$', strpriorityDataRecorder);
+            strSource = strrep(strSource, '$PRIORITY_DATA_RECORDER$', strpriorityDataRecorder);
             strHeader = strrep(strHeader, '$PORT_APP_SOCKET$', strPortAppSocket);
             strSource = strrep(strSource, '$PORT_APP_SOCKET$', strPortAppSocket);
             strHeader = strrep(strHeader, '$TERMINATE_AT_TASK_OVERLOAD$', strTerminateAtTaskOverload);
             strSource = strrep(strSource, '$TERMINATE_AT_TASK_OVERLOAD$', strTerminateAtTaskOverload);
             strHeader = strrep(strHeader, '$TERMINATE_AT_CPU_OVERLOAD$', strTerminateAtCPUOverload);
             strSource = strrep(strSource, '$TERMINATE_AT_CPU_OVERLOAD$', strTerminateAtCPUOverload);
+            strHeader = strrep(strHeader, '$NUMBER_OF_OLD_PROTOCOL_FILES$', strNumberOfOldProtocolFiles);
+            strSource = strrep(strSource, '$NUMBER_OF_OLD_PROTOCOL_FILES$', strNumberOfOldProtocolFiles);
         end
         function cmdout = RunCommand(cmd)
             [~,cmdout] = system(cmd,'-echo');

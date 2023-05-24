@@ -1,165 +1,438 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generiert durch Microsoft Visio, SVG Export TextLog.svg MessageLogger -->
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
-		xmlns:v="http://schemas.microsoft.com/visio/2003/SVGExtensions/" width="12.1028in" height="6.07607in"
-		viewBox="0 0 871.402 437.477" xml:space="preserve" color-interpolation-filters="sRGB" class="st17">
-	<v:documentProperties v:langID="1031" v:metric="true" v:viewMarkup="false">
-		<v:userDefs>
-			<v:ud v:nameU="msvNoAutoConnect" v:val="VT0(1):26"/>
-		</v:userDefs>
-	</v:documentProperties>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
 
-	<style type="text/css">
-	<![CDATA[
-		.st1 {fill:none;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.75}
-		.st2 {fill:#000000;font-family:Courier New;font-size:1.00001em}
-		.st3 {font-size:1em}
-		.st4 {fill:none;stroke:#ffc000;stroke-width:2}
-		.st5 {fill:none;stroke:#ff0000;stroke-width:2}
-		.st6 {stroke:#ffc000;stroke-width:2}
-		.st7 {fill:none;stroke:#00ff00;stroke-width:2}
-		.st8 {fill:none;stroke:#0000ff;stroke-width:2}
-		.st9 {fill:#fff2cc;stroke:#ffc000;stroke-linecap:round;stroke-linejoin:round;stroke-width:2}
-		.st10 {fill:#9c4a09;font-family:Courier New;font-size:1.00001em;font-weight:bold}
-		.st11 {fill:#f2dcda;stroke:#ff0000;stroke-linecap:round;stroke-linejoin:round;stroke-width:2}
-		.st12 {fill:#612621;font-family:Courier New;font-size:1.00001em;font-weight:bold}
-		.st13 {fill:#ebf1df;stroke:#00ff00;stroke-linecap:round;stroke-linejoin:round;stroke-width:2}
-		.st14 {fill:#50632a;font-family:Courier New;font-size:1.00001em;font-weight:bold}
-		.st15 {fill:#dbeef3;stroke:#0000ff;stroke-linecap:round;stroke-linejoin:round;stroke-width:2}
-		.st16 {fill:#205867;font-family:Courier New;font-size:1.00001em;font-weight:bold}
-		.st17 {fill:none;fill-rule:evenodd;font-size:12px;overflow:visible;stroke-linecap:square;stroke-miterlimit:3}
-	]]>
-	</style>
-
-	<g v:mID="23" v:index="11" v:groupContext="foregroundPage">
-		<title>TextLog</title>
-		<v:pageProperties v:drawingScale="0.0393701" v:pageScale="0.0393701" v:drawingUnits="24" v:shadowOffsetX="9"
-				v:shadowOffsetY="-9"/>
-		<g id="shape1-1" v:mID="1" v:groupContext="shape" transform="translate(4.83467,-68.6614)">
-			<title>Tabelle.1</title>
-			<desc>GenericTarget Version: 20200329 Setup: Mar 30 2020 11:27:01 B...</desc>
-			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197" v:verticalAlign="0"/>
-			<v:textRect cx="432.283" cy="253.257" width="864.57" height="368.441"/>
-			<rect x="0" y="69.0364" width="864.567" height="368.441" class="st1"/>
-			<text x="4" y="83.84" class="st2" v:langID="1031"><v:paragraph/><v:tabList/>GenericTarget<v:newlineChar/><v:newlineChar/><tspan
-						x="4" dy="2.4em" class="st3">Version:        20200329<v:newlineChar/></tspan><tspan x="4" dy="1.2em"
-						class="st3">Setup:          Mar 30 2020 11:27:01<v:newlineChar/></tspan><tspan x="4" dy="1.2em" class="st3">Built:          Mar 30 2020 11:29:12<v:newlineChar/></tspan><tspan
-						x="4" dy="1.2em" class="st3">Date (UTC):     2020</tspan>-03-30 14:53:18<v:newlineChar/><tspan x="4"
-						dy="1.2em" class="st3">Arguments:     <v:newlineChar/><v:newlineChar/></tspan><tspan x="4" dy="2.4em"
-						class="st3">   </tspan>[t=0.010874] [GENERIC TARGET] Initializing ...<v:newlineChar/><tspan x="4"
-						dy="1.2em" class="st3">   </tspan>[t=0.040514] [GENERIC TARGET] Initializing simulink model<v:newlineChar/><tspan
-						x="4" dy="1.2em" class="st3">   </tspan>[t=0.043621] [GENERIC TARGET] Creating UDP sockets<v:newlineChar/><tspan
-						x="4" dy="1.2em" class="st3">   </tspan>[t=0.045183] [GENERIC TARGET] Creating multicast UDP sockets<v:newlineChar/><tspan
-						x="4" dy="1.2em" class="st3">   </tspan>[t=0.046387] [GENERIC TARGET] Creating signal logs<v:newlineChar/><tspan
-						x="4" dy="1.2em" class="st3">   </tspan>[t=0.048537] [GENERIC TARGET] Initialization successfully completed<v:newlineChar/><tspan
-						x="4" dy="1.2em" class="st3">   </tspan>[t=0.052164] [GENERIC TARGET] Starting simulink model, timer will be reset<v:newlineChar/><tspan
-						x="4" dy="1.2em" class="st3"> </tspan>E [t=0.056740] [PERIODIC TASK] Could not set thread priority 40 for task &#34;D1&#34; (sampletime=1.000000)<v:newlineChar/><tspan
-						x="4" dy="1.2em" class="st3"> </tspan>E [t=0.061640] [BASE RATE SCHEDULER] Could not set thread priority 99 for base rate scheduler (sampletime=1.000000)<v:newlineChar/><tspan
-						x="4" dy="1.2em" class="st3">   </tspan>[t=15.235110] [GENERIC TARGET] Caught signal 2!<v:newlineChar/><tspan
-						x="4" dy="1.2em" class="st3">   </tspan>[t=15.250043] [GENERIC TARGET] Received termination flag, application will be closed<v:newlineChar/><tspan
-						x="4" dy="1.2em" class="st3">   </tspan>[t=15.265477] [GENERIC TARGET] Terminating application ...<v:newlineChar/><tspan
-						x="4" dy="1.2em" class="st3">   </tspan>[t=16.000295] [BASE RATE SCHEDULER] Task &#34;D1&#34; (priority=40, samplerate=1.000000) has been stopped: 0 CPU overloads<v:newlineChar/><tspan
-						x="4" dy="1.2em" class="st3">   </tspan>[t=16.022654] [GENERIC TARGET] Terminating the simulink model<v:newlineChar/><tspan
-						x="4" dy="1.2em" class="st3">   </tspan>[t=16.029443] [GENERIC TARGET] Destroying multicast UDP sockets<v:newlineChar/><tspan
-						x="4" dy="1.2em" class="st3">   </tspan>[t=16.035522] [GENERIC TARGET] Destroying UDP sockets<v:newlineChar/><tspan
-						x="4" dy="1.2em" class="st3">   </tspan>[t=16.044056] [GENERIC TARGET] Destroying signal logs<v:newlineChar/><tspan
-						x="4" dy="1.2em" class="st3">   </tspan>[t=16.050256] [GENERIC TARGET] Application terminated<v:newlineChar/></text>		</g>
-		<g id="shape3-27" v:mID="3" v:groupContext="shape" transform="translate(4.83464,-332.283)">
-			<title>Tabelle.3</title>
-			<rect x="0" y="335.493" width="297.638" height="101.984" class="st4"/>
-		</g>
-		<g id="shape6-29" v:mID="6" v:groupContext="shape" transform="translate(125.307,-188.819)">
-			<title>Tabelle.6</title>
-			<rect x="0" y="309.603" width="732.756" height="127.874" class="st5"/>
-		</g>
-		<g id="shape7-31" v:mID="7" v:groupContext="shape" transform="translate(30.3465,-48.5039) scale(-1,1)">
-			<title>Geschw. Klammer mit seitl. Text</title>
-			<v:userDefs>
-				<v:ud v:nameU="TxtW" v:val="VT0(0.55555555555556):29"/>
-				<v:ud v:nameU="TxtA" v:val="VT0(1.5707963267949):37"/>
-				<v:ud v:nameU="TxtAState" v:val="VT0(0):26"/>
-				<v:ud v:nameU="TxtWState" v:val="VT0(0):26"/>
-				<v:ud v:nameU="MaxRadius" v:val="VT0(0.19685039370079):24"/>
-				<v:ud v:nameU="PosCH1" v:prompt="Constrains X postion of Control Handle #1" v:val="VT0(0):26"/>
-				<v:ud v:nameU="PosCH2" v:prompt="Constrains Y postion of Control Handle #2" v:val="VT0(0):26"/>
-				<v:ud v:nameU="Scale" v:val="VT0(1):26"/>
-				<v:ud v:nameU="AntiScale" v:val="VT0(1):26"/>
-				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
-				<v:ud v:nameU="TxtA" v:prompt="" v:val="VT0(-1.5707963267949):32"/>
-				<v:ud v:nameU="MaxRadius" v:prompt="" v:val="VT0(0.098425193893997):1"/>
-			</v:userDefs>
-			<path d="M0 428.97 L0 430.39 A7.0865 7.0865 -180 0 0 7.09 437.48 L7.09 437.48 A7.0865 7.0865 0 0 1 14.17 444.56 A7.0865
-						 7.0865 0 0 1 21.26 437.48 L21.26 437.48 A7.0865 7.0865 -180 0 0 28.35 430.39 L28.35 428.97" class="st6"/>
-		</g>
-		<g id="shape8-34" v:mID="8" v:groupContext="shape" transform="translate(121.055,-48.5039) scale(-1,1)">
-			<title>Geschw. Klammer mit seitl. Text.8</title>
-			<v:userDefs>
-				<v:ud v:nameU="TxtW" v:val="VT0(0.55555555555556):29"/>
-				<v:ud v:nameU="TxtA" v:val="VT0(1.5707963267949):37"/>
-				<v:ud v:nameU="TxtAState" v:val="VT0(0):26"/>
-				<v:ud v:nameU="TxtWState" v:val="VT0(0):26"/>
-				<v:ud v:nameU="MaxRadius" v:val="VT0(0.19685039370079):24"/>
-				<v:ud v:nameU="PosCH1" v:prompt="Constrains X postion of Control Handle #1" v:val="VT0(0):26"/>
-				<v:ud v:nameU="PosCH2" v:prompt="Constrains Y postion of Control Handle #2" v:val="VT0(0):26"/>
-				<v:ud v:nameU="Scale" v:val="VT0(1):26"/>
-				<v:ud v:nameU="AntiScale" v:val="VT0(1):26"/>
-				<v:ud v:nameU="visVersion" v:val="VT0(15):26"/>
-				<v:ud v:nameU="TxtA" v:prompt="" v:val="VT0(-1.5707963267949):32"/>
-				<v:ud v:nameU="MaxRadius" v:prompt="" v:val="VT0(0.11811024568094):1"/>
-			</v:userDefs>
-			<path d="M-0 428.97 A8.5038 8.5038 -180 0 0 8.5 437.48 L36.85 437.48 A8.5038 8.5038 0 0 1 45.35 445.98 A8.5038 8.5038
-						 0 0 1 53.86 437.48 L79.37 437.48 A8.5038 8.5038 -180 0 0 87.87 428.97" class="st6"/>
-		</g>
-		<g id="shape9-37" v:mID="9" v:groupContext="shape" transform="translate(132.394,-146.866)">
-			<title>Tabelle.9</title>
-			<rect x="0" y="397.651" width="725.669" height="39.8268" class="st7"/>
-		</g>
-		<g id="shape10-39" v:mID="10" v:groupContext="shape" transform="translate(132.394,-59.1339)">
-			<title>Tabelle.10</title>
-			<rect x="0" y="351.729" width="725.669" height="85.748" class="st8"/>
-		</g>
-		<g id="shape11-41" v:mID="11" v:groupContext="shape" transform="translate(291.134,-371.339)">
-			<title>Tabelle.11</title>
-			<desc>1</desc>
-			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="11.3386" cy="426.139" width="22.68" height="22.6772"/>
-			<ellipse cx="11.3386" cy="426.139" rx="11.3386" ry="11.3386" class="st9"/>
-			<text x="7.74" y="429.74" class="st10" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>1</text>		</g>
-		<g id="shape12-44" v:mID="12" v:groupContext="shape" transform="translate(4.83467,-17.3228)">
-			<title>Tabelle.12</title>
-			<desc>2</desc>
-			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="11.3386" cy="426.139" width="22.68" height="22.6772"/>
-			<ellipse cx="11.3386" cy="426.139" rx="11.3386" ry="11.3386" class="st9"/>
-			<text x="7.74" y="429.74" class="st10" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>2</text>		</g>
-		<g id="shape13-47" v:mID="13" v:groupContext="shape" transform="translate(64.3622,-17.3228)">
-			<title>Tabelle.13</title>
-			<desc>3</desc>
-			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="11.3386" cy="426.139" width="22.68" height="22.6772"/>
-			<ellipse cx="11.3386" cy="426.139" rx="11.3386" ry="11.3386" class="st9"/>
-			<text x="7.74" y="429.74" class="st10" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>3</text>		</g>
-		<g id="shape14-50" v:mID="14" v:groupContext="shape" transform="translate(847.724,-241.417)">
-			<title>Tabelle.14</title>
-			<desc>4</desc>
-			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="11.3386" cy="426.139" width="22.68" height="22.6772"/>
-			<ellipse cx="11.3386" cy="426.139" rx="11.3386" ry="11.3386" class="st11"/>
-			<text x="7.74" y="429.74" class="st12" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>4</text>		</g>
-		<g id="shape15-53" v:mID="15" v:groupContext="shape" transform="translate(847.724,-155.441)">
-			<title>Tabelle.15</title>
-			<desc>5</desc>
-			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="11.3386" cy="426.139" width="22.68" height="22.6772"/>
-			<ellipse cx="11.3386" cy="426.139" rx="11.3386" ry="11.3386" class="st13"/>
-			<text x="7.74" y="429.74" class="st14" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>5</text>		</g>
-		<g id="shape16-56" v:mID="16" v:groupContext="shape" transform="translate(847.724,-90.6693)">
-			<title>Tabelle.16</title>
-			<desc>6</desc>
-			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="11.3386" cy="426.139" width="22.68" height="22.6772"/>
-			<ellipse cx="11.3386" cy="426.139" rx="11.3386" ry="11.3386" class="st15"/>
-			<text x="7.74" y="429.74" class="st16" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>6</text>		</g>
-	</g>
+<svg
+   width="247.27673mm"
+   height="216.4888mm"
+   viewBox="0 0 247.27673 216.4888"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   sodipodi:docname="TextLog.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.0998546"
+     inkscape:cx="415.96407"
+     inkscape:cy="365.50286"
+     inkscape:window-width="2560"
+     inkscape:window-height="1403"
+     inkscape:window-x="4480"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Ebene 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(4.7522552,0.40610781)">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:3.52778px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="0.67027962"
+       y="3.5365727"
+       id="text2277"><tspan
+         sodipodi:role="line"
+         id="tspan2275"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="3.5365727">GenericTarget</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="7.9639788"
+         id="tspan2279" /><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="12.391385"
+         id="tspan2281">Version:                  20230524</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="16.81879"
+         id="tspan2283">Setup:                    May 24 2023 14:43:47</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="21.246197"
+         id="tspan2285">Build:                    May 24 2023 14:44:25</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="25.673603"
+         id="tspan2287">Date (UTC):               2023-05-24 12:44:36.327</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="30.101009"
+         id="tspan2289">Arguments:               </tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="34.528416"
+         id="tspan2291" /><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="38.955822"
+         id="tspan2293">modelName:                MyModel</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="43.383228"
+         id="tspan2295">portAppSocket:            44000</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="47.810635"
+         id="tspan2297">terminateAtTaskOverload:  true</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="52.238041"
+         id="tspan2299">terminateAtCPUOverload:   true</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="56.665447"
+         id="tspan2301">priorityDataRecorder:     30</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="61.092854"
+         id="tspan2303">baseSampleTime:           0.010000 s</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="65.520256"
+         id="tspan2305">tasks:                    [0]: name=&quot;D1&quot;, sampleTicks=1, priority=89</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="69.947662"
+         id="tspan2307">                          [1]: name=&quot;D2&quot;, sampleTicks=20, priority=88</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="74.375069"
+         id="tspan2309">                          [2]: name=&quot;D3&quot;, sampleTicks=100, priority=87</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="78.802475"
+         id="tspan2311" /><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="83.229881"
+         id="tspan2313" /><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="87.657288"
+         id="tspan2315">   [t=0.000190] Initializing application ...</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="92.084694"
+         id="tspan2317">   [t=0.000205] Initializing simulink model</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="96.5121"
+         id="tspan2319">   [t=0.000217] Creating unicast UDP sockets</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="100.93951"
+         id="tspan2321">   [t=0.000266] Creating multicast UDP sockets</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="105.36691"
+         id="tspan2323">   [t=0.000297] Creating data recorders</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="109.79432"
+         id="tspan2325">   [t=0.000448] Opened unicast UDP socket at interface 0.0.0.0:15651</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="114.22173"
+         id="tspan2327">   [t=0.000460] Opened unicast UDP socket at interface 0.0.0.0:25000</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="118.64913"
+         id="tspan2329">   [t=0.000515] Opened multicast UDP socket at interface 0.0.0.0:26000 (group=239.0.0.0, ttl=1)</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="123.07654"
+         id="tspan2331">   [t=0.000559] Created data recording directory &quot;/home/navcon/GenericTarget/bin/data/20230524_124436327&quot;</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="127.50394"
+         id="tspan2333">   [t=0.000572] Creating data record index file &quot;/home/navcon/GenericTarget/bin/data/20230524_124436327/index&quot;</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="131.93135"
+         id="tspan2335">   [t=0.000656] Initialization successfully completed</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="136.35875"
+         id="tspan2337">   [t=0.000663] Starting simulink model</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="140.78616"
+         id="tspan2339">   [t=0.000734] Master thread started (baseSampleTime=0.010000)</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="145.21356"
+         id="tspan2341">   [t=0.101213] Created data recording file &quot;/home/navcon/GenericTarget/bin/data/20230524_124436327/id1_0&quot;</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="149.64098"
+         id="tspan2343">   [t=0.101273] Created data recording file &quot;/home/navcon/GenericTarget/bin/data/20230524_124436327/id0_0&quot;</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="154.06837"
+         id="tspan2345">   [t=6.118875] Received termination flag, application will be closed</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="158.49579"
+         id="tspan2347">   [t=6.118884] Terminating application ...</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="162.92319"
+         id="tspan2349">   [t=6.120750] Master thread has been stopped (0 CPU overloads, 0 lost ticks)</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="167.3506"
+         id="tspan2351">   [t=6.120868] Task &quot;D1&quot; (priority=89, samplerate=0.010000) has been stopped: 0 task overloads</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="171.778"
+         id="tspan2353">   [t=6.120893] Task &quot;D2&quot; (priority=88, samplerate=0.200000) has been stopped: 0 task overloads</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="176.20541"
+         id="tspan2355">   [t=6.120917] Task &quot;D3&quot; (priority=87, samplerate=1.000000) has been stopped: 0 task overloads</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="180.63281"
+         id="tspan2357">   [t=6.120922] Terminating the simulink model</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="185.06023"
+         id="tspan2359">   [t=6.120925] Destroying multicast UDP sockets</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="189.48763"
+         id="tspan2361">   [t=6.121005] Closed multicast UDP socket at interface 0.0.0.0:26000 (group=239.0.0.0, ttl=1)</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="193.91504"
+         id="tspan2363">   [t=6.121053] Destroying unicast UDP sockets</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="198.34244"
+         id="tspan2365">   [t=6.121067] Closed unicast UDP socket at interface 0.0.0.0:25000</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="202.76985"
+         id="tspan2367">   [t=6.121094] Closed unicast UDP socket at interface 0.0.0.0:15651</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="207.19725"
+         id="tspan2369">   [t=6.121166] Destroying data recorders</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="211.62466"
+         id="tspan2371">   [t=6.121210] Application terminated</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:'Courier New';-inkscape-font-specification:'Courier New';fill:#000000;stroke-width:0.264583"
+         x="0.67027962"
+         y="216.03439"
+         id="tspan2373" /></text>
+    <rect
+       style="fill:none;stroke:#ffcc00;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect13151"
+       width="238.68521"
+       height="76.756691"
+       x="-0.4786934"
+       y="-0.15610781" />
+    <rect
+       style="fill:none;stroke:#ffcc00;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect14164"
+       width="6.8102036"
+       height="128.36011"
+       x="-0.47869343"
+       y="84.090034" />
+    <rect
+       style="fill:none;stroke:#ffcc00;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect14166"
+       width="24.922031"
+       height="128.36011"
+       x="7.3195858"
+       y="84.090034" />
+    <rect
+       style="fill:none;stroke:#ff0000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect14168"
+       width="204.36783"
+       height="66.2938"
+       x="33.857746"
+       y="84.090034" />
+    <rect
+       style="fill:none;stroke:#0000ff;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect14170"
+       width="204.36783"
+       height="52.6651"
+       x="33.857746"
+       y="159.78505" />
+    <rect
+       style="fill:none;stroke:#00ff00;stroke-width:0.499999;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect14172"
+       width="204.36783"
+       height="8.0632572"
+       x="33.857746"
+       y="151.06816" />
+    <circle
+       style="fill:#ffd42a;stroke:#806600;stroke-width:0.499999;stroke-miterlimit:4;stroke-dasharray:none"
+       id="path14286"
+       cx="238.38866"
+       cy="36.905861"
+       r="3.8858178" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.93889px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="237.19975"
+       y="38.680775"
+       id="text19528"><tspan
+         sodipodi:role="line"
+         id="tspan19526"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;font-family:Arial;-inkscape-font-specification:Arial;stroke-width:0.264583"
+         x="237.19975"
+         y="38.680775">1</tspan></text>
+    <circle
+       style="fill:#ffd42a;stroke:#806600;stroke-width:0.499999;stroke-miterlimit:4;stroke-dasharray:none"
+       id="path14286-3"
+       cx="-0.61643797"
+       cy="211.75883"
+       r="3.8858178" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.93889px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="-1.9341667"
+       y="213.53375"
+       id="text19528-6"><tspan
+         sodipodi:role="line"
+         id="tspan19526-7"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;font-family:Arial;-inkscape-font-specification:Arial;stroke-width:0.264583"
+         x="-1.9341667"
+         y="213.53375">2</tspan></text>
+    <circle
+       style="fill:#ffd42a;stroke:#806600;stroke-width:0.499999;stroke-miterlimit:4;stroke-dasharray:none"
+       id="path14286-5"
+       cx="18.73448"
+       cy="211.94687"
+       r="3.8858178" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.93889px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="17.369534"
+       y="213.69043"
+       id="text19528-3"><tspan
+         sodipodi:role="line"
+         id="tspan19526-5"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;font-family:Arial;-inkscape-font-specification:Arial;stroke-width:0.264583"
+         x="17.369534"
+         y="213.69043">3</tspan></text>
+    <circle
+       style="fill:#ffaaaa;stroke:#800000;stroke-width:0.499999;stroke-miterlimit:4;stroke-dasharray:none"
+       id="path14286-6"
+       cx="238.08482"
+       cy="116.71375"
+       r="3.8858178" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.93889px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="236.79945"
+       y="118.48143"
+       id="text19528-2"><tspan
+         sodipodi:role="line"
+         id="tspan19526-9"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;font-family:Arial;-inkscape-font-specification:Arial;stroke-width:0.264583"
+         x="236.79945"
+         y="118.48143">4</tspan></text>
+    <circle
+       style="fill:#e5ff80;stroke:#008000;stroke-width:0.499999;stroke-miterlimit:4;stroke-dasharray:none"
+       id="path14286-1"
+       cx="237.51408"
+       cy="154.87997"
+       r="3.8858178" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.93889px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="236.13708"
+       y="156.5934"
+       id="text19528-27"><tspan
+         sodipodi:role="line"
+         id="tspan19526-0"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;font-family:Arial;-inkscape-font-specification:Arial;stroke-width:0.264583"
+         x="236.13708"
+         y="156.5934">5</tspan></text>
+    <circle
+       style="fill:#d5d5ff;stroke:#000080;stroke-width:0.499999;stroke-miterlimit:4;stroke-dasharray:none"
+       id="path14286-9"
+       cx="238.2245"
+       cy="187.7202"
+       r="3.8858178" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.93889px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="236.87161"
+       y="189.46497"
+       id="text19528-36"><tspan
+         sodipodi:role="line"
+         id="tspan19526-06"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;font-family:Arial;-inkscape-font-specification:Arial;stroke-width:0.264583"
+         x="236.87161"
+         y="189.46497">6</tspan></text>
+  </g>
 </svg>

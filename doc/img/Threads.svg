@@ -28,7 +28,7 @@
 	]]>
 	</style>
 
-	<g v:mID="27" v:index="13" v:groupContext="foregroundPage">
+	<g v:mID="27" v:index="12" v:groupContext="foregroundPage">
 		<title>Threads</title>
 		<v:pageProperties v:drawingScale="0.0393701" v:pageScale="0.0393701" v:drawingUnits="24" v:shadowOffsetX="8.50394"
 				v:shadowOffsetY="-8.50394"/>
@@ -113,37 +113,37 @@
 						x="33.89" dy="1.2em" class="st8">priority: Un</tspan></text>		</g>
 		<g id="shape11-40" v:mID="11" v:groupContext="shape" transform="translate(206.512,-171.079)">
 			<title>Tabelle.11</title>
-			<desc>SignalLog ID1 priority: SimulinkInterface::priorityLog</desc>
+			<desc>Data Recorder ID1 priority: SimulinkInterface::priorityDataRe...</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="120.472" cy="327.984" width="240.95" height="42.5197"/>
 			<rect x="0" y="306.724" width="240.945" height="42.5197" class="st9"/>
-			<text x="82.77" y="324.38" class="st6" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>SignalLog ID1<v:newlineChar/><tspan
-						x="17.6" dy="1.2em" class="st8">priority: SimulinkInterface::priorityLog</tspan></text>		</g>
-		<g id="shape12-44" v:mID="12" v:groupContext="shape" transform="translate(206.512,-121.472)">
+			<text x="70.86" y="317.18" class="st6" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Data Recorder ID1<v:newlineChar/><tspan
+						x="99.66" dy="1.2em" class="st8">priority: </tspan><tspan x="12.42" dy="1.2em" class="st8">SimulinkInterface::priorityDataRecorder</tspan></text>		</g>
+		<g id="shape12-45" v:mID="12" v:groupContext="shape" transform="translate(206.512,-121.472)">
 			<title>Tabelle.12</title>
-			<desc>SignalLog ID2 priority: SimulinkInterface::priorityLog</desc>
+			<desc>Data Recorder ID2 priority: SimulinkInterface::priorityDataRe...</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="120.472" cy="327.984" width="240.95" height="42.5197"/>
 			<rect x="0" y="306.724" width="240.945" height="42.5197" class="st9"/>
-			<text x="81.38" y="324.38" class="st6" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>SignalLog ID2<v:newlineChar/><tspan
-						x="17.6" dy="1.2em" class="st8">priority: SimulinkInterface::priorityLog</tspan></text>		</g>
-		<g id="shape13-48" v:mID="13" v:groupContext="shape" transform="translate(206.512,-22.2598)">
+			<text x="69.47" y="317.18" class="st6" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Data Recorder ID2<v:newlineChar/><tspan
+						x="99.66" dy="1.2em" class="st8">priority: </tspan><tspan x="12.42" dy="1.2em" class="st8">SimulinkInterface::priorityDataRecorder</tspan></text>		</g>
+		<g id="shape13-50" v:mID="13" v:groupContext="shape" transform="translate(206.512,-22.2598)">
 			<title>Tabelle.13</title>
-			<desc>SignalLog IDn priority: SimulinkInterface::priorityLog</desc>
+			<desc>Data Recorder IDn priority: SimulinkInterface::priorityDataRe...</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="120.472" cy="327.984" width="240.95" height="42.5197"/>
 			<rect x="0" y="306.724" width="240.945" height="42.5197" class="st9"/>
-			<text x="81.15" y="324.38" class="st6" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>SignalLog IDn<v:newlineChar/><tspan
-						x="17.6" dy="1.2em" class="st8">priority: SimulinkInterface::priorityLog</tspan></text>		</g>
-		<g id="shape17-52" v:mID="17" v:groupContext="shape" transform="translate(917.173,234.858) rotate(90)">
+			<text x="69.23" y="317.18" class="st6" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Data Recorder IDn<v:newlineChar/><tspan
+						x="99.66" dy="1.2em" class="st8">priority: </tspan><tspan x="12.42" dy="1.2em" class="st8">SimulinkInterface::priorityDataRecorder</tspan></text>		</g>
+		<g id="shape17-55" v:mID="17" v:groupContext="shape" transform="translate(917.173,234.858) rotate(90)">
 			<title>Tabelle.17</title>
 			<path d="M0 349.24 L42.52 349.24" class="st10"/>
 		</g>
-		<g id="shape18-55" v:mID="18" v:groupContext="shape" transform="translate(435.283,234.858) rotate(90)">
+		<g id="shape18-58" v:mID="18" v:groupContext="shape" transform="translate(435.283,234.858) rotate(90)">
 			<title>Tabelle.18</title>
 			<path d="M0 349.24 L42.52 349.24" class="st11"/>
 		</g>
-		<g id="shape21-58" v:mID="21" v:groupContext="shape" transform="translate(676.228,234.858) rotate(90)">
+		<g id="shape21-61" v:mID="21" v:groupContext="shape" transform="translate(676.228,234.858) rotate(90)">
 			<title>Tabelle.21</title>
 			<path d="M0 349.24 L42.52 349.24" class="st12"/>
 		</g>

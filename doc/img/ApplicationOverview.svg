@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generiert durch Microsoft Visio, SVG Export ApplicationOverview.svg Page-8 -->
+<!-- Generiert durch Microsoft Visio, SVG Export ApplicationOverview.svg ApplicationOverview -->
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
 		xmlns:v="http://schemas.microsoft.com/visio/2003/SVGExtensions/" width="8.1577in" height="1.50416in"
 		viewBox="0 0 587.354 108.299" xml:space="preserve" color-interpolation-filters="sRGB" class="st13">
@@ -37,7 +37,7 @@
 			<use xlink:href="#lend13" transform="scale(-2.44,-2.44) "/>
 		</marker>
 	</defs>
-	<g v:mID="16" v:index="7" v:groupContext="foregroundPage">
+	<g v:mID="16" v:index="6" v:groupContext="foregroundPage">
 		<title>ApplicationOverview</title>
 		<v:pageProperties v:drawingScale="0.0393701" v:pageScale="0.0393701" v:drawingUnits="24" v:shadowOffsetX="9"
 				v:shadowOffsetY="-9"/>
@@ -93,10 +93,10 @@
 			<text x="9.53" y="97.13" class="st10" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>MulticastUDPObjectManager</text>		</g>
 		<g id="shape8-30" v:mID="8" v:groupContext="shape" transform="translate(270.291,-1)">
 			<title>Tabelle.8</title>
-			<desc>SignalManager</desc>
+			<desc>DataRecorderManager</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="84.5394" cy="94.126" width="169.08" height="28.3465"/>
 			<rect x="0" y="79.9528" width="169.079" height="28.3465" rx="5.66929" ry="5.66929" class="st11"/>
-			<text x="45.53" y="97.13" class="st12" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>SignalManager</text>		</g>
+			<text x="27.53" y="97.13" class="st12" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>DataRecorderManager</text>		</g>
 	</g>
 </svg>
