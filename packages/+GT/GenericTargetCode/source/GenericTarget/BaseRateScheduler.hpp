@@ -29,10 +29,10 @@ class BaseRateScheduler {
         void Stop(void);
 
         /**
-         * @brief Get the target execution time (steady clock), that is, the elapsed time to the start of the master clock.
-         * @return Target execution time in seconds.
+         * @brief Get the model execution time (steady clock), that is, the elapsed time to the start of the master clock.
+         * @return Model execution time in seconds.
          */
-        inline double GetTargetExecutionTime(void){ return masterClock.GetTimeToStart(); }
+        inline double GetModelExecutionTime(void){ return masterClock.GetTimeToStart(); }
 
         /**
          * @brief Get the number of CPU overloads that have been occurred since the start of the base-rate scheduler.

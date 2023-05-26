@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generiert durch Microsoft Visio, SVG Export BuildAndDeploy.svg BuildAndDeploy -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
+		xmlns:v="http://schemas.microsoft.com/visio/2003/SVGExtensions/" width="3.37423in" height="4.55534in"
+		viewBox="0 0 242.945 327.984" xml:space="preserve" color-interpolation-filters="sRGB" class="st9">
+	<v:documentProperties v:langID="1031" v:metric="true" v:viewMarkup="false">
+		<v:userDefs>
+			<v:ud v:nameU="msvNoAutoConnect" v:val="VT0(1):26"/>
+		</v:userDefs>
+	</v:documentProperties>
+
+	<style type="text/css">
+	<![CDATA[
+		.st1 {fill:#f2f2f2;stroke:#31859b;stroke-dasharray:0.01,5;stroke-width:1}
+		.st2 {fill:#f2f2f2;stroke:#923931;stroke-dasharray:0.01,5;stroke-width:1}
+		.st3 {marker-end:url(#mrkr13-10);stroke:#3f3f3f;stroke-width:1}
+		.st4 {fill:#3f3f3f;fill-opacity:1;stroke:#3f3f3f;stroke-opacity:1;stroke-width:0.40983606557377}
+		.st5 {fill:#fcebdd;stroke:#9c4a09;stroke-width:1}
+		.st6 {fill:#9c4a09;font-family:Courier New;font-size:0.833336em}
+		.st7 {fill:#dbeef3;stroke:#205867;stroke-width:1}
+		.st8 {fill:#205867;font-family:Courier New;font-size:0.833336em}
+		.st9 {fill:none;fill-rule:evenodd;font-size:12px;overflow:visible;stroke-linecap:square;stroke-miterlimit:3}
+	]]>
+	</style>
+
+	<defs id="Markers">
+		<g id="lend13">
+			<path d="M 3 1 L 0 0 L 3 -1 L 3 1 " style="stroke:none"/>
+		</g>
+		<marker id="mrkr13-10" class="st4" v:arrowType="13" v:arrowSize="0" v:setback="7.32" refX="-7.32" orient="auto"
+				markerUnits="strokeWidth" overflow="visible">
+			<use xlink:href="#lend13" transform="scale(-2.44,-2.44) "/>
+		</marker>
+	</defs>
+	<g v:mID="30" v:index="14" v:groupContext="foregroundPage">
+		<title>BuildAndDeploy</title>
+		<v:pageProperties v:drawingScale="0.0393701" v:pageScale="0.0393701" v:drawingUnits="24" v:shadowOffsetX="9"
+				v:shadowOffsetY="-9"/>
+		<g id="shape26-1" v:mID="26" v:groupContext="shape" transform="translate(1,-114.386)">
+			<title>Tabelle.26</title>
+			<rect x="0" y="115.386" width="240.945" height="212.598" rx="11.3386" ry="11.3386" class="st1"/>
+		</g>
+		<g id="shape25-3" v:mID="25" v:groupContext="shape" transform="translate(1,-1)">
+			<title>Tabelle.25</title>
+			<rect x="0" y="228.772" width="240.945" height="99.2126" rx="11.3386" ry="11.3386" class="st2"/>
+		</g>
+		<g id="shape1-5" v:mID="1" v:groupContext="shape" transform="translate(449.457,256.118) rotate(90)">
+			<title>Tabelle.1</title>
+			<path d="M0 327.98 L6.85 327.98" class="st3"/>
+		</g>
+		<g id="shape21-11" v:mID="21" v:groupContext="shape" transform="translate(449.457,284.465) rotate(90)">
+			<title>Tabelle.21</title>
+			<path d="M0 327.98 L6.85 327.98" class="st3"/>
+		</g>
+		<g id="shape24-16" v:mID="24" v:groupContext="shape" transform="translate(449.457,199.425) rotate(90)">
+			<title>Tabelle.24</title>
+			<path d="M0 327.98 L35.2 327.98" class="st3"/>
+		</g>
+		<g id="shape2-21" v:mID="2" v:groupContext="shape" transform="translate(449.457,29.3465) rotate(90)">
+			<title>Tabelle.2</title>
+			<path d="M0 327.98 L6.85 327.98" class="st3"/>
+		</g>
+		<g id="shape11-26" v:mID="11" v:groupContext="shape" transform="translate(449.457,57.6929) rotate(90)">
+			<title>Tabelle.11</title>
+			<path d="M0 327.98 L6.85 327.98" class="st3"/>
+		</g>
+		<g id="shape12-31" v:mID="12" v:groupContext="shape" transform="translate(449.457,86.0394) rotate(90)">
+			<title>Tabelle.12</title>
+			<path d="M0 327.98 L6.85 327.98" class="st3"/>
+		</g>
+		<g id="shape13-36" v:mID="13" v:groupContext="shape" transform="translate(449.457,114.386) rotate(90)">
+			<title>Tabelle.13</title>
+			<path d="M0 327.98 L6.85 327.98" class="st3"/>
+		</g>
+		<g id="shape14-41" v:mID="14" v:groupContext="shape" transform="translate(449.457,142.732) rotate(90)">
+			<title>Tabelle.14</title>
+			<path d="M0 327.98 L6.85 327.98" class="st3"/>
+		</g>
+		<g id="shape15-46" v:mID="15" v:groupContext="shape" transform="translate(449.457,171.079) rotate(90)">
+			<title>Tabelle.15</title>
+			<path d="M0 327.98 L6.85 327.98" class="st3"/>
+		</g>
+		<g id="shape3-51" v:mID="3" v:groupContext="shape" transform="translate(15.1732,-71.8661)">
+			<title>Tabelle.3</title>
+			<desc>8. SCP: Upload CodeGeneration.zip</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="106.299" cy="320.898" width="212.6" height="14.1732"/>
+			<rect x="0" y="313.811" width="212.598" height="14.1732" rx="5.66929" ry="5.66929" class="st5"/>
+			<text x="4" y="323.9" class="st6" v:langID="1031"><v:paragraph/><v:tabList/>8. SCP: Upload CodeGeneration.zip</text>		</g>
+		<g id="shape4-54" v:mID="4" v:groupContext="shape" transform="translate(15.1732,-298.638)">
+			<title>Tabelle.4</title>
+			<desc>1. slbuild</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="106.299" cy="320.898" width="212.6" height="14.1732"/>
+			<rect x="0" y="313.811" width="212.598" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
+			<text x="4" y="323.9" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>1. slbuild</text>		</g>
+		<g id="shape5-57" v:mID="5" v:groupContext="shape" transform="translate(15.1732,-270.291)">
+			<title>Tabelle.5</title>
+			<desc>2. Unzip PackNGo.zip</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="106.299" cy="320.898" width="212.6" height="14.1732"/>
+			<rect x="0" y="313.811" width="212.598" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
+			<text x="4" y="323.9" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>2. Unzip PackNGo.zip</text>		</g>
+		<g id="shape6-60" v:mID="6" v:groupContext="shape" transform="translate(15.1732,-241.945)">
+			<title>Tabelle.6</title>
+			<desc>3. Remove main() Entry Functions</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="106.299" cy="320.898" width="212.6" height="14.1732"/>
+			<rect x="0" y="313.811" width="212.598" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
+			<text x="4" y="323.9" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>3. Remove main() Entry Functions</text>		</g>
+		<g id="shape7-63" v:mID="7" v:groupContext="shape" transform="translate(15.1732,-213.598)">
+			<title>Tabelle.7</title>
+			<desc>4. Replace RTW Headers</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="106.299" cy="320.898" width="212.6" height="14.1732"/>
+			<rect x="0" y="313.811" width="212.598" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
+			<text x="4" y="323.9" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>4. Replace RTW Headers</text>		</g>
+		<g id="shape8-66" v:mID="8" v:groupContext="shape" transform="translate(15.1732,-185.252)">
+			<title>Tabelle.8</title>
+			<desc>5. Load codeInfo.mat</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="106.299" cy="320.898" width="212.6" height="14.1732"/>
+			<rect x="0" y="313.811" width="212.598" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
+			<text x="4" y="323.9" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>5. Load codeInfo.mat</text>		</g>
+		<g id="shape9-69" v:mID="9" v:groupContext="shape" transform="translate(15.1732,-156.906)">
+			<title>Tabelle.9</title>
+			<desc>6. Generate Interface Code</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="106.299" cy="320.898" width="212.6" height="14.1732"/>
+			<rect x="0" y="313.811" width="212.598" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
+			<text x="4" y="323.9" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>6. Generate Interface Code</text>		</g>
+		<g id="shape10-72" v:mID="10" v:groupContext="shape" transform="translate(15.1732,-128.559)">
+			<title>Tabelle.10</title>
+			<desc>7. Compress to CodeGeneration.zip</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="106.299" cy="320.898" width="212.6" height="14.1732"/>
+			<rect x="0" y="313.811" width="212.598" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
+			<text x="4" y="323.9" class="st8" v:langID="1031"><v:paragraph/><v:tabList/>7. Compress to CodeGeneration.zip</text>		</g>
+		<g id="shape16-75" v:mID="16" v:groupContext="shape" transform="translate(15.1732,-43.5197)">
+			<title>Tabelle.16</title>
+			<desc>9. SSH: Unzip</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="106.299" cy="320.898" width="212.6" height="14.1732"/>
+			<rect x="0" y="313.811" width="212.598" height="14.1732" rx="5.66929" ry="5.66929" class="st5"/>
+			<text x="4" y="323.9" class="st6" v:langID="1031"><v:paragraph/><v:tabList/>9. SSH: Unzip</text>		</g>
+		<g id="shape17-78" v:mID="17" v:groupContext="shape" transform="translate(15.1732,-15.1732)">
+			<title>Tabelle.17</title>
+			<desc>10. SSH: Build Application</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="106.299" cy="320.898" width="212.6" height="14.1732"/>
+			<rect x="0" y="313.811" width="212.598" height="14.1732" rx="5.66929" ry="5.66929" class="st5"/>
+			<text x="4" y="323.9" class="st6" v:langID="1031"><v:paragraph/><v:tabList/>10. SSH: Build Application</text>		</g>
+	</g>
+</svg>

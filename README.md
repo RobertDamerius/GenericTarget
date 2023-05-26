@@ -11,12 +11,11 @@ The directory structure of this repository is as follows.
 
 | File / Directory   | Description                                                                                                  |
 | :----------------- | :----------------------------------------------------------------------------------------------------------- |
-| doc                | contains the documentation that can be created with [SimpleDoc](https://github.com/RobertDamerius/SimpleDoc) |
-| lib                | contains the MATLAB Simulink library "GenericTarget" (**>= R2022b**)                                         |
+| documentation      | contains the documentation that can be created with [SimpleDoc](https://github.com/RobertDamerius/SimpleDoc) |
+| library            | contains the MATLAB Simulink library "GenericTarget" (**>= R2022b**)                                         |
 | packages           | contains the MATLAB package "GT"                                                                             |
 | readme.html        | forwards to the documentation                                                                                |
 | install.m          | MATLAB script to install the Generic Target Toolbox                                                          |
-| uninstall.m        | MATLAB script to uninstall the Generic Target Toolbox                                                        |
 | LICENSE            | license information                                                                                          |
 | README.md          | this file                                                                                                    |
 
@@ -37,6 +36,7 @@ The directory structure of this repository is as follows.
 | 2023-02-28  | 1.7      | Lowest valid thread priority is set to 1.                                                                                                                                |
 | 2023-03-23  | 1.8      | Default port of application socket is set to 44000.                                                                                                                      |
 | 2023-05-24  | 2.0      | Added automatic network initialization, added protocol files, added backtrace for DEBUG mode, updated timing blocks, added prebuild driver blocks for Windows and Linux. |
+| 2023-05-26  | 2.1      | Renamed target execution time to model execution time. Updated directory names.                                                                                          |
 
 
 ## How To Start

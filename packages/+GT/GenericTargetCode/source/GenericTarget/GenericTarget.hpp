@@ -32,11 +32,11 @@ class GenericTarget {
         static UDPMulticastManager udpMulticastManager;   ///< Manager for UDP multicast operation.
 
         /**
-         * @brief Get the target execution time (steady clock), that is, the elapsed time to the start of the master clock.
-         * @return Target execution time in seconds.
+         * @brief Get the model execution time (steady clock), that is, the elapsed time to the start of the master clock.
+         * @return Model execution time in seconds.
          * @details The master clock is started by the scheduler, which is started in the @ref MainLoop.
          */
-        static inline double GetTargetExecutionTime(void){ return scheduler.GetTargetExecutionTime(); }
+        static inline double GetModelExecutionTime(void){ return scheduler.GetModelExecutionTime(); }
 
         /**
          * @brief Get the number of CPU overloads that have been occurred since the start of the base-rate scheduler.

@@ -164,7 +164,7 @@ void UDPElementBase::WorkerThread(const UDPConfiguration conf){
         while(!terminate && socket.IsOpen()){
             // Wait for next message to be received
             int32_t rx = socket.ReceiveFrom(source, &localBuffer[0], conf.rxBufferSize);
-            double timestamp = GenericTarget::GetTargetExecutionTime();
+            double timestamp = GenericTarget::GetModelExecutionTime();
             if((rx < 0) || !socket.IsOpen() || terminate){
                 break;
             }

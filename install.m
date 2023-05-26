@@ -3,7 +3,7 @@ fprintf('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % Add directories to MATLAB path
 fprintf('Adding directories to MATLAB path\n');
 thisDirectory = extractBefore(mfilename('fullpath'),strlength(mfilename('fullpath')) - strlength(mfilename) + 1);
-directories = {fullfile(thisDirectory,'lib'), fullfile(thisDirectory,'lib','src'), fullfile(thisDirectory,'packages')};
+directories = {fullfile(thisDirectory,'library'), fullfile(thisDirectory,'library','src'), fullfile(thisDirectory,'packages')};
 for i = 1:numel(directories)
     fprintf('    "%s"\n',directories{i});
     addpath(directories{i});
