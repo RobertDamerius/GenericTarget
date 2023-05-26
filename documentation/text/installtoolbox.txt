@@ -72,6 +72,7 @@
     This only works with the deployed code.
     The reason for that is, that each block runs in its own environment during simulation.
     Thus a Send and a Receive block do not share the internal network socket and each block generates its own receive thread.
+    For multicast this is less of a problem, since these messages are received via loopback on all associated multicast sockets anyway.
     <br>
     <br>
     <b>**</b>

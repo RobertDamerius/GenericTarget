@@ -316,7 +316,7 @@ if(useSimulinkSupport)
     fprintf('\tTime/CPU Overloads                       no\n');
     fprintf('\tTime/UTC Timestamp                       yes\n');
     fprintf('\tTime/Time To Latest UTC Timestamp        yes\n');
-    fprintf('\t---------------------------------------------------\n(*) UDP interface blocks are only supported for unique local ports!\n(**) Each block in the model has its own initial timepoint!\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n');
+    fprintf('\t---------------------------------------------------\n(*) UDP interface blocks are only supported for unique local ports (multicast usually works as expected)!\n(**) Each block in the model has its own initial timepoint!\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n');
 end
 
 % Clean up
