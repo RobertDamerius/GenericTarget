@@ -26,7 +26,7 @@ bool DataRecorderScalarDoubles::Start(std::string filename){
     // Make sure that the data recorder object is stopped
     Stop();
 
-    // Set filename and start log thread
+    // Set filename and start data recorder thread
     this->filename = filename;
     threadDataRecorder = std::thread(&DataRecorderScalarDoubles::ThreadDataRecorder, this);
     struct sched_param param;
@@ -74,7 +74,7 @@ void DataRecorderScalarDoubles::Write(double timestamp, double* values, uint32_t
         this->mtxBuffer.unlock();
     }
 
-    // Notify file logging thread that new data is available
+    // Notify file recorder thread that new data is available
     this->Notify();
 }
 

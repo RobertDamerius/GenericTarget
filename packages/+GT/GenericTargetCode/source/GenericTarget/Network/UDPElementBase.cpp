@@ -137,8 +137,8 @@ int32_t UDPElementBase::Receive(uint16_t* sources, uint8_t* bytes, uint32_t* len
     }
     *numMessagesReceived = idxOut;
     *numMessagesDiscarded = receiveBuffer.discardCounter + static_cast<uint32_t>(receiveBuffer.idxQueue.size());
-    receiveBuffer.Clear();
     int32_t errorCode = receiveBuffer.latestErrorCode;
+    receiveBuffer.Clear();
     mtxReceiveBuffer.unlock();
     return errorCode;
 }

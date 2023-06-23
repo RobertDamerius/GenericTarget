@@ -28,7 +28,7 @@ bool DataRecorderBus::Start(std::string filename){
     // Make sure that the data recorder object is stopped
     Stop();
 
-    // Set filename and start log thread
+    // Set filename and start data recorder thread
     this->filename = filename;
     threadDataRecorder = std::thread(&DataRecorderBus::ThreadDataRecorder, this);
     struct sched_param param;
@@ -81,7 +81,7 @@ void DataRecorderBus::Write(double timestamp, uint8_t* bytes, uint32_t numBytes)
         this->mtxBuffer.unlock();
     }
 
-    // Notify file logging thread that new data is available
+    // Notify file recorder thread that new data is available
     this->Notify();
 }
 

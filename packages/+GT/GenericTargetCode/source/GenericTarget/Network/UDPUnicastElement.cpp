@@ -31,8 +31,8 @@ int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
         PrintW("Could not set reuse port option for unicast UDP socket at interface %u.%u.%u.%u:%u! %s\n", conf.ipInterface[0], conf.ipInterface[1], conf.ipInterface[2], conf.ipInterface[3], port, errorString.c_str());
     }
 
-    // Bind the port (ALWAYS USE ANY INTERFACE!)
-    if(socket.Bind(port) < 0){
+    // Bind the port
+    if(socket.Bind(port, conf.ipInterface) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
             PrintE("Could not bind port %u for unicast UDP socket at interface %u.%u.%u.%u:%u! %s\n", port, conf.ipInterface[0], conf.ipInterface[1], conf.ipInterface[2], conf.ipInterface[3], port, errorString.c_str());
