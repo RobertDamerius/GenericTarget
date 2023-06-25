@@ -4,6 +4,7 @@ using namespace gt;
 
 int32_t UDPMulticastElement::InitializeSocket(const UDPConfiguration conf){
     // Open the UDP socket
+    socket.ResetLastError();
     if(!socket.Open()){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
@@ -15,6 +16,7 @@ int32_t UDPMulticastElement::InitializeSocket(const UDPConfiguration conf){
     // Set priority
     #ifndef _WIN32
     int priority = static_cast<int>(conf.prioritySocket);
+    socket.ResetLastError();
     if(socket.SetOption(SOL_SOCKET, SO_PRIORITY, &priority, sizeof(priority)) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
@@ -26,12 +28,14 @@ int32_t UDPMulticastElement::InitializeSocket(const UDPConfiguration conf){
     #endif
 
     // Reuse port and ignore errors
+    socket.ResetLastError();
     if(socket.ReusePort(true) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         PrintW("Could not set reuse port option for multicast UDP socket at interface %u.%u.%u.%u:%u! %s\n", conf.ipInterface[0], conf.ipInterface[1], conf.ipInterface[2], conf.ipInterface[3], port, errorString.c_str());
     }
 
     // Bind the port (ALWAYS USE ANY INTERFACE!)
+    socket.ResetLastError();
     if(socket.Bind(port) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
@@ -42,12 +46,14 @@ int32_t UDPMulticastElement::InitializeSocket(const UDPConfiguration conf){
     }
 
     // Set TTL
+    socket.ResetLastError();
     if(socket.SetMulticastTTL(conf.multicast.ttl) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         PrintW("Could not set TTL %u for multicast UDP socket at interface %u.%u.%u.%u:%u! %s\n", conf.multicast.ttl, conf.ipInterface[0], conf.ipInterface[1], conf.ipInterface[2], conf.ipInterface[3], port, errorString.c_str());
     }
 
     // Join multicast group
+    socket.ResetLastError();
     if(socket.JoinMulticastGroup(conf.multicast.group, conf.ipInterface) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){

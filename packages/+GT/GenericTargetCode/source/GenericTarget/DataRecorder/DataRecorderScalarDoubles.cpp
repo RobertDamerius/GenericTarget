@@ -81,8 +81,10 @@ void DataRecorderScalarDoubles::Write(double timestamp, double* values, uint32_t
 bool DataRecorderScalarDoubles::WriteHeader(std::string name){
     // Open file
     FILE *file = fopen(name.c_str(), "wb");
-    if(!file)
+    if(!file){
+        PrintE("Could not write file \"%s\"!\n",name.c_str());
         return false;
+    }
 
     // Header: "GTDBL" (5 bytes)
     const uint8_t header[] = {'G','T', 'D', 'B', 'L'};

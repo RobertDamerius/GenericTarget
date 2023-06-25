@@ -4,6 +4,7 @@ using namespace gt;
 
 int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
     // Open the UDP socket
+    socket.ResetLastError();
     if(!socket.Open()){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
@@ -15,6 +16,7 @@ int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
     // Set priority
     #ifndef _WIN32
     int priority = static_cast<int>(conf.prioritySocket);
+    socket.ResetLastError();
     if(socket.SetOption(SOL_SOCKET, SO_PRIORITY, &priority, sizeof(priority)) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
@@ -26,12 +28,14 @@ int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
     #endif
 
     // Reuse port and ignore errors
+    socket.ResetLastError();
     if(socket.ReusePort(true) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         PrintW("Could not set reuse port option for unicast UDP socket at interface %u.%u.%u.%u:%u! %s\n", conf.ipInterface[0], conf.ipInterface[1], conf.ipInterface[2], conf.ipInterface[3], port, errorString.c_str());
     }
 
     // Bind the port
+    socket.ResetLastError();
     if(socket.Bind(port, conf.ipInterface) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){

@@ -203,7 +203,7 @@ int32_t UDPSocket::SendTo(Address destination, uint8_t *bytes, int32_t size){
 }
 
 int32_t UDPSocket::ReceiveFrom(Address& source, uint8_t *bytes, int32_t maxSize){
-    sockaddr_in addr;
+    sockaddr_in addr{};
     #ifndef _WIN32
     socklen_t address_size = sizeof(addr);
     #else
@@ -282,6 +282,14 @@ std::tuple<int32_t, std::string> UDPSocket::GetLastError(void){
     #endif
     errStr += std::string("(") + std::to_string(err) + std::string(")");
     return std::make_tuple(static_cast<int32_t>(err), errStr);
+}
+
+void UDPSocket::ResetLastError(void){
+    #ifdef _WIN32
+    WSASetLastError(0);
+    #else
+    errno = 0;
+    #endif
 }
 
 UDPConfiguration::UDPConfiguration(){
@@ -474,8 +482,10 @@ void UDPElementBase::Stop(void){
 
 std::tuple<int32_t,int32_t> UDPElementBase::Send(const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
     Address address((uint8_t)(0x00FF & destination[0]), (uint8_t)(0x00FF & destination[1]), (uint8_t)(0x00FF & destination[2]), (uint8_t)(0x00FF & destination[3]), destination[4]);
+    socket.ResetLastError();
     int32_t tx = socket.SendTo(address, (uint8_t*)bytes, length);
-    int32_t errorCode = receiveBuffer.latestErrorCode;
+    int32_t errorCode;
+    std::tie(errorCode, std::ignore) = socket.GetLastError();
     return std::make_tuple(tx, errorCode);
 }
 
@@ -542,6 +552,10 @@ void UDPElementBase::WorkerThread(const UDPConfiguration conf){
             if((rx < 0) || !socket.IsOpen() || terminate){
                 break;
             }
+            if(source.IsZero()){
+                udpRetryTimer.WaitFor(GENERIC_TARGET_UDP_RETRY_TIME_MS);
+                break;
+            }
 
             // Copy received message to UDP buffer (thread-safe)
             CopyMessageToBuffer(&localBuffer[0], static_cast<uint32_t>(rx), source, timestamp, conf);
@@ -597,6 +611,7 @@ void UDPElementBase::CopyMessageToBuffer(uint8_t* messageBytes, uint32_t message
 
 int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
     // Open the UDP socket
+    socket.ResetLastError();
     if(!socket.Open()){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
@@ -608,6 +623,7 @@ int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
     // Set priority
     #ifndef _WIN32
     int priority = static_cast<int>(conf.prioritySocket);
+    socket.ResetLastError();
     if(socket.SetOption(SOL_SOCKET, SO_PRIORITY, &priority, sizeof(priority)) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
@@ -619,13 +635,15 @@ int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
     #endif
 
     // Reuse port and ignore errors
+    socket.ResetLastError();
     if(socket.ReusePort(true) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         PrintW("Could not set reuse port option for unicast UDP socket at interface %u.%u.%u.%u:%u! %s\n", conf.ipInterface[0], conf.ipInterface[1], conf.ipInterface[2], conf.ipInterface[3], port, errorString.c_str());
     }
 
-    // Bind the port (ALWAYS USE ANY INTERFACE!)
-    if(socket.Bind(port) < 0){
+    // Bind the port
+    socket.ResetLastError();
+    if(socket.Bind(port, conf.ipInterface) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
             PrintE("Could not bind port %u for unicast UDP socket at interface %u.%u.%u.%u:%u! %s\n", port, conf.ipInterface[0], conf.ipInterface[1], conf.ipInterface[2], conf.ipInterface[3], port, errorString.c_str());
@@ -649,6 +667,7 @@ void UDPUnicastElement::TerminateSocket(const UDPConfiguration conf, bool verbos
 
 int32_t UDPMulticastElement::InitializeSocket(const UDPConfiguration conf){
     // Open the UDP socket
+    socket.ResetLastError();
     if(!socket.Open()){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
@@ -660,6 +679,7 @@ int32_t UDPMulticastElement::InitializeSocket(const UDPConfiguration conf){
     // Set priority
     #ifndef _WIN32
     int priority = static_cast<int>(conf.prioritySocket);
+    socket.ResetLastError();
     if(socket.SetOption(SOL_SOCKET, SO_PRIORITY, &priority, sizeof(priority)) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
@@ -671,12 +691,14 @@ int32_t UDPMulticastElement::InitializeSocket(const UDPConfiguration conf){
     #endif
 
     // Reuse port and ignore errors
+    socket.ResetLastError();
     if(socket.ReusePort(true) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         PrintW("Could not set reuse port option for multicast UDP socket at interface %u.%u.%u.%u:%u! %s\n", conf.ipInterface[0], conf.ipInterface[1], conf.ipInterface[2], conf.ipInterface[3], port, errorString.c_str());
     }
 
     // Bind the port (ALWAYS USE ANY INTERFACE!)
+    socket.ResetLastError();
     if(socket.Bind(port) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
@@ -687,12 +709,14 @@ int32_t UDPMulticastElement::InitializeSocket(const UDPConfiguration conf){
     }
 
     // Set TTL
+    socket.ResetLastError();
     if(socket.SetMulticastTTL(conf.multicast.ttl) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         PrintW("Could not set TTL %u for multicast UDP socket at interface %u.%u.%u.%u:%u! %s\n", conf.multicast.ttl, conf.ipInterface[0], conf.ipInterface[1], conf.ipInterface[2], conf.ipInterface[3], port, errorString.c_str());
     }
 
     // Join multicast group
+    socket.ResetLastError();
     if(socket.JoinMulticastGroup(conf.multicast.group, conf.ipInterface) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){

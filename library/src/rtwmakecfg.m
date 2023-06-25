@@ -2,7 +2,7 @@ function makeInfo = rtwmakecfg()
 %RTWMAKECFG adds include and source directories to the make files.
 %    makeInfo=
 %    Simulink version    : 10.6 (R2022b) 13-May-2022
-%    MATLAB file generated on : 26-May-2023 16:13:11
+%    MATLAB file generated on : 25-Jun-2023 23:31:48
 
 % Verify the Simulink version
 verify_simulink_version();
@@ -19,7 +19,6 @@ allSrcPaths = {};
 
 % Get the build type
 isSimTarget = is_simulation_target();
-allLibs = {};
 % Get the serialized paths information
 info = get_serialized_info();
 
@@ -48,9 +47,6 @@ for ii = 1:numel(info)
     % Concatenate known include and source directories
     allIncPaths = RTW.uniquePath([allIncPaths pathInfo.IncPaths(:)']);
     allSrcPaths = RTW.uniquePath([allSrcPaths pathInfo.SrcPaths(:)']);
-
-    % Concatenate Host or Target libraries
-    allLibs = RTW.uniquePath([allLibs pathInfo.LibFiles(:)']);
 end
 
 % Additional include directories
@@ -58,9 +54,6 @@ makeInfo.includePath = correct_path_name(allIncPaths);
 
 % Additional source directories
 makeInfo.sourcePath = correct_path_name(allSrcPaths);
-
-% Additional libraries according to the build type
-makeInfo.linkLibsObjs = correct_path_name(allLibs);
 
 %% ------------------------------------------------------------------------
 function info = get_serialized_info()
@@ -80,67 +73,54 @@ info(1:13) = struct(...
 
 info(1).SFunctionName = 'SFunctionGTDriverUDPUnicastSend';
 info(1).SourceFiles = {'GT_DriverUDPUnicastSend.cpp', 'GT_SimulinkSupport.cpp'};
-info(1).HostLibFiles = {'C:\Env\MSYS2\mingw64\lib\libws2_32.a'};
 info(1).Language = 'C++';
 
 info(2).SFunctionName = 'SFunctionGTDriverUDPUnicastReceive';
 info(2).SourceFiles = {'GT_DriverUDPUnicastReceive.cpp', 'GT_SimulinkSupport.cpp'};
-info(2).HostLibFiles = {'C:\Env\MSYS2\mingw64\lib\libws2_32.a'};
 info(2).Language = 'C++';
 
 info(3).SFunctionName = 'SFunctionGTDriverUDPMulticastSend';
 info(3).SourceFiles = {'GT_DriverUDPMulticastSend.cpp', 'GT_SimulinkSupport.cpp'};
-info(3).HostLibFiles = {'C:\Env\MSYS2\mingw64\lib\libws2_32.a'};
 info(3).Language = 'C++';
 
 info(4).SFunctionName = 'SFunctionGTDriverUDPMulticastReceive';
 info(4).SourceFiles = {'GT_DriverUDPMulticastReceive.cpp', 'GT_SimulinkSupport.cpp'};
-info(4).HostLibFiles = {'C:\Env\MSYS2\mingw64\lib\libws2_32.a'};
 info(4).Language = 'C++';
 
 info(5).SFunctionName = 'SFunctionGTDriverModelExecutionTime';
 info(5).SourceFiles = {'GT_DriverModelExecutionTime.cpp', 'GT_SimulinkSupport.cpp'};
-info(5).HostLibFiles = {'C:\Env\MSYS2\mingw64\lib\libws2_32.a'};
 info(5).Language = 'C++';
 
 info(6).SFunctionName = 'SFunctionGTDriverUnixTime';
 info(6).SourceFiles = {'GT_DriverUnixTime.cpp'};
-info(6).HostLibFiles = {'C:\Env\MSYS2\mingw64\lib\libws2_32.a'};
 info(6).Language = 'C++';
 
 info(7).SFunctionName = 'SFunctionGTDriverUTCTime';
 info(7).SourceFiles = {'GT_DriverUTCTime.cpp'};
-info(7).HostLibFiles = {'C:\Env\MSYS2\mingw64\lib\libws2_32.a'};
 info(7).Language = 'C++';
 
 info(8).SFunctionName = 'SFunctionGTDriverLocalTime';
 info(8).SourceFiles = {'GT_DriverLocalTime.cpp'};
-info(8).HostLibFiles = {'C:\Env\MSYS2\mingw64\lib\libws2_32.a'};
 info(8).Language = 'C++';
 
 info(9).SFunctionName = 'SFunctionGTDriverDataRecorderScalarDoubles';
 info(9).SourceFiles = {'GT_DriverDataRecorderScalarDoubles.cpp'};
-info(9).HostLibFiles = {'C:\Env\MSYS2\mingw64\lib\libws2_32.a'};
 info(9).Language = 'C++';
 
 info(10).SFunctionName = 'SFunctionGTDriverDataRecorderBus';
 info(10).SourceFiles = {'GT_DriverDataRecorderBus.cpp'};
-info(10).HostLibFiles = {'C:\Env\MSYS2\mingw64\lib\libws2_32.a'};
 info(10).Language = 'C++';
 
 info(11).SFunctionName = 'SFunctionGTDriverTaskExecutionTime';
 info(11).SourceFiles = {'GT_DriverTaskExecutionTime.cpp'};
-info(11).HostLibFiles = {'C:\Env\MSYS2\mingw64\lib\libws2_32.a'};
 info(11).Language = 'C++';
 
 info(12).SFunctionName = 'SFunctionGTDriverNumTaskOverloads';
 info(12).SourceFiles = {'GT_DriverNumTaskOverloads.cpp'};
-info(12).HostLibFiles = {'C:\Env\MSYS2\mingw64\lib\libws2_32.a'};
 info(12).Language = 'C++';
 
 info(13).SFunctionName = 'SFunctionGTDriverNumCPUOverloads';
 info(13).SourceFiles = {'GT_DriverNumCPUOverloads.cpp'};
-info(13).HostLibFiles = {'C:\Env\MSYS2\mingw64\lib\libws2_32.a'};
 info(13).Language = 'C++';
 
 %% ------------------------------------------------------------------------

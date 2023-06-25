@@ -122,7 +122,7 @@ int32_t UDPSocket::SendTo(Address destination, uint8_t *bytes, int32_t size){
 }
 
 int32_t UDPSocket::ReceiveFrom(Address& source, uint8_t *bytes, int32_t maxSize){
-    sockaddr_in addr;
+    sockaddr_in addr{};
     #ifndef _WIN32
     socklen_t address_size = sizeof(addr);
     #else
@@ -201,5 +201,13 @@ std::tuple<int32_t, std::string> UDPSocket::GetLastError(void){
     #endif
     errStr += std::string("(") + std::to_string(err) + std::string(")");
     return std::make_tuple(static_cast<int32_t>(err), errStr);
+}
+
+void UDPSocket::ResetLastError(void){
+    #ifdef _WIN32
+    WSASetLastError(0);
+    #else
+    errno = 0;
+    #endif
 }
 

@@ -182,6 +182,12 @@ class Address {
          * @param [in] port Port value.
          */
         Address(std::array<uint8_t,4> ip, uint16_t port);
+
+        /**
+         * @brief Check whether both IP and port are zero.
+         * @return True if all values of @ref ip and the @ref port are zero.
+         */
+        inline bool IsZero(void){ return !(ip[0] || ip[1] || ip[2] || ip[3] || port); }
 };
 
 
@@ -328,6 +334,11 @@ class UDPSocket {
          * @return Tuple including the last error code and the string representing the last error code.
          */
         std::tuple<int32_t, std::string> GetLastError(void);
+
+        /**
+         * @brief Reset the last error code to zero.
+         */
+        void ResetLastError(void);
 
     private:
         std::atomic<int> _socket; ///< Internal socket value.

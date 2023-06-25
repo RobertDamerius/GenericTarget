@@ -100,8 +100,10 @@ void UDPElementBase::Stop(void){
 
 std::tuple<int32_t,int32_t> UDPElementBase::Send(const uint16_t* destination, const uint8_t* bytes, const uint32_t length){
     Address address((uint8_t)(0x00FF & destination[0]), (uint8_t)(0x00FF & destination[1]), (uint8_t)(0x00FF & destination[2]), (uint8_t)(0x00FF & destination[3]), destination[4]);
+    socket.ResetLastError();
     int32_t tx = socket.SendTo(address, (uint8_t*)bytes, length);
-    int32_t errorCode = receiveBuffer.latestErrorCode;
+    int32_t errorCode;
+    std::tie(errorCode, std::ignore) = socket.GetLastError();
     return std::make_tuple(tx, errorCode);
 }
 
@@ -166,6 +168,10 @@ void UDPElementBase::WorkerThread(const UDPConfiguration conf){
             int32_t rx = socket.ReceiveFrom(source, &localBuffer[0], conf.rxBufferSize);
             double timestamp = GenericTarget::GetModelExecutionTime();
             if((rx < 0) || !socket.IsOpen() || terminate){
+                break;
+            }
+            if(source.IsZero()){
+                udpRetryTimer.WaitFor(GENERIC_TARGET_UDP_RETRY_TIME_MS);
                 break;
             }
 

@@ -88,8 +88,10 @@ void DataRecorderBus::Write(double timestamp, uint8_t* bytes, uint32_t numBytes)
 bool DataRecorderBus::WriteHeader(std::string name){
     // Open file
     FILE *file = fopen(name.c_str(), "wb");
-    if(!file)
+    if(!file){
+        PrintE("Could not write file \"%s\"!\n",name.c_str());
         return false;
+    }
 
     // Header: "GTBUS" (5 bytes)
     const uint8_t header[] = {'G','T', 'B', 'U', 'S'};

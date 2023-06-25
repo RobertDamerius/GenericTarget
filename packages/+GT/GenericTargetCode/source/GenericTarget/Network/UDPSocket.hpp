@@ -141,6 +141,11 @@ class UDPSocket {
          */
         std::tuple<int32_t, std::string> GetLastError(void);
 
+        /**
+         * @brief Reset the last error code to zero.
+         */
+        void ResetLastError(void);
+
     private:
         std::atomic<int> _socket; ///< Internal socket value.
 };

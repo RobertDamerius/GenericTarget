@@ -4,7 +4,7 @@
 %%   Simulink Coder TLC Code Generation file for SFunctionGTDriverTaskExecutionTime
 %% 
 %% Simulink version      : 10.6 (R2022b) 13-May-2022
-%% TLC file generated on : 26-May-2023 16:13:11
+%% TLC file generated on : 25-Jun-2023 23:31:48
 
 /%
      %%%-MATLAB_Construction_Commands_Start
@@ -15,7 +15,6 @@
      def.TerminateFcnSpec = 'void GT_DriverTaskExecutionTimeTerminate()';
      def.HeaderFiles = {'GT_DriverTaskExecutionTime.hpp'};
      def.SourceFiles = {'GT_DriverTaskExecutionTime.cpp'};
-     def.HostLibFiles = {'C:\Env\MSYS2\mingw64\lib\libws2_32.a'};
      def.SampleTime = 'parameterized';
      def.Options.useTlcWithAccel = false;
      def.Options.language = 'C++';
