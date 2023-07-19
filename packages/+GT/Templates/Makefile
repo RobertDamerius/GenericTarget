@@ -10,33 +10,33 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Project settings
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PRODUCT_NAME      := GenericTarget
-DEBUG_MODE        := 0
+PRODUCT_NAME      := $TARGET_MAKEFILE_PRODUCT_NAME$
+DEBUG_MODE        := $TARGET_MAKEFILE_DEBUG_MODE$
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Directory settings
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-DIRECTORY_SOURCE  := source/
+DIRECTORY_SOURCE  := code/
 DIRECTORY_BUILD   := build/
-DIRECTORY_PRODUCT := bin/
+DIRECTORY_PRODUCT := 
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Libraries and symbols
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-LIBS_WIN          := -lstdc++ -lstdc++fs -lpthread -lwinmm -lgdi32 -lws2_32 -lwsock32
-LIBS_UNIX         := -lstdc++ -lstdc++fs -lpthread -latomic
-CC_SYMBOLS         = -DGENERIC_TARGET_IMPLEMENTATION
+LIBS_WIN          := -lstdc++ -lstdc++fs -lpthread -lwinmm -lgdi32 -lws2_32 -lwsock32 $TARGET_MAKEFILE_LIBS_WIN$
+LIBS_UNIX         := -lstdc++ -lstdc++fs -lpthread -latomic $TARGET_MAKEFILE_LIBS_UNIX$
+CC_SYMBOLS         = -DGENERIC_TARGET_IMPLEMENTATION $TARGET_MAKEFILE_CC_SYMBOLS$
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Flags
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Build Flags
-CC_FLAGS        = -Wall -Wextra -Wno-format-security -mtune=native
-CPP_FLAGS       = -std=c++17 -Wall -Wextra -Wno-format-security -mtune=native
-LD_FLAGS        = -Wall -Wextra -Wno-format-security -mtune=native
+CC_FLAGS        = -Wall -Wextra -Wno-format-security -mtune=native $TARGET_MAKEFILE_CC_FLAGS$
+CPP_FLAGS       = -std=c++17 -Wall -Wextra -Wno-format-security -mtune=native $TARGET_MAKEFILE_CPP_FLAGS$
+LD_FLAGS        = -Wall -Wextra -Wno-format-security -mtune=native $TARGET_MAKEFILE_LD_FLAGS$
 DEP_FLAGS       = -MT $@ -MMD -MP -MF $(DIRECTORY_BUILD)$*.Td
 POSTCOMPILE     = mv -f $(DIRECTORY_BUILD)$*.Td $(DIRECTORY_BUILD)$*.d
 

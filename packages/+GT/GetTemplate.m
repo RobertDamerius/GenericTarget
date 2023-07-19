@@ -6,14 +6,13 @@ function GetTemplate()
     % Version     Author                 Changes
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % 20221010    Robert Damerius        Moved static member function of GenericTarget to stand alone function.
+    % 20230712    Robert Damerius        Updated template directory.
     % 
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    GENERIC_TARGET_SUBDIRECTORY_CODE = 'GenericTargetCode';  % Subdirectory in package directory that contains application code and templates.
-    fullpath = mfilename('fullpath');
-    filename = mfilename();
-    dirGenericTargetCode = [fullpath(1:(end-length(filename))) GENERIC_TARGET_SUBDIRECTORY_CODE filesep];
-    destination = [pwd filesep 'GenericTargetTemplate.slx'];
-    fprintf('[GENERIC TARGET] Creating template model "%s"\n', destination);
-    [~,~] = copyfile([dirGenericTargetCode 'GenericTargetTemplate.slx'], destination, 'f');
+    thisDirectory = extractBefore(mfilename('fullpath'),strlength(mfilename('fullpath')) - strlength(mfilename) + 1);
+    sourceFile = fullfile(thisDirectory,'Templates','GenericTargetTemplate.slx');
+    destinationFile = fullfile(pwd, 'GenericTargetTemplate.slx');
+    fprintf('[GENERIC TARGET] Creating template model "%s"\n', destinationFile);
+    [~,~] = copyfile(sourceFile, destinationFile, 'f');
 end
 

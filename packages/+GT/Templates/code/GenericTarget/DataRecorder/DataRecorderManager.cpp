@@ -178,7 +178,7 @@ bool DataRecorderManager::WriteIndexFile(std::string filename, int32_t date_year
     fwrite(&bytes[0], 1, 1, file);
 
     // compileDate + 0x00
-    fwrite(&SimulinkInterface::strCompiled[0], 1, SimulinkInterface::strCompiled.length(), file);
+    fwrite(&strBuilt[0], 1, strBuilt.length(), file);
     bytes[0] = 0;
     fwrite(&bytes[0], 1, 1, file);
     fclose(file);

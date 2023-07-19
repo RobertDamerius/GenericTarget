@@ -1,9 +1,8 @@
-/* Auto-generated code (Template Version 20230524) */
+/* Auto-generated code (Template Version 20230719) */
 #include <SimulinkCodeGeneration/SimulinkInterface.hpp>
 
 
 const std::string SimulinkInterface::modelName("$NAME_OF_MODEL$");
-const std::string SimulinkInterface::strCompiled(__DATE__ " " __TIME__);
 const uint16_t SimulinkInterface::portAppSocket = $PORT_APP_SOCKET$;
 const int32_t SimulinkInterface::priorityDataRecorder = $PRIORITY_DATA_RECORDER$;
 const double SimulinkInterface::baseSampleTime = $BASE_SAMPLE_TIME$;

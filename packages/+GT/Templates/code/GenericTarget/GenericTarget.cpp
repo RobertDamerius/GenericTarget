@@ -160,8 +160,7 @@ void GenericTarget::PrintInfo(int argc, char**argv){
     PrintRaw("GenericTarget\n");
     PrintRaw("\n");
     PrintRaw("Version:                  %s\n", strVersion.c_str());
-    PrintRaw("Setup:                    %s\n", strBuilt.c_str());
-    PrintRaw("Build:                    %s\n", SimulinkInterface::strCompiled.c_str());
+    PrintRaw("Built (local):            %s\n", strBuilt.c_str());
     PrintRaw("Date (UTC):               %04u-%02u-%02u %02u:%02u:%02u.%03u\n", 1900 + upTime.year, 1 + upTime.month, upTime.mday, upTime.hour, upTime.minute, upTime.second, upTime.nanoseconds / 1000000);
     PrintRaw("Arguments:               "); for(int i = 1; i < argc; i++){ PrintRaw(" [%s]", argv[i]); } PrintRaw("\n");
     PrintRaw("\n");

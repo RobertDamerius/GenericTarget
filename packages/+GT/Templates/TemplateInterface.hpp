@@ -1,4 +1,4 @@
-/* Auto-generated code (Template Version 20230524) */
+/* Auto-generated code (Template Version 20230719) */
 #pragma once
 
 
@@ -13,7 +13,6 @@
 class SimulinkInterface {
     public:
         static const std::string modelName;                                 ///< A string indicating the model name (ASCII characters only).
-        static const std::string strCompiled;                               ///< A time-string indicating the time of compilation.
         static const uint16_t portAppSocket;                                ///< The port for the application socket.
         static const int32_t priorityDataRecorder;                          ///< Priority for data recording threads.
         static const double baseSampleTime;                                 ///< The base sample time in seconds.

@@ -35,6 +35,11 @@
 %                                    Added number of old protocol files to keep.
 %                                    Updated Start() and Stop() command. Removed command for redirecting into text file as protocol writing is now handled by the target application.
 %                                    Added ShowLatestProtocol(), DeleteAllProtocols(), DownloadAllProtocols().
+% 20230719    Robert Damerius        Removed Setup(), whole framework is deployed during Deploy().
+%                                    Updated code generation process.
+%                                    Added properties for additional compiler flags and added checks for class properties.
+%                                    Added property targetProductName to change executable name if desired.
+%                                    Added property targetBitmaskCPUCores to use CPU affinity and pin the target application to specific CPU cores during Start().
 %
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -42,50 +47,43 @@ classdef GenericTarget < handle
     %GT.GenericTarget Generate code from a simulink model and build and deploy the model
     % on a generic target running a linux OS with the PREEMPT_RT patch.
     % 
-    % EXAMPLE: Setup target software (only needed once)
-    % gt = GT.GenericTarget('user','192.168.0.100');
-    % gt.Setup();
-    % 
     % EXAMPLE: Generate a template simulink model
     % GT.GetTemplate();
     % 
     % EXAMPLE: Deploy simulink model
-    % gt = GT.GenericTarget('user','192.168.0.100');
-    % gt.Deploy('GenericTargetTemplate');
+    % target = GT.GenericTarget('user','192.168.0.100');
+    % target.Deploy('GenericTargetTemplate');
     % 
     % EXAMPLE: Start/Stop the model (only needed on demand)
-    % gt = GT.GenericTarget('user','192.168.0.100');
-    % gt.Start();
-    % gt.ShowPID(); % Check if the process is running
-    % gt.Stop();
+    % target = GT.GenericTarget('user','192.168.0.100');
+    % target.Start();
+    % target.ShowPID(); % Check if the process is running
+    % target.Stop();
     % 
     % EXAMPLE: Download recorded data / delete all data
-    % gt = GT.GenericTarget('user','192.168.0.100');
-    % gt.DownloadDataDirectory();
-    % gt.DeleteAllData();
+    % target = GT.GenericTarget('user','192.168.0.100');
+    % target.DownloadDataDirectory();
+    % target.DeleteAllData();
 
     properties
         portAppSocket;             % The port for the application socket (default: 44000).
         portSSH;                   % The port to be used for SSH/SCP connection (default: 22).
         connectTimeout;            % Connect timeout in seconds for SSH/SCP connection (default: 3).
-        priorityDataRecorder;      % Priority for the data recording threads in range [1 (lowest), 99 (highest)] (default: 30).
         targetIPAddress;           % IPv4 address of the target PC.
-        targetSoftwareDirectory;   % Directory for software on target (default: "~/GenericTarget/"). MUST BEGIN WITH '~/' AND END WITH '/'!
         targetUsername;            % User name of target PC required to login on target via SSH/SCP.
+        targetSoftwareDirectory;   % Directory for software on target (default: "~/GenericTarget/"). MUST BEGIN WITH '~/' AND END WITH '/'!
+        targetProductName;         % Name of the executable (default: "GenericTarget").
+        targetBitmaskCPUCores;     % A hexadecimal string indicating to which CPU cores the process should be pinned to. If this string is empty, all cores are used.
+        upperThreadPriority;       % Upper task priority in range [1 (lowest), 99 (highest)] (default: 89).
+        priorityDataRecorder;      % Priority for the data recording threads in range [1 (lowest), 99 (highest)] (default: 30).
         terminateAtTaskOverload;   % True if application should terminate at task overload, false otherwise (default: true).
         terminateAtCPUOverload;    % True if application should terminate at CPU overload, false otherwise (default: true).
-        upperThreadPriority;       % Upper task priority in range [1 (lowest), 99 (highest)] (default: 89).
         customCode;                % Cell-array of directories containing custom code to be uploaded along with the generated code.
         numberOfOldProtocolFiles;  % The number of old protocol files to keep when redirecting the output to protocol text files.
-    end
-    properties(Constant, Access = private)
-        GENERIC_TARGET_SUBDIRECTORY_CODE  = 'GenericTargetCode';  % Subdirectory in package directory that contains application code and templates.
-        GENERIC_TARGET_SOFTWARE_NAME      = 'GenericTarget';      % Executable name for generic target application.
-        GENERIC_TARGET_DIRECTORY_DATA     = 'data/';              % Name of data directory on target.
-        GENERIC_TARGET_DIRECTORY_PROTOCOL = 'protocol/';          % Name of protocol directory on target.
+        additionalCompilerFlags;   % Structure containing additional compiler flags to be set.
     end
     methods
-        function obj = GenericTarget(targetUsername, targetIPAddress)
+        function this = GenericTarget(targetUsername, targetIPAddress)
             %GT.GenericTarget.GenericTarget Create a generic target object.
             %
             % PARAMETERS
@@ -103,63 +101,32 @@ classdef GenericTarget < handle
             assert(ischar(targetIPAddress), 'GT.GenericTarget.GenericTarget(): Input "targetIPAddress" must be a string!');
 
             % Set attributes
-            obj.targetIPAddress = targetIPAddress;
-            obj.targetUsername = targetUsername;
-            obj.targetSoftwareDirectory = '~/GenericTarget/';
-            obj.priorityDataRecorder = uint32(30);
-            obj.portAppSocket = uint16(44000);
-            obj.upperThreadPriority = int32(89);
-            obj.terminateAtTaskOverload = true;
-            obj.terminateAtCPUOverload = true;
-            obj.portSSH = uint16(22);
-            obj.connectTimeout = uint32(3);
-            obj.customCode = cell.empty();
-            obj.numberOfOldProtocolFiles = uint32(100);
+            this.portAppSocket = uint16(44000);
+            this.portSSH = uint16(22);
+            this.connectTimeout = uint32(3);
+            this.targetIPAddress = targetIPAddress;
+            this.targetUsername = targetUsername;
+            this.targetSoftwareDirectory = '~/GenericTarget/';
+            this.targetProductName = 'GenericTarget';
+            this.targetBitmaskCPUCores = '';
+            this.upperThreadPriority = uint32(89);
+            this.priorityDataRecorder = uint32(30);
+            this.terminateAtTaskOverload = true;
+            this.terminateAtCPUOverload = true;
+            this.customCode = cell.empty();
+            this.numberOfOldProtocolFiles = uint32(100);
+            this.additionalCompilerFlags.DEBUG_MODE = false;
+            this.additionalCompilerFlags.LIBS_WIN = cell.empty();
+            this.additionalCompilerFlags.LIBS_UNIX = cell.empty();
+            this.additionalCompilerFlags.CC_SYMBOLS = cell.empty();
+            this.additionalCompilerFlags.CC_FLAGS = cell.empty();
+            this.additionalCompilerFlags.CPP_FLAGS = cell.empty();
+            this.additionalCompilerFlags.LD_FLAGS = cell.empty();
         end
-        function commands = Setup(obj, targetSoftwareDirectory)
-            %GT.GenericTarget.Setup Setup the software for the target computer. The software will be compressed to a zip file and transferred to the
-            % target via SCP. Afterwards an SSH connection will be used to unzip the transferred software to the specified targetSoftwareDirectory and
-            % create the precompiled headers for faster builds.
-            % 
-            % PARAMETERS
-            % targetSoftwareDirectory ... (optional) The destination directory at the target computer where to create the software.
-            % 
-            % RETURN
-            % commands ... The commands that were executed on the host.
-
-            % Make sure that input is a valid string and set attribute
-            if(2 == nargin)
-                assert(ischar(targetSoftwareDirectory), 'GT.GenericTarget.Setup(): Input "targetSoftwareDirectory" must be a string!');
-                assert((length(targetSoftwareDirectory) > 1) && ('~' == targetSoftwareDirectory(1)) && ('/' == targetSoftwareDirectory(2)), 'GT.GenericTarget.Setup(): Input "targetSoftwareDirectory" must begin with ''~/''!');
-                obj.targetSoftwareDirectory = targetSoftwareDirectory;
-            end
-
-            % Get absolute path to Software directory
-            fullpath = mfilename('fullpath');
-            filename = mfilename();
-            dirSoftware = [fullpath(1:(end-length(filename))) GT.GenericTarget.GENERIC_TARGET_SUBDIRECTORY_CODE];
-
-            % Compress software to zip and upload to target
-            fprintf('[GENERIC TARGET] Setup software for target %s at %s (target software directory: %s)\n',obj.targetUsername,obj.targetIPAddress,obj.targetSoftwareDirectory);
-            fprintf('[GENERIC TARGET] Compressing software: %s\n',dirSoftware);
-            zip('Software.zip',{'bin','source','Makefile'},dirSoftware);
-            fprintf('[GENERIC TARGET] Uploading software via SCP to target %s\n',obj.targetIPAddress);
-            cmdSCP = ['scp -o ConnectTimeout=' num2str(obj.connectTimeout) ' -P ' num2str(obj.portSSH) ' Software.zip ' obj.targetUsername '@' obj.targetIPAddress ':Software.zip'];
-            obj.RunCommand(cmdSCP);
-
-            % Create build environment and compile (empty model)
-            fprintf('\n[GENERIC TARGET] Setting up build environment for target %s\n',obj.targetIPAddress);
-            cmdSSH = obj.RunCommandOnTarget(['sudo rm -r -f ' obj.targetSoftwareDirectory ' ; mkdir -p ' obj.targetSoftwareDirectory ' ; unzip -o Software.zip -d ' obj.targetSoftwareDirectory ' ; rm Software.zip' ' ; cd ' obj.targetSoftwareDirectory ' && make clean && make -j8']);
-            commands = {cmdSCP; cmdSSH};
-
-            % Clean up
-            delete('Software.zip');
-            fprintf('\n[GENERIC TARGET] Setup completed\n');
-        end
-        function commands = Deploy(obj, modelName)
+        function commands = Deploy(this, modelName)
             %GT.GenericTarget.Deploy Deploy the target application. The code for the simulink model will be generated. In addition a simulink
             % interface class will be generated based on the code information from the simulink code generation process. The source code will then be compressed
-            % and transferred to the target via SCP. Afterwards an SSH2 connection will be established to unzip the transferred software and build the target
+            % and transferred to the target via SCP. Afterwards an SSH connection will be established to unzip the transferred software and build the target
             % application on the target computer. The application is not started at the end of this process.
             % 
             % PARAMETERS
@@ -168,58 +135,64 @@ classdef GenericTarget < handle
             % RETURN
             % commands ... The commands that were executed on the host.
 
-            % Make sure that input is a string
+            % Check inputs and properties
             assert(ischar(modelName), 'GT.GenericTarget.Deploy(): Input "modelName" must be a string!');
-            fprintf('[GENERIC TARGET] Starting deployment of model "%s" on target %s at %s\n',modelName,obj.targetUsername,obj.targetIPAddress);
+            this.CheckProperties();
+            fprintf('[GENERIC TARGET] Starting deployment of model "%s" on target %s at %s\n',modelName,this.targetUsername,this.targetIPAddress);
 
-            % Get code directory of simulink project and set temporary zip filename
-            dirCodeGen = [Simulink.fileGenControl('get','CodeGenFolder') filesep];
-            subDirModelCode = ['GenericTarget_' modelName filesep];
-            zipFileName = [dirCodeGen subDirModelCode modelName '.zip'];
+            % Get code directory of simulink and set temporary zip filename
+            zipFileName = fullfile(Simulink.fileGenControl('get','CodeGenFolder'), [modelName '.zip']);
             if(exist(zipFileName,'file')), delete(zipFileName); end
 
             % Generate code (going to be stored in the zip file)
-            obj.GenerateCode(zipFileName, modelName);
+            this.GenerateCode(zipFileName, modelName);
 
             % Deploy the generated code
-            commands = obj.DeployGeneratedCode(zipFileName);
+            commands = this.DeployGeneratedCode(zipFileName);
         end
-        function commands = DeployGeneratedCode(obj, zipFileName)
+        function commands = DeployGeneratedCode(this, zipFileName)
             %GT.GenericTarget.DeployGeneratedCode Deploy generated code to the target hardware. The code for the simulink model must be generated by the GT.GenericTarget.GenerateCode member function.
-            % The source code will then be transferred to the target via SCP. Afterwards an SSH2 connection will be established to unzip the transferred software and build the target
+            % The source code will then be transferred to the target via SCP. Afterwards an SSH connection will be established to unzip the transferred software and build the target
             % application on the target computer. The application is not started at the end of this process.
             % 
             % PARAMETERS
-            % zipFileName ... The name of the zip file that contains the code that has been generated using the GT.GenericTarget.GenerateCode member function.
+            % zipFileName ... The name of the zip file that contains the code that has been generated using the GT.GenericTarget.GenerateCode member function. The file extension must be '.zip'.
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
 
-            % Make sure that input is a string
+            % Check inputs and properties
             assert(ischar(zipFileName), 'GT.GenericTarget.DeployGeneratedCode(): Input "zipFileName" must be a string!');
-            fprintf('[GENERIC TARGET] Starting deployment of generated code (%s) to target %s at %s\n',zipFileName,obj.targetUsername,obj.targetIPAddress);
+            assert(endsWith(zipFileName,'.zip'), 'GT.GenericTarget.DeployGeneratedCode(): Input "zipFileName" must end with ".zip"!');
+            assert(exist(zipFileName,'file'), ['GT.GenericTarget.DeployGeneratedCode(): The specified zip file "', zipFileName, '" does not exist!']);
+            this.CheckProperties();
+            fprintf('[GENERIC TARGET] Starting code deployment (%s) to target %s at %s\n',zipFileName,this.targetUsername,this.targetIPAddress);
+            tStart = tic();
+
+            % SSH: make sure that target software directory exists
+            fprintf(['[GENERIC TARGET] SSH: Creating software directory "' this.targetSoftwareDirectory '" on target ' this.targetIPAddress '\n']);
+            cmdSSH1 = this.RunCommandOnTarget(['mkdir -p ' this.targetSoftwareDirectory]);
 
             % SCP: copy zip to target
-            targetZipFile = [obj.targetSoftwareDirectory 'tmp.zip'];
-            cmdSCP = ['scp -o ConnectTimeout=' num2str(obj.connectTimeout) ' -P ' num2str(obj.portSSH) ' ' zipFileName ' ' obj.targetUsername '@' obj.targetIPAddress ':' targetZipFile];
-            fprintf(['[GENERIC TARGET] SCP: Copy new software to target ' obj.targetIPAddress '\n']);
-            obj.RunCommand(cmdSCP);
+            targetZipFile = [this.targetSoftwareDirectory 'tmp.zip'];
+            cmdSCP = ['scp -o ConnectTimeout=' num2str(this.connectTimeout) ' -P ' num2str(this.portSSH) ' ' zipFileName ' ' this.targetUsername '@' this.targetIPAddress ':' targetZipFile];
+            fprintf(['[GENERIC TARGET] SCP: Copy new software to target ' this.targetIPAddress '\n']);
+            this.RunCommand(cmdSCP);
 
-            % SSH: remove old sources/cache, unzip new source and compile
-            fprintf(['[GENERIC TARGET] SSH: Build new software on target ' obj.targetIPAddress '\n']);
-            cmdSSH = obj.RunCommandOnTarget(['sudo rm -r -f ' obj.targetSoftwareDirectory 'source/SimulinkCodeGeneration ' obj.targetSoftwareDirectory 'build/source/SimulinkCodeGeneration ; sudo unzip -qq -o ' targetZipFile ' -d ' obj.targetSoftwareDirectory 'source/SimulinkCodeGeneration ; sudo rm ' targetZipFile ' ; cd ' obj.targetSoftwareDirectory ' && make -j8']);
-            fprintf('\n[GENERIC TARGET] Deployment completed\n');
-            commands = {cmdSCP; cmdSSH};
+            % SSH: remove old code/build/Makfile/etc., unzip new source and compile
+            fprintf(['[GENERIC TARGET] SSH: Build new software on target ' this.targetIPAddress '\n']);
+            cmdSSH2 = this.RunCommandOnTarget(['sudo rm -r -f ' this.targetSoftwareDirectory '.vscode ' this.targetSoftwareDirectory 'code ' this.targetSoftwareDirectory 'build ' this.targetSoftwareDirectory 'Makefile ' this.targetSoftwareDirectory 'README.md ; sudo unzip -qq -o ' targetZipFile ' -d ' this.targetSoftwareDirectory ' ; sudo rm ' targetZipFile ' ; cd ' this.targetSoftwareDirectory ' && make clean && make -j8']);
+            t = toc(tStart);
+            fprintf('\n[GENERIC TARGET] Code deployment completed after %f seconds\n',t);
+            commands = {cmdSSH1, cmdSCP, cmdSSH2};
         end
-        function DeployToHost(obj, modelName, directory)
-            %GT.GenericTarget.DeployToHost Deploy the target application to a directory on the host machine. The code for the simulink model will be generated.
-            % In addition a simulink interface class will be generated based on the code information from the simulink code generation process.
-            % The source code will then be moved to the specified output directory together with the generic target framework source code.
-            % The software is not compiled after this deployment.
+        function DeployToHost(this, directory, modelName)
+            %GT.GenericTarget.DeployToHost Deploy the target application to a directory on the host machine. The whole generic target framework including the generated
+            % code is going to be replaced in the specified directory. The software is not compiled after this deployment.
             % 
             % PARAMETERS
-            % modelName ... The name of the simulink model that should be build (excluding directory and file extension).
             % directory ... Optional name of the directory (absolute path) where to save the generated target application code. If no directory is specified, then the current working directory is used.
+            % modelName ... The name of the simulink model that should be build (excluding directory and file extension).
 
             % Make sure that inputs are strings
             assert(ischar(modelName), 'GT.GenericTarget.DeployToHost(): Input "modelName" must be a string!');
@@ -227,179 +200,154 @@ classdef GenericTarget < handle
                 directory = pwd;
             end
             assert(ischar(directory), 'GT.GenericTarget.DeployToHost(): Input "directory" must be a string!');
-            if(filesep ~= directory(end))
-                directory = [directory filesep];
-            end
+            tStart = tic();
             fprintf('[GENERIC TARGET] Starting deployment of model "%s" to host (%s)\n',modelName,directory);
 
-            % Get code directory of simulink project and set temporary zip filename
-            dirCodeGen = [Simulink.fileGenControl('get','CodeGenFolder') filesep];
-            subDirModelCode = ['GenericTarget_' modelName filesep];
-            zipFileName = [dirCodeGen subDirModelCode modelName '.zip'];
-            if(exist(zipFileName,'file')), delete(zipFileName); end
+            % Generate code (going to be stored in a temporary zip file)
+            codeGenFolder = Simulink.fileGenControl('get','CodeGenFolder');
+            zipFileName = fullfile(codeGenFolder, [modelName '.zip']);
+            this.GenerateCode(zipFileName, modelName);
 
-            % Generate code (going to be stored in the zip file)
-            obj.GenerateCode(zipFileName, modelName);
-
-            % Get absolute path to Software directory
-            fullpath = mfilename('fullpath');
-            filename = mfilename();
-            dirSoftware = [fullpath(1:(end-length(filename))) GT.GenericTarget.GENERIC_TARGET_SUBDIRECTORY_CODE filesep];
-
-            % Copy software framework to output directory
-            outputDirectory = [directory,'GT_',modelName,filesep];
-            fprintf('[GENERIC TARGET] Copying software framework to "%s"\n', outputDirectory);
-            [~,~] = rmdir(outputDirectory,'s');
-            [~,~] = mkdir(outputDirectory);
-            [~,~] = copyfile([dirSoftware 'bin'],[outputDirectory 'bin']);
-            [~,~] = copyfile([dirSoftware 'source'],[outputDirectory 'source']);
-            [~,~] = copyfile([dirSoftware 'Makefile'],[outputDirectory 'Makefile']);
+            % Remove old files and folders that are going to be replaced
+            if(exist(directory,'dir'))
+                [~,~] = rmdir(fullfile(directory,'.vscode'),'s');
+                [~,~] = rmdir(fullfile(directory,'build'),'s');
+                [~,~] = rmdir(fullfile(directory,'code'),'s');
+                delete(fullfile(directory,'README.md'));
+                delete(fullfile(directory,'Makefile'));
+            end
 
             % Unzip generated code into output directory
-            fprintf('[GENERIC TARGET] Unzipping generated model code into "%s"\n', outputDirectory);
-            unzip(zipFileName, [outputDirectory 'source' filesep 'SimulinkCodeGeneration']);
-            fprintf('[GENERIC TARGET] Deployment to host completed\n');
+            fprintf('[GENERIC TARGET] Unzipping generated model code into "%s"\n', directory);
+            unzip(zipFileName, directory);
+            t = toc(tStart);
+            fprintf('[GENERIC TARGET] Deployment to host completed after %f seconds\n',t);
 
             % Show information
-            fprintf('To compile, open terminal in "%s" and run:\n    make clean && make -j8\n',outputDirectory);
+            fprintf('To compile, open terminal in "%s" and run:\n    make clean && make -j8\n',directory);
         end
-        function GenerateCode(obj, zipFileName, modelName)
+        function GenerateCode(this, zipFileName, modelName)
             %GT.GenericTarget.GenerateCode Generate the code for the simulink model and the interface class. The generated code of the interface class
             % is based on the code information from the simulink code generation process. The source code will then be compressed to a .zip file.
             % 
             % PARAMETERS
-            % zipFileName ... The name of the zip file where to store the generated code.
+            % zipFileName ... The name of the zip file where to store the generated code. The file extension must be '.zip'.
             % modelName   ... The name of the simulink model that should be build (excluding directory and file extension). This parameter is forwarded to the slbuild() command.
-            % 
-            % DETAILS
-            % The zip file contains the following:
-            %  - CodeGeneration             ... A directory that contains generated code.
-            %  - CustomCode                 ... A directory that contains custom code.
-            %  - SimulinkInterface.cpp      ... Source file of generated interface code.
-            %  - SimulinkInterface.hpp      ... Header file of generated interface code.
-            %
-            % On the target this software has to be extracted inside the /source/SimulinkCodeGeneration/ directory. Any old
-            % content in this directory should be deleted first.
 
-            % Make sure that input is a string
+            % Check inputs and properties
+            tStart = tic();
             assert(ischar(zipFileName), 'GT.GenericTarget.GenerateCode(): Input "zipFileName" must be a string!');
+            assert(endsWith(zipFileName,'.zip'), 'GT.GenericTarget.GenerateCode(): Input "zipFileName" must end with ".zip"!');
             assert(ischar(modelName), 'GT.GenericTarget.GenerateCode(): Input "modelName" must be a string!');
-            assert(iscell(obj.customCode), 'GT.GenericTarget.GenerateCode(): Property customCode must be a cell array!');
+            this.CheckProperties();
+
+            % Make a fresh release folder that is going to contain the whole software
+            fprintf('[GENERIC TARGET] Starting code generation for model "%s"\n', modelName);
+            codeGenFolder = Simulink.fileGenControl('get','CodeGenFolder');
+            releaseFolder = fullfile(codeGenFolder, ['GenericTarget_' modelName]);
+            fprintf('[GENERIC TARGET] Creating release folder "%s"\n', releaseFolder);
+            [~,~] = rmdir(releaseFolder,'s');
+            assert(mkdir(releaseFolder), 'Could not make release folder!');
+
+            % Copy the whole framework including source code and compiling tools into the release folder
+            this.CopyFrameworkToReleaseFolder(releaseFolder);
 
             % Code generation for simulink model
-            fprintf('[GENERIC TARGET] Starting code generation for model: %s\n', modelName);
-            slbuild(modelName);
-            subDirModelCode = ['GenericTarget_' modelName filesep];
+            modelCodeFolder = this.BuildModelToReleaseFolder(modelName, codeGenFolder, releaseFolder);
 
-            % Get directory of generated code and unzip generated code
-            dirCodeGen = [Simulink.fileGenControl('get','CodeGenFolder') filesep];
-            fprintf('[GENERIC TARGET] Unzipping genereated code: %s\n', [dirCodeGen 'PackNGo.zip']);
-            [~,~] = rmdir([dirCodeGen subDirModelCode 'CodeGeneration'],'s');
-            unzip([dirCodeGen 'PackNGo.zip'],[dirCodeGen subDirModelCode 'CodeGeneration']);
-            delete([dirCodeGen 'PackNGo.zip']);
+            % Update the generated code (delete main entry functions, replace rtw headers)
+            this.UpdateGeneratedCode(modelCodeFolder);
 
-            % Get subdirectory name for actual model code directory
-            folderNameCode = regexp(Simulink.fileGenControl('get','CodeGenFolder'),filesep,'split');
-            folderNameCode = folderNameCode{end};
-            dirModelCode = [dirCodeGen subDirModelCode 'CodeGeneration' filesep folderNameCode filesep modelName '_grt_rtw' filesep];
+            % Build the interface class
+            this.BuildInterfaceClass(modelName, codeGenFolder, modelCodeFolder);
 
-            % Delete some non-source files
-            delete([dirModelCode '*.txt']);
-            delete([dirModelCode '*.mat']);
-            dirSources = [dirCodeGen subDirModelCode 'CodeGeneration'];
-            fprintf('[GENERIC TARGET] Deleting files containing a main entry function from directory: %s\n', dirSources);
-            GT.GenericTarget.UpdateGeneratedCode(dirSources);
-
-            % Load code information
-            fprintf('[GENERIC TARGET] Loading code information: %s\n', [dirCodeGen modelName '_grt_rtw' filesep 'codeInfo.mat']);
-            S = load([dirCodeGen modelName '_grt_rtw' filesep 'codeInfo.mat'], 'codeInfo');
-            codeInfo = S.codeInfo;
-
-            % Generate interface code from code information and write to header file (.hpp) and source file (.cpp) to code generation directory
-            fprintf('[GENERIC TARGET] Generating code for model interface: SimulinkInterface\n');
-            [strInterfaceHeader, strInterfaceSource] = GT.GenericTarget.GenerateInterfaceCode(modelName, codeInfo, obj.priorityDataRecorder, obj.portAppSocket, obj.upperThreadPriority, obj.terminateAtTaskOverload, obj.terminateAtCPUOverload, obj.numberOfOldProtocolFiles);
-            fidHeader = fopen([dirCodeGen subDirModelCode 'SimulinkInterface.hpp'],'wt');
-            fidSource = fopen([dirCodeGen subDirModelCode 'SimulinkInterface.cpp'],'wt');
-            fprintf(fidHeader, strInterfaceHeader);
-            fprintf(fidSource, strInterfaceSource);
-            fclose(fidHeader);
-            fclose(fidSource);
-
-            % Get all custom code sources
-            dirCustomCode = [dirCodeGen subDirModelCode 'CustomCode'];
-            [~,~] = mkdir(dirCustomCode);
-            obj.customCode = unique(obj.customCode);
-            for i=1:length(obj.customCode)
-                splittedNames = strsplit(obj.customCode{i},filesep);
-                idx = find(~cellfun(@isempty,splittedNames));
-                if(~isempty(idx))
-                    [~,~] = copyfile(obj.customCode{i},[dirCustomCode filesep splittedNames{idx(end)}],'f');
+            % Add custom code
+            if(numel(this.customCode))
+                customCodeFolder = fullfile(releaseFolder,'code','CustomCode');
+                fprintf('[GENERIC TARGET] Adding custom code to "%s"\n', customCodeFolder);
+                assert(mkdir(customCodeFolder), 'Could not make release folder!');
+                for i = 1:numel(this.customCode)
+                    [~, name, ext] = fileparts(this.customCode{i});
+                    [~,~] = copyfile(this.customCode{i}, fullfile(customCodeFolder,[name ext]),'f');
                 end
             end
 
             % Compress code into a zip file
-            dirCodeGeneration = [dirCodeGen subDirModelCode 'CodeGeneration'];
-            fprintf('[GENERIC TARGET] Compressing code generation files into zip: %s\n', zipFileName);
-            zip(zipFileName,{dirCodeGeneration,dirCustomCode,[dirCodeGen subDirModelCode 'SimulinkInterface.hpp'],[dirCodeGen subDirModelCode 'SimulinkInterface.cpp']});
-            [~,~] = rmdir(dirCodeGeneration,'s');
-            [~,~] = rmdir(dirCustomCode,'s');
-            delete([dirCodeGen subDirModelCode 'SimulinkInterface.hpp']);
-            delete([dirCodeGen subDirModelCode 'SimulinkInterface.cpp']);
-            fprintf('[GENERIC TARGET] Code generation completed\n');
+            this.CompressReleaseFolder(releaseFolder, zipFileName);
+            t = toc(tStart);
+            fprintf('[GENERIC TARGET] Code generation completed after %f seconds\n',t);
         end
-        function commands = Start(obj)
-            %GT.GenericTarget.Start Start or restart the target application. An SSH connection will be established to start the application located in the
-            % software directory on the target.
+        function commands = Start(this)
+            %GT.GenericTarget.Start Start the target application. An SSH connection will be established to start the application.
+            % If the application is already started, nothing happens.
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            fprintf('[GENERIC TARGET] Starting target software on %s at %s\n',obj.targetUsername,obj.targetIPAddress);
-            cmdSSH = obj.RunCommandOnTarget(['sudo nohup ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME ' &> ' obj.targetSoftwareDirectory 'bin/out.txt &']);
+            this.CheckProperties();
+            fprintf('[GENERIC TARGET] Starting target software on %s at %s\n', this.targetUsername, this.targetIPAddress);
+            cmdSSH = this.RunCommandOnTarget(['sudo nohup ' this.GetTasksetOption() this.targetSoftwareDirectory this.targetProductName ' &> ' this.targetSoftwareDirectory 'out.txt &']);
             commands = {cmdSSH};
         end
-        function commands = Stop(obj)
-            %GT.GenericTarget.Stop Stop the target application. An SSH connection will be established to stop the application located in the software directory
-            % on the target.
+        function commands = Stop(this)
+            %GT.GenericTarget.Stop Stop the target application. An SSH connection will be established to stop the application.
+            % If no application is running, nothing happens.
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            fprintf('[GENERIC TARGET] Stopping target software on %s at %s\n',obj.targetUsername,obj.targetIPAddress);
-            cmdSSH = obj.RunCommandOnTarget(['sudo ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME ' --console --stop']);
+            this.CheckProperties();
+            fprintf('[GENERIC TARGET] Stopping target software on %s at %s\n', this.targetUsername, this.targetIPAddress);
+            cmdSSH = this.RunCommandOnTarget(['sudo ' this.targetSoftwareDirectory this.targetProductName ' --console --stop']);
             commands = {cmdSSH};
         end
-        function commands = Reboot(obj)
+        function commands = Reboot(this)
             %GT.GenericTarget.Reboot Reboot the target computer. An SSH connection will be established to run a reboot command.
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            fprintf('[GENERIC TARGET] Rebooting target %s at %s\n',obj.targetUsername,obj.targetIPAddress);
-            cmdSSH = obj.RunCommandOnTarget('sudo reboot');
+            this.CheckProperties();
+            fprintf('[GENERIC TARGET] Rebooting target %s at %s\n', this.targetUsername, this.targetIPAddress);
+            cmdSSH = this.RunCommandOnTarget('sudo reboot');
             commands = {cmdSSH};
         end
-        function commands = Shutdown(obj)
+        function commands = Shutdown(this)
             %GT.GenericTarget.Shutdown Shutdown the target computer. An SSH connection will be established to run a shutdown command.
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            fprintf('[GENERIC TARGET] Shutting down target %s at %s\n',obj.targetUsername,obj.targetIPAddress);
-            cmdSSH = obj.RunCommandOnTarget('sudo shutdown -h now');
+            this.CheckProperties();
+            fprintf('[GENERIC TARGET] Shutting down target %s at %s\n', this.targetUsername, this.targetIPAddress);
+            cmdSSH = this.RunCommandOnTarget('sudo shutdown -h now');
             commands = {cmdSSH};
         end
-        function commands = ShowPID(obj)
-            %GT.GenericTarget.ShowPID Show the process ID for all processes on the target that are named "GenericTarget" %(GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME).
-            % This can be used to check whether the application is running or not.
+        function commands = ShowPID(this)
+            %GT.GenericTarget.ShowPID Show the process ID for all processes on the target that are named according to targetProductName.
+            % This can be used to check whether the application is running or not. If no process is running the printed console output
+            % is empty.
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            cmdSSH = obj.RunCommandOnTarget(['pidof ' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME]);
+            this.CheckProperties();
+            cmdSSH = this.RunCommandOnTarget(['pidof ' this.targetProductName]);
             commands = {cmdSSH};
         end
-        function commands = ShowLatestProtocol(obj)
+        function commands = ShowIsolatedCPUCores(this)
+            %GT.GenericTarget.ShowIsolatedCPUs Show the isolated CPUs for the target. If no CPU cores are isolated the printed console output
+            % is empty.
+            % 
+            % RETURN
+            % commands ... The commands that were executed on the host.
+            this.CheckProperties();
+            cmdSSH = this.RunCommandOnTarget('cat /sys/devices/system/cpu/isolated');
+            commands = {cmdSSH};
+        end
+        function commands = ShowLatestProtocol(this)
             %GT.GenericTarget.ShowLatestProtocol Show the latest protocol file from the target.
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            [cmd1, cmdout] = obj.RunCommandOnTarget(['ls -rt ' obj.targetSoftwareDirectory, 'bin/protocol/*.txt | tail -n1']);
+            this.CheckProperties();
+            targetProtocolDirectory = this.GetTargetProtocolDirectoryName();
+            [cmd1, cmdout] = this.RunCommandOnTarget(['ls -rt ', targetProtocolDirectory, '*.txt | tail -n1']);
             protocolFileOnTarget = strtrim(cmdout);
             [~,f,e] = fileparts(protocolFileOnTarget);
             if(strcmp(f,'*') || ~strcmp(e,'.txt'))
@@ -407,10 +355,10 @@ classdef GenericTarget < handle
                 commands = {cmd1};
                 return;
             end
-            cmd2 = obj.RunCommandOnTarget(['cat ' protocolFileOnTarget]);
+            cmd2 = this.RunCommandOnTarget(['cat ' protocolFileOnTarget]);
             commands = {cmd1; cmd2};
         end
-        function commands = DownloadAllProtocols(obj, hostDirectory)
+        function commands = DownloadAllProtocols(this, hostDirectory)
             %GT.GenericTarget.DownloadAllProtocols Download all protocol files from the target. The downloaded text will be written to the specified hostDirectory.
             % 
             % PARAMETERS
@@ -426,28 +374,29 @@ classdef GenericTarget < handle
                 hostDirectory = pwd;
             end
             assert(ischar(hostDirectory), 'GT.GenericTarget.DownloadAllProtocols(): Input "hostDirectory" must be a string!');
-            if(filesep ~= hostDirectory(end))
-                hostDirectory = [hostDirectory filesep];
-            end
+            this.CheckProperties();
 
             % Download directory via SCP
-            fprintf('[GENERIC TARGET] Downloading all protocols (%s) from target %s at %s to host (%s)\n',[obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_PROTOCOL],obj.targetUsername,obj.targetIPAddress,hostDirectory);
+            targetProtocolDirectory = this.GetTargetProtocolDirectoryName();
+            fprintf('[GENERIC TARGET] Downloading all protocols (%s) from target %s at %s to host (%s)\n',targetProtocolDirectory,this.targetUsername,this.targetIPAddress,hostDirectory);
             [~,~] = mkdir(hostDirectory);
-            cmdSCP = ['scp -o ConnectTimeout=' num2str(obj.connectTimeout) ' -P ' num2str(obj.portSSH) ' -r ' obj.targetUsername '@' obj.targetIPAddress ':' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_PROTOCOL ' ' hostDirectory];
-            obj.RunCommand(cmdSCP);
+            cmdSCP = ['scp -o ConnectTimeout=' num2str(this.connectTimeout) ' -P ' num2str(this.portSSH) ' -r ' this.targetUsername '@' this.targetIPAddress ':' targetProtocolDirectory ' ' hostDirectory];
+            this.RunCommand(cmdSCP);
             commands = {cmdSCP};
             fprintf('[GENERIC TARGET] Download completed\n');
         end
-        function commands = DeleteAllProtocols(obj)
+        function commands = DeleteAllProtocols(this)
             %GT.GenericTarget.DeleteAllProtocols Delete all protocol text files on the target. This will also stop a running target application.
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            fprintf('[GENERIC TARGET] Stopping target application and deleting all protocol files (%s) from target %s at %s\n',[obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_PROTOCOL],obj.targetUsername,obj.targetIPAddress);
-            cmdSSH = obj.RunCommandOnTarget(['sudo ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME ' --console --stop ; sudo rm -r -f ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_DIRECTORY_PROTOCOL]);
+            this.CheckProperties();
+            targetProtocolDirectory = this.GetTargetProtocolDirectoryName();
+            fprintf('[GENERIC TARGET] Stopping target application and deleting all protocol files (%s) from target %s at %s\n', targetProtocolDirectory, this.targetUsername, this.targetIPAddress);
+            cmdSSH = this.RunCommandOnTarget(['sudo ' this.targetSoftwareDirectory this.targetProductName ' --console --stop ; sudo rm -r -f ' targetProtocolDirectory]);
             commands = {cmdSSH};
         end
-        function commands = DownloadDataDirectory(obj, hostDirectory, targetDataDirectory)
+        function commands = DownloadDataDirectory(this, hostDirectory, targetDataDirectory)
             %GT.GenericTarget.DownloadDataDirectory Download recorded data from the target. The downloaded data will be written to the specified hostDirectory.
             % 
             % PARAMETERS
@@ -473,23 +422,25 @@ classdef GenericTarget < handle
             if(filesep ~= hostDirectory(end))
                 hostDirectory = [hostDirectory filesep];
             end
+            this.CheckProperties();
+            dataFolder = this.GetTargetDataDirectoryName();
 
             % Check if user specified data directory
             cmdSSH = char.empty();
             if(isempty(targetDataDirectory))
                 % Get all directory names
-                fprintf('[GENERIC TARGET] Listing available data directories on target %s at %s\n',obj.targetUsername,obj.targetIPAddress);
-                cmdSSH = obj.RunCommandOnTarget(['cd ' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_DATA ' && ls']);
+                fprintf('[GENERIC TARGET] Listing available data directories on target %s at %s\n', this.targetUsername, this.targetIPAddress);
+                cmdSSH = this.RunCommandOnTarget(['cd ' dataFolder ' && ls']);
 
                 % Get directory name from user input
                 targetDataDirectory = input('[GENERIC TARGET] Choose directory name to download: ','s');
             end
 
             % Download directory via SCP
-            fprintf('[GENERIC TARGET] Downloading %s from target %s at %s\n',targetDataDirectory,obj.targetUsername,obj.targetIPAddress);
+            fprintf('[GENERIC TARGET] Downloading %s from target %s at %s\n', targetDataDirectory, this.targetUsername, this.targetIPAddress);
             [~,~] = mkdir(hostDirectory);
-            cmdSCP = ['scp -o ConnectTimeout=' num2str(obj.connectTimeout) ' -P ' num2str(obj.portSSH) ' -r ' obj.targetUsername '@' obj.targetIPAddress ':' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_DATA targetDataDirectory ' ' hostDirectory targetDataDirectory];
-            obj.RunCommand(cmdSCP);
+            cmdSCP = ['scp -o ConnectTimeout=' num2str(this.connectTimeout) ' -P ' num2str(this.portSSH) ' -r ' this.targetUsername '@' this.targetIPAddress ':' dataFolder targetDataDirectory ' ' hostDirectory targetDataDirectory];
+            this.RunCommand(cmdSCP);
             if(isempty(cmdSSH))
                 commands = {cmdSCP};
             else
@@ -497,7 +448,7 @@ classdef GenericTarget < handle
             end
             fprintf('[GENERIC TARGET] Download completed\n');
         end
-        function commands = DownloadAllData(obj, hostDirectory)
+        function commands = DownloadAllData(this, hostDirectory)
             %GT.GenericTarget.DownloadAllData Download all recorded data directories from the target. The downloaded data will be written to the specified hostDirectory.
             % 
             % PARAMETERS
@@ -516,36 +467,45 @@ classdef GenericTarget < handle
             if(filesep ~= hostDirectory(end))
                 hostDirectory = [hostDirectory filesep];
             end
+            this.CheckProperties();
+            dataFolder = this.GetTargetDataDirectoryName();
 
-            % Download directory via SCP
-            fprintf('[GENERIC TARGET] Downloading all data (%s) from target %s at %s to host (%s)\n',[obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_DATA],obj.targetUsername,obj.targetIPAddress,hostDirectory);
+            % Download all data directories via SCP
+            fprintf('[GENERIC TARGET] Downloading all data (%s) from target %s at %s to host (%s)\n', dataFolder, this.targetUsername, this.targetIPAddress, hostDirectory);
             [~,~] = mkdir(hostDirectory);
-            cmdSCP = ['scp -o ConnectTimeout=' num2str(obj.connectTimeout) ' -P ' num2str(obj.portSSH) ' -r ' obj.targetUsername '@' obj.targetIPAddress ':' obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_DATA ' ' hostDirectory];
-            obj.RunCommand(cmdSCP);
+            cmdSCP = ['scp -o ConnectTimeout=' num2str(this.connectTimeout) ' -P ' num2str(this.portSSH) ' -r ' this.targetUsername '@' this.targetIPAddress ':' dataFolder '* ' hostDirectory];
+            this.RunCommand(cmdSCP);
             commands = {cmdSCP};
-
-            % Unpack from data directory
-            [~,~] = movefile([hostDirectory obj.GENERIC_TARGET_DIRECTORY_DATA '*'],hostDirectory);
-            [~,~] = rmdir([hostDirectory obj.GENERIC_TARGET_DIRECTORY_DATA], 's');
             fprintf('[GENERIC TARGET] Download completed\n');
         end
-        function commands = DeleteAllData(obj)
+        function commands = DeleteAllData(this)
             %GT.GenericTarget.DeleteData Delete all recorded data on the target. This will also stop a running target application.
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            fprintf('[GENERIC TARGET] Stopping target application and deleting all data files (%s) from target %s at %s\n',[obj.targetSoftwareDirectory 'bin/' obj.GENERIC_TARGET_DIRECTORY_DATA],obj.targetUsername,obj.targetIPAddress);
-            cmdSSH = obj.RunCommandOnTarget(['sudo ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_SOFTWARE_NAME ' --stop ; sudo rm -r -f ' obj.targetSoftwareDirectory 'bin/' GT.GenericTarget.GENERIC_TARGET_DIRECTORY_DATA]);
+            this.CheckProperties();
+            targetDataDirectory = this.GetTargetDataDirectoryName();
+            fprintf('[GENERIC TARGET] Stopping target application and deleting all data files (%s) from target %s at %s\n', targetDataDirectory, this.targetUsername, this.targetIPAddress);
+            cmdSSH = this.RunCommandOnTarget(['sudo ' this.targetSoftwareDirectory this.targetProductName ' --console --stop ; sudo rm -r -f ' targetDataDirectory]);
             commands = {cmdSSH};
         end
-        function dataDirectory = GetTargetDataDirectoryName(obj)
+        function dataDirectory = GetTargetDataDirectoryName(this)
             %GT.GenericTarget.GetTargetDataDirectoryName Get the absolute name of the data directory on the target.
             % 
             % RETURN
-            % dataDirectory ... Absolute data directory name on the target.
-            dataDirectory = [obj.targetSoftwareDirectory GT.GenericTarget.GENERIC_TARGET_DIRECTORY_DATA];
+            % dataDirectory ... Absolute data directory name on the target (ends with a separator '/').
+            this.CheckProperties();
+            dataDirectory = [this.targetSoftwareDirectory, 'data/'];
         end
-        function [commands,cmdout] = RunCommandOnTarget(obj, cmd)
+        function protocolDirectory = GetTargetProtocolDirectoryName(this)
+            %GT.GenericTarget.GetTargetProtocolDirectoryName Get the absolute name of the protocol directory on the target.
+            % 
+            % RETURN
+            % protocolDirectory ... Absolute protocol directory name on the target (ends with a separator '/').
+            this.CheckProperties();
+            protocolDirectory = [this.targetSoftwareDirectory, 'protocol/'];
+        end
+        function [commands,cmdout] = RunCommandOnTarget(this, cmd)
             %GT.GenericTarget.RunCommandOnTarget Run a command to the target computer. The command is executed via SSH.
             % 
             % PARAMETERS
@@ -554,85 +514,171 @@ classdef GenericTarget < handle
             % RETURN
             % commands ... The commands that were executed on the host.
             % cmdout   ... The output that have been returned by the command window.
-            cmdSSH = ['ssh -o ConnectTimeout=' num2str(obj.connectTimeout) ' -p ' num2str(obj.portSSH) ' ' obj.targetUsername '@' obj.targetIPAddress ' "' cmd '"'];
-            cmdout = obj.RunCommand(cmdSSH);
+            this.CheckProperties();
+            cmdSSH = ['ssh -o ConnectTimeout=' num2str(this.connectTimeout) ' -p ' num2str(this.portSSH) ' ' this.targetUsername '@' this.targetIPAddress ' "' cmd '"'];
+            cmdout = this.RunCommand(cmdSSH);
             commands = {cmdSSH};
         end
     end
-    methods(Static, Access=private)
-        function UpdateGeneratedCode(directory)
-            % Get template directory
-            fullpath = mfilename('fullpath');
-            filename = mfilename();
-            dirTemplate = [fullpath(1:(end-length(filename))) GT.GenericTarget.GENERIC_TARGET_SUBDIRECTORY_CODE filesep 'template' filesep];
+    methods(Access=private)
+        function directory = GetTemplateDirectory(this)
+            directory = fullfile(extractBefore(mfilename('fullpath'),strlength(mfilename('fullpath')) - strlength(mfilename) + 1), 'Templates');
+        end
+        function tasksetOption = GetTasksetOption(this)
+            tasksetOption = '';
+            if(~isempty(this.targetBitmaskCPUCores))
+                tasksetOption = ['taskset ' this.targetBitmaskCPUCores ' '];
+            end
+        end
+        function CopyFrameworkToReleaseFolder(this,releaseFolder)
+            % Copy folders
+            templateDirectory = this.GetTemplateDirectory();
+            fprintf('[GENERIC TARGET] Copying framework from "%s" to release folder "%s"\n',templateDirectory,releaseFolder);
+            assert(copyfile(fullfile(templateDirectory,'code'), fullfile(releaseFolder,'code'), 'f'), 'Could not copy template files!');
+            assert(copyfile(fullfile(templateDirectory,'.vscode'), fullfile(releaseFolder,'.vscode'), 'f'), 'Could not copy template files!');
 
-            % Get list of files and folders for current directory and check all files/folders
-            filesAndFolders = dir(directory);
-            for i = 1:length(filesAndFolders)
-                % Ignore directories with '.' and '..'
-                if(strcmp('.',filesAndFolders(i).name) && filesAndFolders(i).isdir), continue; end
-                if(strcmp('..',filesAndFolders(i).name) && filesAndFolders(i).isdir), continue; end
+            % Generate files
+            this.GenerateMakefile(releaseFolder);
+            this.GenerateReadme(releaseFolder);
+        end
+        function GenerateMakefile(this,releaseFolder)
+            % Read the template Makefile
+            srcMakefile = fullfile(this.GetTemplateDirectory(),'Makefile');
+            dstMakefile = fullfile(releaseFolder,'Makefile');
+            fprintf('[GENERIC TARGET] Generating Makefile "%s"\n',dstMakefile);
+            strMakefile = fileread(srcMakefile);
 
-                % If it is a directory, recursively update files, else check single file
-                if(filesAndFolders(i).isdir)
-                    GT.GenericTarget.UpdateGeneratedCode([directory filesep filesAndFolders(i).name]);
-                else
-                    filename = [directory filesep filesAndFolders(i).name];
+            % Update patterns
+            strDEBUG = '0';
+            if(this.additionalCompilerFlags.DEBUG_MODE)
+                strDEBUG = '1';
+            end
+            strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_PRODUCT_NAME$', this.targetProductName);
+            strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_DEBUG_MODE$', strDEBUG);
+            strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_LIBS_WIN$', strjoin(this.additionalCompilerFlags.LIBS_WIN));
+            strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_LIBS_UNIX$', strjoin(this.additionalCompilerFlags.LIBS_UNIX));
+            strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_CC_SYMBOLS$', strjoin(this.additionalCompilerFlags.CC_SYMBOLS));
+            strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_CC_FLAGS$', strjoin(this.additionalCompilerFlags.CC_FLAGS));
+            strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_CPP_FLAGS$', strjoin(this.additionalCompilerFlags.CPP_FLAGS));
+            strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_LD_FLAGS$', strjoin(this.additionalCompilerFlags.LD_FLAGS));
 
-                    % Check for rtw_windows.h or rtw_linux.h: replace those
-                    if(strcmp('rtw_windows.h',filesAndFolders(i).name) || strcmp('rtw_linux.h',filesAndFolders(i).name))
-                        fprintf('    Replacing file "%s"\n',filename);
-                        delete(filename);
-                        [~,~] = copyfile([dirTemplate filesAndFolders(i).name],filename,'f');
-                        continue;
-                    end
+            % Write Makefile to release folder
+            fidMakefile = fopen(dstMakefile,'w');
+            if(-1 == fidMakefile)
+                error('Could not write to file "%s"', dstMakefile);
+            end
+            fwrite(fidMakefile, uint8(strMakefile));
+            fclose(fidMakefile);
+        end
+        function GenerateReadme(this,releaseFolder)
+            % Read the template readme file
+            srcReadme = fullfile(this.GetTemplateDirectory(),'README.md');
+            dstReadme = fullfile(releaseFolder,'README.md');
+            fprintf('[GENERIC TARGET] Generating Makefile "%s"\n',dstReadme);
+            strReadme = fileread(srcReadme);
 
-                    % Check for rtw_windows.c or rtw_linux.c: delete those
-                    if(strcmp('rtw_windows.c',filesAndFolders(i).name) || strcmp('rtw_linux.c',filesAndFolders(i).name))
-                        fprintf('    Deleting file "%s"\n',filename);
-                        delete(filename);
-                        continue;
-                    end
+            % Update pattern
+            strReadme = strrep(strReadme, '$TARGET_README_PRODUCT_NAME$', this.targetProductName);
 
-                    % Open file and search for string "int_T main(" and "int main("
-                    deleteFile = false;
-                    fid = fopen(filename);
-                    while(~feof(fid))
-                        line = fgetl(fid);
-                        if(~ischar(line)), continue; end
-                        deleteFile = contains(line, 'int_T main(');
-                        if(deleteFile), break; end
-                        deleteFile = contains(line, 'int main(');
-                        if(deleteFile), break; end
-                    end
-                    fclose(fid);
+            % Write readme file to release folder
+            fidReadme = fopen(dstReadme,'w');
+            if(-1 == fidReadme)
+                error('Could not write to file "%s"', dstReadme);
+            end
+            fwrite(fidReadme, uint8(strReadme));
+            fclose(fidReadme);
+        end
+        function modelCodeFolder = BuildModelToReleaseFolder(this, modelName, codeGenFolder, releaseFolder)
+            % Run code generation (model must be configured to pack the generated code into the PackNGo archive)
+            fprintf('[GENERIC TARGET] Building model code ...\n');
+            slbuild(modelName);
+            zipFileGeneratedCode = fullfile(codeGenFolder,'PackNGo.zip');
+            assert(exist(zipFileGeneratedCode,'file'), ['Code generation of model "' modelName '" did not produce a PackNGo.zip! Make sure to use the template simulink model. You can get the template model by calling GT.GetTemplate().']);
 
-                    % Delete file if it contains the string
-                    if(deleteFile)
-                        fprintf('    Deleting file "%s"\n',filename);
-                        delete(filename);
-                    end
+            % Unpack the generated code to the release folder
+            modelCodeFolder = fullfile(releaseFolder,'code','SimulinkCodeGeneration');
+            fprintf('[GENERIC TARGET] Unpacking generated model code "%s" to "%s"\n', zipFileGeneratedCode, modelCodeFolder);
+            unzip(zipFileGeneratedCode,modelCodeFolder);
+            delete(zipFileGeneratedCode);
+
+            % Delete all non-source files that have been generated during simulink code generation
+            listings = dir(fullfile(modelCodeFolder, ['**',filesep,'*.*']));
+            listings = listings(~[listings.isdir]);
+            for i = 1:numel(listings)
+                if(~endsWith(listings(i).name, {'.c','.cc','.cpp','.cxx','.h','.hh','.hpp','.hxx','.asm','.s','.ipp','.tcc'}, 'IgnoreCase', true))
+                    delete(fullfile(listings(i).folder,listings(i).name));
                 end
             end
         end
-        function [strHeader, strSource] = GenerateInterfaceCode(modelName, codeInfo, priorityDataRecorder, portAppSocket, upperThreadPriority, terminateAtTaskOverload, terminateAtCPUOverload, numberOfOldProtocolFiles)
-            % Check for valid input interface name
-            assert(ischar(modelName), 'GT.GenericTarget.GenerateInterfaceCode(): Input "modelName" must be a string!');
-            assert(isscalar(priorityDataRecorder), 'GT.GenericTarget.GenerateInterfaceCode(): Input "priorityDataRecorder" must be scalar!');
-            priorityDataRecorder = uint32(priorityDataRecorder);
-            assert((priorityDataRecorder > 0) && (priorityDataRecorder < 100), 'GT.GenericTarget.GenerateInterfaceCode(): Input "priorityDataRecorder" must be in range [1, 99]!');
-            assert(isscalar(portAppSocket), 'GT.GenericTarget.GenerateInterfaceCode(): Input "portAppSocket" must be scalar!');
-            portAppSocket = uint16(portAppSocket);
-            assert(isscalar(upperThreadPriority), 'GT.GenericTarget.GenerateInterfaceCode(): Input "upperThreadPriority" must be scalar!');
-            upperThreadPriority = int32(upperThreadPriority);
-            assert((upperThreadPriority > 0) && (upperThreadPriority < 100), 'GT.GenericTarget.GenerateInterfaceCode(): Input "upperThreadPriority" must be in range [1, 99]!');
-            assert(isscalar(terminateAtTaskOverload), 'GT.GenericTarget.GenerateInterfaceCode(): Input "terminateAtTaskOverload" must be scalar!');
-            assert(islogical(terminateAtTaskOverload), 'GT.GenericTarget.GenerateInterfaceCode(): Input "terminateAtTaskOverload" must be logical!');
-            assert(isscalar(terminateAtCPUOverload), 'GT.GenericTarget.GenerateInterfaceCode(): Input "terminateAtCPUOverload" must be scalar!');
-            assert(islogical(terminateAtCPUOverload), 'GT.GenericTarget.GenerateInterfaceCode(): Input "terminateAtCPUOverload" must be logical!');
-            assert(isscalar(numberOfOldProtocolFiles), 'GT.GenericTarget.GenerateInterfaceCode(): Input "numberOfOldProtocolFiles" must be scalar!');
-            numberOfOldProtocolFiles = uint32(numberOfOldProtocolFiles);
+        function UpdateGeneratedCode(this, directory)
+            fprintf('[GENERIC TARGET] Updating generated code directory %s\n', directory);
 
+            % Get list of all files in directory and check file by file
+            listings = dir(fullfile(directory, ['**',filesep,'*.*']));
+            listings = listings(~[listings.isdir]);
+            for i = 1:numel(listings)
+                currentFile = fullfile(listings(i).folder, listings(i).name);
+
+                % Check for rtw_windows.h or rtw_linux.h: replace those
+                if(strcmp('rtw_windows.h',listings(i).name) || strcmp('rtw_linux.h',listings(i).name))
+                    templateFile = fullfile(this.GetTemplateDirectory(), listings(i).name);
+                    fprintf('    Replacing file "%s"\n',currentFile);
+                    delete(currentFile);
+                    [~,~] = copyfile(templateFile,currentFile,'f');
+                    continue;
+                end
+
+                % Check for rtw_windows.c or rtw_linux.c: delete those
+                if(strcmp('rtw_windows.c',listings(i).name) || strcmp('rtw_linux.c',listings(i).name))
+                    fprintf('    Deleting file "%s"\n',currentFile);
+                    delete(currentFile);
+                    continue;
+                end
+
+                % Delete file if it contains the string "int_T main(" and "int main(" in a line
+                deleteFile = false;
+                fid = fopen(currentFile);
+                while(~feof(fid))
+                    line = fgetl(fid);
+                    if(~ischar(line)), continue; end
+                    deleteFile = contains(line, 'int_T main(');
+                    if(deleteFile), break; end
+                    deleteFile = contains(line, 'int main(');
+                    if(deleteFile), break; end
+                end
+                fclose(fid);
+                if(deleteFile)
+                    fprintf('    Deleting file "%s"\n',currentFile);
+                    delete(currentFile);
+                end
+            end
+        end
+        function BuildInterfaceClass(this, modelName, codeGenFolder, modelCodeFolder)
+            % Load code information
+            codeInfoFile = fullfile(codeGenFolder,[modelName '_grt_rtw'],'codeInfo.mat');
+            fprintf('[GENERIC TARGET] Loading code information "%s"\n', codeInfoFile);
+            S = load(codeInfoFile, 'codeInfo');
+            codeInfo = S.codeInfo;
+
+            % Generate interface code from code information and write to header file (.hpp) and source file (.cpp) to code generation directory
+            fprintf('[GENERIC TARGET] Generating interface code\n');
+            [strInterfaceHeader, strInterfaceSource] = this.GenerateInterfaceCode(modelName, codeInfo);
+            headerFile = fullfile(modelCodeFolder,'SimulinkInterface.hpp');
+            sourceFile = fullfile(modelCodeFolder,'SimulinkInterface.cpp');
+            fidHeader = fopen(headerFile,'w');
+            fidSource = fopen(sourceFile,'w');
+            if(-1 == fidHeader)
+                error('Could not write to file "%s"', headerFile);
+            end
+            if(-1 == fidSource)
+                error('Could not write to file "%s"', sourceFile);
+            end
+            fwrite(fidHeader, uint8(strInterfaceHeader));
+            fwrite(fidSource, uint8(strInterfaceSource));
+            fclose(fidHeader);
+            fclose(fidSource);
+        end
+        function [strHeader, strSource] = GenerateInterfaceCode(this, modelName, codeInfo)
             % Get the model name, both for function names and information
             strNameOfModel = '';
             for i = 1:length(modelName)
@@ -645,7 +691,7 @@ classdef GenericTarget < handle
             strNameOfClass = codeInfo.ConstructorFunction.Prototype.Name;
             strNameOfClassHeader = codeInfo.ConstructorFunction.Prototype.HeaderFile;
 
-            % Get initialize and terminate function prototype
+            % Get initialize and terminate function prototypes
             assert(isempty(codeInfo.UpdateFunctions), 'GT.GenericTarget.GenerateInterfaceCode(): Code generation information contains update functions! However, no update functions are supported!');
             assert(1 == length(codeInfo.InitializeFunctions), 'GT.GenericTarget.GenerateInterfaceCode(): Code generation information contains several initialization functions! However, only one initialization function is supported!');
             assert(1 == length(codeInfo.TerminateFunctions), 'GT.GenericTarget.GenerateInterfaceCode(): Code generation information contains several termination functions! However, only one termination function is supported!');
@@ -670,7 +716,7 @@ classdef GenericTarget < handle
             strBaseSampleTime = sprintf('%.16f',baseSampleTime);
 
             % Get priority array, sampleTick array, prototype names and task names
-            priorities = int32(zeros(numTimings, 1));
+            priorities = uint32(zeros(numTimings, 1));
             sampleTicks = uint32(zeros(numTimings, 1));
             stepPrototypes = string(zeros(numTimings, 1));
             taskNames = string(zeros(numTimings, 1));
@@ -681,8 +727,9 @@ classdef GenericTarget < handle
                 taskNames(n) = codeInfo.OutputFunctions(n).Timing.NonFcnCallPartitionName;
             end
 
-            % Set priority based on upper task priority
-            priorities = priorities + (upperThreadPriority - int32(max(priorities)));
+            % Set priority based on upper thread priority
+            maxPriority = uint32(max(priorities));
+            priorities = priorities + max(this.upperThreadPriority, maxPriority) - maxPriority;
 
             % Generate strings
             strArraySampleTicks = sprintf('%d',sampleTicks(1));
@@ -697,34 +744,29 @@ classdef GenericTarget < handle
             end
 
             % Get priority for data recording thread
-            strpriorityDataRecorder = sprintf('%d',priorityDataRecorder);
+            strpriorityDataRecorder = sprintf('%d',this.priorityDataRecorder);
 
             % Get port for application socket
-            strPortAppSocket = sprintf('%d',portAppSocket);
+            strPortAppSocket = sprintf('%d',this.portAppSocket);
 
             % Get task overload behaviour
             strTerminateAtTaskOverload = 'false';
-            if(terminateAtTaskOverload)
+            if(this.terminateAtTaskOverload)
                 strTerminateAtTaskOverload = 'true';
             end
 
             % Get CPU overload behaviour
             strTerminateAtCPUOverload = 'false';
-            if(terminateAtCPUOverload)
+            if(this.terminateAtCPUOverload)
                 strTerminateAtCPUOverload = 'true';
             end
 
             % Get number of old protocol files to keep
-            strNumberOfOldProtocolFiles = sprintf('%d',numberOfOldProtocolFiles);
+            strNumberOfOldProtocolFiles = sprintf('%d',this.numberOfOldProtocolFiles);
 
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             % Read template interface files and replace macros in both header and source template code
-            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            fullpath = mfilename('fullpath');
-            filename = mfilename();
-            dirTemplate = [fullpath(1:(end-length(filename))) GT.GenericTarget.GENERIC_TARGET_SUBDIRECTORY_CODE filesep 'template' filesep];
-            strHeader = fileread([dirTemplate 'TemplateInterface.hpp']);
-            strSource = fileread([dirTemplate 'TemplateInterface.cpp']);
+            strHeader = fileread(fullfile(this.GetTemplateDirectory(),'TemplateInterface.hpp'));
+            strSource = fileread(fullfile(this.GetTemplateDirectory(),'TemplateInterface.cpp'));
             strHeader = strrep(strHeader, '$NAME_OF_MODEL$', strNameOfModel);
             strSource = strrep(strSource, '$NAME_OF_MODEL$', strNameOfModel);
             strHeader = strrep(strHeader, '$NAME_OF_CLASS$', strNameOfClass);
@@ -758,7 +800,100 @@ classdef GenericTarget < handle
             strHeader = strrep(strHeader, '$NUMBER_OF_OLD_PROTOCOL_FILES$', strNumberOfOldProtocolFiles);
             strSource = strrep(strSource, '$NUMBER_OF_OLD_PROTOCOL_FILES$', strNumberOfOldProtocolFiles);
         end
-        function cmdout = RunCommand(cmd)
+        function CompressReleaseFolder(this, releaseFolder, zipFileName)
+            % Get all listings from the release folder
+            L = dir(releaseFolder);
+            L = L(~ismember({L.name},{'.','..'}));
+            releaseListings = cell.empty();
+            for i = 1:numel(L)
+                releaseListings(i) = {fullfile(L(i).folder,L(i).name)};
+            end
+
+            % Compress all listings from the release folder
+            fprintf('[GENERIC TARGET] Compressing release code into "%s"\n', zipFileName);
+            if(exist(zipFileName,'file')), delete(zipFileName); end
+            zip(zipFileName, releaseListings);
+            [~,~] = rmdir(releaseFolder,'s');
+        end
+        function CheckProperties(this)
+            % portAppSocket
+            assert(isscalar(this.portAppSocket), 'Property "portAppSocket" must be scalar!');
+            this.portAppSocket = uint16(this.portAppSocket);
+
+            % portSSH
+            assert(isscalar(this.portSSH), 'Property "portSSH" must be scalar!');
+            this.portSSH = uint16(this.portSSH);
+
+            % connectTimeout
+            assert(isscalar(this.connectTimeout), 'Property "connectTimeout" must be scalar!');
+            this.connectTimeout = uint32(this.connectTimeout);
+
+            % targetIPAddress
+            assert(ischar(this.targetIPAddress), 'Property "targetIPAddress" must be a string!');
+
+            % targetUsername
+            assert(ischar(this.targetUsername), 'Property "targetUsername" must be a string!');
+
+            % targetSoftwareDirectory
+            assert(ischar(this.targetSoftwareDirectory), 'Property "targetSoftwareDirectory" must be a string!');
+            assert(startsWith(this.targetSoftwareDirectory,'~/'), 'Property "targetSoftwareDirectory" must start with ''~/''!');
+            assert(endsWith(this.targetSoftwareDirectory,'/'), 'Property "targetSoftwareDirectory" must end with ''/''!');
+
+            % targetProductName
+            assert(ischar(this.targetProductName), 'Property "targetProductName" must be a string!');
+            assert(isvarname(this.targetProductName), 'Property "targetProductName" must be a valid MATLAB variable name (see "help isvarname")!');
+
+            % targetBitmaskCPUCores
+            assert(ischar(this.targetBitmaskCPUCores), 'Property "targetBitmaskCPUCores" must be a string!');
+            if(~isempty(this.targetBitmaskCPUCores))
+                assert(startsWith(this.targetBitmaskCPUCores,'0x'), 'Property "targetBitmaskCPUCores" must start with "0x"!');
+                i = isstrprop(this.targetBitmaskCPUCores(3:end),'xdigit');
+                assert(numel(i) && (sum(i) == numel(i)), 'Property "targetBitmaskCPUCores" must be either an empty string or a hexadecimal string, e.g. "0xFF"!');
+            end
+
+            % upperThreadPriority
+            assert(isscalar(this.upperThreadPriority), 'Property "upperThreadPriority" must be scalar!');
+            this.upperThreadPriority = uint32(this.upperThreadPriority);
+            assert((this.upperThreadPriority > 0) && (this.upperThreadPriority < 100), 'Property "upperThreadPriority" must be in range [1, 99]!');
+
+            % priorityDataRecorder
+            assert(isscalar(this.priorityDataRecorder), 'Property "priorityDataRecorder" must be scalar!');
+            this.priorityDataRecorder = uint32(this.priorityDataRecorder);
+            assert((this.priorityDataRecorder > 0) && (this.priorityDataRecorder < 100), 'Property "priorityDataRecorder" must be in range [1, 99]!');
+
+            % terminateAtTaskOverload
+            assert(isscalar(this.terminateAtTaskOverload), 'Property "terminateAtTaskOverload" must be scalar!');
+            this.terminateAtTaskOverload = logical(this.terminateAtTaskOverload);
+
+            % terminateAtCPUOverload
+            assert(isscalar(this.terminateAtCPUOverload), 'Property "terminateAtCPUOverload" must be scalar!');
+            this.terminateAtCPUOverload = logical(this.terminateAtCPUOverload);
+
+            % customCode
+            assert(iscellstr(this.customCode), 'Property "customCode" must be a cell array of strings!');
+            this.customCode = unique(this.customCode);
+
+            % numberOfOldProtocolFiles
+            assert(isscalar(this.numberOfOldProtocolFiles), 'Property "numberOfOldProtocolFiles" must be scalar!');
+            this.numberOfOldProtocolFiles = uint32(this.numberOfOldProtocolFiles);
+
+            % additionalCompilerFlags
+            assert(isscalar(this.additionalCompilerFlags.DEBUG_MODE), 'Property "additionalCompilerFlags.DEBUG_MODE" must be scalar!');
+            this.additionalCompilerFlags.DEBUG_MODE = logical(this.additionalCompilerFlags.DEBUG_MODE);
+            assert(iscellstr(this.additionalCompilerFlags.LIBS_WIN), 'Property "additionalCompilerFlags.LIBS_WIN" must be a cell array of strings!');
+            this.additionalCompilerFlags.LIBS_WIN = unique(this.additionalCompilerFlags.LIBS_WIN);
+            assert(iscellstr(this.additionalCompilerFlags.LIBS_UNIX), 'Property "additionalCompilerFlags.LIBS_UNIX" must be a cell array of strings!');
+            this.additionalCompilerFlags.LIBS_UNIX = unique(this.additionalCompilerFlags.LIBS_UNIX);
+            assert(iscellstr(this.additionalCompilerFlags.CC_SYMBOLS), 'Property "additionalCompilerFlags.CC_SYMBOLS" must be a cell array of strings!');
+            this.additionalCompilerFlags.CC_SYMBOLS = unique(this.additionalCompilerFlags.CC_SYMBOLS);
+            assert(iscellstr(this.additionalCompilerFlags.CC_FLAGS), 'Property "additionalCompilerFlags.CC_FLAGS" must be a cell array of strings!');
+            this.additionalCompilerFlags.CC_FLAGS = unique(this.additionalCompilerFlags.CC_FLAGS);
+            assert(iscellstr(this.additionalCompilerFlags.CPP_FLAGS), 'Property "additionalCompilerFlags.CPP_FLAGS" must be a cell array of strings!');
+            this.additionalCompilerFlags.CPP_FLAGS = unique(this.additionalCompilerFlags.CPP_FLAGS);
+            assert(iscellstr(this.additionalCompilerFlags.LD_FLAGS), 'Property "additionalCompilerFlags.LD_FLAGS" must be a cell array of strings!');
+            this.additionalCompilerFlags.LD_FLAGS = unique(this.additionalCompilerFlags.LD_FLAGS);
+        end
+        function cmdout = RunCommand(this, cmd)
             [~,cmdout] = system(cmd,'-echo');
         end
     end
