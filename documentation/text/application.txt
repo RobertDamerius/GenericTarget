@@ -1,26 +1,64 @@
 <h1>Generic Target Application Overview</h1>
-    In addition to the actual generic target module, the generic target application consists of three other software modules: UDPObjectManager, MulticastUDPObjectManager and DataRecorderManager.
-    The generic target module is executed during the main entry function in the <a href="threads.html">main thread</a>.
+    The generic target application is an executable file.
+    Under linux this file has no extension, under Windows the extension is <code>.exe</code>.
+    The name of the executable can be set with the property <a href="packages_gt_generictarget.html#targetProductName">targetProductName</a>.
+    The directory to which the application is deployed on the target is set via the property <a href="packages_gt_generictarget.html#targetSoftwareDirectory">targetSoftwareDirectory</a>.
+    By default the absolute path to the application is <code>~/GenericTarget/GenericTarget</code>.
+
+    <a name="directory"></a>
+    <h3>Application Directory</h3>
+    The directory in which the application is located has the following structure.
+    <br>
+    <br>
+	<ul class="dir">
+		<li>.vscode</li>
+		<li>build</li>
+		<li>code</li>
+		<li>data</li>
+		<li>protocol</li>
+	</ul>
+    <ul class="file">
+        <li>GenericTarget</li>
+        <li>Makefile</li>
+        <li>README.md</li>
+    </ul>
+	<br>
+    <table>
+		<tr><th width="200px">Directory/File</th><th>Description</th></tr>
+		<tr><td>.vscode</td><td>This directory contains metadata for VSCode and allows for <a href="example_debugging.html">debugging</a> the application with VSCode, just in case.</td></tr>
+		<tr><td>build</td><td>This directory is created during the compilation process. During compilation, object files and dependency files are first created from the source file, which are then linked together to the application. The dependency files ensure that when a source or header file is changed, only those source files are recompiled that depend on the changed files.</td></tr>
+		<tr><td>code</td><td>This directory contains the source code of the application including the generic target core, the generated code from Simulink as well as optional custom code.</td></tr>
+		<tr><td>data</td><td>This directory is created by the application to store <a href="datarecording.html">data recording files</a>, if data recording is to be used, i.e. if there're Write To File blocks in the model.</td></tr>
+		<tr><td>protocol</td><td>This directory is created by the application to store <a href="protocolfile.html">protocol files</a>.</td></tr>
+		<tr><td>GenericTarget</td><td>This is the executable. The name can be changed via the property <a href="packages_gt_generictarget.html#targetProductName">targetProductName</a>.</tr>
+		<tr><td>Makefile</td><td>On the target computer the software is compiled with the g++ compiler. For this purpose the make tool is used, which uses the Makefile to execute appropriate commands. The Makefile compiles all source files in the <code>code/</code> directory.</td></tr>
+		<tr><td>README.md</td><td>A readme file providing additional information.</td></tr>
+	</table>
+    <br>
+
+    <a name="arguments"></a>
+    <h3>Application Arguments</h3>
+    The following arguments can be passed to the application.
+    <br><br>
+    <table>
+        <tr><th>Argument</th><th>Description</th></tr>
+        <tr><td style="font-family: Courier New;">--console</td><td>Print stdout/stderr to the console instead of redirecting them to a protocol file.</td></tr>
+        <tr><td style="font-family: Courier New;">--help</td><td>Show the help page for all commands.</td></tr>
+        <tr><td style="font-family: Courier New;">--stop</td><td>Stop another possibly running target application and also stop this application.</td></tr>
+    </table>
+    <br>
+
+    <a name="flowchart"></a>
+    <h3>Application Flowchart</h3>
+    The basic flowchart of the target application is illustrated below.
     After an <a href="#initialize">initialization phase</a> the <a href="#mainloop">main-loop</a> is executed.
     Before the application is terminated, the <a href="#terminate">termination function</a> is called.
+    All three steps are described in detail below.
     <br>
     <br>
     <center><object data="../img/ApplicationOverview.svg" type="image/svg+xml"></object></center>
     <br>
     <br>
-    The <a href="udpobjectmanager.html"><b>UDPObjectManager</b></a> manages all UDP objects.
-    A UDP object contains a UDP socket, which is used for communication via UDP.
-    This socket is used to send and receive messages.
-    A UDP socket has a unique port.
-    <br>
-    <br>
-    The <a href="multicastudpobjectmanager.html"><b>MulticastUDPObjectManager</b></a> manages all multicast UDP objects for multicast communication.
-    A multicast UDP object contains a UDP socket, which is used for communication via UDP.
-    This socket is used to send and receive messages.
-    A UDP socket has a unique port.
-    <br>
-    <br>
-    The <a href="datarecorder.html"><b>DataRecorderManager</b></a> manages the data recording of Simulink signals.
 
 <a name="initialize"></a>
 <h2>Initialization</h2>
@@ -32,21 +70,20 @@
     <br>
     <br>
 
-    <h3>1. Log Application Information</h3>
+    <h3>1. Print Application Information</h3>
     At this point basic information about the application is displayed.
     All output is redirected to a protocol text file by default.
-    With the <code>GT.GenericTarget.ShowLatestProtocol()</code> method the latest protocol file from the target computer can be displayed.
+    With the <a href="packages_gt_generictarget.html#ShowLatestProtocol">ShowLatestProtocol</a> member function the latest protocol file from the target computer is displayed.
 
     <h3>2. Parse Arguments (arg)</h3>
-    At this point the arguments, which were passed to the application, are evaluated.
+    At this point the <a href="#arguments">arguments</a>, which were passed to the application, are evaluated.
     If the argument <code>--stop</code> is in the list of passed arguments, the termination flag is set.
 
     <h3>3. Open AppSocket (UDP Socket)</h3>
     The generic target application internally uses an own UDP socket.
     This UDP socket is called AppSocket.
     The port of the AppSocket cannot be used for communication via UDP within the Simulink model.
-    The port can be set using the MATLAB class <code><a href="simulinkinterface.html">GT.GenericTarget</a></code>.
-    The default port is 44000.
+    The port value is set via the property <a href="packages_gt_generictarget.html#portAppSocket">portAppSocket</a>.
 
     <h3>4. Bind Port for AppSocket</h3>
     At this point the port for the application socket is bound.
@@ -56,10 +93,11 @@
     If the termination flag is not set, the application is terminated.
     This ensures that a generic target application is not executed multiple times at the same time.
     If the termination flag is set, a termination message is sent to the AppSocket port.
-    An already running generic target application can receive this termination message and terminate itself.
+    An already running generic target application receives this termination message and terminates itself.
 
     <h3>6. Send UDP Termination Message</h3>
     At this point a UDP termination message is sent. The destination is the localhost, i.e. <code>127.0.0.1</code>.
+    The message consists of 4 bytes and is defined to be <code>[0x47 0x54 0xDE 0xAD]</code>.
 
     <h3>7. If (arg == "--stop")</h3>
     If the termination flag is set, the application is terminated.
@@ -73,11 +111,11 @@
 
     <h3>9. UDPObjectManager::Create()</h3>
     All UDP objects and the corresponding UDP sockets are created at this point.
-    The application is terminated if an error occurs, for example because a port could not be bound.
+    At this time, a receiver thread is created for each socket.
 
     <h3>10. MulticastUDPObjectManager::Create()</h3>
     All multicast UDP objects and the corresponding UDP sockets are created at this point.
-    The application is terminated if an error occurs, for example because a port could not be bound.
+    At this time, a receiver thread is created for each socket.
 
     <h3>11. DataRecorderManager::Create()</h3>
     The DataRecorderManager creates a new directory in which the recorded data is stored.
@@ -88,15 +126,16 @@
 <a name="mainloop"></a>
 <h2>Main Loop</h2>
     After the initialization phase, the main loop is executed until a termination message is received.
-    The main loop is executed in the main thread and waits only for a termination message to interrupt the loop.
+    The main loop is executed in the main thread and only waits for a termination message to interrupt the loop.
+    In addition, the main loop is interrupted if the operating system sends a signal, such as <code>SIGINT</code> or <code>SIGTERM</code> to the application.
     <br>
     <br>
     <center><object data="../img/ApplicationMainLoop.svg" type="image/svg+xml"></object></center><br><br>
     <br>
     <br>
     <h3>1. Start Scheduler</h3>
-    At this point the actual scheduler is started.
-    The scheduler runs in its own <a href="threads.html">thread</a> and ensures that all <code>step()</code> methods of the Simulink model are called with the appropriate sample rate.
+    At this point the actual <a href="timingscheduling.html">scheduler</a> is started.
+    The scheduler runs in its own thread and ensures that all <code>step()</code> methods of the Simulink model are called with the appropriate sampletime.
 
     <h3>2. Receive UDP via AppSocket</h3>
     The main loop waits for UDP messages.
@@ -114,11 +153,11 @@
     In this way, the generic target application can be terminated by the model software.
 	</div>
 
-    <h3>4. Received Termination Message</h3>
+    <h3>4. Message is Termination Message</h3>
     If the received message is a termination message, the main loop is interrupted.
-    Otherwise, the system waits again for a UDP message.
+    Otherwise, the system further waits for a UDP message or a signal from the operating system.
     A termination message consists of four bytes:
-    <code>0x47 0x54 0xDE 0xAD</code>
+    <code>[0x47 0x54 0xDE 0xAD]</code>
     <br>
     <i>The first two bytes correspond to the ASCII characters 'G' and 'T' (for Generic Target) and the last two bytes give hexadecimal read DEAD.</i>
 
@@ -132,13 +171,13 @@
     <br>
     <br>
     <h3>1. Stop Scheduler</h3>
-    The scheduler that was started during the main loop is stopped again.
+    The scheduler that was started during the main loop is stopped.
     All currently running <code>step()</code> functions of the Simulink model are still completely executed.
     However, no new <code>step()</code> function calls are started.
 
     <h3>2. SimulinkInterface::Terminate()</h3>
     At this point the terminattion function of the Simulink model is called.
-    <code>Stop()</code> callback functions of driver blocks are also called at this point.
+    All termination callback functions of driver blocks are also called at this point.
 
     <h3>3. MulticastUDPObjectManager::Destroy()</h3>
     Created multicast UDP objects are destroyed at this point.
@@ -147,7 +186,7 @@
     Created UDP objects are destroyed at this point.
 
     <h3>5. DataRecorderManager::Destroy()</h3>
-    Generated data recording objects are destroyed at this point. Values that are still unwritten are written to the data files.
+    Created data recording objects are destroyed at this point. Values that are still unwritten are written to the data files.
 
     <h3>6. Close AppSocket</h3>
     The application socket is closed and the generic target application is terminated.

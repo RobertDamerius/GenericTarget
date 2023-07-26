@@ -1,0 +1,34 @@
+<h1>GT.DecodeIndexFile</h1>
+Decode an index file from a data recording. An index file is created by the generic target application, if at least one Write To File block is present in the model.
+
+<h2>Syntax</h2>
+<pre>info = GT.DecodeIndexFile(filename)</pre>
+
+<h2>Description</h2>
+<code>info = GT.DecodeIndexFile(filename)</code> decodes the specified index file.
+
+<h2>Input Arguments</h2>
+    <h3>filename</h3>
+    The name of the index file to be decoded. This argument must be a non-empty string or character vector.
+
+<h2>Output Arguments</h2>
+    <a name="output_info"></a>
+    <h3>info</h3>
+    A structure that contains information about the data recording. All elements of the structure are listed in the table below.
+    <table>
+    <tr><th>Element</th><th width="150">Data Type</th><th>Description</th></tr>
+    <tr><td style="font-family: Courier New;">dateUTC.year</td><td style="font-family: Courier New;">uint32</td><td>Year (UTC) indicating the timepoint when the application was started, e.g. <code>2023</code>.</td></tr>
+    <tr><td style="font-family: Courier New;">dateUTC.month</td><td style="font-family: Courier New;">uint8</td><td>Month (UTC) indicating the timepoint when the application was started, e.g. <code>7</code> for july.</td></tr>
+    <tr><td style="font-family: Courier New;">dateUTC.mday</td><td style="font-family: Courier New;">uint8</td><td>Day of the month (UTC) indicating the timepoint when the application was started, e.g. <code>21</code>.</td></tr>
+    <tr><td style="font-family: Courier New;">dateUTC.hour</td><td style="font-family: Courier New;">uint8</td><td>Hour of the day (UTC) indicating the timepoint when the application was started, e.g. <code>12</code>.</td></tr>
+    <tr><td style="font-family: Courier New;">dateUTC.minute</td><td style="font-family: Courier New;">uint8</td><td>Minute of the hour (UTC) indicating the timepoint when the application was started, e.g. <code>34</code>.</td></tr>
+    <tr><td style="font-family: Courier New;">dateUTC.second</td><td style="font-family: Courier New;">uint8</td><td>Second of the minute (UTC) indicating the timepoint when the application was started, e.g. <code>56</code>.</td></tr>
+    <tr><td style="font-family: Courier New;">dateUTC.millisecond</td><td style="font-family: Courier New;">uint16</td><td>Milliseconds of the second (UTC) indicating the timepoint when the application was started, e.g. <code>789</code>.</td></tr>
+    <tr><td style="font-family: Courier New;">listOfIDs</td><td style="font-family: Courier New;">cell array</td><td>A cell array of character vectors containing all data recorder ID names, e.g. <code>{'myData'}</code>.</td></tr>
+    <tr><td style="font-family: Courier New;">version</td><td style="font-family: Courier New;">char array</td><td>A character vector indicating the generic target version, e.g. <code>'20230721'</code>.</td></tr>
+    <tr><td style="font-family: Courier New;">modelName</td><td style="font-family: Courier New;">char array</td><td>A character vector indicating the model name, e.g. <code>'MyModel'</code>.</td></tr>
+    <tr><td style="font-family: Courier New;">dateOfCompilation</td><td style="font-family: Courier New;">char array</td><td>A character vector indicating the timepoint (local time) when the application has been compiled on the target, e.g. <code>'Jul 21 2023 13:42:00'</code>.</td></tr>
+    <tr><td style="font-family: Courier New;">compilerVersion</td><td style="font-family: Courier New;">char array</td><td>A character vector indicating the GNU compiler version that was used to compile the application, e.g. <code>'11.3.0'</code>.</td></tr>
+    <tr><td style="font-family: Courier New;">operatingSystem</td><td style="font-family: Courier New;">char array</td><td>A character vector indicating the operating system the target software were running on, e.g. <code>'Linux'</code>.</td></tr>
+    <tr><td style="font-family: Courier New;">operatingSystemInfo</td><td style="font-family: Courier New;">char array</td><td>A character vector providing additional information about the operating system. All values are separated by comma and have the syntax <code>name=[value]</code>, where the <code>name</code>/<code>value</code> pair depends on the operating system.<br><b>Example:</b> <code>'sysname=[Linux],nodename=[user],release=[5.19.0-46-generic],version=[#47~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Wed Jun 21 15:35:31 UTC 2],machine=[x86_64],domainname=[(none)]'</code>.</td></tr>
+    </table>

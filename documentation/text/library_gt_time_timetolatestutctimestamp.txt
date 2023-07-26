@@ -1,0 +1,28 @@
+<h1>Time To Latest UTC Timestamp</h1>
+<h3>Library</h3>
+<span style="font-family: Courier New">GenericTarget / Time / Time To Latest UTC Timestamp</span>
+
+
+<h3>Description</h3>
+This block calculates the time difference (seconds) to the latest UTC timestamp. The block only uses standard Simulink blocks.
+The basic behaviour is as follows:
+<br>
+<b>output = current - latest</b>
+
+<h2>Input Ports</h2>
+<h3>currentTimestampUTC</h3>
+The current <a href="library_gt_time_utctimestamp.html">UTC Timestamp</a> in seconds.
+<br>
+<b>Data Type:</b> <span style="font-family: Courier New">double</span>
+
+<h3>latestTimestampUTC</h3>
+The latest <a href="library_gt_time_utctimestamp.html">UTC Timestamp</a> in seconds.
+<br>
+<b>Data Type:</b> <span style="font-family: Courier New">double</span>
+
+
+<h2>Output Ports</h2>
+<h3>timeToLatestUTCPTimestamp</h3>
+A time difference in seconds representing the time from the current timestamp to the latest timestamp. The range is [-43200, 43200).
+<b>Data Type:</b> <span style="font-family: Courier New">double</span>
+

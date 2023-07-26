@@ -1,0 +1,48 @@
+<h1>Debugging with Visual Studio Code (VSCode)</h1>
+    Sometimes it may be necessary to debug an application to quickly find an error.
+    Additional comments are generated in the model code, if this is configured via Simulink model settings.
+    The <a href="packages_gt_gettemplate.html">template model</a> is configured so that MATLAB source code is also inserted as comments in the source code.
+    If the application is debugged and a problem is found at a certain point in the code, then the corresponding block or MATLAB code can be found via the comment.
+    The easiest way to debug the target application is to use VSCode.
+    VSCode is a popular free code editor, for which there are many additional plugins for different programming languages.
+    For working with C/C++ code it makes sense to install the two plugins <code>C/C++</code> and <code>C/C++ Extension Pack</code>.
+    This is done directly from the VSCode user interface.
+
+<h2>Enable DEBUG mode</h2>
+    To debug a target application, it must be compiled in DEBUG mode.
+    In DEBUG mode all optimizations are disabled and the symbol table is not removed from the executable.
+    The application will be slightly larger and the task execution time will be longer.
+    In the extreme case it can come in the DEBUG mode therefore also to <a href="timingscheduling.html#taskoverload">task overloads</a> or <a href="timingscheduling.html#cpuoverload">CPU overloads</a>, which perhaps do not occur otherwise with activation of all optimizations.
+    There are two ways to enable the DEBUG mode.
+    Either the target application is redeployed with the additional option <a href="packages_gt_generictarget.html#DEBUG_MODE">additionalCompilerFlags.DEBUG_MODE</a>, or the DEBUG mode is manually adjusted in the Makefile and the application is manually recompiled.
+    The second step is especially suitable if the code generation takes a lot of time.
+
+    <br>
+    <h3>Variant 1: Set DEBUG mode before deployment</h3>
+    To enable the DEBUG mode during deployment, set the appropriate property of the target object before calling the <a href="packages_gt_generictarget.html#Deploy">Deploy</a> member function.
+    <pre>target = GT.GenericTarget(userName, address);
+target.additionalCompilerFlags.DEBUG_MODE = true;
+target.Deploy(modelName);</pre>
+
+    <br>
+    <h3>Variant 2: Modify DEBUG mode and recompile manually</h3>
+    Navigate to the <a href="application.html#directory">application directory</a> on the target and open the Makefile.
+    There you find a line (close to the beginning) that starts with <code>DEBUG_MODE :=</code>.
+    Enable the DEBUG mode by setting
+    <pre>DEBUG_MODE := 1</pre>
+    Next, save the Makefile and open a terminal in the directory of the same directory of the Makefile.
+    Do a fresh recompilation by clearing all cache files and building the application with 8 jobs in parallel:
+    <pre>make clean && make -j8</pre>
+    Compiling is successfull if the last display message looks something like <code>[APP] > GenericTarget</code> without any errors.
+
+<h2>Start Debugging</h2>
+    To start debugging, open VSCode in the <a href="application.html#directory">application directory</a>.
+    Press <code>F5</code> or go to <code>Run > Start Debugging</code> to start the Debugging session.
+    Then the debugger waits in the main entry function.
+    Press <code>F5</code> one more time to continue debugging.
+
+    <div class="note-red">
+    <h3 class="note-red">Important</h3>
+    It is important that the <code>.vscode</code> directory exists in the <a href="application.html#directory">application directory</a>.
+    This directory contains a launch file to tell VSCode how to start the debugging with the GNU debugger (GDB).
+    </div>

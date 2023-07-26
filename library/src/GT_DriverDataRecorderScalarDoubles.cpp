@@ -4,11 +4,12 @@
 #endif
 
 
-void GT_DriverDataRecorderScalarDoublesInitialize(uint32_t id, const uint8_t* signalNames, uint32_t numCharacters, uint32_t numSignals, uint32_t numSamplesPerFile){
+void GT_DriverDataRecorderScalarDoublesInitialize(const uint8_t* idCharacters, uint32_t numIDCharacters, const uint8_t* signalNames, uint32_t numCharacters, uint32_t numSignals, uint32_t numSamplesPerFile){
     #ifdef GENERIC_TARGET_IMPLEMENTATION
-    gt::GenericTarget::dataRecorderManager.RegisterScalarDoubles(id, signalNames, numCharacters, numSignals, numSamplesPerFile);
+    gt::GenericTarget::dataRecorderManager.RegisterScalarDoubles(idCharacters, numIDCharacters, signalNames, numCharacters, numSignals, numSamplesPerFile);
     #else
-    (void)id;
+    (void)idCharacters;
+    (void)numIDCharacters;
     (void)signalNames;
     (void)numCharacters;
     (void)numSignals;
@@ -18,11 +19,12 @@ void GT_DriverDataRecorderScalarDoublesInitialize(uint32_t id, const uint8_t* si
 
 void GT_DriverDataRecorderScalarDoublesTerminate(void){}
 
-void GT_DriverDataRecorderScalarDoublesStep(uint32_t id, double timestamp, double* values, uint32_t numValues){
+void GT_DriverDataRecorderScalarDoublesStep(const uint8_t* idCharacters, uint32_t numIDCharacters, double timestamp, double* values, uint32_t numValues){
     #ifdef GENERIC_TARGET_IMPLEMENTATION
-    gt::GenericTarget::dataRecorderManager.WriteScalarDoubles(id, timestamp, values, numValues);
+    gt::GenericTarget::dataRecorderManager.WriteScalarDoubles(idCharacters, numIDCharacters, timestamp, values, numValues);
     #else
-    (void)id;
+    (void)idCharacters;
+    (void)numIDCharacters;
     (void)timestamp;
     (void)values;
     (void)numValues;

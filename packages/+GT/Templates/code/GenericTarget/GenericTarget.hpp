@@ -136,6 +136,11 @@ class GenericTarget {
         static void PrintInfo(int argc, char**argv);
 
         /**
+         * @brief Print additional operating system information.
+         */
+        static void PrintOperatingSystemInfo(void);
+
+        /**
          * @brief Stop another possibly ongoing target application by sending a termination message to the application port.
          */
         static void StopOtherTargetApplication(void);

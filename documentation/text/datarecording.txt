@@ -1,0 +1,428 @@
+<h1>Data Recording</h1>
+    There are two ways to record data.
+    With the <a href="library_gt_interface_writescalardoublestofile.html">Write Scalar Doubles To File</a> block, buses whose
+    signals and sub-signals are scalar values of data type double can be recorded directly.
+    If the bus contains multidimensional signals or other data types than double, the <a href="library_gt_interface_writebustofile.html">Write Bus To File</a> block must be used.
+    In this case, the bus object must be defined in advance.
+    The recorded data is automatically written to files.
+    If data is to be recorded, then this data is first written to a buffer.
+    A separate thread then takes care of writing the data to files.
+    Each data recorder object has a unique ID.
+    Internally the generic target core software manages a hash table that contains are data recorder objects together with their unique ID as key value.
+
+    <h3>Initialization</h3>
+    During initialization the target application creates a new data directory with a name denoting the current UTC time.
+    In addition, an index file is created, which contains information about the data recording.
+    At the same time this index file indicates which IDs are present.
+
+    <h3>Termination</h3>
+    During the termination phase, unwritten data which may still be in the data recording buffer is written to the file.
+
+    <h3>Separate Data Recording Thread</h3>
+    Each data recorder object has its own thread, which is responsible for writing to the file.
+    The priority of the thread is defined by the Simulink interface class parameter <a href="packages_gt_generictarget.html#priorityDataRecorder">priorityDataRecorder</a>.
+    The data is not written to a file immediately.
+    Instead, the data is first written to a buffer.
+    A separate thread then handles writing the data to the file.
+    This data recorder thread automatically opens new files when the number of written samples exceeds the <code>numSamplesPerFile</code> parameter set via the block mask of the corresponding Write To File block.
+
+<a name="protocol"></a>
+<h1>File Format</h1>
+    Each data recorder block has a unique ID, which is a string.
+    Separate files are created for each ID. For an ID of "myData", for example, the first data file is called <code>myData_0</code>.
+    If the number of samples written exceeds the <code>numSamplesPerFile</code> parameter, then a new data file called <code>myData_1</code> is created.
+    All subsequent files for ID "myData" are then called <code>myData_2</code>, <code>myData_3</code> and so on.
+    Each file contains its own header and can therefore be decoded independently of other files.
+    The header of an ID data file contains information about the data recording, such as the number of signals, signal names and byte order.
+    Subsequently, all recorded data samples are simply appended to this file.
+    The file size depends on the <code>numSamplesPerFile</code> parameter.
+    If this parameter is zero, then the file size is unlimited and there will only be one data file, e.g. <code>myData_0</code>.
+
+<h2>The Index File</h2>
+    The index file is created once at the beginning during the initialization phase, before the actual model is started.
+    This file contains information about when the data recording was started, on which operating system the application was started and which IDs are to be recorded.
+    The index file has the following format.
+    <br>
+    <br>
+    <table>
+		<tr>
+            <th width="110px">Offset (Bytes)</th>
+            <th width="110px">Length (Bytes)</th>
+            <th width="180px">Name</th>
+            <th width="120px">Data Type</th>
+            <th>Description</th>
+        </tr>
+		<tr>
+            <td style="font-family: Courier New;">0</td>
+            <td style="font-family: Courier New;">5</td>
+            <td style="font-family: Courier New;">header</td>
+            <td style="font-family: Courier New;">5 x uint8_t</td>
+            <td>Header identifier: contains the string "GTIDX" (<code>0x47 0x54 0x49 0x44 0x58</code>).</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">5</td>
+            <td style="font-family: Courier New;">4</td>
+            <td style="font-family: Courier New;">dateYear</td>
+            <td style="font-family: Courier New;">uint32_t</td>
+            <td>The year according to the UTC time of the target.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">9</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">dateMonth</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>The month according to the UTC time of the target.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">10</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">dateMonthDay</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>The day of the month according to the UTC time of the target.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">11</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">dateHour</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>The hour according to the UTC time of the target.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">12</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">dateMinute</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>The minute according to the UTC time of the target.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">13</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">dateSecond</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>The second according to the UTC time of the target.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">14</td>
+            <td style="font-family: Courier New;">2</td>
+            <td style="font-family: Courier New;">dateMillisecond</td>
+            <td style="font-family: Courier New;">uint16_t</td>
+            <td>The millisecond according to the UTC time of the target.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">16</td>
+            <td style="font-family: Courier New;">4</td>
+            <td style="font-family: Courier New;">numObjects</td>
+            <td style="font-family: Courier New;">uint32_t</td>
+            <td>Number of signal objects (corresponds to the number of Write To File blocks in the Simulink model).</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">20</td>
+            <td style="font-family: Courier New;">N</td>
+            <td style="font-family: Courier New;"><b>DataRecorderObjectData</b></td>
+            <td style="font-family: Courier New;">N x uint32_t</td>
+            <td>Contains <span style="font-family: Courier New;">numObjects</span> signal objects. The data format for a signal object is shown in the following table.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">20+N</td>
+            <td style="font-family: Courier New;">V</td>
+            <td style="font-family: Courier New;">version</td>
+            <td style="font-family: Courier New;">V x char</td>
+            <td>String indicating the version of the generic target framework.</td>
+        </tr>
+		<tr>
+            <td style="font-family: Courier New;">20+N+V</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">zeroTerminator</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>Zero-terminator for the preceding string. This value is always 0x00 and indicates the end of the string.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">21+N+V</td>
+            <td style="font-family: Courier New;">M</td>
+            <td style="font-family: Courier New;">modelName</td>
+            <td style="font-family: Courier New;">M x char</td>
+            <td>String indicating the model name (ASCII characters only).</td>
+        </tr>
+		<tr>
+            <td style="font-family: Courier New;">21+N+V+M</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">zeroTerminator</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>Zero-terminator for the preceding string. This value is always 0x00 and indicates the end of the string.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">22+N+V+M</td>
+            <td style="font-family: Courier New;">D</td>
+            <td style="font-family: Courier New;">dateOfCompilation</td>
+            <td style="font-family: Courier New;">D x char</td>
+            <td>String indicating the timepoint (local time) when the application has been compiled on the target, e.g. <code>'Jul 21 2023 13:42:00'</code>.</td>
+        </tr>
+		<tr>
+            <td style="font-family: Courier New;">22+N+V+M+D</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">zeroTerminator</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>Zero-terminator for the preceding string. This value is always 0x00 and indicates the end of the string.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">23+N+V+M+D</td>
+            <td style="font-family: Courier New;">C</td>
+            <td style="font-family: Courier New;">compilerVersion</td>
+            <td style="font-family: Courier New;">C x char</td>
+            <td>String indicating the GNU compiler version that was used to compile the application, e.g. <code>'11.3.0'</code>.</td>
+        </tr>
+		<tr>
+            <td style="font-family: Courier New;">23+N+V+M+D+C</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">zeroTerminator</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>Zero-terminator for the preceding string. This value is always 0x00 and indicates the end of the string.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">24+N+V+M+D+C</td>
+            <td style="font-family: Courier New;">S</td>
+            <td style="font-family: Courier New;">operatingSystem</td>
+            <td style="font-family: Courier New;">S x char</td>
+            <td>String indicating the operating system the target software were running on, e.g. <code>'Linux'</code>.</td>
+        </tr>
+		<tr>
+            <td style="font-family: Courier New;">24+N+V+M+D+C+S</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">zeroTerminator</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>Zero-terminator for the preceding string. This value is always 0x00 and indicates the end of the string.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">25+N+V+M+D+C+S</td>
+            <td style="font-family: Courier New;">I</td>
+            <td style="font-family: Courier New;">operatingSystemInfo</td>
+            <td style="font-family: Courier New;">I x char</td>
+            <td>String providing additional information about the operating system. All values are separated by comma and have the syntax <code>name=[value]</code>, where the <code>name</code>/<code>value</code> pair depends on the operating system.<br><b>Example:</b> <code>'sysname=[Linux],nodename=[user],release=[5.19.0-46-generic],version=[#47~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Wed Jun 21 15:35:31 UTC 2],machine=[x86_64],domainname=[(none)]'</code>.</td>
+        </tr>
+		<tr>
+            <td style="font-family: Courier New;">25+N+V+M+D+C+S+I</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">zeroTerminator</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>Zero-terminator for the preceding string. This value is always 0x00 and indicates the end of the string.</td>
+        </tr>
+    </table>
+    <br>
+    The data format for a <code><b>DataRecorderObjectData</b></code> in the index file is a list of zero-terminated strings.
+    The total number of strings is specified by the previous field <code>numObjects</code>.
+    <br>
+    <br>
+    <table>
+		<tr>
+            <th width="110px">Offset (Bytes)</th>
+            <th width="110px">Length (Bytes)</th>
+            <th width="180px">Name</th>
+            <th width="120px">Data Type</th>
+            <th>Description</th>
+        </tr>
+		<tr>
+            <td style="font-family: Courier New;">0</td>
+            <td style="font-family: Courier New;">N1</td>
+            <td style="font-family: Courier New;">ID1</td>
+            <td style="font-family: Courier New;">char</td>
+            <td>Unique ID of the first data recorder object.</td>
+        </tr>
+		<tr>
+            <td style="font-family: Courier New;">N1</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">zeroTerminator</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>Zero-terminator for the preceding string. This value is always 0x00 and indicates the end of the string.</td>
+        </tr>
+		<tr>
+            <td style="font-family: Courier New;">N1+1</td>
+            <td style="font-family: Courier New;">N2</td>
+            <td style="font-family: Courier New;">ID2</td>
+            <td style="font-family: Courier New;">char</td>
+            <td>Unique ID of the second data recorder object.</td>
+        </tr>
+		<tr>
+            <td style="font-family: Courier New;">N1+1+N2</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">zeroTerminator</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>Zero-terminator for the preceding string. This value is always 0x00 and indicates the end of the string.</td>
+        </tr>
+		<tr>
+            <td style="font-family: Courier New;">N1+1+N2+1</td>
+            <td style="font-family: Courier New;">...</td>
+            <td style="font-family: Courier New;">...</td>
+            <td style="font-family: Courier New;">...</td>
+            <td>Further zero-terminated strings, until all IDs are listed.</td>
+        </tr>
+    </table>
+    <br>
+    <br>
+
+<h2>The Doubles Data File (bus of scalar doubles)</h2>
+    The naming of a data file is <code><i>ID</i>_<i>M</i></code> where <code><i>ID</i></code> denotes the unique ID of the data recorder and <code><i>M</i></code> indicates the file number in ascending order.
+    Each ID file contains a header to allow a single ID file to be decoded separately.
+    The header data of all ID data files for id <code><i>M</i></code> are identical.
+    The actual sample data is appended after the header bytes.
+    <br>
+    <br>
+    <table>
+        <tr>
+            <th width="110px">Offset (Bytes)</th>
+            <th width="110px">Length (Bytes)</th>
+            <th width="180px">Name</th>
+            <th width="120px">Data Type</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">0</td>
+            <td style="font-family: Courier New;">5</td>
+            <td style="font-family: Courier New;">header</td>
+            <td style="font-family: Courier New;">5 x uint8_t</td>
+            <td>Header identifier: contains the string "GTDBL" (<code>0x47 0x54 0x44 0x42 0x4C</code>).</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">5</td>
+            <td style="font-family: Courier New;">4</td>
+            <td style="font-family: Courier New;">offsetSampleData</td>
+            <td style="font-family: Courier New;">uint32_t</td>
+            <td>The zero-based offset to <span style="font-family: Courier New;"><b>SampleData</b></span>.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">9</td>
+            <td style="font-family: Courier New;">4</td>
+            <td style="font-family: Courier New;">numSignals</td>
+            <td style="font-family: Courier New;">uint32_t</td>
+            <td>The number of signals in the bus to be recorded.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">13</td>
+            <td style="font-family: Courier New;">L</td>
+            <td style="font-family: Courier New;">labels</td>
+            <td style="font-family: Courier New;">L x char</td>
+            <td>String specifying the signal names. All signals are separated by commas, e.g. "value,nestedBus.value".</td>
+        </tr>
+		<tr>
+            <td style="font-family: Courier New;">13+L</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">zeroTerminator</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>Zero-terminator for the preceding string. This value is always 0x00 and indicates the end of the string.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">14+L</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">endian</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>Specifies the byte order. <code>0x01</code>: little endian, <code>0x80</code>: big endian. This byte order is used for all subsequent values.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">15+L</td>
+            <td style="font-family: Courier New;"></td>
+            <td style="font-family: Courier New;"><b>SampleData</b></td>
+            <td style="font-family: Courier New;"></td>
+            <td>Contains <span style="font-family: Courier New;">1 + numSignals</span> values of type <span style="font-family: Courier New;">double</span>.
+            Each sample data contains one <span style="font-family: Courier New;">double</span>, which specifies the timestamp, followed by
+            <span style="font-family: Courier New;">numSignals</span> values of type <span style="font-family: Courier New;">double</span> that indicate the bus signal data.</td>
+        </tr>
+    </table>
+    <br>
+    <br>
+
+<h2>The Bus Data File (complete bus object)</h2>
+    The naming of a data file is <code><i>ID</i>_<i>M</i></code> where <code><i>ID</i></code> denotes the unique ID of the data recorder and <code><i>M</i></code> indicates the file number in ascending order.
+    Each ID file contains a header to allow a single ID file to be decoded separately.
+    The header data of all ID data files for id <code><i>M</i></code> are identical.
+    The actual sample data is appended after the header bytes.
+    <br>
+    <br>
+    <table>
+        <tr>
+            <th width="110px">Offset (Bytes)</th>
+            <th width="110px">Length (Bytes)</th>
+            <th width="180px">Name</th>
+            <th width="120px">Data Type</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">0</td>
+            <td style="font-family: Courier New;">5</td>
+            <td style="font-family: Courier New;">header</td>
+            <td style="font-family: Courier New;">5 x uint8_t</td>
+            <td>Header identifier: contains the string "GTBUS" (<code>0x47 0x54 0x42 0x55 0x53</code>).</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">5</td>
+            <td style="font-family: Courier New;">4</td>
+            <td style="font-family: Courier New;">offsetSampleData</td>
+            <td style="font-family: Courier New;">uint32_t</td>
+            <td>The zero-based offset to <span style="font-family: Courier New;"><b>SampleData</b></span>.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">9</td>
+            <td style="font-family: Courier New;">4</td>
+            <td style="font-family: Courier New;">numBytesPerSample</td>
+            <td style="font-family: Courier New;">uint32_t</td>
+            <td>The number of bytes per sample exluding the 8-byte timestamp.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">13</td>
+            <td style="font-family: Courier New;">L</td>
+            <td style="font-family: Courier New;">labels</td>
+            <td style="font-family: Courier New;">L x char</td>
+            <td>String specifying the signal names. All signals are separated by commas, e.g. "value,nestedBus.value".</td>
+        </tr>
+		<tr>
+            <td style="font-family: Courier New;">13+L</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">zeroTerminator</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>Zero-terminator for the preceding string. This value is always 0x00 and indicates the end of the string.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">14+L</td>
+            <td style="font-family: Courier New;">D</td>
+            <td style="font-family: Courier New;">dimensions</td>
+            <td style="font-family: Courier New;">D x char</td>
+            <td>String specifying the dimensions. A scalar followed a 3-by-1 vector would be "[1],[3 1]".</td>
+        </tr>
+		<tr>
+            <td style="font-family: Courier New;">14+L+D</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">zeroTerminator</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>Zero-terminator for the preceding string. This value is always 0x00 and indicates the end of the string.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">15+L+D</td>
+            <td style="font-family: Courier New;">T</td>
+            <td style="font-family: Courier New;">dataTypes</td>
+            <td style="font-family: Courier New;">T x char</td>
+            <td>String specifying the data types. A double followed by an integer would be "double,int32".</td>
+        </tr>
+		<tr>
+            <td style="font-family: Courier New;">15+L+D+T</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">zeroTerminator</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>Zero-terminator for the preceding string. This value is always 0x00 and indicates the end of the string.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">16+L+D+T</td>
+            <td style="font-family: Courier New;">1</td>
+            <td style="font-family: Courier New;">endian</td>
+            <td style="font-family: Courier New;">uint8_t</td>
+            <td>Specifies the byte order. <code>0x01</code>: little endian, <code>0x80</code>: big endian. This byte order is used for all subsequent values.</td>
+        </tr>
+        <tr>
+            <td style="font-family: Courier New;">17+L+D+T</td>
+            <td style="font-family: Courier New;"></td>
+            <td style="font-family: Courier New;"><b>SampleData</b></td>
+            <td style="font-family: Courier New;"></td>
+            <td>Contains <span style="font-family: Courier New;">8 + numBytesPerSample</span> bytes.
+            Each sample data contains one <span style="font-family: Courier New;">double</span> at the beginning (first 8 byte), which specify the timestamp, followed by
+            <span style="font-family: Courier New;">numBytesPerSample</span> bytes that indicate the bus signal data. Dimension and data type is given by the two strings <span style="font-family: Courier New;">dimensions</span> and <span style="font-family: Courier New;">dataTypes</span>.</td>
+        </tr>
+    </table>
+    <br>
+    <br>

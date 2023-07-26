@@ -159,7 +159,11 @@ void GenericTarget::PrintInfo(int argc, char**argv){
     TimeInfo upTime = targetTime.GetUpTimeUTC();
     PrintRaw("GenericTarget\n");
     PrintRaw("\n");
-    PrintRaw("Version:                  %s\n", strVersion.c_str());
+    PrintRaw("Operating System:         %s\n", strOS.c_str());
+    PrintOperatingSystemInfo();
+    PrintRaw("\n");
+    PrintRaw("Generic Target Version:   %s\n", strVersion.c_str());
+    PrintRaw("Compiler Version:         %s\n", strCompilerVersion.c_str());
     PrintRaw("Built (local):            %s\n", strBuilt.c_str());
     PrintRaw("Date (UTC):               %04u-%02u-%02u %02u:%02u:%02u.%03u\n", 1900 + upTime.year, 1 + upTime.month, upTime.mday, upTime.hour, upTime.minute, upTime.second, upTime.nanoseconds / 1000000);
     PrintRaw("Arguments:               "); for(int i = 1; i < argc; i++){ PrintRaw(" [%s]", argv[i]); } PrintRaw("\n");
@@ -177,6 +181,31 @@ void GenericTarget::PrintInfo(int argc, char**argv){
     }
     PrintRaw("\n");
     PrintRaw("\n");
+}
+
+void GenericTarget::PrintOperatingSystemInfo(void){
+    #if __linux__
+    struct utsname info;
+    (void) uname(&info);
+    PrintRaw("sysname:                  %s\n", info.sysname);
+    PrintRaw("nodename:                 %s\n", info.nodename);
+    PrintRaw("release:                  %s\n", info.release);
+    PrintRaw("version:                  %s\n", info.version);
+    PrintRaw("machine:                  %s\n", info.machine);
+    #ifdef __USE_GNU
+    PrintRaw("domainname:               %s\n", info.domainname);
+    #endif
+    #elif _WIN32
+    OSVERSIONINFO osvi;
+    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    (void) GetVersionEx(&osvi);
+    PrintRaw("dwBuildNumber:            %ld\n", osvi.dwBuildNumber);
+    PrintRaw("dwMajorVersion:           %ld\n", osvi.dwMajorVersion);
+    PrintRaw("dwMinorVersion:           %ld\n", osvi.dwMinorVersion);
+    PrintRaw("dwPlatformId:             %ld\n", osvi.dwPlatformId);
+    PrintRaw("szCSDVersion:             %s\n", osvi.szCSDVersion);
+    #endif
 }
 
 void GenericTarget::StopOtherTargetApplication(void){

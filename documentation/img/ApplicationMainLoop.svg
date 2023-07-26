@@ -3,7 +3,7 @@
 <!-- Generiert durch Microsoft Visio, SVG Export ApplicationMainLoop.svg ApplicationMainLoop -->
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
 		xmlns:v="http://schemas.microsoft.com/visio/2003/SVGExtensions/" width="4.74704in" height="1.79943in"
-		viewBox="0 0 341.787 129.559" xml:space="preserve" color-interpolation-filters="sRGB" class="st9">
+		viewBox="0 0 341.787 129.559" xml:space="preserve" color-interpolation-filters="sRGB" class="st12">
 	<v:documentProperties v:langID="1031" v:metric="true" v:viewMarkup="false">
 		<v:userDefs>
 			<v:ud v:nameU="msvNoAutoConnect" v:val="VT0(1):26"/>
@@ -12,15 +12,18 @@
 
 	<style type="text/css">
 	<![CDATA[
-		.st1 {marker-end:url(#mrkr13-6);stroke:#3f3f3f;stroke-width:1}
-		.st2 {fill:#3f3f3f;fill-opacity:1;stroke:#3f3f3f;stroke-opacity:1;stroke-width:0.40983606557377}
+		.st1 {marker-end:url(#mrkr13-6);stroke:#171850;stroke-width:1}
+		.st2 {fill:#171850;fill-opacity:1;stroke:#171850;stroke-opacity:1;stroke-width:0.40983606557377}
 		.st3 {fill:none;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.75}
-		.st4 {fill:#3f3f3f;font-family:Courier New;font-size:0.833336em;font-weight:bold}
-		.st5 {fill:#dbeef3;stroke:#205867;stroke-width:1}
-		.st6 {fill:#205867;font-family:Courier New;font-size:0.833336em}
-		.st7 {fill:#f2dcda;stroke:#c00000;stroke-width:1}
-		.st8 {fill:#c00000;font-family:Courier New;font-size:0.833336em;font-weight:bold}
-		.st9 {fill:none;fill-rule:evenodd;font-size:12px;overflow:visible;stroke-linecap:square;stroke-miterlimit:3}
+		.st4 {fill:#171850;font-family:Courier New;font-size:0.833336em;font-weight:bold}
+		.st5 {fill:#27e4c3;stroke:#171850;stroke-width:1}
+		.st6 {fill:#171850;font-family:Courier New;font-size:0.833336em}
+		.st7 {fill:#24e0d0;stroke:#171850;stroke-width:1}
+		.st8 {fill:#d12c5c;stroke:#171850;stroke-width:1}
+		.st9 {fill:#ffffff;font-family:Courier New;font-size:0.833336em;font-weight:bold}
+		.st10 {fill:#1ed0da;stroke:#171850;stroke-width:1}
+		.st11 {fill:#1bbbd5;stroke:#171850;stroke-width:1}
+		.st12 {fill:none;fill-rule:evenodd;font-size:12px;overflow:visible;stroke-linecap:square;stroke-miterlimit:3}
 	]]>
 	</style>
 
@@ -33,7 +36,7 @@
 			<use xlink:href="#lend13" transform="scale(-2.44,-2.44) "/>
 		</marker>
 	</defs>
-	<g v:mID="20" v:index="10" v:groupContext="foregroundPage">
+	<g v:mID="20" v:index="9" v:groupContext="foregroundPage">
 		<title>ApplicationMainLoop</title>
 		<v:pageProperties v:drawingScale="0.0393701" v:pageScale="0.0393701" v:drawingUnits="24" v:shadowOffsetX="9"
 				v:shadowOffsetY="-9"/>
@@ -112,35 +115,35 @@
 			<desc>2. Receive UDP via AppSocket</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="106.299" cy="122.472" width="212.6" height="14.1732"/>
-			<rect x="0" y="115.386" width="212.598" height="14.1732" rx="5.66929" ry="5.66929" class="st5"/>
+			<rect x="0" y="115.386" width="212.598" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
 			<text x="4" y="125.47" class="st6" v:langID="1031"><v:paragraph/><v:tabList/>2. Receive UDP via AppSocket</text>		</g>
 		<g id="shape5-58" v:mID="5" v:groupContext="shape" transform="translate(298.267,-86.0394)">
 			<title>Tabelle.5</title>
 			<desc>Break</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="21.2598" cy="122.472" width="42.52" height="14.1732"/>
-			<rect x="0" y="115.386" width="42.5197" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
-			<text x="6.26" y="125.47" class="st8" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Break</text>		</g>
+			<rect x="0" y="115.386" width="42.5197" height="14.1732" rx="5.66929" ry="5.66929" class="st8"/>
+			<text x="6.26" y="125.47" class="st9" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Break</text>		</g>
 		<g id="shape7-61" v:mID="7" v:groupContext="shape" transform="translate(36.0624,-57.6929)">
 			<title>Tabelle.7</title>
 			<desc>3. Sender is Localhost</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="106.299" cy="122.472" width="212.6" height="14.1732"/>
-			<rect x="0" y="115.386" width="212.598" height="14.1732" rx="5.66929" ry="5.66929" class="st5"/>
+			<rect x="0" y="115.386" width="212.598" height="14.1732" rx="5.66929" ry="5.66929" class="st10"/>
 			<text x="4" y="125.47" class="st6" v:langID="1031"><v:paragraph/><v:tabList/>3. Sender is Localhost</text>		</g>
 		<g id="shape10-64" v:mID="10" v:groupContext="shape" transform="translate(36.0624,-29.3465)">
 			<title>Tabelle.10</title>
 			<desc>4. Received Termination Message</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="106.299" cy="122.472" width="212.6" height="14.1732"/>
-			<rect x="0" y="115.386" width="212.598" height="14.1732" rx="5.66929" ry="5.66929" class="st5"/>
+			<rect x="0" y="115.386" width="212.598" height="14.1732" rx="5.66929" ry="5.66929" class="st11"/>
 			<text x="4" y="125.47" class="st6" v:langID="1031"><v:paragraph/><v:tabList/>4. Received Termination Message</text>		</g>
 		<g id="shape12-67" v:mID="12" v:groupContext="shape" transform="translate(121.102,-1)">
 			<title>Tabelle.12</title>
 			<desc>Break</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="21.2598" cy="122.472" width="42.52" height="14.1732"/>
-			<rect x="0" y="115.386" width="42.5197" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
-			<text x="6.26" y="125.47" class="st8" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Break</text>		</g>
+			<rect x="0" y="115.386" width="42.5197" height="14.1732" rx="5.66929" ry="5.66929" class="st8"/>
+			<text x="6.26" y="125.47" class="st9" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Break</text>		</g>
 	</g>
 </svg>

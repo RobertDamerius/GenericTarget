@@ -1,116 +1,102 @@
 <h1>Timing and Scheduling</h1>
-    There are several ways to determine the current time.
-    The Generic Target Simulink library contains several blocks for determining the time.
-    
-    <h3>UNIX Time</h3>
-    Seconds since 01 January 1970.
-    This time is determined from the system clock each time the block is called.
+The Generic-Target Toolbox provides several blocks that can be used to determine the current time.
+The times are determined by the operating system. The operating system time can in turn be synchronized via an NTP or PTP server.
+In addition to the clock time, times relating to the target can also be determined, such as the <a href="library_gt_time_modelexecutiontime.html">Model Execution Time</a>.
+Furthermore, the timing status of the target application can be monitored.
+This includes <a href="library_gt_time_taskexecutiontime.html">Task Execution Time</a>, <a href="library_gt_time_taskoverloads.html">Task Overloads</a> and <a href="library_gt_time_cpuoverloads.html">CPU Overloads</a>.
 
-    <h3>Local Time</h3>
-    The local time according to the time zone settings of the target computer.
-    This time is determined from the system clock each time the block is called.
+<div class="note-orange">
+<h3 class="note-orange">Warning</h3>
+If the library blocks are built with the <a href="installtoolbox.html#simulinksupport">Simulink support</a> option, most of these times can also be determined in simulation.
+However, for some blocks the behavior is different in the simulation than on the target computer.
+</div>
 
-    <h3>UTC Time</h3>
-    The UTC time of the target computer.
-    This time is determined from the system clock each time the block is called.
+<div class="note-red">
+<h3 class="note-red">Limited Support for Windows</h3>
+CPU overload and lost ticks are not supported for windows operating system. Keep that in mind when deploying a model to a host running windows.
+</div>
 
-    <h3>UTC Timestamp</h3>
-    The seconds of the day according to UTC (range: [0, 86400)).
-    This time is determined from the system clock each time the block is called.
+The target application uses multi-threading. Each sample rate in the Simulink model corresponds to a separate thread.
+These worker threads are executed in parallel. The number of threads actually executed in parallel at the same time is
+given by the number of CPU cores. Which threads are executed in parallel is decided by the operating system's scheduler.
+In the target application there is a hardware timer that generates events at periodic intervals. The period duration
+corresponds to the base sample time of the Simulink model. A master thread receives the timer events and distributes
+them to the underlying worker threads in a correctly timed manner. Worker threads are always triggered with a multiple
+of the base sampling rate. As soon as a worker thread receives the signal from the master thread, it executes the associated
+function from the code generation.
+<br>
+<br>
+The following figure shows an example with three worker threads. The events of the hardware timer are symbolized by a red
+stopwatch. The master thread runs with the highest priority and receives the timer events. Due to the operating system,
+a small latency (in the range of microseconds) elapses before the master thread receives control from the operating
+system and can react to the timer event. This latency is not constant.
+The generic target application uses a FIFO strategy for scheduling.
+If there are several tasks to do, they are processed one after the other.
+The following figure shows the already mentioned example for the case that only one thread can work at the same time.
+<br>
+<br>
+<center><object data="../img/timingscheduling.svg" type="image/svg+xml"></object></center>
+<br>
+<br>
 
-    <h3>Model Execution Time</h3>
-    The model execution time is the measured execution time that has passed since the model was started.
-    This time is determined from a steady clock each time the block is called.
+<a name="cpuoverload"></a>
+<h3>CPU Overload</h3>
+The high-priority realtime thread of the base rate scheduler waits for the event of a periodic timer that is set with the specified base sampletime of the model.
+Due to operating-system related latency the realtime thread is not able to handle that event immediately but after some short delay. If the timer produced multiple
+events but the realtime thread was not able to handle them in time, a <a href="#cpuoverload">lost tick event</a> occurs. In this case, the number of CPU overloads is incremented and the
+number of lost ticks is incremented by the number of tick events that have been lost.
+<br>
+<br>
+<center><object data="../img/cpuoverload.svg" type="image/svg+xml"></object></center>
+<br>
+<br>
 
-    <h3>Task-Execution Time</h3>
-    During code generation, a separate thread is created for each sample time, in which the corresponding step function of the model is executed.
-    For each step function the execution time is measured.
-    This task execution time is then available in the next time step.
-    The task execution time thus indicates the computation time of the last sampling step.
-    The initial value for the first step is zero.
+<a name="taskoverload"></a>
+<h3>Task Overload</h3>
+The master thread triggers the worker thread. If the worker thread is still working, it misses the event from the master thread and a
+lost wakeup occurs. The event remains and the associated task is executed in a delayed manner. The number of lost events is irrelevant.
+An existing event corresponds to a Boolean variable and not an integer. Several lost events therefore cause the worker thread to execute
+only one event. The master thread detects all lost wakeups and thus recognizes task overloads.
+<br>
+<br>
+<center><object data="../img/taskoverload.svg" type="image/svg+xml"></object></center>
+<br>
+<br>
 
-    <h3>Task Overload</h3>
-    If the task execution time of a thread becomes too large, then the corresponding thread of that task cannot be notified by the base rate scheduler.
-    If a task is still running, a <a href="#taskoverload">lost wakeup</a> occurs. The number of task overloads for that task is incremented.
+<h3>Scheduling-Policy: FIFO</h3>
+How many threads actually run in parallel in reality depends on the CPU cores used.
+In principle, the number of threads that can be executed simultaneously in parallel corresponds to the number of CPU cores.
+This does not mean that with a 4-core CPU, the model may have a maximum of four different sampletimes.
+Only the number of threads working in parallel is limited to four.
+The generic target application uses a FIFO strategy for scheduling.
+If there are several tasks to do, they are processed one after the other.
 
-    <h3>CPU Overload and Lost Ticks</h3>
-    The high-priority realtime thread of the base rate scheduler waits for the event of a periodic timer that is set with the specified base sampletime of the model.
-    Due to operating-system related latency the realtime thread is not able to handle that event immediately but after some short delay. If the timer produced multiple
-    events but the realtime thread was not able to handle them in time, a <a href="#cpuoverload">lost tick event</a> occurs. In this case, the number of CPU overloads is incremented and the
-    number of lost ticks is incremented by the number of tick events that have been lost.
+<h2>Thread Overview</h2>
+There are two threads that are always present.
+These are the main thread and the BaseRateScheduler thread.
+<br>
+<br>
+<center><object data="../img/Threads.svg" type="image/svg+xml"><img src="../img/Threads.svg"></object></center>
+<br>
+<br>
+The <b>BaseRateScheduler thread</b> has the highest priority (99).
+This thread waits for a timer event, which is set periodically with the base sample rate.
+Then this thread distributes the event to all worker threads of the model.
+<br>
+<br>
+The <b>main thread</b> executes the <a href="application.html#flowchart">main entry function</a> of the application.
+The initialization and termination phases of the generic target application run in this thread.
+In the actual <a href="application.html#mainloop">main loop</a> this thread receives messages via the application socket and waits for a termination message.
 
-    <div class="note-orange">
-	<h3 class="note-orange">Warning</h3>
-    If the library blocks are built with the <a href="installtoolbox.html">simulink support option</a>, most of these times can also be determined in simulation.
-    However, for some blocks the behavior is different in the simulation than on the target computer.
-    </div>
+<br>
+<br>
+The number of additional threads depends on the Simulink model.
+For each sample rate, one additional worker thread is added.
+The maximum priority is set via the property <a href="packages_gt_generictarget.html#upperThreadPriority">upperThreadPriority</a>.
+One additional thread is added for each Write To File block.
+The priority is specified via the property <a href="packages_gt_generictarget.html#priorityDataRecorder">priorityDataRecorder</a>.
+For each UDP socket, which is uniquely identified by its port, an additional thread is created.
+The priority is set via the block mask of the corresponding block.
+Only one receive block but several send blocks should be used for one UDP port.
+If different priorities are specified for a UDP port, the highest value is used.
 
-    <div class="note-red">
-	<h3 class="note-red">Limited Support for Windows</h3>
-    CPU overload and lost ticks are not supported for windows operating system. Keep that in mind when deploying a model to a host running windows.
-    </div>
-    <br>
-
-<a name="scheduling"></a>
-<h2>Scheduling</h2>
-    The scheduling is done by the BaseRateScheduler, which runs in a <a href="threads.html">thread</a> with the highest priority (99).
-    The BaseRateScheduler waits for an event from a timer.
-    The event is periodically triggered with the base sample rate.
-    The model contains only step functions that are to be executed with a multiple of the base sample rate.
-    For each step function a counter is used which is decremented by the BaseRateScheduler.
-    If the counter is at zero, the corresponding thread is triggered and the counter is reset to its initial value.
-    The triggered thread then executes the corresponding step function of the generated model code.
-    The following figure illustrates the scheduling using an example.
-    <br>
-    <br>
-    <center><object data="../img/Scheduling.svg" type="image/svg+xml"></object></center>
-    <br>
-    <br>
-    Here, the <code>step0()</code> function is executed with the basic sampling rate and the <code>step1()</code> function with twice the sampling time.
-    Due to the latency of the operating system there is some delay between the timer event and the high priority thread of the BaseRateScheduler.
-
-    <a name="taskoverload"></a>
-    <h3>Lost-Wakeup (Task Overload)</h3>
-    If a thread is triggered by the BaseRateScheduler even though the corresponding step function is not yet ready, a lost wakeup occurs.
-    The trigger event from the timer is lost.
-    A Lost-Wakeup is also called task overload in this context.
-    With a task overload, the generic target application is terminated by default.
-    However, the parameter <code>terminateAtTaskOverload</code> of the <a href="simulinkinterface.html">Simulink interface class</a> can be used to specify whether the application should be terminated or the task overload should be ignored.
-    The number of task overloads (for each thread) are written to the <a href="textlog.html">protocol file</a> when the application is terminated.
-    If task overloads are ignored, the application continues.
-    As stated, the tirgger event from the timer is lost.
-    However, the information that one or more events have been triggered is retained.
-    Therefore, another <code>step0()</code> function is called directly after the previous <code>step0()</code> function is terminated.
-    The number of timer events that lead to a lost wakeup is irrelevant.
-    In any case, another <code>step0()</code> calculation is performed directly afterwards.
-    This behaviour is illustrated in the following figure.
-    <br>
-    <br>
-    <center><object data="../img/LostWakeup.svg" type="image/svg+xml"></object></center>
-    <br>
-    <br>
-
-    <a name="cpuoverload"></a>
-    <h3>Lost-Tick (CPU Overload)</h3>
-    The BaseRateScheduler waits for the timer event.
-    Due to operating-system related latency the realtime thread is not able to handle that event immediately but after some short delay.
-    The delay is indicated by the blue arrow. If the computational load of the BaseRateScheduler is too high compared to the base sampletime or the latency is too large, then
-    some timer events are lost. Those lost ticks indicate a CPU overload.
-    <br>
-    <br>
-    <center><object data="../img/LostTicks.svg" type="image/svg+xml"></object></center>
-    <br>
-    <br>
-
-    <h3>Scheduling-Policy: FIFO</h3>
-    How many threads actually run in parallel in reality depends on the CPU used.
-    In principle, the number of threads that can be executed simultaneously in parallel corresponds to the number of CPU cores.
-    This does not mean that with a 4-core CPU, the model may have a maximum of four different sampletimes.
-    Only the number of threads working in parallel is limited to four.
-    The generic target application uses a FIFO strategy for scheduling.
-    If there are several tasks to do, they are processed one after the other.
-    The following figure shows the already mentioned example for the case that only one thread can work at the same time.
-    <br>
-    <br>
-    <center><object data="../img/SchedulingFIFO.svg" type="image/svg+xml"></object></center>
-    

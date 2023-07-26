@@ -28,28 +28,31 @@ class DataRecorderManager {
 
         /**
          * @brief Register a new data recorder for scalar doubles.
-         * @param [in] id Unique ID of the data record.
+         * @param [in] idCharacters Characters representing the unique ID of the data record.
+         * @param [in] numIDCharacters Actual number of characters representing the unique ID.
          * @param [in] signalNames Names for all signals separated by comma.
          * @param [in] numCharacters Number of characters in the signalNames array.
          * @param [in] numSignals Number of signals to record.
          * @param [in] numSamplesPerFile The number of samples per file or zero if all samples should be written to one file.
          * @details All signals that are to be recorded must be registered before the GenericTarget creates and starts all data recorders.
          */
-        void RegisterScalarDoubles(uint32_t id, const uint8_t* signalNames, uint32_t numCharacters, uint32_t numSignals, uint32_t numSamplesPerFile);
+        void RegisterScalarDoubles(const uint8_t* idCharacters, uint32_t numIDCharacters, const uint8_t* signalNames, uint32_t numCharacters, uint32_t numSignals, uint32_t numSamplesPerFile);
 
         /**
          * @brief Write scalar doubles to file.
-         * @param [in] id Unique ID of the data record.
+         * @param [in] idCharacters Characters representing the unique ID of the data record.
+         * @param [in] numIDCharacters Actual number of characters representing the unique ID.
          * @param [in] time A timestamp associated with the data value.
          * @param [in] values Data values.
          * @param [in] numValues Number of values.
          * @details This function has no effect if the data recorder manager has not been created. The actual file writing is done by a separate thread.
          */
-        void WriteScalarDoubles(uint32_t id, double timestamp, double* values, uint32_t numValues);
+        void WriteScalarDoubles(const uint8_t* idCharacters, uint32_t numIDCharacters, double timestamp, double* values, uint32_t numValues);
 
         /**
          * @brief Register a new data recorder for complete bus objects.
-         * @param [in] id Unique ID of the data record.
+         * @param [in] idCharacters Characters representing the unique ID of the data record.
+         * @param [in] numIDCharacters Actual number of characters representing the unique ID.
          * @param [in] numSamplesPerFile The number of samples per file or zero if all samples should be written to one file.
          * @param [in] numBytesPerSample The number of bytes per sample (exluding timestamp).
          * @param [in] signalNames Names for all signals separated by comma.
@@ -60,17 +63,18 @@ class DataRecorderManager {
          * @param [in] strlenDataTypes Number of characters in the dataTypes array.
          * @details All signals that are to be recorded must be registered before the GenericTarget creates and starts all data recorders.
          */
-        void RegisterBus(uint32_t id, uint32_t numSamplesPerFile, uint32_t numBytesPerSample, const uint8_t* signalNames, uint32_t strlenSignalNames, const uint8_t* dimensions, uint32_t strlenDimensions, const uint8_t* dataTypes, uint32_t strlenDataTypes);
+        void RegisterBus(const uint8_t* idCharacters, uint32_t numIDCharacters, uint32_t numSamplesPerFile, uint32_t numBytesPerSample, const uint8_t* signalNames, uint32_t strlenSignalNames, const uint8_t* dimensions, uint32_t strlenDimensions, const uint8_t* dataTypes, uint32_t strlenDataTypes);
 
         /**
          * @brief Write bus signals to file.
-         * @param [in] id Unique ID of the data record.
+         * @param [in] idCharacters Characters representing the unique ID of the data record.
+         * @param [in] numIDCharacters Actual number of characters representing the unique ID.
          * @param [in] timestamp A time value associated with the data value.
          * @param [in] bytes Array containing the bytes for a sample (exluding timestamp).
          * @param [in] numBytesPerSample The number of bytes per sample (exluding timestamp).
          * @details This function has no effect if the data recorder manager has not been created. The actual file writing is done by a separate thread.
          */
-        void WriteBus(uint32_t id, double timestamp, uint8_t* bytes, uint32_t numBytesPerSample);
+        void WriteBus(const uint8_t* idCharacters, uint32_t numIDCharacters, double timestamp, uint8_t* bytes, uint32_t numBytesPerSample);
 
     protected:
         friend GenericTarget;
@@ -87,16 +91,16 @@ class DataRecorderManager {
         void DestroyAllDataRecorders(void);
 
     private:
-        std::atomic<bool> created;                                      ///< True if data recorders have been successfully created by @ref CreateAllDataRecorders, false otherwise.
-        std::unordered_map<uint32_t, DataRecorderBase*> dataRecorders;  ///< List of all created data recorders.
-        std::string directoryDataRecord;                                ///< Absolute path to the data recording directory. The directory is created by @ref CreateAllDataRecorders.
+        std::atomic<bool> created;                                         ///< True if data recorders have been successfully created by @ref CreateAllDataRecorders, false otherwise.
+        std::unordered_map<std::string, DataRecorderBase*> dataRecorders;  ///< List of all created data recorders.
+        std::string directoryDataRecord;                                   ///< Absolute path to the data recording directory. The directory is created by @ref CreateAllDataRecorders.
 
         /**
          * @brief Generate the filename string for a given data file identifier.
          * @param [in] id ID of the data file.
          * @return Absolute path for data recording filename.
          */
-        std::string GenerateFileName(uint32_t id);
+        std::string GenerateFileName(std::string id);
 
         /**
          * @brief Write index file.
@@ -131,6 +135,12 @@ class DataRecorderManager {
          * @return True if success, false otherwise.
          */
         bool StartAllDataRecoders(void);
+
+        /**
+         * @brief Get operating system information.
+         * @return String representing information about the operating system.
+         */
+        std::string GetOSInfo(void);
 };
 
 

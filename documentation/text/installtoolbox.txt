@@ -1,10 +1,10 @@
 <h1>Install the Generic Target Toolbox (MATLAB)</h1>
     The Generic Target Toolbox for Matlab must be installed on the host computer.
-    For this purpose, the Toolbox directory can be copied to any location on the host PC.
+    For this purpose, the toolbox directory can be copied to any location on the host PC.
+    However, consider using locations that do not contain spaces in the absolute path.
     When calling the <code>install.m</code> installation script, the absolute path to this directory is added to the MATLAB path and the user is aksed whether the path should be saved or not.
-    Afterwards, the toolbox directory must not be moved.
-    When using multiple host PCs, it is recommended that each host PC installs the Toolbox locally, since different host PCs generally have different operating systems, MATLAB versions, compilers, etc.
-    When working with simulink projects, however, it's also possible to copy the toolbox to a simulink project and add it to the project path.
+    When using multiple host PCs, it is recommended that each host PC installs the toolbox locally.
+    When working with Simulink projects, however, it's best to copy the toolbox to the Simulink project and add it to the project path.
     The directory structure of the <b>Generic Target Toolbox</b> is as follows:
 	<ul class="dir">
 		<li>documentation</li>
@@ -13,18 +13,21 @@
 	</ul>
 	<ul class="file">
         <li>install.m</li>
+        <li>readme.html</li>
 	</ul>
     <br>
     <table>
 		<tr><th>Directory/File</th><th>Description</th></tr>
 		<tr><td><b>documentation</b></td><td>
-            Contains this documentation.</td></tr>
+            Contains this HTML-based documentation.</td></tr>
         <tr><td><b>library</b></td><td>
             Contains the Simulink library "GenericTarget".</td></tr>
         <tr><td><b>packages</b></td><td>
             Contains the MATLAB package "GT".</td></tr>
         <tr><td><b>install.m</b></td><td>
             MATLAB script to install the Generic Target Toolbox and save it to the MATLAB path.</td></tr>
+        <tr><td><b>readme.html</b></td><td>
+            Open this file with a browser to show the HTML-based documentation.</td></tr>
 	</table>
 
     <div class="note-red">
@@ -33,17 +36,20 @@
     </div>
 
     <h2>Install</h2>
-    Run the installation script <code>install.m</code>.
+    The installation is only required if you want to use the toolbox locally with the start of MATLAB.
+    If you are working in Simulink projects, consider copying the toolbox to the project and add it to the project path.
+    For local use run the installation script <code>install.m</code>.
     The script simply adds the necessary directory paths to the MATLAB path.
     The toolbox is shipped with prebuild library blocks for Windows and Linux.
-    If you want to rebuild the driver, run the build script from the <code>lib/src/</code> subdirectory to generate the necessary mex and tlc files for the driver blocks of the Simulink library.
+    If you want to rebuild the driver blocks, run the build script from the <code>library/src/</code> subdirectory to generate the necessary mex and tlc files for the driver blocks of the Simulink library.
     The prerequisite is that a C/C++ compiler is set in MATLAB (<a href="http://de.mathworks.com/help/matlab/matlab_external/choose-c-or-c-compilers.html" target="_blank">mex -setup</a>).
 
+    <a name="simulinksupport"></a>
     <div class="note-green">
 	<h3 class="note-green">Simulink Support</h3>
-    If the option "simulink support" is set during the building of the library driver blocks, most of them will also be usable for simulation in Simulink.
-    If the "simulink support" option is disabled, most blocks have no effect during simulation and serve only as code placeholders for the application on the target PC.
-    On the target, all blocks have a function.
+    If the option "Simulink support" is set during the building of the library driver blocks, most of them will also be usable for simulation in Simulink.
+    If the "Simulink support" option is disabled, most blocks have no effect during simulation and serve only as code placeholders for the application on the target PC.
+    On the target, all blocks have their intended functionality.
     The following table shows all blocks that can be used during a simulation in Simulink.
     <br>
     <br>
@@ -81,8 +87,8 @@
     For simulation, however, the scheduler of the generic target framework does not exist.
     Because of that, each block in the model has its own initial timepoint when simulating.
 	</div>
-    At the moment only <b>gcc</b> (Linux) and <b>MSYS2/MinGW64</b> (Windows) are supported as compilers to create blocks with simulink support.
-    For compilers that are not yet supported, the simulink support option can be skipped.
+    At the moment only <b>gcc</b> (Linux) and <b>MSYS2/MinGW64</b> (Windows) are supported as compilers to create blocks with Simulink support.
+    For compilers that are not yet supported, the Simulink support option can be skipped.
 
     <h2>Uninstall</h2>
     There's nothing to do to uninstall the toolbox. If some directories have been added to the MATLAB path during installation, simply remove them.

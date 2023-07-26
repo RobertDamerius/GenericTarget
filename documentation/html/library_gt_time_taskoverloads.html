@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Generic Target</title>
+<link rel="stylesheet" href="core/design.css">
+
+</head>
+<body>
+<header>
+<div class="header_title">Generic Target</div>
+<div class="header_version">Version 20230726</div>
+</header>
+<button onclick="PageToTop()" id="buttonToTop"></button>
+<div class="wrapper">
+<div class="navigation">
+<ul class="ulnav">
+<li class="linone"></li>
+<li class="linav"><a href="index.html">Overview</a></li>
+<li class="linone"></li>
+<li class="litext">GETTING STARTED</li>
+<li class="linav"><a href="installtoolbox.html">Install Generic Target Toolbox</a></li>
+<li class="linav"><a href="preparetarget.html">Prepare Target Computer</a></li>
+<li class="linav"><a href="createanddeploy.html">Create and Deploy a Model</a></li>
+<li class="linone"></li>
+<li class="litext">MATLAB PACKAGE</li>
+<li class="linav"><a href="packages_gt_decodedatadirectory.html">GT.DecodeDataDirectory</a></li>
+<li class="linav"><a href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a></li>
+<li class="linav"><a href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
+<li class="linav"><a href="packages_gt_generictarget.html">GT.GenericTarget (class)</a></li>
+<li class="linav"><a href="packages_gt_gettemplate.html">GT.GetTemplate</a></li>
+<li class="linone"></li>
+<li class="litext">SIMULINK LIBRARY</li>
+<li class="linav"><a href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
+<li class="linav"><a href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
+<li class="linav"><a href="library_gt_interface_multicastudpsend.html">Interface / Multicast UDP Send</a></li>
+<li class="linav"><a href="library_gt_interface_multicastudpreceive.html">Interface / Multicast UDP Receive</a></li>
+<li class="linav"><a href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
+<li class="linav"><a href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
+<li class="linav"><a href="library_gt_time_modelexecutiontime.html">Time / Model Execution Time</a></li>
+<li class="linav"><a href="library_gt_time_unixtime.html">Time / UNIX Time</a></li>
+<li class="linav"><a href="library_gt_time_utctime.html">Time / UTC Time</a></li>
+<li class="linav"><a href="library_gt_time_localtime.html">Time / Local Time</a></li>
+<li class="linav"><a href="library_gt_time_taskexecutiontime.html">Time / Task Execution Time</a></li>
+<li class="linav_active"><a href="library_gt_time_taskoverloads.html">Time / Task Overloads</a></li>
+<li class="linav"><a href="library_gt_time_cpuoverloads.html">Time / CPU Overloads</a></li>
+<li class="linav"><a href="library_gt_time_utctimestamp.html">Time / UTC Timestamp</a></li>
+<li class="linav"><a href="library_gt_time_timetolatestutctimestamp.html">Time / Time To Latest UTC Timestamp</a></li>
+<li class="linone"></li>
+<li class="litext">EXAMPLES</li>
+<li class="linav"><a href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
+<li class="linav"><a href="example_debugging.html">Debugging with Visual Studio Code</a></li>
+<li class="linone"></li>
+<li class="litext">HOW THE APPLICATION WORKS</li>
+<li class="linav"><a href="application.html">Application Overview</a></li>
+<li class="linav"><a href="timingscheduling.html">Timing & Scheduling</a></li>
+<li class="linav"><a href="datarecording.html">Data Recording</a></li>
+<li class="linav"><a href="protocolfile.html">Protocol File</a></li>
+<li class="linone"></li>
+<li class="litext">HOW THE DEPLOYMENT WORKS</li>
+<li class="linav"><a href="deployment.html">Deployment Process</a></li>
+</ul>
+
+</div>
+<div class="content">
+<h1>Task Overloads</h1>
+<h3>Library</h3>
+<span style="font-family: Courier New">GenericTarget / Time / Task Overloads</span>
+
+
+<h3>Description</h3>
+Get the current number of <a href="timingscheduling.html#taskoverload">task overloads</a> for the task running at the specified sampletime. During simulation this block has no effect.
+The sampletime must be explicitly specified via the block mask.
+
+
+<h2>Output Ports</h2>
+<h3>numTaskOverloads</h3>
+The number of task overloads that have occurred to this point for the specified sample time.
+<br>
+<b>Data Type:</b> <span style="font-family: Courier New">uint64</span>
+
+
+<h2>Block Parameters</h2>
+The following table shows all block parameters.
+<table>
+    <tr><th>Parameter Name</th><th>Description</th></tr>
+    <tr><td style="font-family: Courier New;">SampleTime</td><td>Sampletime.</td></tr>
+</table>
+
+</div>
+</div>
+<script src="core/script.js"></script>
+</body>
+</html>

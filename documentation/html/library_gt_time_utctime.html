@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Generic Target</title>
+<link rel="stylesheet" href="core/design.css">
+
+</head>
+<body>
+<header>
+<div class="header_title">Generic Target</div>
+<div class="header_version">Version 20230726</div>
+</header>
+<button onclick="PageToTop()" id="buttonToTop"></button>
+<div class="wrapper">
+<div class="navigation">
+<ul class="ulnav">
+<li class="linone"></li>
+<li class="linav"><a href="index.html">Overview</a></li>
+<li class="linone"></li>
+<li class="litext">GETTING STARTED</li>
+<li class="linav"><a href="installtoolbox.html">Install Generic Target Toolbox</a></li>
+<li class="linav"><a href="preparetarget.html">Prepare Target Computer</a></li>
+<li class="linav"><a href="createanddeploy.html">Create and Deploy a Model</a></li>
+<li class="linone"></li>
+<li class="litext">MATLAB PACKAGE</li>
+<li class="linav"><a href="packages_gt_decodedatadirectory.html">GT.DecodeDataDirectory</a></li>
+<li class="linav"><a href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a></li>
+<li class="linav"><a href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
+<li class="linav"><a href="packages_gt_generictarget.html">GT.GenericTarget (class)</a></li>
+<li class="linav"><a href="packages_gt_gettemplate.html">GT.GetTemplate</a></li>
+<li class="linone"></li>
+<li class="litext">SIMULINK LIBRARY</li>
+<li class="linav"><a href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
+<li class="linav"><a href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
+<li class="linav"><a href="library_gt_interface_multicastudpsend.html">Interface / Multicast UDP Send</a></li>
+<li class="linav"><a href="library_gt_interface_multicastudpreceive.html">Interface / Multicast UDP Receive</a></li>
+<li class="linav"><a href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
+<li class="linav"><a href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
+<li class="linav"><a href="library_gt_time_modelexecutiontime.html">Time / Model Execution Time</a></li>
+<li class="linav"><a href="library_gt_time_unixtime.html">Time / UNIX Time</a></li>
+<li class="linav_active"><a href="library_gt_time_utctime.html">Time / UTC Time</a></li>
+<li class="linav"><a href="library_gt_time_localtime.html">Time / Local Time</a></li>
+<li class="linav"><a href="library_gt_time_taskexecutiontime.html">Time / Task Execution Time</a></li>
+<li class="linav"><a href="library_gt_time_taskoverloads.html">Time / Task Overloads</a></li>
+<li class="linav"><a href="library_gt_time_cpuoverloads.html">Time / CPU Overloads</a></li>
+<li class="linav"><a href="library_gt_time_utctimestamp.html">Time / UTC Timestamp</a></li>
+<li class="linav"><a href="library_gt_time_timetolatestutctimestamp.html">Time / Time To Latest UTC Timestamp</a></li>
+<li class="linone"></li>
+<li class="litext">EXAMPLES</li>
+<li class="linav"><a href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
+<li class="linav"><a href="example_debugging.html">Debugging with Visual Studio Code</a></li>
+<li class="linone"></li>
+<li class="litext">HOW THE APPLICATION WORKS</li>
+<li class="linav"><a href="application.html">Application Overview</a></li>
+<li class="linav"><a href="timingscheduling.html">Timing & Scheduling</a></li>
+<li class="linav"><a href="datarecording.html">Data Recording</a></li>
+<li class="linav"><a href="protocolfile.html">Protocol File</a></li>
+<li class="linone"></li>
+<li class="litext">HOW THE DEPLOYMENT WORKS</li>
+<li class="linav"><a href="deployment.html">Deployment Process</a></li>
+</ul>
+
+</div>
+<div class="content">
+<h1>UTC Time</h1>
+<h3>Library</h3>
+<span style="font-family: Courier New">GenericTarget / Time / UTC Time</span>
+
+
+<h3>Description</h3>
+Get the current UTC time from the system clock.
+
+
+<h2>Output Ports</h2>
+<h3>timeInfo</h3>
+A bus, which defines the timepoint. The elements of the bus are given in the table below.
+<table>
+<tr><th>Element</th><th width="150">Data Type</th><th>Description</th></tr>
+<tr><td style="font-family: Courier New;">nanoseconds</td><td style="font-family: Courier New;">int32</td><td>Nanoseconds after the second [0, 999999999].</td></tr>
+<tr><td style="font-family: Courier New;">second</td><td style="font-family: Courier New;">int32</td><td>Seconds after the minute [0, 59] (on some systems [0,60] or [0,61] to allow leap seconds).</td></tr>
+<tr><td style="font-family: Courier New;">minute</td><td style="font-family: Courier New;">int32</td><td>Minutes after the hour [0, 59].</td></tr>
+<tr><td style="font-family: Courier New;">hour</td><td style="font-family: Courier New;">int32</td><td>Hours since midnight [0, 23].</td></tr>
+<tr><td style="font-family: Courier New;">mday</td><td style="font-family: Courier New;">int32</td><td>Day of the month [1, 31].</td></tr>
+<tr><td style="font-family: Courier New;">month</td><td style="font-family: Courier New;">int32</td><td>Month since January [0, 11].</td></tr>
+<tr><td style="font-family: Courier New;">year</td><td style="font-family: Courier New;">int32</td><td>Years since 1900.</td></tr>
+<tr><td style="font-family: Courier New;">wday</td><td style="font-family: Courier New;">int32</td><td>Days since Sunday [0, 6].</td></tr>
+<tr><td style="font-family: Courier New;">yday</td><td style="font-family: Courier New;">int32</td><td>Days since January 1 [0, 365].</td></tr>
+<tr><td style="font-family: Courier New;">isdst</td><td style="font-family: Courier New;">int32</td><td>Daylight Saving Time flag. The value is positive if DST is in effect, zero if not and negative if no information is available.</td></tr>
+</table>
+
+<h2>Block Parameters</h2>
+The following table shows all block parameters.
+<table>
+    <tr><th>Parameter Name</th><th>Description</th></tr>
+    <tr><td style="font-family: Courier New;">SampleTime</td><td>Sampletime.</td></tr>
+</table>
+
+</div>
+</div>
+<script src="core/script.js"></script>
+</body>
+</html>

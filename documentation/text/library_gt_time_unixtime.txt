@@ -1,0 +1,22 @@
+<h1>UNIX Time</h1>
+<h3>Library</h3>
+<span style="font-family: Courier New">GenericTarget / Time / UNIX Time</span>
+
+
+<h3>Description</h3>
+Get the current UNIX time from the system clock.
+
+
+<h2>Output Ports</h2>
+<h3>time</h3>
+The UNIX time in seconds. The resolution is one millisecond.
+<br>
+<b>Data Type:</b> <span style="font-family: Courier New">double</span>
+
+
+<h2>Block Parameters</h2>
+The following table shows all block parameters.
+<table>
+    <tr><th>Parameter Name</th><th>Description</th></tr>
+    <tr><td style="font-family: Courier New;">SampleTime</td><td>Sampletime.</td></tr>
+</table>

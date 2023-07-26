@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Generic Target</title>
+<link rel="stylesheet" href="core/design.css">
+
+</head>
+<body>
+<header>
+<div class="header_title">Generic Target</div>
+<div class="header_version">Version 20230726</div>
+</header>
+<button onclick="PageToTop()" id="buttonToTop"></button>
+<div class="wrapper">
+<div class="navigation">
+<ul class="ulnav">
+<li class="linone"></li>
+<li class="linav"><a href="index.html">Overview</a></li>
+<li class="linone"></li>
+<li class="litext">GETTING STARTED</li>
+<li class="linav"><a href="installtoolbox.html">Install Generic Target Toolbox</a></li>
+<li class="linav"><a href="preparetarget.html">Prepare Target Computer</a></li>
+<li class="linav"><a href="createanddeploy.html">Create and Deploy a Model</a></li>
+<li class="linone"></li>
+<li class="litext">MATLAB PACKAGE</li>
+<li class="linav"><a href="packages_gt_decodedatadirectory.html">GT.DecodeDataDirectory</a></li>
+<li class="linav"><a href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a></li>
+<li class="linav"><a href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
+<li class="linav"><a href="packages_gt_generictarget.html">GT.GenericTarget (class)</a></li>
+<li class="linav"><a href="packages_gt_gettemplate.html">GT.GetTemplate</a></li>
+<li class="linone"></li>
+<li class="litext">SIMULINK LIBRARY</li>
+<li class="linav"><a href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
+<li class="linav"><a href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
+<li class="linav"><a href="library_gt_interface_multicastudpsend.html">Interface / Multicast UDP Send</a></li>
+<li class="linav"><a href="library_gt_interface_multicastudpreceive.html">Interface / Multicast UDP Receive</a></li>
+<li class="linav"><a href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
+<li class="linav"><a href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
+<li class="linav"><a href="library_gt_time_modelexecutiontime.html">Time / Model Execution Time</a></li>
+<li class="linav"><a href="library_gt_time_unixtime.html">Time / UNIX Time</a></li>
+<li class="linav"><a href="library_gt_time_utctime.html">Time / UTC Time</a></li>
+<li class="linav"><a href="library_gt_time_localtime.html">Time / Local Time</a></li>
+<li class="linav"><a href="library_gt_time_taskexecutiontime.html">Time / Task Execution Time</a></li>
+<li class="linav"><a href="library_gt_time_taskoverloads.html">Time / Task Overloads</a></li>
+<li class="linav"><a href="library_gt_time_cpuoverloads.html">Time / CPU Overloads</a></li>
+<li class="linav"><a href="library_gt_time_utctimestamp.html">Time / UTC Timestamp</a></li>
+<li class="linav"><a href="library_gt_time_timetolatestutctimestamp.html">Time / Time To Latest UTC Timestamp</a></li>
+<li class="linone"></li>
+<li class="litext">EXAMPLES</li>
+<li class="linav"><a href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
+<li class="linav_active"><a href="example_debugging.html">Debugging with Visual Studio Code</a></li>
+<li class="linone"></li>
+<li class="litext">HOW THE APPLICATION WORKS</li>
+<li class="linav"><a href="application.html">Application Overview</a></li>
+<li class="linav"><a href="timingscheduling.html">Timing & Scheduling</a></li>
+<li class="linav"><a href="datarecording.html">Data Recording</a></li>
+<li class="linav"><a href="protocolfile.html">Protocol File</a></li>
+<li class="linone"></li>
+<li class="litext">HOW THE DEPLOYMENT WORKS</li>
+<li class="linav"><a href="deployment.html">Deployment Process</a></li>
+</ul>
+
+</div>
+<div class="content">
+<h1>Debugging with Visual Studio Code (VSCode)</h1>
+    Sometimes it may be necessary to debug an application to quickly find an error.
+    Additional comments are generated in the model code, if this is configured via Simulink model settings.
+    The <a href="packages_gt_gettemplate.html">template model</a> is configured so that MATLAB source code is also inserted as comments in the source code.
+    If the application is debugged and a problem is found at a certain point in the code, then the corresponding block or MATLAB code can be found via the comment.
+    The easiest way to debug the target application is to use VSCode.
+    VSCode is a popular free code editor, for which there are many additional plugins for different programming languages.
+    For working with C/C++ code it makes sense to install the two plugins <code>C/C++</code> and <code>C/C++ Extension Pack</code>.
+    This is done directly from the VSCode user interface.
+
+<h2>Enable DEBUG mode</h2>
+    To debug a target application, it must be compiled in DEBUG mode.
+    In DEBUG mode all optimizations are disabled and the symbol table is not removed from the executable.
+    The application will be slightly larger and the task execution time will be longer.
+    In the extreme case it can come in the DEBUG mode therefore also to <a href="timingscheduling.html#taskoverload">task overloads</a> or <a href="timingscheduling.html#cpuoverload">CPU overloads</a>, which perhaps do not occur otherwise with activation of all optimizations.
+    There are two ways to enable the DEBUG mode.
+    Either the target application is redeployed with the additional option <a href="packages_gt_generictarget.html#DEBUG_MODE">additionalCompilerFlags.DEBUG_MODE</a>, or the DEBUG mode is manually adjusted in the Makefile and the application is manually recompiled.
+    The second step is especially suitable if the code generation takes a lot of time.
+
+    <br>
+    <h3>Variant 1: Set DEBUG mode before deployment</h3>
+    To enable the DEBUG mode during deployment, set the appropriate property of the target object before calling the <a href="packages_gt_generictarget.html#Deploy">Deploy</a> member function.
+    <pre>target = GT.GenericTarget(userName, address);
+target.additionalCompilerFlags.DEBUG_MODE = true;
+target.Deploy(modelName);</pre>
+
+    <br>
+    <h3>Variant 2: Modify DEBUG mode and recompile manually</h3>
+    Navigate to the <a href="application.html#directory">application directory</a> on the target and open the Makefile.
+    There you find a line (close to the beginning) that starts with <code>DEBUG_MODE :=</code>.
+    Enable the DEBUG mode by setting
+    <pre>DEBUG_MODE := 1</pre>
+    Next, save the Makefile and open a terminal in the directory of the same directory of the Makefile.
+    Do a fresh recompilation by clearing all cache files and building the application with 8 jobs in parallel:
+    <pre>make clean && make -j8</pre>
+    Compiling is successfull if the last display message looks something like <code>[APP] > GenericTarget</code> without any errors.
+
+<h2>Start Debugging</h2>
+    To start debugging, open VSCode in the <a href="application.html#directory">application directory</a>.
+    Press <code>F5</code> or go to <code>Run > Start Debugging</code> to start the Debugging session.
+    Then the debugger waits in the main entry function.
+    Press <code>F5</code> one more time to continue debugging.
+
+    <div class="note-red">
+    <h3 class="note-red">Important</h3>
+    It is important that the <code>.vscode</code> directory exists in the <a href="application.html#directory">application directory</a>.
+    This directory contains a launch file to tell VSCode how to start the debugging with the GNU debugger (GDB).
+    </div>
+
+</div>
+</div>
+<script src="core/script.js"></script>
+</body>
+</html>

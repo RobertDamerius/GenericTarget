@@ -1,13 +1,15 @@
 function GT_CheckUniqueParameterValue(system, block, parameterName)
     objects = find_system(system,'Type','Block');
-    numObjects = length(objects);
-    thisValue = str2double(get_param(block,parameterName));
-    for i=1:numObjects
+    numObjects = numel(objects);
+    thisParameter = get_param(block,parameterName);
+    thisValue = thisParameter; %#TODO unable to get the actual value instead of the parameter name, eval(thisParameter);
+    for i = 1:numObjects
         p = get_param(objects{i},'ObjectParameters');
         if(isfield(p, parameterName))
-            value = str2double(get_param(objects{i},parameterName));
-            if(isequal(value, thisValue) && ~(strcmp(objects{i}, block)))
-                error('Parameter value %s=%d must be unique but is equal to parameter %s of block %s!',parameterName,value,parameterName,objects{i});
+            thatParameter = get_param(objects{i},parameterName);
+            thatValue = thatParameter; %#TODO unable to get the actual value instead of the parameter name, eval(thatParameter);
+            if(isequal(thatValue, thisValue) && ~(strcmp(objects{i}, block)))
+                error('Parameter "%s" of block "%s" must be unique but it is equal to that of block "%s"!',parameterName,block,objects{i});
             end
         end
     end

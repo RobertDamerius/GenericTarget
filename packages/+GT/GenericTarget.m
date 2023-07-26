@@ -78,7 +78,7 @@ classdef GenericTarget < handle
         priorityDataRecorder;      % Priority for the data recording threads in range [1 (lowest), 99 (highest)] (default: 30).
         terminateAtTaskOverload;   % True if application should terminate at task overload, false otherwise (default: true).
         terminateAtCPUOverload;    % True if application should terminate at CPU overload, false otherwise (default: true).
-        customCode;                % Cell-array of directories containing custom code to be uploaded along with the generated code.
+        customCode;                % Cell-array of files or directories containing custom code to be uploaded along with the generated code.
         numberOfOldProtocolFiles;  % The number of old protocol files to keep when redirecting the output to protocol text files.
         additionalCompilerFlags;   % Structure containing additional compiler flags to be set.
     end
@@ -186,13 +186,14 @@ classdef GenericTarget < handle
             fprintf('\n[GENERIC TARGET] Code deployment completed after %f seconds\n',t);
             commands = {cmdSSH1, cmdSCP, cmdSSH2};
         end
-        function DeployToHost(this, directory, modelName)
+        function DeployToHost(this, modelName, directory)
             %GT.GenericTarget.DeployToHost Deploy the target application to a directory on the host machine. The whole generic target framework including the generated
             % code is going to be replaced in the specified directory. The software is not compiled after this deployment.
             % 
             % PARAMETERS
-            % directory ... Optional name of the directory (absolute path) where to save the generated target application code. If no directory is specified, then the current working directory is used.
             % modelName ... The name of the simulink model that should be build (excluding directory and file extension).
+            % directory ... Optional name of the directory (consider using absolute path) where to save the generated target application code. If no directory is
+            %               specified, then the current working directory (pwd) is used.
 
             % Make sure that inputs are strings
             assert(ischar(modelName), 'GT.GenericTarget.DeployToHost(): Input "modelName" must be a string!');
@@ -213,8 +214,10 @@ classdef GenericTarget < handle
                 [~,~] = rmdir(fullfile(directory,'.vscode'),'s');
                 [~,~] = rmdir(fullfile(directory,'build'),'s');
                 [~,~] = rmdir(fullfile(directory,'code'),'s');
-                delete(fullfile(directory,'README.md'));
-                delete(fullfile(directory,'Makefile'));
+                fileReadme = fullfile(directory,'README.md');
+                fileMakefile = fullfile(directory,'Makefile');
+                if(exist(fileReadme,'file')), delete(fileReadme); end
+                if(exist(fileMakefile,'file')), delete(fileMakefile); end
             end
 
             % Unzip generated code into output directory
@@ -540,6 +543,7 @@ classdef GenericTarget < handle
             % Generate files
             this.GenerateMakefile(releaseFolder);
             this.GenerateReadme(releaseFolder);
+            this.OverwriteVSLaunchFile(releaseFolder);
         end
         function GenerateMakefile(this,releaseFolder)
             % Read the template Makefile
@@ -574,7 +578,7 @@ classdef GenericTarget < handle
             % Read the template readme file
             srcReadme = fullfile(this.GetTemplateDirectory(),'README.md');
             dstReadme = fullfile(releaseFolder,'README.md');
-            fprintf('[GENERIC TARGET] Generating Makefile "%s"\n',dstReadme);
+            fprintf('[GENERIC TARGET] Generating readme file "%s"\n',dstReadme);
             strReadme = fileread(srcReadme);
 
             % Update pattern
@@ -587,6 +591,23 @@ classdef GenericTarget < handle
             end
             fwrite(fidReadme, uint8(strReadme));
             fclose(fidReadme);
+        end
+        function OverwriteVSLaunchFile(this,releaseFolder)
+            % Read the launch file
+            srcLaunch = fullfile(this.GetTemplateDirectory(),'.vscode','launch.json');
+            dstLaunch = fullfile(releaseFolder,'.vscode','launch.json');
+            strLaunch = fileread(srcLaunch);
+
+            % Update pattern
+            strLaunch = strrep(strLaunch, '$TARGET_LAUNCH_PRODUCT_NAME$', this.targetProductName);
+
+            % Overwrite launch file to release folder
+            fidLaunch = fopen(dstLaunch,'w');
+            if(-1 == fidLaunch)
+                error('Could not write to file "%s"', dstLaunch);
+            end
+            fwrite(fidLaunch, uint8(strLaunch));
+            fclose(fidLaunch);
         end
         function modelCodeFolder = BuildModelToReleaseFolder(this, modelName, codeGenFolder, releaseFolder)
             % Run code generation (model must be configured to pack the generated code into the PackNGo archive)
@@ -681,7 +702,7 @@ classdef GenericTarget < handle
         function [strHeader, strSource] = GenerateInterfaceCode(this, modelName, codeInfo)
             % Get the model name, both for function names and information
             strNameOfModel = '';
-            for i = 1:length(modelName)
+            for i = 1:numel(modelName)
                 if((uint8(modelName(i)) >= uint8(20)) && (uint8(modelName(i)) <= uint8(126)))
                     strNameOfModel = [strNameOfModel,modelName(i)];
                 end
@@ -693,13 +714,13 @@ classdef GenericTarget < handle
 
             % Get initialize and terminate function prototypes
             assert(isempty(codeInfo.UpdateFunctions), 'GT.GenericTarget.GenerateInterfaceCode(): Code generation information contains update functions! However, no update functions are supported!');
-            assert(1 == length(codeInfo.InitializeFunctions), 'GT.GenericTarget.GenerateInterfaceCode(): Code generation information contains several initialization functions! However, only one initialization function is supported!');
-            assert(1 == length(codeInfo.TerminateFunctions), 'GT.GenericTarget.GenerateInterfaceCode(): Code generation information contains several termination functions! However, only one termination function is supported!');
+            assert(1 == numel(codeInfo.InitializeFunctions), 'GT.GenericTarget.GenerateInterfaceCode(): Code generation information contains several initialization functions! However, only one initialization function is supported!');
+            assert(1 == numel(codeInfo.TerminateFunctions), 'GT.GenericTarget.GenerateInterfaceCode(): Code generation information contains several termination functions! However, only one termination function is supported!');
             strModelInitialize = codeInfo.InitializeFunctions.Prototype.Name;
             strModelTerminate = codeInfo.TerminateFunctions.Prototype.Name;
 
             % Number of output functions (different sample rates)
-            numTimings = uint32(length(codeInfo.OutputFunctions));
+            numTimings = uint32(numel(codeInfo.OutputFunctions));
             strNumTimings = sprintf('%d',numTimings);
             assert(numTimings > 0, 'GT.GenericTarget.GenerateInterfaceCode(): There must be at least one model step function!');
 

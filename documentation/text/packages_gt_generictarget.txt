@@ -1,0 +1,514 @@
+<h1>Class: GT.GenericTarget</h1>
+This class is used to interact with the target application and the target in general. Several <a href="#properties">properties</a> can be modified to adjust the behaviour of the target application.
+The class provides several <a href="#objectfunctions">object functions</a>.
+
+<a name="construction"></a>
+<h2>Construction</h2>
+<code>target = GT.GenericTarget()</code> creates a target object with default properties.
+<br><hr>
+<code>target = GT.GenericTarget(targetUsername, targetIPAddress)</code> creates a target object with default properties and sets the two properties <code>targetUsername</code> and <code>targetIPAddress</code>.
+
+<a name="properties"></a>
+<h2>Properties</h2>
+All properties of this class are listed in the following table.
+Detailed information is given afterwards.
+<br><br>
+<table>
+<tr><th>Property</th><th width="150">Data Type</th><th>Default Value</th><th>Description</th></tr>
+<tr><td style="font-family: Courier New;"><a href="#portAppSocket">portAppSocket</a></td><td style="font-family: Courier New;">uint16</td><td style="font-family: Courier New;">44000</td><td>The port for the application socket.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#portSSH">portSSH</a></td><td style="font-family: Courier New;">uint16</td><td style="font-family: Courier New;">22</td><td>The port to be used for SSH/SCP connection.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#connectTimeout">connectTimeout</a></td><td style="font-family: Courier New;">uint32</td><td style="font-family: Courier New;">3</td><td>Connect timeout in seconds for SSH/SCP connection.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#targetIPAddress">targetIPAddress</a></td><td style="font-family: Courier New;">char array</td><td style="font-family: Courier New;">''</td><td>IPv4 address of the target PC.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#targetUsername">targetUsername</a></td><td style="font-family: Courier New;">char array</td><td style="font-family: Courier New;">''</td><td>User name of target PC required to login on target via SSH/SCP.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#targetSoftwareDirectory">targetSoftwareDirectory</a></td><td style="font-family: Courier New;">char array</td><td style="font-family: Courier New;">'~/GenericTarget/'</td><td>Directory for software on target. Must begin with <code>'~/'</code> and end with <code>'/'</code></td></tr>
+<tr><td style="font-family: Courier New;"><a href="#targetProductName">targetProductName</a></td><td style="font-family: Courier New;">char array</td><td style="font-family: Courier New;">'GenericTarget'</td><td>Name of the executable.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#targetBitmaskCPUCores">targetBitmaskCPUCores</a></td><td style="font-family: Courier New;">char array</td><td style="font-family: Courier New;">''</td><td>A hexadecimal string indicating to which CPU cores the process should be pinned to. If this string is empty, all cores are used.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#upperThreadPriority">upperThreadPriority</a></td><td style="font-family: Courier New;">uint32</td><td style="font-family: Courier New;">89</td><td>Upper task priority in range [1 (lowest), 99 (highest)].</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#priorityDataRecorder">priorityDataRecorder</a></td><td style="font-family: Courier New;">uint32</td><td style="font-family: Courier New;">30</td><td>Priority for the data recording threads in range [1 (lowest), 99 (highest)].</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#terminateAtTaskOverload">terminateAtTaskOverload</a></td><td style="font-family: Courier New;">logical</td><td style="font-family: Courier New;">true</td><td>True if application should terminate at task overload, false otherwise.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#terminateAtCPUOverload">terminateAtCPUOverload</a></td><td style="font-family: Courier New;">logical</td><td style="font-family: Courier New;">true</td><td>True if application should terminate at CPU overload, false otherwise.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#customCode">customCode</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Cell-array of files or directories containing custom code to be uploaded along with the generated code.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#numberOfOldProtocolFiles">numberOfOldProtocolFiles</a></td><td style="font-family: Courier New;">uint32</td><td style="font-family: Courier New;">100</td><td>The number of old protocol files to keep when redirecting the output to protocol text files.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#DEBUG_MODE">additionalCompilerFlags.DEBUG_MODE</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">0</td><td>True if DEBUG mode is to be enabled when compiling the target software, false otherwise.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#LIBS_WIN">additionalCompilerFlags.LIBS_WIN</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional libraries to link against when compiling on windows plattforms.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#LIBS_UNIX">additionalCompilerFlags.LIBS_UNIX</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional libraries to link against when compiling on unix plattforms.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#CC_SYMBOLS">additionalCompilerFlags.CC_SYMBOLS</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional symbols to be set when compiling.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#CC_FLAGS">additionalCompilerFlags.CC_FLAGS</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional flags to be set when compiling C source files.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#CPP_FLAGS">additionalCompilerFlags.CPP_FLAGS</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional flags to be set when compiling C++ source files.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#LD_FLAGS">additionalCompilerFlags.LD_FLAGS</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional flags to be set when linking the application.</td></tr>
+</table>
+
+<br><br>
+<a name="portAppSocket"></a>
+<h3>portAppSocket</h3>
+When the application is started, it always binds a fixed UDP port whose value can be set with this parameter.
+This port ensures that the application can be started only once, because this port can be bound only once.
+At the same time, the application can be terminated with a defined UDP message sent to this port.
+If the application is terminated, the port is released again.
+If several target applications are to be executed at the same time on the same computer, each application must use its own application socket.
+
+<br><br>
+<a name="portSSH"></a>
+<h3>portSSH</h3>
+SSH is used to execute commands on the target.
+The data transfer is done with SCP.
+Both protocols use port 22 by default.
+This parameter can be used to adjust the port, for example, if the target computer is located behind a router and port 22 cannot or should not be passed through.
+
+<br><br>
+<a name="connectTimeout"></a>
+<h3>connectTimeout</h3>
+The data transfer as well as the transfer of commands is done via SCP and SSH, respectively.
+If the target is not accessible, the attempt to establish a connection can be aborted after a certain time, so that the MATLAB functions do not block.
+This parameter sets the timeout in seconds.
+
+<br><br>
+<a name="targetIPAddress"></a>
+<h3>targetIPAddress</h3>
+This parameter sets the IP address of the target as a string.
+This parameter is used to establish a connection to the target, for example to deploy new software to the target.
+
+<br><br>
+<a name="targetUsername"></a>
+<h3>targetUsername</h3>
+This parameter sets the username of the target as a string.
+This parameter is used to establish a connection to the target, for example to deploy new software to the target.
+
+<br><br>
+<a name="targetSoftwareDirectory"></a>
+<h3>targetSoftwareDirectory</h3>
+This parameter can be used to specify the directory on the target computer in which the realtime application is to be deployed.
+The directory must be located in the home directory.
+If several target applications are to be run simultaneously on the target, each target application must be deployed in a separate directory.
+
+<br><br>
+<a name="targetProductName"></a>
+<h3>targetProductName</h3>
+This parameter can be used to specify the name of the executable.
+This name must correspond to a valid MATLAB variable name (see isvarname).
+
+<br><br>
+<a name="targetBitmaskCPUCores"></a>
+<h3>targetBitmaskCPUCores</h3>
+If required, the target application can be started on certain CPU cores.
+For this purpose a bitmask can be set as hexadecimal string with this parameter.
+The application is executed on all those cores that are set to 1 by the bitmask.
+With a bitmask of <code>'0x0f'</code> the CPU cores 0-3 are used, for example.
+If this parameter is left empty, all CPU cores are used.
+
+<br><br>
+<a name="upperThreadPriority"></a>
+<h3>upperThreadPriority</h3>
+Each samplerate of the Simulink model corresponds to a function that is executed within its own thread in the target software.
+The priority of the thread depends on the samplerate.
+The smaller the samplerate, the higher the priority.
+The highest priority is set with this parameter.
+
+<br><br>
+<a name="priorityDataRecorder"></a>
+<h3>priorityDataRecorder</h3>
+If data is to be recorded with the target application, then the data recording takes place in a separate thread that writes the data to files.
+The priority of this thread is set with this parameter.
+
+<br><br>
+<a name="terminateAtTaskOverload"></a>
+<h3>terminateAtTaskOverload</h3>
+This parameter is used to set whether the real-time application should be terminated if a task overload occurs.
+
+<br><br>
+<a name="terminateAtCPUOverload"></a>
+<h3>terminateAtCPUOverload</h3>
+This parameter is used to set whether the real-time application should be terminated if a CPU overload occurs.
+
+<br><br>
+<a name="customCode"></a>
+<h3>customCode</h3>
+This property can be used to add additional source code to the target software.
+This source code is then compiled on the target together with the actual generic target core software and the generated model code.
+
+<br><br>
+<a name="numberOfOldProtocolFiles"></a>
+<h3>numberOfOldProtocolFiles</h3>
+By default, when the target application is executed, it writes console output to a protocol file.
+This parameter can be used to specify how many old protocol files to keep.
+This way, if there are too many protocol files, the oldest one will be deleted when the target application is started.
+
+<br><br>
+<a name="DEBUG_MODE"></a>
+<h3>additionalCompilerFlags.DEBUG_MODE</h3>
+This flag is used to specify whether the target application should be compiled in debug mode.
+In this mode all optimizations are switched off.
+At the same time the symbol <code>DEBUG</code> is defined and the compiler flag <code>-ggdb</code> is added.
+If the <code>DEBUG</code> mode is switched off, the optimization <code>-O3</code> is set and symbol names which would be necessary for debugging are not included in the application.
+
+<br><br>
+<a name="LIBS_WIN"></a>
+<h3>additionalCompilerFlags.LIBS_WIN</h3>
+This flag specifies additional libraries to be used when linking a Windows application.
+The list of libraries for compiling a Windows application is defined as
+<pre>-lstdc++ -lstdc++fs -lpthread -lwinmm -lgdi32 -lws2_32 -lwsock32 $TARGET_MAKEFILE_LIBS_WIN$</pre>
+where the expression <code>$TARGET_MAKEFILE_LIBS_WIN$</code> is replaced by the additional libraries.
+
+<br><br>
+<a name="LIBS_UNIX"></a>
+<h3>additionalCompilerFlags.LIBS_UNIX</h3>
+This flag specifies additional libraries to be used when linking a linux application.
+The list of libraries for compiling a linux application is defined as
+<pre>-lstdc++ -lstdc++fs -lpthread -latomic $TARGET_MAKEFILE_LIBS_UNIX$</pre>
+where the expression <code>$TARGET_MAKEFILE_LIBS_UNIX$</code> is replaced by the additional libraries.
+
+<br><br>
+<a name="CC_SYMBOLS"></a>
+<h3>additionalCompilerFlags.CC_SYMBOLS</h3>
+This flag specifies additional symbols to be defined when compiling the target application.
+All flags are given as
+<pre>-DGENERIC_TARGET_IMPLEMENTATION $TARGET_MAKEFILE_CC_SYMBOLS$</pre>
+where the expression <code>$TARGET_MAKEFILE_CC_SYMBOLS$</code> is replaced by the additional symbols.
+<div class="note-green">
+<h3 class="note-green">C/C++ Macros</h3>
+The <code>GENERIC_TARGET_IMPLEMENTATION</code> macro can be used to define areas in the C/C++ code which are only enabled when compiling with the option <code>-DGENERIC_TARGET_IMPLEMENTATION</code>.
+</div>
+
+<br><br>
+<a name="CC_FLAGS"></a>
+<h3>additionalCompilerFlags.CC_FLAGS</h3>
+This flag specifies additional compiler flags to be used when compiling C source files.
+All flags are given as
+<pre>-Wall -Wextra -Wno-format-security -mtune=native $TARGET_MAKEFILE_CC_FLAGS$</pre>
+where the expression <code>$TARGET_MAKEFILE_CC_FLAGS$</code> is replaced by the additional flags.
+
+<br><br>
+<a name="CPP_FLAGS"></a>
+<h3>additionalCompilerFlags.CPP_FLAGS</h3>
+This flag specifies additional compiler flags to be used when compiling C++ source files.
+All flags are given as
+<pre>-std=c++17 -Wall -Wextra -Wno-format-security -mtune=native $TARGET_MAKEFILE_CPP_FLAGS$</pre>
+where the expression <code>$TARGET_MAKEFILE_CPP_FLAGS$</code> is replaced by the additional flags.
+
+<br><br>
+<a name="LD_FLAGS"></a>
+<h3>additionalCompilerFlags.LD_FLAGS</h3>
+This flag specifies additional linker flags to be used when the target application is linked.
+All flags are given as
+<pre>-Wall -Wextra -Wno-format-security -mtune=native $TARGET_MAKEFILE_LD_FLAGS$</pre>
+where the expression <code>$TARGET_MAKEFILE_LD_FLAGS$</code> is replaced by the additional linker flags.
+
+<br><br>
+<a name="objectfunctions"></a>
+<h1>Object Functions</h1>
+This class contains the following public member functions to interact with the target application or the target in general.
+<ul>
+    <li><a href="#Deploy">Deploy</a> deploys a Simulink model to a target</li>
+    <li><a href="#DeployGeneratedCode">DeployGeneratedCode</a> deploys the generated code to a target</li>
+    <li><a href="#DeployToHost">DeployToHost</a> deploys a Simulink model to the host</li>
+    <li><a href="#GenerateCode">GenerateCode</a> generated the code from a Simulink model</li>
+    <li><a href="#Start">Start</a> starts the realtime application on the target</li>
+    <li><a href="#Stop">Stop</a> starts the realtime application on the target</li>
+    <li><a href="#Reboot">Reboot</a> reboots the target computer</li>
+    <li><a href="#Shutdown">Shutdown</a> shuts down the target computer</li>
+    <li><a href="#ShowPID">ShowPID</a> shows the process ID of the realtime application on the target</li>
+    <li><a href="#ShowIsolatedCPUCores">ShowIsolatedCPUCores</a> shows the isolated CPU cores on the target computer</li>
+    <li><a href="#ShowLatestProtocol">ShowLatestProtocol</a> shows the latest protocol generated by a target application</li>
+    <li><a href="#DownloadAllProtocols">DownloadAllProtocols</a> downloads all protocol files from the target</li>
+    <li><a href="#DeleteAllProtocols">DeleteAllProtocols</a> deletes all protocol files from the target</li>
+    <li><a href="#DownloadDataDirectory">DownloadDataDirectory</a> downloads a data recording directory from the target</li>
+    <li><a href="#DownloadAllData">DownloadAllData</a> downloads all data recording directories from the target</li>
+    <li><a href="#DeleteAllData">DeleteAllData</a> deletes all data recording directories from the target</li>
+    <li><a href="#GetTargetDataDirectoryName">GetTargetDataDirectoryName</a> returns the directory name of the data recording directory on the target</li>
+    <li><a href="#GetTargetProtocolDirectoryName">GetTargetProtocolDirectoryName</a> returns the directory name of the protocol directory on the target</li>
+    <li><a href="#RunCommandOnTarget">RunCommandOnTarget</a> runs a command on the target</li>
+</ul>
+
+<br>
+<a name="Deploy"></a>
+<h2>Deploy</h2>
+    <h3>Syntax</h3>
+    <pre>commands = target.Deploy(modelName)</pre>
+    <code>target</code> is the <a href="#construction">generic target object</a>.
+    <h3>Description</h3>
+    Deploy the target application. The code for the Simulink model will be generated. In addition a Simulink
+    interface class will be generated based on the code information from the Simulink code generation process. The source code will then be compressed
+    and transferred to the target via SCP. Afterwards an SSH connection will be established to unzip the transferred software and build the target
+    application on the target computer. The application is not started at the end of this process. Run <a href="#Start">Start</a> to start the application.
+    <h3>Input Arguments</h3>
+    <ul>
+        <li><b>modelName</b> The name of the Simulink model that should be build (excluding directory and file extension).</li>
+    </ul>
+    <h3>Output Arguments</h3>
+    <ul>
+        <li><b>commands</b> The commands that were executed on the host.</li>
+    </ul>
+
+<br>
+<a name="DeployGeneratedCode"></a>
+<h2>DeployGeneratedCode</h2>
+    <h3>Syntax</h3>
+    <pre>commands = target.DeployGeneratedCode(zipFileName)</pre>
+    <code>target</code> is the <a href="#construction">generic target object</a>.
+    <h3>Description</h3>
+    Deploy generated code to the target hardware. The code for the Simulink model must be generated by the <a href="#GenerateCode">GenerateCode</a> member function.
+    The source code will then be transferred to the target via SCP. Afterwards an SSH connection will be established to unzip the transferred software and build the target
+    application on the target computer. The application is not started at the end of this process. Run <a href="#Start">Start</a> to start the application.
+    <h3>Input Arguments</h3>
+    <ul>
+        <li><b>zipFileName</b> The name of the zip file that contains the code that has been generated using the <a href="#GenerateCode">GenerateCode</a> member function. The file extension must be '.zip'.</li>
+    </ul>
+    <h3>Output Arguments</h3>
+    <ul>
+        <li><b>commands</b> The commands that were executed on the host.</li>
+    </ul>
+
+<br>
+<a name="DeployToHost"></a>
+<h2>DeployToHost</h2>
+    <h3>Syntax</h3>
+    <pre>target.DeployToHost(modelName, directory)</pre>
+    <code>target</code> is the <a href="#construction">generic target object</a>.
+    <h3>Description</h3>
+    Deploy the target application to a directory on the host machine. The whole generic target framework including the generated
+    code is going to be replaced in the specified directory. The software is not compiled after this deployment.
+    <h3>Input Arguments</h3>
+    <ul>
+        <li><b>modelName</b> The name of the Simulink model that should be build (excluding directory and file extension).</li>
+        <li><b>directory</b> Optional name of the directory (consider using absolute path) where to save the generated target application code. If no directory is specified, then the current working directory (pwd) is used.</li>
+    </ul>
+
+<br>
+<a name="GenerateCode"></a>
+<h2>GenerateCode</h2>
+    <h3>Syntax</h3>
+    <pre>target.GenerateCode(zipFileName, modelName)</pre>
+    <code>target</code> is the <a href="#construction">generic target object</a>.
+    <h3>Description</h3>
+    Generate the code for the Simulink model and the interface class. The generated code of the interface class
+    is based on the code information from the Simulink code generation process. The source code will then be compressed to a .zip file.
+    <h3>Input Arguments</h3>
+    <ul>
+        <li><b>zipFileName</b> The name of the zip file where to store the generated code. The file extension must be '.zip'.</li>
+        <li><b>modelName</b> The name of the Simulink model that should be build (excluding directory and file extension). This parameter is forwarded to the slbuild() command.</li>
+    </ul>
+
+<br>
+<a name="Start"></a>
+<h2>Start</h2>
+    <h3>Syntax</h3>
+    <pre>commands = target.Start()</pre>
+    <code>target</code> is the <a href="#construction">generic target object</a>.
+    <h3>Description</h3>
+    Start the target application. An SSH connection will be established to start the application.
+    If the application is already started, nothing happens.
+    <h3>Output Arguments</h3>
+    <ul>
+        <li><b>commands</b> The commands that were executed on the host.</li>
+    </ul>
+
+<br>
+<a name="Stop"></a>
+<h2>Stop</h2>
+    <h3>Syntax</h3>
+    <pre>commands = target.Stop()</pre>
+    <code>target</code> is the <a href="#construction">generic target object</a>.
+    <h3>Description</h3>
+    Stop the target application. An SSH connection will be established to stop the application.
+    If no application is running, nothing happens.
+    <h3>Output Arguments</h3>
+    <ul>
+        <li><b>commands</b> The commands that were executed on the host.</li>
+    </ul>
+
+<br>
+<a name="Reboot"></a>
+<h2>Reboot</h2>
+    <h3>Syntax</h3>
+    <pre>commands = target.Reboot()</pre>
+    <code>target</code> is the <a href="#construction">generic target object</a>.
+    <h3>Description</h3>
+    Reboot the target computer. An SSH connection will be established to run a reboot command.
+    <h3>Output Arguments</h3>
+    <ul>
+        <li><b>commands</b> The commands that were executed on the host.</li>
+    </ul>
+
+<br>
+<a name="Shutdown"></a>
+<h2>Shutdown</h2>
+    <h3>Syntax</h3>
+    <pre>commands = target.Shutdown()</pre>
+    <code>target</code> is the <a href="#construction">generic target object</a>.
+    <h3>Description</h3>
+    Shutdown the target computer. An SSH connection will be established to run a shutdown command.
+    <h3>Output Arguments</h3>
+    <ul>
+        <li><b>commands</b> The commands that were executed on the host.</li>
+    </ul>
+
+<br>
+<a name="ShowPID"></a>
+<h2>ShowPID</h2>
+    <h3>Syntax</h3>
+    <pre>commands = target.ShowPID()</pre>
+    <code>target</code> is the <a href="#construction">generic target object</a>.
+    <h3>Description</h3>
+    Show the process ID for all processes on the target that are named according to targetProductName.
+    This can be used to check whether the application is running or not. If no process is running the printed console output
+    is empty.
+    <h3>Output Arguments</h3>
+    <ul>
+        <li><b>commands</b> The commands that were executed on the host.</li>
+    </ul>
+
+<br>
+<a name="ShowIsolatedCPUCores"></a>
+<h2>ShowIsolatedCPUCores</h2>
+    <h3>Syntax</h3>
+    <pre>commands = target.ShowIsolatedCPUCores()</pre>
+    <code>target</code> is the <a href="#construction">generic target object</a>.
+    <h3>Description</h3>
+    Show the isolated CPUs for the target. If no CPU cores are isolated the printed console output is empty.
+    <h3>Output Arguments</h3>
+    <ul>
+        <li><b>commands</b> The commands that were executed on the host.</li>
+    </ul>
+
+<br>
+<a name="ShowLatestProtocol"></a>
+<h2>ShowLatestProtocol</h2>
+    <h3>Syntax</h3>
+    <pre>commands = target.ShowLatestProtocol()</pre>
+    <code>target</code> is the <a href="#construction">generic target object</a>.
+    <h3>Description</h3>
+    Show the latest protocol file from the target.
+    <h3>Output Arguments</h3>
+    <ul>
+        <li><b>commands</b> The commands that were executed on the host.</li>
+    </ul>
+
+<br>
+<a name="DownloadAllProtocols"></a>
+<h2>DownloadAllProtocols</h2>
+    <h3>Syntax</h3>
+    <pre>commands = target.DownloadAllProtocols(hostDirectory)</pre>
+    <code>target</code> is the <a href="#construction">generic target object</a>.
+    <h3>Description</h3>
+    Download all protocol files from the target. The downloaded text will be written to the specified hostDirectory.
+    <h3>Input Arguments</h3>
+    <ul>
+        <li><b>hostDirectory</b> The destination directory (absolute path) on the host where to write the downloaded files to.
+        If the directory does not exist, then it will be created. If this argument is not given, then
+        the current working directory is used as default directory.</li>
+    </ul>
+    <h3>Output Arguments</h3>
+    <ul>
+        <li><b>commands</b> The commands that were executed on the host.</li>
+    </ul>
+
+<br>
+<a name="DeleteAllProtocols"></a>
+<h2>DeleteAllProtocols</h2>
+    <h3>Syntax</h3>
+    <pre>commands = target.DeleteAllProtocols()</pre>
+    <code>target</code> is the <a href="#construction">generic target object</a>.
+    <h3>Description</h3>
+    Delete all protocol text files on the target. This will also stop a running target application.
+    <h3>Output Arguments</h3>
+    <ul>
+        <li><b>commands</b> The commands that were executed on the host.</li>
+    </ul>
+
+<br>
+<a name="DownloadDataDirectory"></a>
+<h2>DownloadDataDirectory</h2>
+    <h3>Syntax</h3>
+    <pre>commands = target.DownloadDataDirectory(hostDirectory, targetDataDirectory)</pre>
+    <code>target</code> is the <a href="#construction">generic target object</a>.
+    <h3>Description</h3>
+    Download recorded data from the target. The downloaded data will be written to the specified hostDirectory.
+    <h3>Input Arguments</h3>
+    <ul>
+        <li><b>hostDirectory</b> The destination directory (absolute path) on the host where to write the downloaded data to.
+        If the directory does not exist, then it will be created. If this argument is not given, then
+        the current working directory is used as default directory.</li>
+        <li><b>targetDataDirectory</b> Optional string indicating the data directory name on the target to be downloaded, e.g. "20210319_123456789".
+        If this parameter is not given, all data directories existing on the target will be displayed and the user has to
+        specify the name manually.</li>
+    </ul>
+    <h3>Output Arguments</h3>
+    <ul>
+        <li><b>commands</b> The commands that were executed on the host.</li>
+    </ul>
+
+<br>
+<a name="DownloadAllData"></a>
+<h2>DownloadAllData</h2>
+    <h3>Syntax</h3>
+    <pre>commands = target.DownloadAllData(hostDirectory)</pre>
+    <code>target</code> is the <a href="#construction">generic target object</a>.
+    <h3>Description</h3>
+    Download all recorded data directories from the target. The downloaded data will be written to the specified hostDirectory.
+    <h3>Input Arguments</h3>
+    <ul>
+        <li><b>hostDirectory</b> The destination directory (absolute path) on the host where to write the downloaded data to.
+        If the directory does not exist, then it will be created. If this argument is not given, then
+        the current working directory is used as default directory.</li>
+    </ul>
+    <h3>Output Arguments</h3>
+    <ul>
+        <li><b>commands</b> The commands that were executed on the host.</li>
+    </ul>
+
+<br>
+<a name="DeleteAllData"></a>
+<h2>DeleteAllData</h2>
+    <h3>Syntax</h3>
+    <pre>commands = target.DeleteAllData()</pre>
+    <code>target</code> is the <a href="#construction">generic target object</a>.
+    <h3>Description</h3>
+    Delete all recorded data on the target. This will also stop a running target application.
+    <h3>Output Arguments</h3>
+    <ul>
+        <li><b>commands</b> The commands that were executed on the host.</li>
+    </ul>
+
+<br>
+<a name="GetTargetDataDirectoryName"></a>
+<h2>GetTargetDataDirectoryName</h2>
+    <h3>Syntax</h3>
+    <pre>dataDirectory = target.GetTargetDataDirectoryName()</pre>
+    <code>target</code> is the <a href="#construction">generic target object</a>.
+    <h3>Description</h3>
+    Get the absolute name of the data directory on the target.
+    <h3>Output Arguments</h3>
+    <ul>
+        <li><b>dataDirectory</b> Absolute data directory name on the target (ends with a separator '/').</li>
+    </ul>
+
+<br>
+<a name="GetTargetProtocolDirectoryName"></a>
+<h2>GetTargetProtocolDirectoryName</h2>
+    <h3>Syntax</h3>
+    <pre>protocolDirectory = target.GetTargetProtocolDirectoryName()</pre>
+    <code>target</code> is the <a href="#construction">generic target object</a>.
+    <h3>Description</h3>
+    Get the absolute name of the protocol directory on the target.
+    <h3>Output Arguments</h3>
+    <ul>
+        <li><b>protocolDirectory</b> Absolute protocol directory name on the target (ends with a separator '/').</li>
+    </ul>
+
+<br>
+<a name="RunCommandOnTarget"></a>
+<h2>RunCommandOnTarget</h2>
+    <h3>Syntax</h3>
+    <pre>[commands,cmdout] = target.RunCommandOnTarget(cmd)</pre>
+    <code>target</code> is the <a href="#construction">generic target object</a>.
+    <h3>Description</h3>
+    Run a command to the target computer. The command is executed via SSH.
+    <h3>Input Arguments</h3>
+    <ul>
+        <li><b>cmd</b> The command string to be executed on the target computer, e.g. 'ls'.</li>
+    </ul>
+    <h3>Output Arguments</h3>
+    <ul>
+        <li><b>commands</b> The commands that were executed on the host.</li>
+        <li><b>cmdout</b> The output that have been returned by the command window.</li>
+    </ul>

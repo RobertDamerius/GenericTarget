@@ -1,0 +1,24 @@
+<h1>Task Execution Time</h1>
+<h3>Library</h3>
+<span style="font-family: Courier New">GenericTarget / Time / Task Execution Time</span>
+
+
+<h3>Description</h3>
+Get the current task execution time in seconds for the task running at the specified sampletime. During simulation this block has no effect.
+The sampletime must be explicitly specified via the block mask.
+
+
+<h2>Output Ports</h2>
+<h3>taskExecutionTime</h3>
+The task execution time in seconds, for the task with the specified sample time. This time is the measured execution time of the corresponding
+<code>step()</code> function of the generated code.
+<br>
+<b>Data Type:</b> <span style="font-family: Courier New">double</span>
+
+
+<h2>Block Parameters</h2>
+The following table shows all block parameters.
+<table>
+    <tr><th>Parameter Name</th><th>Description</th></tr>
+    <tr><td style="font-family: Courier New;">SampleTime</td><td>Sampletime.</td></tr>
+</table>

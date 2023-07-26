@@ -1,0 +1,46 @@
+<h1>Deploy Multiple Models</h1>
+    If multiple models are to be deployed on the same target computer, then a separate <a href="application.html#directory">application directory</a> must be defined for each model.
+    If these real-time applications are to run in parallel at the same time, then the <a href="packages_gt_generictarget.html#portAppSocket">application socket</a> of each application must have a unique UDP port.
+    In this example, two target applications are to run on the target computer.
+    The two Simulink models are named <code>Model1</code> and <code>Model2</code> and are to be deployed on the target into the directories <code>Software1</code> and <code>Software2</code> of the home directory, respectively.
+    At the same time, the applications are to be given different names <code>Application1</code> and <code>Application2</code> in this example, so that they can be kept apart in the process manager.
+    For each simulink model that is to be deployed to the target, a deployment script is created.
+
+    <br><br>
+    <h3>Script 1: Deployment of Model1</h3>
+<pre>% Create a target object
+username = 'user';
+address  = '192.168.0.100';
+target   = GT.GenericTarget(userName, address);
+
+% Update properties
+target.portAppSocket           = 44001;
+target.targetSoftwareDirectory = '~/Software1/';
+target.targetProductName       = 'Application1';
+
+% Deploy the model
+target.Deploy('Model1');
+</pre>
+
+    <br>
+    <h3>Script 2: Deployment of Model2</h3>
+<pre>% Create a target object
+username = 'user';
+address  = '192.168.0.100';
+target   = GT.GenericTarget(userName, address);
+
+% Update properties
+target.portAppSocket           = 44002;
+target.targetSoftwareDirectory = '~/Software2/';
+target.targetProductName       = 'Application2';
+
+% Deploy the model
+target.Deploy('Model2');
+</pre>
+
+<br>
+<div class="note-red">
+<h3 class="note-red">Starting Multiple Real-Time Applications</h3>
+The real applications are not synchronized in time during execution. Each application runs with its own timing.
+The timer events of one target application are not synchronized with the timer events of other target applications.
+</div>

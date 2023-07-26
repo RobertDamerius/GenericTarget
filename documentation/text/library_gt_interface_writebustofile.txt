@@ -1,0 +1,50 @@
+<h1>Write Bus To File</h1>
+<h3>Library</h3>
+<span style="font-family: Courier New">GenericTarget / Interface / Write Bus To File</span>
+
+<h3>Description</h3>
+Write a complete bus object to a file. During simulation this block has no effect. Internally a digital
+clock is used as timestamp. The number of samples to be written into a single file can be specified.
+A sample indicates a data vector of all signals in the bus and the timestamp for one sample time point.
+
+
+<h2>Input Ports</h2>
+<h3>bus</h3>
+A bus signal whose data type is defined as a bus object.
+The bus may only consist of nested buses and build-in data types, such as <code>boolean, logical, uint8, int8, uint16, int16, uint32, int32, single, uint64, int64, double</code>.
+
+
+<h2>Block Parameters</h2>
+The following table shows all block parameters.
+<table>
+    <tr><th>Parameter Name</th><th>Description</th></tr>
+    <tr><td style="font-family: Courier New;">dataType</td><td>Selector of the bus data type.</td></tr>
+    <tr><td style="font-family: Courier New;">strID</td><td>Unique ID for this data recording.</td></tr>
+    <tr><td style="font-family: Courier New;">numSamplesPerFile</td><td>The maximum number of samples per data recording file.</td></tr>
+    <tr><td style="font-family: Courier New;">SampleTime</td><td>Sampletime.</td></tr>
+</table>
+
+
+<h3>Bus Object</h3>
+The bus data type of the bus at the input port must be specified in the block mask.
+After the Simulink model has been saved, the Update button in the block mask must be clicked.
+This will read out the entire structure of the bus, including the data types and signal dimensions as well as signal names.
+From this information this block will be adjusted internally, selecting all signals from the bus and serializing them.
+With a click on Apply or OK the process is completed. For large bus objects the process may take some time.
+
+<div class="note-green">
+<h3 class="note-green">Note</h3>
+If structural changes are made to the bus, then this block must be updated again via the block mask.
+</div>
+
+<h3>Unique ID</h3>
+The data is uniquely identified by an ID via the block mask.
+An ID may only occur once in the model.
+The ID corresponds to a string, which is finally used for the file name of the recording file.
+
+<h3>Data Recorder</h3>
+In the generic target core a separate thread takes over the actual writing of the data into the recording file.
+For each ID a separate thread is created.
+All data recording threads have the same priority, which is defined by the parameter <a href="packages_gt_generictarget.html#priorityDataRecorder">priorityDataRecorder</a> of the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> class.
+Via the block mask, the parameter <code>numSamplesPerFile</code> is used to specify how many samples are to be written to a file before a new file is created.
+A sample contains a timestamp, which corresponds to the simulation time (digital clock), as well as all values of the bus at this sampling step.

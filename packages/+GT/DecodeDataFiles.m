@@ -2,7 +2,7 @@ function data = DecodeDataFiles(dataFileNames)
     %GT.DecodeDataFiles Decode raw data file(s) recorded by the generic target application into a structure of timeseries.
     % 
     % PARAMETERS
-    % dataFileNames ... A string or a cell array of strings indicating the raw data files that contains the data recorded by the generic target application for one ID, e.g. 'id0_0' or {'id0_0','id0_1'}.
+    % dataFileNames ... A cell array of strings indicating the raw data files that contains the data recorded by the generic target application for one ID, e.g. 'id0_0' or {'id0_0','id0_1'}.
     % 
     % RETURN
     % data ... The data structure containing timeseries for all recorded signals.
@@ -22,8 +22,8 @@ function data = DecodeDataFiles(dataFileNames)
     if(ischar(dataFileNames))
         dataFileNames = {dataFileNames};
     end
-    assert(iscell(dataFileNames) && ((1 == size(dataFileNames,1)) || (1 == size(dataFileNames,2))), 'GT.DecodeDataFiles(): Input "dataFileNames" must be a string or a cell array of strings!');
-    for i = 1:length(dataFileNames)
+    assert(iscell(dataFileNames)), 'GT.DecodeDataFiles(): Input "dataFileNames" must be a string or a cell array of strings!');
+    for i = 1:numel(dataFileNames)
         assert(ischar(dataFileNames{i}), 'GT.DecodeDataFiles(): Input "dataFileNames" must be a string or a cell array of strings!');
     end
 
@@ -39,7 +39,7 @@ function data = DecodeDataFiles(dataFileNames)
     tic();
     header = struct.empty();
     numBytesSampleData = uint64(0);
-    for i = 1:length(dataFileNames)
+    for i = 1:numel(dataFileNames)
         [success,h,chunkSizeSampleData] = DecodeHeader(dataFileNames{i});
         numBytesSampleData = numBytesSampleData + chunkSizeSampleData;
         if(~success)
@@ -75,7 +75,7 @@ function data = DecodeDataFiles(dataFileNames)
     % Open all files and write all binary data to one byte stream
     bytes = uint8(zeros(numBytesSampleData,1));
     idx1 = uint64(1);
-    for i = 1:length(dataFileNames)
+    for i = 1:numel(dataFileNames)
         [fp,errmsg] = fopen(dataFileNames{i},'r');
         if(fp < 0)
             error('Could not open file "%s": %s',dataFileNames{i},errmsg);
@@ -129,10 +129,10 @@ function data = DecodeDataFiles(dataFileNames)
 
         % Get strings for dimension creation and dimension assignment
         strDim = strrep(regexprep(num2str(dim),' +',' '),' ',',');
-        strDimAssign = repmat(':,',[1 length(dim)]);
+        strDimAssign = repmat(':,',[1 numel(dim)]);
 
         % Create empty data vector (either scalar or multi-dimensional)
-        if(1 == length(dim)) % scalar signal
+        if(1 == numel(dim)) % scalar signal
             eval(['dataVals = ',type,'(zeros(',num2str(numberOfSamples),',1));']);
         else % multidimensional signal
             eval(['dataVals = ',type,'(zeros(',strDim,',',num2str(numberOfSamples),'));']);
@@ -142,7 +142,7 @@ function data = DecodeDataFiles(dataFileNames)
         sizeOfSignal = GetSizeOfSignal(dim,type);
         byteIndices = offsetSignalData + cumsum(repmat([stride; zeros(sizeOfSignal-1,1)],[numberOfSamples 1])) - stride + repmat(((1:sizeOfSignal)' - 1),[numberOfSamples 1]);
         valuesCasted = typecast(bytes(byteIndices), type);
-        if(length(dim) > 1) % multi-dimensional signal
+        if(numel(dim) > 1) % multi-dimensional signal
             eval(['dataVals(',strDimAssign,':) = reshape(valuesCasted, [dim, numberOfSamples]);']);
         else % scalar signal
             dataVals = valuesCasted;
@@ -156,7 +156,7 @@ function data = DecodeDataFiles(dataFileNames)
 
         % Put timeVec,dataVals into time series struct
         layerNames = split(name,'.');
-        ts = timeseries(dataVals,timeVec,'Name',layerNames{end});
+        ts = timeseries(dataVals,timeVec,'Name',layerNames{end}); % this automatically sorts the data according to the time
         eval(['data.',name,' = ts;']);
     end
     fprintf('\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bOK (finished after %f seconds)\n',toc());
@@ -183,7 +183,7 @@ function [success,header,chunkSizeSampleData] = DecodeHeader(filename)
 
     % Read header ID
     bytes = uint8(fread(fp,5));
-    if(5 ~= length(bytes)), fclose(fp); return; end
+    if(5 ~= numel(bytes)), fclose(fp); return; end
     header.id = char(reshape(bytes,[1 5]));
 
     % Read sample data offset
@@ -197,7 +197,7 @@ function [success,header,chunkSizeSampleData] = DecodeHeader(filename)
     fseek(fp, 0, 'eof');
     chunkSizeSampleData = uint64(ftell(fp)) - uint64(header.offsetSampleData);
     fclose(fp);
-    if(N ~= uint32(length(bytes))), return; end
+    if(N ~= uint32(numel(bytes))), return; end
 
     % Decode endianess indicator for sample data (end of header data)
     if(N < 5), return; end
@@ -265,8 +265,8 @@ function [success, signalNames, dimensions, dataTypes] = ConvertHeader(header)
     strDimensions = strrep(strDimensions,']','');
     strDimensions = split(strDimensions,',');
     dimensions = cellfun(@str2num,strDimensions,'UniformOutput',false);
-    for i = 1:length(dimensions)
-        if(1 == length(dimensions{i}))
+    for i = 1:numel(dimensions)
+        if(1 == numel(dimensions{i}))
             if(dimensions{i} > 1)
                 dimensions{i} = [dimensions{i},1];
             end
@@ -275,9 +275,9 @@ function [success, signalNames, dimensions, dataTypes] = ConvertHeader(header)
             dimensions{i} = 1;
         end
     end
-    dimensions = reshape(dimensions,[1 length(dimensions)]);
+    dimensions = reshape(dimensions,[1 numel(dimensions)]);
     dataTypes = split(header.dataTypes,',');
-    if((length(signalNames) ~= length(dimensions)) || (length(signalNames) ~= length(dataTypes)) || (length(signalNames) ~= header.numSignals))
+    if((numel(signalNames) ~= numel(dimensions)) || (numel(signalNames) ~= numel(dataTypes)) || (numel(signalNames) ~= header.numSignals))
         success = false;
     end
 end

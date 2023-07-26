@@ -1,5 +1,5 @@
 fprintf('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n B U I L D   S I M U L I N K - I N T E R F A C E\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
-str = input('Simulink blocks will only implement their functionality on the target and thus have no effect during simulation using Simulink.\nHowever, for some blocks a simulink support are available, that is, their functionality will also work under Simulink.\n\nCompile with simulink support? [y]:  ','s');
+str = input('Simulink blocks will only implement their functionality on the target and thus have no effect during simulation using Simulink.\nHowever, for some blocks a Simulink support are available, that is, their functionality will also work under Simulink.\n\nCompile with Simulink support? [y]:  ','s');
 useSimulinkSupport = strcmp('y',str);
 if(useSimulinkSupport), fprintf('Simulink Support: ON\n\n');
 else, fprintf('Simulink Support: OFF\n\n'); end
@@ -177,9 +177,9 @@ defs = [defs; def];
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
 def.SFunctionName = 'SFunctionGTDriverDataRecorderScalarDoubles';
-def.StartFcnSpec  = 'void GT_DriverDataRecorderScalarDoublesInitialize(uint32 p1, uint8 p2[], uint32 p3, uint32 p4, uint32 p5)';
+def.StartFcnSpec  = 'void GT_DriverDataRecorderScalarDoublesInitialize(uint8 p1[], uint32 p2, uint8 p3[], uint32 p4, uint32 p5, uint32 p6)';
 def.TerminateFcnSpec = 'void GT_DriverDataRecorderScalarDoublesTerminate()';
-def.OutputFcnSpec = 'void GT_DriverDataRecorderScalarDoublesStep(uint32 p1, double u1, double u2[], uint32 p4)';
+def.OutputFcnSpec = 'void GT_DriverDataRecorderScalarDoublesStep(uint8 p1[], uint32 p2, double u1, double u2[], uint32 p5)';
 def.HeaderFiles   = {'GT_DriverDataRecorderScalarDoubles.hpp'};
 def.SourceFiles   = {'GT_DriverDataRecorderScalarDoubles.cpp'};
 def.IncPaths      = {''};
@@ -197,9 +197,9 @@ defs = [defs; def];
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
 def.SFunctionName = 'SFunctionGTDriverDataRecorderBus';
-def.StartFcnSpec  = 'void GT_DriverDataRecorderBusInitialize(uint32 p1, uint32 p2, uint32 p3, uint8 p4[], uint32 p5, uint8 p6[], uint32 p7, uint8 p8[], uint32 p9)';
+def.StartFcnSpec  = 'void GT_DriverDataRecorderBusInitialize(uint8 p1[], uint32 p2, uint32 p3, uint32 p4, uint8 p5[], uint32 p6, uint8 p7[], uint32 p8, uint8 p9[], uint32 p10)';
 def.TerminateFcnSpec = 'void GT_DriverDataRecorderBusTerminate()';
-def.OutputFcnSpec = 'void GT_DriverDataRecorderBusStep(uint32 p1, double u1, uint8 u2[p3], uint32 p3)';
+def.OutputFcnSpec = 'void GT_DriverDataRecorderBusStep(uint8 p1[], uint32 p2, double u1, uint8 u2[p4], uint32 p4)';
 def.HeaderFiles   = {'GT_DriverDataRecorderBus.hpp'};
 def.SourceFiles   = {'GT_DriverDataRecorderBus.cpp'};
 def.IncPaths      = {''};

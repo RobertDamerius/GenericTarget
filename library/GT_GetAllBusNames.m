@@ -3,7 +3,7 @@ function nameString = GT_GetAllBusNames(inputSignals,preString)
         preString = char.empty();
     end
     nameString = char.empty();
-    for i=1:length(inputSignals)
+    for i = 1:numel(inputSignals)
         if(ischar(inputSignals{i}))
             signalName = inputSignals{i};
             if(isempty(nameString))

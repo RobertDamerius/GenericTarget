@@ -4,17 +4,18 @@
 %%   Simulink Coder TLC Code Generation file for SFunctionGTDriverDataRecorderScalarDoubles
 %% 
 %% Simulink version      : 10.6 (R2022b) 13-May-2022
-%% TLC file generated on : 25-Jun-2023 23:31:48
+%% TLC file generated on : 20-Jul-2023 18:50:31
 
 /%
      %%%-MATLAB_Construction_Commands_Start
      def = legacy_code('initialize');
      def.SFunctionName = 'SFunctionGTDriverDataRecorderScalarDoubles';
-     def.OutputFcnSpec = 'void GT_DriverDataRecorderScalarDoublesStep(uint32 p1, double u1, double u2[], uint32 p4)';
-     def.StartFcnSpec = 'void GT_DriverDataRecorderScalarDoublesInitialize(uint32 p1, uint8 p2[], uint32 p3, uint32 p4, uint32 p5)';
+     def.OutputFcnSpec = 'void GT_DriverDataRecorderScalarDoublesStep(uint8 p1[], uint32 p2, double u1, double u2[], uint32 p5)';
+     def.StartFcnSpec = 'void GT_DriverDataRecorderScalarDoublesInitialize(uint8 p1[], uint32 p2, uint8 p3[], uint32 p4, uint32 p5, uint32 p6)';
      def.TerminateFcnSpec = 'void GT_DriverDataRecorderScalarDoublesTerminate()';
      def.HeaderFiles = {'GT_DriverDataRecorderScalarDoubles.hpp'};
      def.SourceFiles = {'GT_DriverDataRecorderScalarDoubles.cpp'};
+     def.HostLibFiles = {'C:\Env\MSYS2\mingw64\lib\libws2_32.a'};
      def.SampleTime = 'parameterized';
      def.Options.useTlcWithAccel = false;
      def.Options.language = 'C++';
@@ -64,8 +65,8 @@
         
         
 
-        extern void SFunctionGTDriverDataRecorderScalarDoubles_wrapper_Start(const uint32_T p1, const uint8_T* p2, const uint32_T p3, const uint32_T p4, const uint32_T p5);
-        extern void SFunctionGTDriverDataRecorderScalarDoubles_wrapper_Output(const uint32_T p1, const real_T u1, const real_T* u2, const uint32_T p4);
+        extern void SFunctionGTDriverDataRecorderScalarDoubles_wrapper_Start(const uint8_T* p1, const uint32_T p2, const uint8_T* p3, const uint32_T p4, const uint32_T p5, const uint32_T p6);
+        extern void SFunctionGTDriverDataRecorderScalarDoubles_wrapper_Output(const uint8_T* p1, const uint32_T p2, const real_T u1, const real_T* u2, const uint32_T p5);
         extern void SFunctionGTDriverDataRecorderScalarDoubles_wrapper_Terminate(void);
         
         #endif
@@ -95,8 +96,8 @@
         %if IsModelReferenceSimTarget() && !::GenCPP
         extern "C" {
         %endif
-        void SFunctionGTDriverDataRecorderScalarDoubles_wrapper_Start(const uint32_T p1, const uint8_T* p2, const uint32_T p3, const uint32_T p4, const uint32_T p5) {
-            GT_DriverDataRecorderScalarDoublesInitialize((uint32_T)(p1), (uint8_T*)(p2), (uint32_T)(p3), (uint32_T)(p4), (uint32_T)(p5));
+        void SFunctionGTDriverDataRecorderScalarDoubles_wrapper_Start(const uint8_T* p1, const uint32_T p2, const uint8_T* p3, const uint32_T p4, const uint32_T p5, const uint32_T p6) {
+            GT_DriverDataRecorderScalarDoublesInitialize((uint8_T*)(p1), (uint32_T)(p2), (uint8_T*)(p3), (uint32_T)(p4), (uint32_T)(p5), (uint32_T)(p6));
         }
         %if IsModelReferenceSimTarget() && !::GenCPP
         }
@@ -105,8 +106,8 @@
         %if IsModelReferenceSimTarget() && !::GenCPP
         extern "C" {
         %endif
-        void SFunctionGTDriverDataRecorderScalarDoubles_wrapper_Output(const uint32_T p1, const real_T u1, const real_T* u2, const uint32_T p4) {
-            GT_DriverDataRecorderScalarDoublesStep((uint32_T)(p1), (real_T)(u1), (real_T*)(u2), (uint32_T)(p4));
+        void SFunctionGTDriverDataRecorderScalarDoubles_wrapper_Output(const uint8_T* p1, const uint32_T p2, const real_T u1, const real_T* u2, const uint32_T p5) {
+            GT_DriverDataRecorderScalarDoublesStep((uint8_T*)(p1), (uint32_T)(p2), (real_T)(u1), (real_T*)(u2), (uint32_T)(p5));
         }
         %if IsModelReferenceSimTarget() && !::GenCPP
         }
@@ -147,42 +148,46 @@
 %% Function: Start ========================================================
 %function Start (block, system) Output
     %if IsModelReferenceSimTarget() || CodeFormat=="S-Function" || ::isRAccel
-        %assign p1_val = LibBlockParameter(p1, "", "", 0)
-        %assign p2_ptr = LibBlockParameterBaseAddr(p2)
-        %assign p3_val = LibBlockParameter(p3, "", "", 0)
+        %assign p1_ptr = LibBlockParameterBaseAddr(p1)
+        %assign p2_val = LibBlockParameter(p2, "", "", 0)
+        %assign p3_ptr = LibBlockParameterBaseAddr(p3)
         %assign p4_val = LibBlockParameter(p4, "", "", 0)
         %assign p5_val = LibBlockParameter(p5, "", "", 0)
+        %assign p6_val = LibBlockParameter(p6, "", "", 0)
         %% 
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
-        SFunctionGTDriverDataRecorderScalarDoubles_wrapper_Start(%<p1_val>, %<p2_ptr>, %<p3_val>, %<p4_val>, %<p5_val>);
+        SFunctionGTDriverDataRecorderScalarDoubles_wrapper_Start(%<p1_ptr>, %<p2_val>, %<p3_ptr>, %<p4_val>, %<p5_val>, %<p6_val>);
     %else
-        %assign p1_val = LibBlockParameter(p1, "", "", 0)
-        %assign p2_ptr = LibBlockParameterBaseAddr(p2)
-        %assign p3_val = LibBlockParameter(p3, "", "", 0)
+        %assign p1_ptr = LibBlockParameterBaseAddr(p1)
+        %assign p2_val = LibBlockParameter(p2, "", "", 0)
+        %assign p3_ptr = LibBlockParameterBaseAddr(p3)
         %assign p4_val = LibBlockParameter(p4, "", "", 0)
         %assign p5_val = LibBlockParameter(p5, "", "", 0)
+        %assign p6_val = LibBlockParameter(p6, "", "", 0)
         %% 
-        GT_DriverDataRecorderScalarDoublesInitialize(%<p1_val>, (uint8_T*)%<p2_ptr>, %<p3_val>, %<p4_val>, %<p5_val>);
+        GT_DriverDataRecorderScalarDoublesInitialize((uint8_T*)%<p1_ptr>, %<p2_val>, (uint8_T*)%<p3_ptr>, %<p4_val>, %<p5_val>, %<p6_val>);
     %endif
 %endfunction
 
 %% Function: Outputs ======================================================
 %function Outputs (block, system) Output
     %if IsModelReferenceSimTarget() || CodeFormat=="S-Function" || ::isRAccel
-        %assign p1_val = LibBlockParameter(p1, "", "", 0)
+        %assign p1_ptr = LibBlockParameterBaseAddr(p1)
+        %assign p2_val = LibBlockParameter(p2, "", "", 0)
         %assign u1_val = LibBlockInputSignal(0, "", "", 0)
         %assign u2_ptr = LibBlockInputSignalAddr(1, "", "", 0)
-        %assign p4_val = LibBlockParameter(p4, "", "", 0)
+        %assign p5_val = LibBlockParameter(p5, "", "", 0)
         %% 
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
-        SFunctionGTDriverDataRecorderScalarDoubles_wrapper_Output(%<p1_val>, %<u1_val>, %<u2_ptr>, %<p4_val>);
+        SFunctionGTDriverDataRecorderScalarDoubles_wrapper_Output(%<p1_ptr>, %<p2_val>, %<u1_val>, %<u2_ptr>, %<p5_val>);
     %else
-        %assign p1_val = LibBlockParameter(p1, "", "", 0)
+        %assign p1_ptr = LibBlockParameterBaseAddr(p1)
+        %assign p2_val = LibBlockParameter(p2, "", "", 0)
         %assign u1_val = LibBlockInputSignal(0, "", "", 0)
         %assign u2_ptr = LibBlockInputSignalAddr(1, "", "", 0)
-        %assign p4_val = LibBlockParameter(p4, "", "", 0)
+        %assign p5_val = LibBlockParameter(p5, "", "", 0)
         %% 
-        GT_DriverDataRecorderScalarDoublesStep(%<p1_val>, %<u1_val>, (real_T*)%<u2_ptr>, %<p4_val>);
+        GT_DriverDataRecorderScalarDoublesStep((uint8_T*)%<p1_ptr>, %<p2_val>, %<u1_val>, (real_T*)%<u2_ptr>, %<p5_val>);
     %endif
 %endfunction
 

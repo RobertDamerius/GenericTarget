@@ -4,7 +4,7 @@
 %%   Simulink Coder TLC Code Generation file for SFunctionGTDriverUDPMulticastSend
 %% 
 %% Simulink version      : 10.6 (R2022b) 13-May-2022
-%% TLC file generated on : 25-Jun-2023 23:31:47
+%% TLC file generated on : 20-Jul-2023 18:50:30
 
 /%
      %%%-MATLAB_Construction_Commands_Start
@@ -15,6 +15,7 @@
      def.TerminateFcnSpec = 'void GT_DriverUDPMulticastSendTerminate()';
      def.HeaderFiles = {'GT_DriverUDPMulticastSend.hpp'};
      def.SourceFiles = {'GT_DriverUDPMulticastSend.cpp', 'GT_SimulinkSupport.cpp'};
+     def.HostLibFiles = {'C:\Env\MSYS2\mingw64\lib\libws2_32.a'};
      def.SampleTime = 'parameterized';
      def.Options.useTlcWithAccel = false;
      def.Options.language = 'C++';

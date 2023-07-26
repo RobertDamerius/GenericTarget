@@ -39,7 +39,7 @@
 #include <Ws2tcpip.h>
 #include <windows.h>
 // Unix System
-#else
+#elif __linux__
 #include <execinfo.h>
 #include <sys/time.h>
 #include <unistd.h>
@@ -52,6 +52,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <sys/utsname.h>
+#else
+// Other
 #endif
 
 
@@ -109,6 +112,8 @@ inline void __gt_print_raw(const char* format, ...){
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Version Settings
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+extern const std::string strOS;
 extern const std::string strVersion;
+extern const std::string strCompilerVersion;
 extern const std::string strBuilt;
 

@@ -1,0 +1,47 @@
+<h1>Protocol File</h1>
+    If the target application is started, the console output is redirected to a text file.
+    All protocol files are stored in the <code>protocol/</code> directory in the <a href="packages_gt_generictarget.html#targetSoftwareDirectory">software directory</a> of the target application.
+    A protocol file contains information about the target software such as warnings and error messages.
+    All messages are time stamped.
+    If the application is started with <code>[...] --console</code>, the output is not redirected to the text file.
+
+<h3>Example Protocol File</h3>
+    Using the MATLAB class <a href="packages_gt_generictarget.html">GT.GenericTarget</a> the current protocol file is displayed:
+    <pre>target.ShowLatestProtocol();    % target is a GT.GenericTarget object</pre>
+    The content of a protocol file can look like this:
+    <br>
+    <br>
+    <center><object data="../img/TextLog.svg" type="image/svg+xml"></object></center>
+    <br>
+    <br>
+
+
+    <h3>Section 1</h3>
+    This area displays application information, such as the generic target version, the name of the deployed Simulink model, when it was compiled, when it was started, and so on.
+    Some detailed information about the target model, such as priorities, sampletimes, etc., are also shown.
+
+
+    <h3>Section 2</h3>
+    The type of message is displayed at the beginning of a line.
+    No character here means that it is information.
+    An 'E' means error, a 'W' means warning.
+    In this example, there're no errors or warnings.
+
+
+    <h3>Section 3</h3>
+    Specifies the timestamp.
+    This time refers to the start time of the application.
+
+
+    <h3>Section 4</h3>
+    Messages during the initialization phase.
+
+
+    <h3>Section 5</h3>
+    The application has received a termination message.
+    In this case the application was stopped by calling the <a href="packages_gt_generictarget.html#Stop">Stop</a> member function of the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> MATLAB class.
+
+
+    <h3>Section 6</h3>
+    The termination phase of the application.
+

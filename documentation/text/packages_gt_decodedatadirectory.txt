@@ -1,0 +1,26 @@
+<h1>GT.DecodeDataDirectory</h1>
+Decode a complete data directory. The data directory must contain an index file.
+This function reads the index file and reads all data files that match the data recording ID that are listed in the index file.
+
+<h2>Syntax</h2>
+<pre>[data,info] = GT.DecodeDataDirectory()
+[data,info] = GT.DecodeDataDirectory(directory)</pre>
+
+<h2>Description</h2>
+<code>[data,info] = GT.DecodeDataDirectory()</code> uses the current working directory and decodes the data files in it.
+<br><hr>
+<code>[data,info] = GT.DecodeDataDirectory(directory)</code> decodes the data files from the specified <code>directory</code>.
+
+<h2>Input Arguments</h2>
+    <h3>directory</h3>
+    The directory that contains the data recorded by the generic target application. This directory must contain at least the index file. If this parameter is not given, then the current working directory is used.
+
+<h2>Output Arguments</h2>
+    <h3>data</h3>
+    The data structure containing timeseries for all recorded signals.
+    If you want to decode specific data files, see <a href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a>.
+    
+    <h3>info</h3>
+    A structure that contains information about the data recording. This information is read from the index file.
+    More information about the structure is given <a href="packages_gt_decodeindexfile.html#output_info">here</a>.
+    If you want to decode only the index file, see <a href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a>.

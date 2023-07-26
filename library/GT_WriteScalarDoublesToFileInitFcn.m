@@ -13,6 +13,6 @@ function GT_WriteScalarDoublesToFileInitFcn(block)
 
     % Set labels
     set_param(block, 'signalNames', allNames);
-    set_param(block, 'numCharacters', num2str(2 + length(allNames)));
+    set_param(block, 'numCharacters', num2str(strlength(allNames)));
 end
 

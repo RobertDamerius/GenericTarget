@@ -1,0 +1,32 @@
+<h1>UTC Time</h1>
+<h3>Library</h3>
+<span style="font-family: Courier New">GenericTarget / Time / UTC Time</span>
+
+
+<h3>Description</h3>
+Get the current UTC time from the system clock.
+
+
+<h2>Output Ports</h2>
+<h3>timeInfo</h3>
+A bus, which defines the timepoint. The elements of the bus are given in the table below.
+<table>
+<tr><th>Element</th><th width="150">Data Type</th><th>Description</th></tr>
+<tr><td style="font-family: Courier New;">nanoseconds</td><td style="font-family: Courier New;">int32</td><td>Nanoseconds after the second [0, 999999999].</td></tr>
+<tr><td style="font-family: Courier New;">second</td><td style="font-family: Courier New;">int32</td><td>Seconds after the minute [0, 59] (on some systems [0,60] or [0,61] to allow leap seconds).</td></tr>
+<tr><td style="font-family: Courier New;">minute</td><td style="font-family: Courier New;">int32</td><td>Minutes after the hour [0, 59].</td></tr>
+<tr><td style="font-family: Courier New;">hour</td><td style="font-family: Courier New;">int32</td><td>Hours since midnight [0, 23].</td></tr>
+<tr><td style="font-family: Courier New;">mday</td><td style="font-family: Courier New;">int32</td><td>Day of the month [1, 31].</td></tr>
+<tr><td style="font-family: Courier New;">month</td><td style="font-family: Courier New;">int32</td><td>Month since January [0, 11].</td></tr>
+<tr><td style="font-family: Courier New;">year</td><td style="font-family: Courier New;">int32</td><td>Years since 1900.</td></tr>
+<tr><td style="font-family: Courier New;">wday</td><td style="font-family: Courier New;">int32</td><td>Days since Sunday [0, 6].</td></tr>
+<tr><td style="font-family: Courier New;">yday</td><td style="font-family: Courier New;">int32</td><td>Days since January 1 [0, 365].</td></tr>
+<tr><td style="font-family: Courier New;">isdst</td><td style="font-family: Courier New;">int32</td><td>Daylight Saving Time flag. The value is positive if DST is in effect, zero if not and negative if no information is available.</td></tr>
+</table>
+
+<h2>Block Parameters</h2>
+The following table shows all block parameters.
+<table>
+    <tr><th>Parameter Name</th><th>Description</th></tr>
+    <tr><td style="font-family: Courier New;">SampleTime</td><td>Sampletime.</td></tr>
+</table>

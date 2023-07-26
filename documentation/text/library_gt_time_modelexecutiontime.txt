@@ -1,0 +1,24 @@
+<h1>Model Execution Time</h1>
+<h3>Library</h3>
+<span style="font-family: Courier New">GenericTarget / Time / Model Execution Time</span>
+
+
+<h3>Description</h3>
+Get the current model execution time. A steady clock is used to measure the execution time, that is, the elapsed time
+to the starting timepoint of the scheduler. During simulation, the output represents the measured time to some initial
+timepoint at the start of the simulation, where the initial timepoint is varying for each Model Execution Time block!
+
+
+<h2>Output Ports</h2>
+<h3>time</h3>
+The model execution time in seconds.
+<br>
+<b>Data Type:</b> <span style="font-family: Courier New">double</span>
+
+
+<h2>Block Parameters</h2>
+The following table shows all block parameters.
+<table>
+    <tr><th>Parameter Name</th><th>Description</th></tr>
+    <tr><td style="font-family: Courier New;">SampleTime</td><td>Sampletime.</td></tr>
+</table>

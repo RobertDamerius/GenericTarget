@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Generic Target</title>
+<link rel="stylesheet" href="core/design.css">
+
+</head>
+<body>
+<header>
+<div class="header_title">Generic Target</div>
+<div class="header_version">Version 20230726</div>
+</header>
+<button onclick="PageToTop()" id="buttonToTop"></button>
+<div class="wrapper">
+<div class="navigation">
+<ul class="ulnav">
+<li class="linone"></li>
+<li class="linav"><a href="index.html">Overview</a></li>
+<li class="linone"></li>
+<li class="litext">GETTING STARTED</li>
+<li class="linav"><a href="installtoolbox.html">Install Generic Target Toolbox</a></li>
+<li class="linav"><a href="preparetarget.html">Prepare Target Computer</a></li>
+<li class="linav"><a href="createanddeploy.html">Create and Deploy a Model</a></li>
+<li class="linone"></li>
+<li class="litext">MATLAB PACKAGE</li>
+<li class="linav"><a href="packages_gt_decodedatadirectory.html">GT.DecodeDataDirectory</a></li>
+<li class="linav"><a href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a></li>
+<li class="linav"><a href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
+<li class="linav"><a href="packages_gt_generictarget.html">GT.GenericTarget (class)</a></li>
+<li class="linav"><a href="packages_gt_gettemplate.html">GT.GetTemplate</a></li>
+<li class="linone"></li>
+<li class="litext">SIMULINK LIBRARY</li>
+<li class="linav"><a href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
+<li class="linav"><a href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
+<li class="linav"><a href="library_gt_interface_multicastudpsend.html">Interface / Multicast UDP Send</a></li>
+<li class="linav"><a href="library_gt_interface_multicastudpreceive.html">Interface / Multicast UDP Receive</a></li>
+<li class="linav"><a href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
+<li class="linav_active"><a href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
+<li class="linav"><a href="library_gt_time_modelexecutiontime.html">Time / Model Execution Time</a></li>
+<li class="linav"><a href="library_gt_time_unixtime.html">Time / UNIX Time</a></li>
+<li class="linav"><a href="library_gt_time_utctime.html">Time / UTC Time</a></li>
+<li class="linav"><a href="library_gt_time_localtime.html">Time / Local Time</a></li>
+<li class="linav"><a href="library_gt_time_taskexecutiontime.html">Time / Task Execution Time</a></li>
+<li class="linav"><a href="library_gt_time_taskoverloads.html">Time / Task Overloads</a></li>
+<li class="linav"><a href="library_gt_time_cpuoverloads.html">Time / CPU Overloads</a></li>
+<li class="linav"><a href="library_gt_time_utctimestamp.html">Time / UTC Timestamp</a></li>
+<li class="linav"><a href="library_gt_time_timetolatestutctimestamp.html">Time / Time To Latest UTC Timestamp</a></li>
+<li class="linone"></li>
+<li class="litext">EXAMPLES</li>
+<li class="linav"><a href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
+<li class="linav"><a href="example_debugging.html">Debugging with Visual Studio Code</a></li>
+<li class="linone"></li>
+<li class="litext">HOW THE APPLICATION WORKS</li>
+<li class="linav"><a href="application.html">Application Overview</a></li>
+<li class="linav"><a href="timingscheduling.html">Timing & Scheduling</a></li>
+<li class="linav"><a href="datarecording.html">Data Recording</a></li>
+<li class="linav"><a href="protocolfile.html">Protocol File</a></li>
+<li class="linone"></li>
+<li class="litext">HOW THE DEPLOYMENT WORKS</li>
+<li class="linav"><a href="deployment.html">Deployment Process</a></li>
+</ul>
+
+</div>
+<div class="content">
+<h1>Write Bus To File</h1>
+<h3>Library</h3>
+<span style="font-family: Courier New">GenericTarget / Interface / Write Bus To File</span>
+
+<h3>Description</h3>
+Write a complete bus object to a file. During simulation this block has no effect. Internally a digital
+clock is used as timestamp. The number of samples to be written into a single file can be specified.
+A sample indicates a data vector of all signals in the bus and the timestamp for one sample time point.
+
+
+<h2>Input Ports</h2>
+<h3>bus</h3>
+A bus signal whose data type is defined as a bus object.
+The bus may only consist of nested buses and build-in data types, such as <code>boolean, logical, uint8, int8, uint16, int16, uint32, int32, single, uint64, int64, double</code>.
+
+
+<h2>Block Parameters</h2>
+The following table shows all block parameters.
+<table>
+    <tr><th>Parameter Name</th><th>Description</th></tr>
+    <tr><td style="font-family: Courier New;">dataType</td><td>Selector of the bus data type.</td></tr>
+    <tr><td style="font-family: Courier New;">strID</td><td>Unique ID for this data recording.</td></tr>
+    <tr><td style="font-family: Courier New;">numSamplesPerFile</td><td>The maximum number of samples per data recording file.</td></tr>
+    <tr><td style="font-family: Courier New;">SampleTime</td><td>Sampletime.</td></tr>
+</table>
+
+
+<h3>Bus Object</h3>
+The bus data type of the bus at the input port must be specified in the block mask.
+After the Simulink model has been saved, the Update button in the block mask must be clicked.
+This will read out the entire structure of the bus, including the data types and signal dimensions as well as signal names.
+From this information this block will be adjusted internally, selecting all signals from the bus and serializing them.
+With a click on Apply or OK the process is completed. For large bus objects the process may take some time.
+
+<div class="note-green">
+<h3 class="note-green">Note</h3>
+If structural changes are made to the bus, then this block must be updated again via the block mask.
+</div>
+
+<h3>Unique ID</h3>
+The data is uniquely identified by an ID via the block mask.
+An ID may only occur once in the model.
+The ID corresponds to a string, which is finally used for the file name of the recording file.
+
+<h3>Data Recorder</h3>
+In the generic target core a separate thread takes over the actual writing of the data into the recording file.
+For each ID a separate thread is created.
+All data recording threads have the same priority, which is defined by the parameter <a href="packages_gt_generictarget.html#priorityDataRecorder">priorityDataRecorder</a> of the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> class.
+Via the block mask, the parameter <code>numSamplesPerFile</code> is used to specify how many samples are to be written to a file before a new file is created.
+A sample contains a timestamp, which corresponds to the simulation time (digital clock), as well as all values of the bus at this sampling step.
+
+</div>
+</div>
+<script src="core/script.js"></script>
+</body>
+</html>

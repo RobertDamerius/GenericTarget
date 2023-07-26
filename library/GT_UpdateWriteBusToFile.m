@@ -12,16 +12,16 @@ function GT_UpdateWriteBusToFile(block)
     % Set block parameters
     set_param(block,'numBytesPerSample',num2str(numBytes));
     set_param(block,'strSignalNames',strcat('''',strLeaveNames,''''));
-    set_param(block,'strlenSignalNames',num2str(length(strLeaveNames)));
+    set_param(block,'strlenSignalNames',num2str(strlength(strLeaveNames)));
     set_param(block,'strDimensions',strcat('''',strLeaveDimensions,''''));
-    set_param(block,'strlenDimensions',num2str(length(strLeaveDimensions)));
+    set_param(block,'strlenDimensions',num2str(strlength(strLeaveDimensions)));
     set_param(block,'strDataTypes',strcat('''',strLeaveDataTypes,''''));
-    set_param(block,'strlenDataTypes',num2str(length(strLeaveDataTypes)));
+    set_param(block,'strlenDataTypes',num2str(strlength(strLeaveDataTypes)));
 
     % Click the "Apply" button
     hBlock = get_param(block,'Handle');
     dlgs = DAStudio.ToolRoot.getOpenDialogs;
-    for i=1:length(dlgs)
+    for i=1:numel(dlgs)
         if(isa(dlgs(i).getSource, 'Simulink.SLDialogSource'))
             hDialogBlock = dlgs(i).getSource.getBlock.Handle;
             if(hDialogBlock == hBlock)
@@ -33,14 +33,14 @@ end
 
 function result = FindBusObject(modelVars, name)
     result = [];
-    N = length(modelVars);
+    N = numel(modelVars);
     for i = 1:N
         if(strcmp(name,modelVars(i).Name))
             if(strcmp('data dictionary',modelVars(i).SourceType))
                 sldd_object = Simulink.data.dictionary.open(modelVars(i).Source);
                 section = getSection(sldd_object, 'Design Data');
                 entries = find(section, '-value', '-class', 'Simulink.Bus');
-                L = length(entries);
+                L = numel(entries);
                 for k = 1:L
                     if(strcmp(entries(k).Name, name))
                         result = getValue(entries(k));
@@ -65,7 +65,7 @@ function [strLeaveNames,strLeaveDataTypes,strLeaveDimensions,totalNumberOfBytes]
     totalNumberOfBytes = uint32(0);
 
     % Loop through all elements
-    numElements = length(busObject.Elements);
+    numElements = numel(busObject.Elements);
     for i = 1:numElements
         name = busObject.Elements(i).Name;
         dataType = busObject.Elements(i).DataType;
