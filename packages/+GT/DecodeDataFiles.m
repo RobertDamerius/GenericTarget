@@ -22,7 +22,7 @@ function data = DecodeDataFiles(dataFileNames)
     if(ischar(dataFileNames))
         dataFileNames = {dataFileNames};
     end
-    assert(iscell(dataFileNames)), 'GT.DecodeDataFiles(): Input "dataFileNames" must be a string or a cell array of strings!');
+    assert(iscell(dataFileNames), 'GT.DecodeDataFiles(): Input "dataFileNames" must be a string or a cell array of strings!');
     for i = 1:numel(dataFileNames)
         assert(ischar(dataFileNames{i}), 'GT.DecodeDataFiles(): Input "dataFileNames" must be a string or a cell array of strings!');
     end
