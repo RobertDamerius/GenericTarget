@@ -72,6 +72,10 @@ void TerminateNetworkOnWindows(void){
     #endif
 }
 
+void GenericTarget::ResetStartTimepoint(void){
+    GenericTarget::timePointOfStart = std::chrono::steady_clock::now();
+}
+
 double GenericTarget::GetModelExecutionTime(void){
     return 1e-9 * static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - GenericTarget::timePointOfStart).count());
 }

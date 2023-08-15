@@ -76,6 +76,11 @@ void TerminateNetworkOnWindows(void);
 class GenericTarget {
     public:
         /**
+         * @brief Reset the @ref timePointOfStart property to now.
+         */
+        static void ResetStartTimepoint(void);
+
+        /**
          * @brief Get the model execution time (steady clock), that is, the elapsed time to the start.
          * @return model execution time in seconds.
          */

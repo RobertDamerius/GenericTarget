@@ -4,7 +4,7 @@
 %%   Simulink Coder TLC Code Generation file for SFunctionGTDriverUnixTime
 %% 
 %% Simulink version      : 10.6 (R2022b) 13-May-2022
-%% TLC file generated on : 20-Jul-2023 18:50:30
+%% TLC file generated on : 15-Aug-2023 09:47:36
 
 /%
      %%%-MATLAB_Construction_Commands_Start
@@ -14,8 +14,7 @@
      def.StartFcnSpec = 'void GT_DriverUnixTimeInitialize()';
      def.TerminateFcnSpec = 'void GT_DriverUnixTimeTerminate()';
      def.HeaderFiles = {'GT_DriverUnixTime.hpp'};
-     def.SourceFiles = {'GT_DriverUnixTime.cpp'};
-     def.HostLibFiles = {'C:\Env\MSYS2\mingw64\lib\libws2_32.a'};
+     def.SourceFiles = {'GT_DriverUnixTime.cpp', 'GT_SimulinkSupport.cpp'};
      def.SampleTime = 'parameterized';
      def.Options.useTlcWithAccel = false;
      def.Options.language = 'C++';
@@ -135,6 +134,7 @@
         %<LibAddToCommonIncludes("GT_DriverUnixTime.hpp")>
     %endif
     %<SLibAddToStaticSources("GT_DriverUnixTime.cpp")>
+    %<SLibAddToStaticSources("GT_SimulinkSupport.cpp")>
 %endfunction
 
 %% Function: BlockInstanceSetup ===========================================

@@ -3,7 +3,6 @@
     #include <GenericTarget/GenericTarget.hpp>
 #elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
     #include "GT_SimulinkSupport.hpp"
-    #include <atomic>
     static gt_simulink_support::UDPMulticastManager udpMulticastManager;
     static std::atomic<bool> requireCreate(true);
 #endif
@@ -15,6 +14,7 @@ void GT_DriverUDPMulticastSendInitialize(uint16_t port, uint8_t* ipInterface, ui
     #elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
         udpMulticastManager.Register(port, {ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]}, {ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]}, 1, prioritySocket, priorityThread, ttl, 1, gt_simulink_support::udp_buffer_strategy::IGNORE_STRATEGY, {0,0,0,0}, false);
         requireCreate = true;
+        gt_simulink_support::GenericTarget::ResetStartTimepoint();
     #else
         (void)port;
         (void)ipInterface;

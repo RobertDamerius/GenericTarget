@@ -1,12 +1,16 @@
 #include "GT_DriverDataRecorderScalarDoubles.hpp"
-#ifdef GENERIC_TARGET_IMPLEMENTATION
-#include <GenericTarget/GenericTarget.hpp>
+#if defined(GENERIC_TARGET_IMPLEMENTATION)
+    #include <GenericTarget/GenericTarget.hpp>
+#elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
+    #include "GT_SimulinkSupport.hpp"
 #endif
 
 
 void GT_DriverDataRecorderScalarDoublesInitialize(const uint8_t* idCharacters, uint32_t numIDCharacters, const uint8_t* signalNames, uint32_t numCharacters, uint32_t numSignals, uint32_t numSamplesPerFile){
     #ifdef GENERIC_TARGET_IMPLEMENTATION
     gt::GenericTarget::dataRecorderManager.RegisterScalarDoubles(idCharacters, numIDCharacters, signalNames, numCharacters, numSignals, numSamplesPerFile);
+    #elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
+    gt_simulink_support::GenericTarget::ResetStartTimepoint();
     #else
     (void)idCharacters;
     (void)numIDCharacters;

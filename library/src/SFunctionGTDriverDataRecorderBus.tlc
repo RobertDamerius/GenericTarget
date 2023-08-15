@@ -4,7 +4,7 @@
 %%   Simulink Coder TLC Code Generation file for SFunctionGTDriverDataRecorderBus
 %% 
 %% Simulink version      : 10.6 (R2022b) 13-May-2022
-%% TLC file generated on : 20-Jul-2023 18:50:31
+%% TLC file generated on : 15-Aug-2023 09:47:36
 
 /%
      %%%-MATLAB_Construction_Commands_Start
@@ -14,8 +14,7 @@
      def.StartFcnSpec = 'void GT_DriverDataRecorderBusInitialize(uint8 p1[], uint32 p2, uint32 p3, uint32 p4, uint8 p5[], uint32 p6, uint8 p7[], uint32 p8, uint8 p9[], uint32 p10)';
      def.TerminateFcnSpec = 'void GT_DriverDataRecorderBusTerminate()';
      def.HeaderFiles = {'GT_DriverDataRecorderBus.hpp'};
-     def.SourceFiles = {'GT_DriverDataRecorderBus.cpp'};
-     def.HostLibFiles = {'C:\Env\MSYS2\mingw64\lib\libws2_32.a'};
+     def.SourceFiles = {'GT_DriverDataRecorderBus.cpp', 'GT_SimulinkSupport.cpp'};
      def.SampleTime = 'parameterized';
      def.Options.useTlcWithAccel = false;
      def.Options.language = 'C++';
@@ -135,6 +134,7 @@
         %<LibAddToCommonIncludes("GT_DriverDataRecorderBus.hpp")>
     %endif
     %<SLibAddToStaticSources("GT_DriverDataRecorderBus.cpp")>
+    %<SLibAddToStaticSources("GT_SimulinkSupport.cpp")>
 %endfunction
 
 %% Function: BlockInstanceSetup ===========================================

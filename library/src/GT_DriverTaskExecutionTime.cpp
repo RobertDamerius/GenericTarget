@@ -2,10 +2,16 @@
 #if defined(GENERIC_TARGET_IMPLEMENTATION)
     #include <GenericTarget/GenericTarget.hpp>
     #include <SimulinkCodeGeneration/SimulinkInterface.hpp>
+#elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
+    #include "GT_SimulinkSupport.hpp"
 #endif
 
 
-void GT_DriverTaskExecutionTimeInitialize(void){}
+void GT_DriverTaskExecutionTimeInitialize(void){
+    #if defined(GENERIC_TARGET_SIMULINK_SUPPORT)
+    gt_simulink_support::GenericTarget::ResetStartTimepoint();
+    #endif
+}
 
 void GT_DriverTaskExecutionTimeTerminate(void){}
 

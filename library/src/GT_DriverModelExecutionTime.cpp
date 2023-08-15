@@ -6,7 +6,11 @@
 #endif
 
 
-void GT_DriverModelExecutionTimeInitialize(void){}
+void GT_DriverModelExecutionTimeInitialize(void){
+    #if defined(GENERIC_TARGET_SIMULINK_SUPPORT)
+    gt_simulink_support::GenericTarget::ResetStartTimepoint();
+    #endif
+}
 
 void GT_DriverModelExecutionTimeTerminate(void){}
 
