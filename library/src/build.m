@@ -1,15 +1,9 @@
 fprintf('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n B U I L D   S I M U L I N K - I N T E R F A C E\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
-str = input('Simulink blocks will only implement their functionality on the target and thus have no effect during simulation using Simulink.\nHowever, for some blocks a Simulink support are available, that is, their functionality will also work under Simulink.\n\nCompile with Simulink support? [y]:  ','s');
+str = input('Simulink blocks will only implement their functionality on the target and thus have no effect during simulation using Simulink.\nHowever, for some blocks a Simulink support are available, that is, their functionality will also work in Simulink.\n\nCompile with Simulink support? [y]:  ','s');
 useSimulinkSupport = strcmp('y',str);
 if(useSimulinkSupport), fprintf('Simulink Support: ON\n\n');
 else, fprintf('Simulink Support: OFF\n\n'); end
 defs = [];
-hostLibFiles = '';
-if(useSimulinkSupport && ispc)
-   fprintf('On Windows you have to specify the absolute path to the winsock library manually (e.g. ''C:\\MSYS2\\mingw64\\lib\\libws2_32.a'' if using MinGW64)\n');
-   hostLibFiles = input('Enter path: ','s');
-   fprintf('\n');
-end
 
 
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -25,7 +19,7 @@ def.SourceFiles   = {'GT_DriverUDPUnicastSend.cpp','GT_SimulinkSupport.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
-def.HostLibFiles  = {hostLibFiles};
+def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.SampleTime = 'parameterized';
@@ -45,7 +39,7 @@ def.SourceFiles   = {'GT_DriverUDPUnicastReceive.cpp','GT_SimulinkSupport.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
-def.HostLibFiles  = {hostLibFiles};
+def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.SampleTime = 'parameterized';
@@ -65,7 +59,7 @@ def.SourceFiles   = {'GT_DriverUDPMulticastSend.cpp','GT_SimulinkSupport.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
-def.HostLibFiles  = {hostLibFiles};
+def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.SampleTime = 'parameterized';
@@ -85,7 +79,7 @@ def.SourceFiles   = {'GT_DriverUDPMulticastReceive.cpp','GT_SimulinkSupport.cpp'
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
-def.HostLibFiles  = {hostLibFiles};
+def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.SampleTime = 'parameterized';
@@ -105,7 +99,7 @@ def.SourceFiles   = {'GT_DriverModelExecutionTime.cpp','GT_SimulinkSupport.cpp'}
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
-def.HostLibFiles  = {hostLibFiles};
+def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.SampleTime = 'parameterized';
@@ -125,7 +119,7 @@ def.SourceFiles   = {'GT_DriverUnixTime.cpp','GT_SimulinkSupport.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
-def.HostLibFiles  = {hostLibFiles};
+def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.SampleTime = 'parameterized';
@@ -145,7 +139,7 @@ def.SourceFiles   = {'GT_DriverUTCTime.cpp','GT_SimulinkSupport.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
-def.HostLibFiles  = {hostLibFiles};
+def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.SampleTime = 'parameterized';
@@ -165,7 +159,7 @@ def.SourceFiles   = {'GT_DriverLocalTime.cpp','GT_SimulinkSupport.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
-def.HostLibFiles  = {hostLibFiles};
+def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.SampleTime = 'parameterized';
@@ -185,7 +179,7 @@ def.SourceFiles   = {'GT_DriverDataRecorderScalarDoubles.cpp','GT_SimulinkSuppor
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
-def.HostLibFiles  = {hostLibFiles};
+def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.SampleTime = 'parameterized';
@@ -205,7 +199,7 @@ def.SourceFiles   = {'GT_DriverDataRecorderBus.cpp','GT_SimulinkSupport.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
-def.HostLibFiles  = {hostLibFiles};
+def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.SampleTime = 'parameterized';
@@ -225,7 +219,7 @@ def.SourceFiles   = {'GT_DriverTaskExecutionTime.cpp','GT_SimulinkSupport.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
-def.HostLibFiles  = {hostLibFiles};
+def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.SampleTime = 'parameterized';
@@ -245,7 +239,7 @@ def.SourceFiles   = {'GT_DriverNumTaskOverloads.cpp','GT_SimulinkSupport.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
-def.HostLibFiles  = {hostLibFiles};
+def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.SampleTime = 'parameterized';
@@ -265,7 +259,7 @@ def.SourceFiles   = {'GT_DriverNumCPUOverloads.cpp','GT_SimulinkSupport.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
-def.HostLibFiles  = {hostLibFiles};
+def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.SampleTime = 'parameterized';
@@ -280,9 +274,14 @@ legacy_code('sfcn_cmex_generate', defs);
 
 % Compile
 if(useSimulinkSupport)
-    compflags = 'COMPFLAGS=''$COMPFLAGS -std=c++17''';
-    libraries = '-DGENERIC_TARGET_SIMULINK_SUPPORT';
-    legacy_code('compile', defs, {compflags,libraries});
+    cflags    = '-Wall -Wextra -DGENERIC_TARGET_SIMULINK_SUPPORT';
+    cxxflags  = '-Wall -Wextra -DGENERIC_TARGET_SIMULINK_SUPPORT -std=c++20';
+    ldflags   = '-Wall -Wextra -DGENERIC_TARGET_SIMULINK_SUPPORT -std=c++20';
+    libraries = {'-L/usr/lib','-L/usr/local/lib','-lstdc++','-lpthread'};
+    if(ispc)
+        libraries = [libraries, {'-lws2_32'}];
+    end
+    legacy_code('compile', defs, [{['CFLAGS=$CFLAGS ',cflags],['CXXFLAGS=$CXXFLAGS ',cxxflags],['LINKFLAGS=$LINKFLAGS ',ldflags]},libraries]);
 else
     legacy_code('compile', defs);
 end
@@ -307,7 +306,7 @@ if(useSimulinkSupport)
     fprintf('\tInterface/Write Bus To File              no\n');
     fprintf('\tInterface/Multicast UDP Send             partially (*)\n');
     fprintf('\tInterface/Multicast UDP Receive          partially (*)\n');
-    fprintf('\tTime/Model Execution Time                yes (**)\n');
+    fprintf('\tTime/Model Execution Time                yes\n');
     fprintf('\tTime/UNIX Time                           yes\n');
     fprintf('\tTime/UTC Time                            yes\n');
     fprintf('\tTime/Local Time                          yes\n');
@@ -316,8 +315,8 @@ if(useSimulinkSupport)
     fprintf('\tTime/CPU Overloads                       no\n');
     fprintf('\tTime/UTC Timestamp                       yes\n');
     fprintf('\tTime/Time To Latest UTC Timestamp        yes\n');
-    fprintf('\t---------------------------------------------------\n(*) UDP interface blocks are only supported for unique local ports (multicast usually works as expected)!\n(**) Each block in the model has its own initial timepoint!\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n');
+    fprintf('\t---------------------------------------------------\n(*) UDP interface blocks are only supported for unique local ports (multicast usually works as expected)!\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n');
 end
 
 % Clean up
-clear str def defs hostLibFiles useSimulinkSupport compflags libraries
+clear str def defs useSimulinkSupport cflags cxxflags ldflags libraries

@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20230726</div>
+<div class="header_version">Version 20230921</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -248,7 +248,7 @@ where the expression <code>$TARGET_MAKEFILE_CC_FLAGS$</code> is replaced by the 
 <h3>additionalCompilerFlags.CPP_FLAGS</h3>
 This flag specifies additional compiler flags to be used when compiling C++ source files.
 All flags are given as
-<pre>-std=c++17 -Wall -Wextra -Wno-format-security -mtune=native $TARGET_MAKEFILE_CPP_FLAGS$</pre>
+<pre>-std=c++20 -Wall -Wextra -Wno-format-security -mtune=native $TARGET_MAKEFILE_CPP_FLAGS$</pre>
 where the expression <code>$TARGET_MAKEFILE_CPP_FLAGS$</code> is replaced by the additional flags.
 
 <br><br>

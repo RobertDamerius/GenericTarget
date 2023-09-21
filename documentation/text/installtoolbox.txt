@@ -61,7 +61,7 @@
         <tr><td>Interface/Write Bus To File           </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
         <tr><td>Interface/Multicast UDP Send          </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
         <tr><td>Interface/Multicast UDP Receive       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
-        <tr><td>Time/Model Execution Time             </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK <span style="color: #000;"><b>**</b></span></td></tr>
+        <tr><td>Time/Model Execution Time             </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
         <tr><td>Time/UNIX Time                        </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
         <tr><td>Time/UTC Time                         </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
         <tr><td>Time/Local Time                       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
@@ -79,13 +79,6 @@
     The reason for that is, that each block runs in its own environment during simulation.
     Thus a Send and a Receive block do not share the internal network socket and each block generates its own receive thread.
     For multicast this is less of a problem, since these messages are received via loopback on all associated multicast sockets anyway.
-    <br>
-    <br>
-    <b>**</b>
-    These blocks have a different function in the simulation than on the target!
-    On the target computer, the initial timepoint of the model execution time indicates the starting timepoint of the scheduler.
-    For simulation, however, the scheduler of the generic target framework does not exist.
-    Because of that, each block in the model has its own initial timepoint when simulating.
 	</div>
     At the moment only <b>gcc</b> (Linux) and <b>MSYS2/MinGW64</b> (Windows) are supported as compilers to create blocks with Simulink support.
     For compilers that are not yet supported, the Simulink support option can be skipped.

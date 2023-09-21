@@ -56,8 +56,8 @@
         <pre>sudo apt install g++ make build-essential</pre>
         <div class="note-orange">
         <h3 class="note-orange">Note</h3>
-        C++17 is required. Make sure that the installed g++ compiler supports the C++17 language features. You can check that by running <code>g++ -v -std=c++17</code>.
-        If there's an error like <code>g++: error: unrecognized command line option '-std=c++17'</code>, then C++17 is not supported and you have to update the GNU compiler
+        C++20 is required. Make sure that the installed g++ compiler supports the C++20 language features. You can check that by running <code>g++ -v -std=c++20</code>.
+        If there's an error like <code>g++: error: unrecognized command line option '-std=c++20'</code>, then C++20 is not supported and you have to update the GNU compiler
         to the latest version.
         </div>
 
