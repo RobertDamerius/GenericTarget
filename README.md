@@ -38,6 +38,7 @@ The directory structure of this repository is as follows.
 | 2023-05-24  | 2.0      | Added automatic network initialization, added protocol files, added backtrace for DEBUG mode, updated timing blocks, added prebuild driver blocks for Windows and Linux.      |
 | 2023-05-26  | 2.1      | Renamed target execution time to model execution time. Updated directory names.                                                                                               |
 | 2023-07-26  | 2.2      | Updated deployment procedure and target directory structure. Data recordings can be named. Additional compiler flags can be set. Target can be started on specific CPU cores. |
+| 2023-10-04  | 2.3      | Added support for UDP broadcast. Network interface names can now be used to specify multicast interfaces.                                                                     |
 
 
 ## How To Start

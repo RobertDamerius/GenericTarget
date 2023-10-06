@@ -27,34 +27,36 @@ class UDPElementBase {
         virtual ~UDPElementBase();
 
         /**
-         * @brief Update the internal configuration for unicast socket operation before starting the UDP element.
-         * @param [in] ipInterface The IP of the ethernet interface to be used for this socket. If {0,0,0,0} is set, INADDR_ANY is used. If this member function is called multiple times, the latest value will be used.
-         * @param [in] rxBufferSize Size of the receive buffer. The higher value will be used, either the parameter or the current internal configuration value. Note that the default attribute value is 1.
-         * @param [in] prioritySocket Socket priority, range: [0, 6], will be clamped to range [0, 6]. The higher value will be used, either the parameter or the current internal configuration value.
-         * @param [in] priorityThread Receiver thread priority, range: [1, 99], will be clamped to range [1, 99]. The higher value will be used, either the parameter or the current internal configuration value.
-         * @param [in] numBuffers Number of receive buffers to be used. The higher value will be used, either the parameter or the current internal configuration value. Note that the default attribute value is 1.
-         * @param [in] bufferStrategy Either DISCARD_OLDEST or DISCARD_RECEIVED. Unknown values are ignored. If this member function is called multiple times, the latest value will be used.
-         * @param [in] ipFilter The IP of the sender address that should be allowed. If {0,0,0,0} is set, no filter is used. If this member function is called multiple times, the latest non-zero value will be used.
-         * @param [in] countAsDiscarded True if out-filtered messages should be counted as discarded, false if not. If this member function is called multiple times, the latest value corresponding to the non-zero ipFilter will be used.
+         * @brief Update the internal sender configuration for unicast socket operation before starting the UDP element.
+         * @param [in] senderConfiguration The sender configuration to be registered. The sender properties are taken into account only.
+         * @return True if success, false otherwise.
          * @note This function has no effect if this UDP element has already been started.
          */
-        void UpdateUnicastConfiguration(std::array<uint8_t,4> ipInterface, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const udp_buffer_strategy bufferStrategy, std::array<uint8_t,4> ipFilter, bool countAsDiscarded);
+        bool UpdateUnicastSenderConfiguration(const UDPConfiguration& senderConfiguration);
 
         /**
-         * @brief Update the internal configuration for multicast socket operation before starting the UDP element.
-         * @param [in] ipInterface The IP of the ethernet interface to be used for this socket. If {0,0,0,0} is set, INADDR_ANY is used. If this member function is called multiple times, the latest value will be used.
-         * @param [in] rxBufferSize Size of the receive buffer. The higher value will be used, either the parameter or the current internal configuration value. Note that the default attribute value is 1.
-         * @param [in] prioritySocket Socket priority, range: [0, 6], will be clamped to range [0, 6]. The higher value will be used, either the parameter or the current internal configuration value.
-         * @param [in] priorityThread Receiver thread priority, range: [1, 99], will be clamped to range [1, 99]. The higher value will be used, either the parameter or the current internal configuration value.
-         * @param [in] numBuffers Number of receive buffers to be used. The higher value will be used, either the parameter or the current internal configuration value. Note that the default attribute value is 1.
-         * @param [in] bufferStrategy Either DISCARD_OLDEST or DISCARD_RECEIVED. Unknown values are ignored. If this member function is called multiple times, the latest value will be used.
-         * @param [in] ipFilter The IP of the sender address that should be allowed. If {0,0,0,0} is set, no filter is used. If this member function is called multiple times, the latest non-zero value will be used.
-         * @param [in] countAsDiscarded True if out-filtered messages should be counted as discarded, false if not. If this member function is called multiple times, the latest value corresponding to the non-zero ipFilter will be used.
-         * @param [in] ipGroup The IP of the multicast group which to join. If this member function is called multiple times, the latest value will be used.
-         * @param [in] ttl Time-to-live value associated with the multicast traffic. The higher value will be used, either the parameter or the current internal configuration value.
+         * @brief Update the internal receiver configuration for unicast socket operation before starting the UDP element.
+         * @param [in] receiverConfiguration The receiver configuration to be registered. The receiver properties are taken into account only.
+         * @return True if success, false otherwise.
          * @note This function has no effect if this UDP element has already been started.
          */
-        void UpdateMulticastConfiguration(std::array<uint8_t,4> ipInterface, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const udp_buffer_strategy bufferStrategy, std::array<uint8_t,4> ipFilter, bool countAsDiscarded, std::array<uint8_t,4> ipGroup, uint8_t ttl);
+        bool UpdateUnicastReceiverConfiguration(const UDPConfiguration& receiverConfiguration);
+
+        /**
+         * @brief Update the internal sender configuration for multicast socket operation before starting the UDP element.
+         * @param [in] senderConfiguration The sender configuration to be registered. The sender properties are taken into account only.
+         * @return True if success, false otherwise.
+         * @note This function has no effect if this UDP element has already been started.
+         */
+        bool UpdateMulticastSenderConfiguration(const UDPConfiguration& senderConfiguration);
+
+        /**
+         * @brief Update the internal receiver configuration for multicast socket operation before starting the UDP element.
+         * @param [in] receiverConfiguration The receiver configuration to be registered. The receiver properties are taken into account only.
+         * @return True if success, false otherwise.
+         * @note This function has no effect if this UDP element has already been started.
+         */
+        bool UpdateMulticastReceiverConfiguration(const UDPConfiguration& receiverConfiguration);
 
         /**
          * @brief Start or restart the internal worker thread.

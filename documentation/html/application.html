@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20230921</div>
+<div class="header_version">Version 20231004</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -172,8 +172,9 @@
     This is where the Simulink model is initialized.
     All initialization callbacks of the model are called at this point.
     If UDP Send or UDP Receive blocks from the Generic Target Simulink library are used, the UDP sockets are registered at this point.
-    The actual creation of all UDP sockets is then performed by the UDPObjectManager later during the initialization phase.
-    The same applies to multicast UDP objects and signals to be recorded.
+    The actual creation of all UDP sockets is then performed later during the initialization phase.
+    The same applies to multicast UDP objects and data to be recorded.
+    If an error occurs during initialization, the application logs this in the <a href="protocolfile.html">protocol file</a> and the application is to be terminated.
 
     <h3>9. UDPObjectManager::Create()</h3>
     All UDP objects and the corresponding UDP sockets are created at this point.

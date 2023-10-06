@@ -22,20 +22,22 @@ class UDPUnicastManager {
         UDPUnicastManager();
 
         /**
-         * @brief Register a new UDP unicast element.
+         * @brief Register a new UDP unicast element for a sender block.
          * @param [in] port Local port of the UDP socket. The port is used as a unique key.
-         * @param [in] ipInterface The IP of the ethernet interface to be used for this socket. If {0,0,0,0} is set, INADDR_ANY is used.
-         * @param [in] rxBufferSize Size of the receive buffer. 0 will be replace by 1 internally.
-         * @param [in] prioritySocket Socket priority, range: [0, 6].
-         * @param [in] priorityThread Receiver thread priority, range: [1, 99].
-         * @param [in] numBuffers Number of receive buffers to be used.
-         * @param [in] bufferStrategy Either DISCARD_OLDEST or DISCARD_RECEIVED. Unknown values are ignored.
-         * @param [in] ipFilter The IP of the sender address that should be allowed. If {0,0,0,0} is set, no filter is used.
-         * @param [in] countAsDiscarded True if out-filtered messages should be counted as discarded, false if not.
-         * @details If the port already exists then the interface will be updated and the larger rxBufferSize will be used.
+         * @param [in] senderConfiguration The sender configuration to be registered. The sender properties are taken into account only.
+         * @details If the port already exists then the configuration is compared to existing values and may be updated.
          * @note New sockets can only be registered before calling the @ref Create function or after calling the @ref Destroy function.
          */
-        void Register(const uint16_t port, std::array<uint8_t,4> ipInterface, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const udp_buffer_strategy bufferStrategy, std::array<uint8_t,4> ipFilter, bool countAsDiscarded);
+        void RegisterSender(const uint16_t port, const UDPConfiguration& senderConfiguration);
+
+        /**
+         * @brief Register a new UDP unicast element for a receiver block.
+         * @param [in] port Local port of the UDP socket. The port is used as a unique key.
+         * @param [in] receiverConfiguration The receiver configuration to be registered. The receiver properties are taken into account only.
+         * @details If the port already exists then the configuration is compared to existing values and may be updated.
+         * @note New sockets can only be registered before calling the @ref Create function or after calling the @ref Destroy function.
+         */
+        void RegisterReceiver(const uint16_t port, const UDPConfiguration& receiverConfiguration);
 
         /**
          * @brief Send a UDP message.
@@ -69,9 +71,10 @@ class UDPUnicastManager {
 
         /**
          * @brief Create all UDP elements.
+         * @return True if success, false otherwise, e.g. if a registration error has been occurred.
          * @details This will initialize all UDP sockets for all registered @ref elements.
          */
-        void Create(void);
+        bool Create(void);
 
         /**
          * @brief Destroy all UDP elements.
@@ -81,6 +84,7 @@ class UDPUnicastManager {
 
     private:
         bool created;                                              ///< True if UDP sockets have been created, false otherwise.
+        bool registrationError;                                    ///< True if a registration error occurred.
         std::unordered_map<uint16_t, UDPUnicastElement*> elements; ///< UDP object list.
         std::shared_mutex mtx;                                     ///< Protect the @ref elements.
 };

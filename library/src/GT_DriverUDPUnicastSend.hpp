@@ -7,11 +7,11 @@
 /**
  * @brief Initialize the driver.
  * @param [in] port The port of this UDP socket.
- * @param [in] ipInterface The interface that should be used. If the interface is set to [0;0;0;0] then any interface will be used.
+ * @param [in] interfaceIP The interface that should be used. If the interface is set to [0;0;0;0] then any interface will be used.
  * @param [in] prioritySocket Socket priority, range: [0, 6].
- * @param [in] priorityThread Receiver thread priority, range: [1, 99].
+ * @param [in] allowBroadcast True if broadcast messages are allowed to be sent, false otherwise.
  */
-extern void GT_DriverUDPUnicastSendInitialize(uint16_t port, uint8_t* ipInterface, int32_t prioritySocket, int32_t priorityThread);
+extern void GT_DriverUDPUnicastSendInitialize(uint16_t port, uint8_t* interfaceIP, int32_t prioritySocket, uint8_t allowBroadcast);
 
 /**
  * @brief Terminate the driver.

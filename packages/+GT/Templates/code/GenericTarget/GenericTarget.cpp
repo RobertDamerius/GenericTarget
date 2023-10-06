@@ -161,6 +161,7 @@ void GenericTarget::PrintInfo(int argc, char**argv){
     PrintRaw("\n");
     PrintRaw("Operating System:         %s\n", strOS.c_str());
     PrintOperatingSystemInfo();
+    PrintNetworkInfo();
     PrintRaw("\n");
     PrintRaw("Generic Target Version:   %s\n", strVersion.c_str());
     PrintRaw("Compiler Version:         %s\n", strCompilerVersion.c_str());
@@ -208,6 +209,21 @@ void GenericTarget::PrintOperatingSystemInfo(void){
     #endif
 }
 
+void GenericTarget::PrintNetworkInfo(void){
+    #if __linux__
+    struct if_nameindex *if_ni, *i;
+    if_ni = if_nameindex();
+    if(if_ni){
+        PrintRaw("network interfaces:       ");
+        for(i = if_ni; !(i->if_index == 0 && i->if_name == nullptr); i++){
+            PrintRaw("[%s]", i->if_name);
+        }
+        PrintRaw("\n");
+        if_freenameindex(if_ni);
+    }
+    #endif
+}
+
 void GenericTarget::StopOtherTargetApplication(void){
     // Open the application socket with a random port
     if(!appSocket.Open()){
@@ -247,9 +263,13 @@ bool GenericTarget::InitializeModel(void){
     Print("Initializing simulink model\n");
     SimulinkInterface::Initialize();
     Print("Creating unicast UDP sockets\n");
-    udpUnicastManager.Create();
+    if(!udpUnicastManager.Create()){
+        return false;
+    }
     Print("Creating multicast UDP sockets\n");
-    udpMulticastManager.Create();
+    if(!udpMulticastManager.Create()){
+        return false;
+    }
     Print("Creating data recorders\n");
     return dataRecorderManager.CreateAllDataRecorders();
 }

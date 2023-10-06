@@ -141,6 +141,11 @@ class GenericTarget {
         static void PrintOperatingSystemInfo(void);
 
         /**
+         * @brief Print network information.
+         */
+        static void PrintNetworkInfo(void);
+
+        /**
          * @brief Stop another possibly ongoing target application by sending a termination message to the application port.
          */
         static void StopOtherTargetApplication(void);

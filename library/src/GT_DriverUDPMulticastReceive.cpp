@@ -10,21 +10,74 @@
 #endif
 
 
-void GT_DriverUDPMulticastReceiveInitialize(uint16_t port, uint8_t* ipInterface, uint8_t* ipGroup, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, uint8_t ttl, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded){
+void GT_DriverUDPMulticastReceiveInitialize(uint16_t port, uint8_t* ipGroup, uint8_t interfaceJoinUseName, uint8_t* interfaceJoinIP, uint8_t* interfaceJoinName, uint32_t interfaceJoinNameLength, uint32_t rxBufferSize, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded){
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
-        gt::GenericTarget::udpMulticastManager.Register(port, {ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]}, {ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]}, rxBufferSize, prioritySocket, priorityThread, ttl, numBuffers, static_cast<gt::udp_buffer_strategy>(bufferStrategy), {ipFilter[0], ipFilter[1], ipFilter[2], ipFilter[3]}, static_cast<bool>(countAsDiscarded));
+        gt::UDPConfiguration conf;
+        conf.multicast.group[0] = ipGroup[0];
+        conf.multicast.group[1] = ipGroup[1];
+        conf.multicast.group[2] = ipGroup[2];
+        conf.multicast.group[3] = ipGroup[3];
+        conf.multicast.interfaceJoinUseName = static_cast<bool>(interfaceJoinUseName);
+        conf.multicast.interfaceJoinIP[0] = interfaceJoinIP[0];
+        conf.multicast.interfaceJoinIP[1] = interfaceJoinIP[1];
+        conf.multicast.interfaceJoinIP[2] = interfaceJoinIP[2];
+        conf.multicast.interfaceJoinIP[3] = interfaceJoinIP[3];
+        conf.multicast.interfaceJoinName.clear();
+        for(uint32_t n = 0; n < interfaceJoinNameLength; ++n){
+            char c = static_cast<char>(interfaceJoinName[n]);
+            if((c >= ' ')){
+                conf.multicast.interfaceJoinName.push_back(c);
+            }
+        }
+        conf.rxBufferSize = rxBufferSize;
+        conf.priorityThread = priorityThread;
+        conf.numBuffers = numBuffers;
+        conf.bufferStrategy = static_cast<gt::udp_buffer_strategy>(bufferStrategy);
+        conf.ipFilter[0] = ipFilter[0];
+        conf.ipFilter[1] = ipFilter[1];
+        conf.ipFilter[2] = ipFilter[2];
+        conf.ipFilter[3] = ipFilter[3];
+        conf.countAsDiscarded = static_cast<bool>(countAsDiscarded);
+        gt::GenericTarget::udpMulticastManager.RegisterReceiver(port, conf);
     #elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
-        udpMulticastManager.Register(port, {ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]}, {ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]}, rxBufferSize, prioritySocket, priorityThread, ttl, numBuffers, static_cast<gt_simulink_support::udp_buffer_strategy>(bufferStrategy), {ipFilter[0], ipFilter[1], ipFilter[2], ipFilter[3]}, static_cast<bool>(countAsDiscarded));
+        gt_simulink_support::UDPConfiguration conf;
+        conf.multicast.group[0] = ipGroup[0];
+        conf.multicast.group[1] = ipGroup[1];
+        conf.multicast.group[2] = ipGroup[2];
+        conf.multicast.group[3] = ipGroup[3];
+        conf.multicast.interfaceJoinUseName = static_cast<bool>(interfaceJoinUseName);
+        conf.multicast.interfaceJoinIP[0] = interfaceJoinIP[0];
+        conf.multicast.interfaceJoinIP[1] = interfaceJoinIP[1];
+        conf.multicast.interfaceJoinIP[2] = interfaceJoinIP[2];
+        conf.multicast.interfaceJoinIP[3] = interfaceJoinIP[3];
+        conf.multicast.interfaceJoinName.clear();
+        for(uint32_t n = 0; n < interfaceJoinNameLength; ++n){
+            char c = static_cast<char>(interfaceJoinName[n]);
+            if((c >= ' ')){
+                conf.multicast.interfaceJoinName.push_back(c);
+            }
+        }
+        conf.rxBufferSize = rxBufferSize;
+        conf.priorityThread = priorityThread;
+        conf.numBuffers = numBuffers;
+        conf.bufferStrategy = static_cast<gt_simulink_support::udp_buffer_strategy>(bufferStrategy);
+        conf.ipFilter[0] = ipFilter[0];
+        conf.ipFilter[1] = ipFilter[1];
+        conf.ipFilter[2] = ipFilter[2];
+        conf.ipFilter[3] = ipFilter[3];
+        conf.countAsDiscarded = static_cast<bool>(countAsDiscarded);
+        udpMulticastManager.RegisterReceiver(port, conf);
         requireCreate = true;
         gt_simulink_support::GenericTarget::ResetStartTimepoint();
     #else
         (void)port;
-        (void)ipInterface;
         (void)ipGroup;
+        (void)interfaceJoinUseName;
+        (void)interfaceJoinIP;
+        (void)interfaceJoinName;
+        (void)interfaceJoinNameLength;
         (void)rxBufferSize;
-        (void)prioritySocket;
         (void)priorityThread;
-        (void)ttl;
         (void)numBuffers;
         (void)bufferStrategy;
         (void)ipFilter;
@@ -44,7 +97,7 @@ void GT_DriverUDPMulticastReceiveStep(uint16_t port, uint32_t rxBufferSize, uint
     #elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
         if(requireCreate){
             requireCreate = false;
-            udpMulticastManager.Create();
+            (void) udpMulticastManager.Create();
         }
         *lastErrorCode = udpMulticastManager.Receive(port, sources, bytes, lengths, timestamps, numMessagesReceived, numMessagesDiscarded, rxBufferSize, maxNumMessages);
     #else

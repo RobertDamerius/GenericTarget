@@ -7,18 +7,19 @@
 /**
  * @brief Initialize the driver.
  * @param [in] port The port of this UDP socket.
- * @param [in] ipInterface The interface that should be used. If the interface is set to [0;0;0;0] then any interface will be used.
  * @param [in] ipGroup The multicast group which to join.
+ * @param [in] interfaceJoinUseName 0 if interfaceJoinIP is to be used as interface address. Otherwise the interfaceJoinName is used.
+ * @param [in] interfaceJoinIP The interface IP to be used. If the interface is set to {0,0,0,0} then all interfaces are used for joining the group.
+ * @param [in] interfaceJoinName Bytes of the string representing the interface name to be joined if interfaceJoinUseName is not zero.
+ * @param [in] interfaceJoinNameLength String length of the interfaceJoinName string.
  * @param [in] rxBufferSize The size of the receive buffer.
- * @param [in] prioritySocket Socket priority, range: [0, 6].
  * @param [in] priorityThread Receiver thread priority, range: [1, 99].
- * @param [in] ttl Time-to-live value associated with the multicast traffic.
  * @param [in] numBuffers Number of receive buffers to be used.
  * @param [in] bufferStrategy Either 0 (DISCARD_OLDEST) or 1 (DISCARD_RECEIVED). Unknown values are ignored.
  * @param [in] ipFilter Array of 4 bytes containing IPv4 address of the sender address that should be allowed. If no filter should be used, all bytes must be zero.
  * @param [in] countAsDiscarded Non-zero value if out-filtered messages should be counted as discarded, zero if not.
  */
-extern void GT_DriverUDPMulticastReceiveInitialize(uint16_t port, uint8_t* ipInterface, uint8_t* ipGroup, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, uint8_t ttl, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded);
+extern void GT_DriverUDPMulticastReceiveInitialize(uint16_t port, uint8_t* ipGroup, uint8_t interfaceJoinUseName, uint8_t* interfaceJoinIP, uint8_t* interfaceJoinName, uint32_t interfaceJoinNameLength, uint32_t rxBufferSize, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded);
 
 /**
  * @brief Terminate the driver.

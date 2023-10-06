@@ -112,6 +112,15 @@ int UDPSocket::ReusePort(bool reuse){
     #endif
 }
 
+int32_t UDPSocket::AllowBroadcast(bool allow){
+    unsigned yes = static_cast<unsigned>(allow);
+    #ifdef _WIN32
+    return SetOption(SOL_SOCKET, SO_BROADCAST, (const void*)&yes, sizeof(yes));
+    #else
+    return SetOption(SOL_SOCKET, SO_BROADCAST, (const void*)&yes, sizeof(yes));
+    #endif
+}
+
 int32_t UDPSocket::SendTo(Address destination, uint8_t *bytes, int32_t size){
     sockaddr_in addr;
     addr.sin_family = AF_INET;
@@ -138,41 +147,30 @@ int32_t UDPSocket::ReceiveFrom(Address& source, uint8_t *bytes, int32_t maxSize)
     return static_cast<int32_t>(rx);
 }
 
-int32_t UDPSocket::JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface){
-    // Convert IPs to strings
-    char strGroup[16], strInterface[16];
-    char *ip = nullptr;
-    sprintf(&strGroup[0], "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
-    sprintf(&strInterface[0], "%u.%u.%u.%u", ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]);
-    if(ipInterface[0] || ipInterface[1] || ipInterface[2] || ipInterface[3]){
-        ip = &strInterface[0];
-    }
-
-    // Join the multicast group
-    struct ip_mreq mreq;
-    mreq.imr_multiaddr.s_addr = inet_addr(strGroup);
-    mreq.imr_interface.s_addr = ip ? inet_addr(ip) : htonl(INADDR_ANY);
-    int32_t result = SetOption(IPPROTO_IP, IP_ADD_MEMBERSHIP, (const void*) &mreq, sizeof(mreq));
-    if(result < 0){
-        return result;
-    }
+int32_t UDPSocket::SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName, bool useInterfaceName){
+    #ifdef _WIN32
+    struct ip_mreq mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
+    #else
+    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
+    #endif
     return SetOption(IPPROTO_IP, IP_MULTICAST_IF, (const void*) &mreq, sizeof(mreq));
 }
 
-int32_t UDPSocket::LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface){
-    // Convert IPs to strings
-    char strGroup[16], strInterface[16];
-    char *ip = nullptr;
-    sprintf(&strGroup[0], "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
-    sprintf(&strInterface[0], "%u.%u.%u.%u", ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]);
-    if(ipInterface[0] || ipInterface[1] || ipInterface[2] || ipInterface[3]){
-        ip = &strInterface[0];
-    }
+int32_t UDPSocket::JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName, bool useInterfaceName){
+    #ifdef _WIN32
+    struct ip_mreq mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
+    #else
+    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
+    #endif
+    return SetOption(IPPROTO_IP, IP_ADD_MEMBERSHIP, (const void*) &mreq, sizeof(mreq));
+}
 
-    // Leave multicast group
-    struct ip_mreq mreq;
-    mreq.imr_multiaddr.s_addr = inet_addr(strGroup);
-    mreq.imr_interface.s_addr = ip ? inet_addr(ip) : htonl(INADDR_ANY);
+int32_t UDPSocket::LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName, bool useInterfaceName){
+    #ifdef _WIN32
+    struct ip_mreq mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
+    #else
+    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
+    #endif
     return SetOption(IPPROTO_IP, IP_DROP_MEMBERSHIP, (const void*) &mreq, sizeof(mreq));
 }
 
@@ -210,4 +208,63 @@ void UDPSocket::ResetLastError(void){
     errno = 0;
     #endif
 }
+
+#ifdef _WIN32
+struct ip_mreq UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::array<uint8_t,4>& ipInterface, const std::string& interfaceName, bool useInterfaceName){
+    // Convert group IP to string
+    char strGroup[16];
+    sprintf(&strGroup[0], "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
+
+    // Convert interface IP or name to string
+    char strInterface[16];
+    if(useInterfaceName){
+        uint8_t index = static_cast<uint8_t>(if_nametoindex(interfaceName.c_str()));
+        sprintf(&strInterface[0], "0.0.0.%u", index);
+    }
+    else{
+        sprintf(&strInterface[0], "%u.%u.%u.%u", ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]);
+    }
+
+    // Pointer to the interface IP string (nullptr indicates default value: INADDR_ANY)
+    char *ip = nullptr;
+    if(ipInterface[0] || ipInterface[1] || ipInterface[2] || ipInterface[3]){
+        ip = &strInterface[0];
+    }
+
+    // Create structure
+    struct ip_mreq result;
+    result.imr_multiaddr.s_addr = inet_addr(strGroup);
+    result.imr_interface.s_addr = ip ? inet_addr(ip) : htonl(INADDR_ANY);
+    return result;
+}
+#else
+struct ip_mreqn UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::array<uint8_t,4>& ipInterface, const std::string& interfaceName, bool useInterfaceName){
+    // Convert group IP to string
+    char strGroup[16];
+    sprintf(&strGroup[0], "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
+
+    // Convert interface IP to string
+    char strInterface[16];
+    sprintf(&strInterface[0], "%u.%u.%u.%u", ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]);
+
+    // Pointer to the interface IP string (nullptr indicates default value: INADDR_ANY)
+    char *ip = nullptr;
+    if(ipInterface[0] || ipInterface[1] || ipInterface[2] || ipInterface[3]){
+        ip = &strInterface[0];
+    }
+
+    // If commanded, set interface index based on interface name
+    int index = 0;
+    if(useInterfaceName){
+        index = if_nametoindex(interfaceName.c_str());
+    }
+
+    // Create structure
+    struct ip_mreqn result;
+    result.imr_multiaddr.s_addr = inet_addr(strGroup);
+    result.imr_address.s_addr = ip ? inet_addr(ip) : htonl(INADDR_ANY);
+    result.imr_ifindex = index;
+    return result;
+}
+#endif
 

@@ -26,40 +26,36 @@ UDPElementBase::~UDPElementBase(){
     mtxReceiveBuffer.unlock();
 }
 
-void UDPElementBase::UpdateUnicastConfiguration(std::array<uint8_t,4> ipInterface, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const udp_buffer_strategy bufferStrategy, std::array<uint8_t,4> ipFilter, bool countAsDiscarded){
-    // Clamp values to valid range
-    prioritySocket = (prioritySocket < 0) ? 0 : ((prioritySocket > 6) ? 6 : prioritySocket);
-    priorityThread = (priorityThread < 1) ? 1 : ((priorityThread > 99) ? 99 : priorityThread);
-
-    // Update configuration
-    configuration.ipInterface = ipInterface;
-    configuration.rxBufferSize = (rxBufferSize > configuration.rxBufferSize) ? rxBufferSize : configuration.rxBufferSize;
-    configuration.prioritySocket = (prioritySocket > configuration.prioritySocket) ? prioritySocket : configuration.prioritySocket;
-    configuration.priorityThread = (priorityThread > configuration.priorityThread) ? priorityThread : configuration.priorityThread;
-    configuration.numBuffers = (numBuffers > configuration.numBuffers) ? numBuffers : configuration.numBuffers;
-    switch(bufferStrategy){
-        case udp_buffer_strategy::DISCARD_OLDEST: configuration.bufferStrategy = udp_buffer_strategy::DISCARD_OLDEST; break;
-        case udp_buffer_strategy::DISCARD_RECEIVED: configuration.bufferStrategy = udp_buffer_strategy::DISCARD_RECEIVED; break;
-        case udp_buffer_strategy::IGNORE_STRATEGY: break;
-    }
-    if(ipFilter[0] || ipFilter[1] || ipFilter[2] || ipFilter[3]){
-        configuration.ipFilter = ipFilter;
-        configuration.countAsDiscarded = countAsDiscarded;
-    }
+bool UDPElementBase::UpdateUnicastSenderConfiguration(const UDPConfiguration& senderConfiguration){
+    return configuration.UpdateUnicastSenderConfiguration(senderConfiguration);
 }
 
-void UDPElementBase::UpdateMulticastConfiguration(std::array<uint8_t,4> ipInterface, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const udp_buffer_strategy bufferStrategy, std::array<uint8_t,4> ipFilter, bool countAsDiscarded, std::array<uint8_t,4> ipGroup, uint8_t ttl){
-    // The basic configuration is equal to that of unicast
-    UpdateUnicastConfiguration(ipInterface, rxBufferSize, prioritySocket, priorityThread, numBuffers, bufferStrategy, ipFilter, countAsDiscarded);
+bool UDPElementBase::UpdateUnicastReceiverConfiguration(const UDPConfiguration& receiverConfiguration){
+    if(configuration.receiverPropertiesSet){
+        PrintE("Multiple registration of a unicast receiver (port=%u)!\n",port);
+        return false;
+    }
+    return configuration.UpdateUnicastReceiverConfiguration(receiverConfiguration);
+}
 
-    // Update additional multicast configuration
-    configuration.multicast.group = ipGroup;
-    configuration.multicast.ttl = (ttl > configuration.multicast.ttl) ? ttl : configuration.multicast.ttl;
+bool UDPElementBase::UpdateMulticastSenderConfiguration(const UDPConfiguration& senderConfiguration){
+    return configuration.UpdateMulticastSenderConfiguration(senderConfiguration);
+}
+
+bool UDPElementBase::UpdateMulticastReceiverConfiguration(const UDPConfiguration& receiverConfiguration){
+    if(configuration.receiverPropertiesSet){
+        PrintE("Multiple registration of a multicast receiver (port=%u)!\n",port);
+        return false;
+    }
+    return configuration.UpdateMulticastReceiverConfiguration(receiverConfiguration);
 }
 
 void UDPElementBase::Start(void){
     // Make sure that this UDP element is stopped
     Stop();
+
+    // Fill missing configuration (e.g. if sender properties are set, but receiver properties are not)
+    configuration.FillMissing();
 
     // Allocate memory for receive buffer
     mtxReceiveBuffer.lock();
@@ -209,7 +205,6 @@ void UDPElementBase::CopyMessageToBuffer(uint8_t* messageBytes, uint32_t message
                 receiveBuffer.portSender[receiveBuffer.idxMessage] = source.port;
                 break;
             case udp_buffer_strategy::DISCARD_RECEIVED:
-            case udp_buffer_strategy::IGNORE_STRATEGY:
                 break;
         }
         receiveBuffer.discardCounter++;

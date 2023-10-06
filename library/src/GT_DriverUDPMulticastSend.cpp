@@ -8,20 +8,63 @@
 #endif
 
 
-void GT_DriverUDPMulticastSendInitialize(uint16_t port, uint8_t* ipInterface, uint8_t* ipGroup, int32_t prioritySocket, int32_t priorityThread, uint8_t ttl){
+void GT_DriverUDPMulticastSendInitialize(uint16_t port, uint8_t* ipGroup, uint8_t interfaceSendUseName, uint8_t* interfaceSendIP, uint8_t* interfaceSendName, uint32_t interfaceSendNameLength, int32_t prioritySocket, uint8_t ttl, uint8_t allowBroadcast){
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
-        gt::GenericTarget::udpMulticastManager.Register(port, {ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]}, {ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]}, 1, prioritySocket, priorityThread, ttl, 1, gt::udp_buffer_strategy::IGNORE_STRATEGY, {0,0,0,0}, false);
+        gt::UDPConfiguration conf;
+        conf.multicast.group[0] = ipGroup[0];
+        conf.multicast.group[1] = ipGroup[1];
+        conf.multicast.group[2] = ipGroup[2];
+        conf.multicast.group[3] = ipGroup[3];
+        conf.multicast.interfaceSendUseName = static_cast<bool>(interfaceSendUseName);
+        conf.multicast.interfaceSendIP[0] = interfaceSendIP[0];
+        conf.multicast.interfaceSendIP[1] = interfaceSendIP[1];
+        conf.multicast.interfaceSendIP[2] = interfaceSendIP[2];
+        conf.multicast.interfaceSendIP[3] = interfaceSendIP[3];
+        conf.multicast.interfaceSendName.clear();
+        for(uint32_t n = 0; n < interfaceSendNameLength; ++n){
+            char c = static_cast<char>(interfaceSendName[n]);
+            if((c >= ' ')){
+                conf.multicast.interfaceSendName.push_back(c);
+            }
+        }
+        conf.prioritySocket = prioritySocket;
+        conf.multicast.ttl = ttl;
+        conf.allowBroadcast = static_cast<bool>(allowBroadcast);
+        gt::GenericTarget::udpMulticastManager.RegisterSender(port, conf);
     #elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
-        udpMulticastManager.Register(port, {ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]}, {ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]}, 1, prioritySocket, priorityThread, ttl, 1, gt_simulink_support::udp_buffer_strategy::IGNORE_STRATEGY, {0,0,0,0}, false);
+        gt_simulink_support::UDPConfiguration conf;
+        conf.multicast.group[0] = ipGroup[0];
+        conf.multicast.group[1] = ipGroup[1];
+        conf.multicast.group[2] = ipGroup[2];
+        conf.multicast.group[3] = ipGroup[3];
+        conf.multicast.interfaceSendUseName = static_cast<bool>(interfaceSendUseName);
+        conf.multicast.interfaceSendIP[0] = interfaceSendIP[0];
+        conf.multicast.interfaceSendIP[1] = interfaceSendIP[1];
+        conf.multicast.interfaceSendIP[2] = interfaceSendIP[2];
+        conf.multicast.interfaceSendIP[3] = interfaceSendIP[3];
+        conf.multicast.interfaceSendName.clear();
+        for(uint32_t n = 0; n < interfaceSendNameLength; ++n){
+            char c = static_cast<char>(interfaceSendName[n]);
+            if((c >= ' ')){
+                conf.multicast.interfaceSendName.push_back(c);
+            }
+        }
+        conf.prioritySocket = prioritySocket;
+        conf.multicast.ttl = ttl;
+        conf.allowBroadcast = static_cast<bool>(allowBroadcast);
+        udpMulticastManager.RegisterSender(port, conf);
         requireCreate = true;
         gt_simulink_support::GenericTarget::ResetStartTimepoint();
     #else
         (void)port;
-        (void)ipInterface;
         (void)ipGroup;
+        (void)interfaceSendUseName;
+        (void)interfaceSendIP;
+        (void)interfaceSendName;
+        (void)interfaceSendNameLength;
         (void)prioritySocket;
-        (void)priorityThread;
         (void)ttl;
+        (void)allowBroadcast;
     #endif
 }
 
@@ -37,7 +80,7 @@ void GT_DriverUDPMulticastSendStep(int32_t* result, int32_t* lastErrorCode, uint
     #elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
         if(requireCreate){
             requireCreate = false;
-            udpMulticastManager.Create();
+            (void) udpMulticastManager.Create();
         }
         std::tie(*result, *lastErrorCode) = udpMulticastManager.Send(port, destination, bytes, length);
     #else

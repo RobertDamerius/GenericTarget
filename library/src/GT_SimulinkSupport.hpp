@@ -39,6 +39,7 @@
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 #include <windows.h>
+#include <Iphlpapi.h>
 // Unix System
 #else
 #include <execinfo.h>
@@ -53,6 +54,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <net/if.h>
 #endif
 
 
@@ -201,8 +203,7 @@ class Address {
  */
 enum class udp_buffer_strategy : uint32_t {
     DISCARD_OLDEST = 0,                       ///< Discard the oldest message in the buffer and insert the received message into the buffer if the receive buffer is full.
-    DISCARD_RECEIVED = 1,                     ///< Discard the received message if the receive buffer is full.
-    IGNORE_STRATEGY = 0xFFFFFFFFUL            ///< Ignore the strategy value.
+    DISCARD_RECEIVED = 1                      ///< Discard the received message if the receive buffer is full.
 };
 
 
@@ -288,6 +289,13 @@ class UDPSocket {
         int32_t ReusePort(bool reuse);
 
         /**
+         * @brief Set socket option to allow broadcast to be sent.
+         * @param [in] allow True if broadcast is to be allowed, false otherwise.
+         * @return If no error occurs, zero is returned.
+         */
+        int32_t AllowBroadcast(bool allow);
+
+        /**
          * @brief Send bytes to address.
          * @param [in] destination The address where to send the bytes to.
          * @param [in] bytes Bytes that should be sent.
@@ -306,20 +314,34 @@ class UDPSocket {
         int32_t ReceiveFrom(Address& address, uint8_t *bytes, int32_t maxSize);
 
         /**
-         * @brief Join a multicast group and also set the network interface to be used.
+         * @brief Set the network interface to be used for sending multicast traffic.
          * @param [in] ipGroup IPv4 address of the group to be joined.
          * @param [in] ipInterface IPv4 address of the network interface to be used. Set this value to {0,0,0,0} to use the default network interface.
+         * @param [in] interfaceName Name of the related interface.
+         * @param [in] useInterfaceName True if interfaceName is to be used instead of ipInterface, false otherwise.
          * @return Result of the internal setsockopt() function call.
          */
-        int32_t JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface);
+        int32_t SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName, bool useInterfaceName);
+
+        /**
+         * @brief Join a multicast group at a specific network interface.
+         * @param [in] ipGroup IPv4 address of the group to be joined.
+         * @param [in] ipInterface IPv4 address of the network interface to be used. Set this value to {0,0,0,0} to use all network interfaces.
+         * @param [in] interfaceName Name of the related interface.
+         * @param [in] useInterfaceName True if interfaceName is to be used instead of ipInterface, false otherwise.
+         * @return Result of the internal setsockopt() function call.
+         */
+        int32_t JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName, bool useInterfaceName);
 
         /**
          * @brief Leave a multicast group on a given network interface.
          * @param [in] ipGroup IPv4 address of the group to be left.
          * @param [in] ipInterface IPv4 address of the related network interface.
+         * @param [in] interfaceName Name of the related interface.
+         * @param [in] useInterfaceName True if interfaceName is to be used instead of ipInterface, false otherwise.
          * @return Result of the internal setsockopt() function call.
          */
-        int32_t LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface);
+        int32_t LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName, bool useInterfaceName);
 
         /**
          * @brief Set time-to-live multicast messages.
@@ -347,6 +369,20 @@ class UDPSocket {
 
     private:
         std::atomic<int> _socket; ///< Internal socket value.
+
+        /**
+         * @brief Convert the given group and interface specification to an ip_mreq structure, depending on the operating system.
+         * @param [in] ipGroup IPv4 group address.
+         * @param [in] ipInterface IPv4 interface address.
+         * @param [in] interfaceName Name of the interface.
+         * @param [in] useInterfaceName True if interfaceName is to be used instead of ipInterface, false otherwise.
+         * @return ip_mreq structure under windows and ip_mreqn under linux.
+         */
+        #ifdef _WIN32
+        struct ip_mreq ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::array<uint8_t,4>& ipInterface, const std::string& interfaceName, bool useInterfaceName);
+        #else
+        struct ip_mreqn ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::array<uint8_t,4>& ipInterface, const std::string& interfaceName, bool useInterfaceName);
+        #endif
 };
 
 
@@ -355,26 +391,73 @@ class UDPSocket {
  */
 class UDPConfiguration {
     public:
+        bool receiverPropertiesSet;                  ///< [RX] True if receiver properties have been set, false otherwise. The default value is false.
+        bool senderPropertiesSet;                    ///< [TX] True if sender properties have been set, false otherwise. The default value is false.
+
         /* Basic UDP socket configuration */
-        std::array<uint8_t,4> ipInterface;    ///< IPv4 address of the interface that should be used. If {0,0,0,0} is set, any interface is used.
-        uint32_t rxBufferSize;                ///< The receive buffer size to be used.
-        int32_t prioritySocket;               ///< Socket priority, range: [0, 6].
-        int32_t priorityThread;               ///< Receiver thread priority, range: [1, 99].
-        uint32_t numBuffers;                  ///< Number of buffers, must be greater than zero.
-        udp_buffer_strategy bufferStrategy;   ///< The buffer strategy.
-        std::array<uint8_t,4> ipFilter;       ///< IP address to be used for address filtering when receiving messages.
-        bool countAsDiscarded;                ///< True if out-filtered messages should be counted as discarded.
+        uint32_t rxBufferSize;                       ///< [RX] The receive buffer size to be used.
+        int32_t priorityThread;                      ///< [RX] Receiver thread priority, range: [1, 99].
+        uint32_t numBuffers;                         ///< [RX] Number of buffers, must be greater than zero.
+        udp_buffer_strategy bufferStrategy;          ///< [RX] The buffer strategy.
+        std::array<uint8_t,4> ipFilter;              ///< [RX] IP address to be used for address filtering when receiving messages.
+        bool countAsDiscarded;                       ///< [RX] True if out-filtered messages should be counted as discarded.
+        int32_t prioritySocket;                      ///< [TX] Socket priority, range: [0, 6].
+        bool allowBroadcast;                         ///< [TX] True if broadcast messages are allowed to be sent, false otherwise.
+
+        /* Specific configuration for unicast */
+        struct {
+            std::array<uint8_t,4> interfaceIP;       ///< [RX/TX] IPv4 address of the interface that should be used. If {0,0,0,0} is set, any interface is used.
+        } unicast;
 
         /* Specific configuration for multicast */
         struct {
-            std::array<uint8_t,4> group;      ///< The multicast group address.
-            uint8_t ttl;                      ///< Time-to-live for multicast messages.
+            std::array<uint8_t,4> group;             ///< [RX/TX] The multicast group address.
+            bool interfaceJoinUseName;               ///< [RX] True if @ref interfaceJoinName should be used instead of the @ref interfaceJoinIP, false otherwise.
+            std::array<uint8_t,4> interfaceJoinIP;   ///< [RX] IPv4 address of the interface at which to join a multicast group. If {0,0,0,0} is set, all interfaces are used.
+            std::string interfaceJoinName;           ///< [RX] The interface name to be used for joining multicast groups.
+            bool interfaceSendUseName;               ///< [TX] True if @ref interfaceSendName should be used instead of the @ref interfaceSendIP, false otherwise.
+            std::array<uint8_t,4> interfaceSendIP;   ///< [TX] IPv4 address of the interface via which to send a multicast messages. If {0,0,0,0} is set, the default route of the operating system is used.
+            std::string interfaceSendName;           ///< [TX] The interface name to be used for sending multicast traffic.
+            uint8_t ttl;                             ///< [TX] Time-to-live for multicast messages.
         } multicast;
 
         /**
          * @brief Construct a new UDP configuration and set default values.
          */
         UDPConfiguration();
+
+        /**
+         * @brief Update the sender configuration for unicast socket operation.
+         * @param [in] senderConfiguration The sender configuration to be updated. The sender properties are taken into account only.
+         * @return True if success, false otherwise.
+         */
+        bool UpdateUnicastSenderConfiguration(const UDPConfiguration& senderConfiguration);
+
+        /**
+         * @brief Update the receiver configuration for unicast socket operation.
+         * @param [in] receiverConfiguration The receiver configuration to be updated. The receiver properties are taken into account only.
+         * @return True if success, false otherwise.
+         */
+        bool UpdateUnicastReceiverConfiguration(const UDPConfiguration& receiverConfiguration);
+
+        /**
+         * @brief Update the sender configuration for multicast socket operation.
+         * @param [in] senderConfiguration The sender configuration to be updated. The sender properties are taken into account only.
+         * @return True if success, false otherwise.
+         */
+        bool UpdateMulticastSenderConfiguration(const UDPConfiguration& senderConfiguration);
+
+        /**
+         * @brief Update the receiver configuration for multicast socket operation.
+         * @param [in] receiverConfiguration The receiver configuration to be updated. The receiver properties are taken into account only.
+         * @return True if success, false otherwise.
+         */
+        bool UpdateMulticastReceiverConfiguration(const UDPConfiguration& receiverConfiguration);
+
+        /**
+         * @brief Fill missing properties either for sender or receiver properties based on receiver or sender properties, respectively.
+         */
+        void FillMissing(void);
 };
 
 
@@ -437,34 +520,36 @@ class UDPElementBase {
         virtual ~UDPElementBase();
 
         /**
-         * @brief Update the internal configuration for unicast socket operation before starting the UDP element.
-         * @param [in] ipInterface The IP of the ethernet interface to be used for this socket. If {0,0,0,0} is set, INADDR_ANY is used. If this member function is called multiple times, the latest value will be used.
-         * @param [in] rxBufferSize Size of the receive buffer. The higher value will be used, either the parameter or the current internal configuration value. Note that the default attribute value is 1.
-         * @param [in] prioritySocket Socket priority, range: [0, 6], will be clamped to range [0, 6]. The higher value will be used, either the parameter or the current internal configuration value.
-         * @param [in] priorityThread Receiver thread priority, range: [1, 99], will be clamped to range [1, 99]. The higher value will be used, either the parameter or the current internal configuration value.
-         * @param [in] numBuffers Number of receive buffers to be used. The higher value will be used, either the parameter or the current internal configuration value. Note that the default attribute value is 1.
-         * @param [in] bufferStrategy Either DISCARD_OLDEST or DISCARD_RECEIVED. Unknown values are ignored. If this member function is called multiple times, the latest value will be used.
-         * @param [in] ipFilter The IP of the sender address that should be allowed. If {0,0,0,0} is set, no filter is used. If this member function is called multiple times, the latest non-zero value will be used.
-         * @param [in] countAsDiscarded True if out-filtered messages should be counted as discarded, false if not. If this member function is called multiple times, the latest value corresponding to the non-zero ipFilter will be used.
+         * @brief Update the internal sender configuration for unicast socket operation before starting the UDP element.
+         * @param [in] senderConfiguration The sender configuration to be registered. The sender properties are taken into account only.
+         * @return True if success, false otherwise.
          * @note This function has no effect if this UDP element has already been started.
          */
-        void UpdateUnicastConfiguration(std::array<uint8_t,4> ipInterface, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const udp_buffer_strategy bufferStrategy, std::array<uint8_t,4> ipFilter, bool countAsDiscarded);
+        bool UpdateUnicastSenderConfiguration(const UDPConfiguration& senderConfiguration);
 
         /**
-         * @brief Update the internal configuration for multicast socket operation before starting the UDP element.
-         * @param [in] ipInterface The IP of the ethernet interface to be used for this socket. If {0,0,0,0} is set, INADDR_ANY is used. If this member function is called multiple times, the latest value will be used.
-         * @param [in] rxBufferSize Size of the receive buffer. The higher value will be used, either the parameter or the current internal configuration value. Note that the default attribute value is 1.
-         * @param [in] prioritySocket Socket priority, range: [0, 6], will be clamped to range [0, 6]. The higher value will be used, either the parameter or the current internal configuration value.
-         * @param [in] priorityThread Receiver thread priority, range: [1, 99], will be clamped to range [1, 99]. The higher value will be used, either the parameter or the current internal configuration value.
-         * @param [in] numBuffers Number of receive buffers to be used. The higher value will be used, either the parameter or the current internal configuration value. Note that the default attribute value is 1.
-         * @param [in] bufferStrategy Either DISCARD_OLDEST or DISCARD_RECEIVED. Unknown values are ignored. If this member function is called multiple times, the latest value will be used.
-         * @param [in] ipFilter The IP of the sender address that should be allowed. If {0,0,0,0} is set, no filter is used. If this member function is called multiple times, the latest non-zero value will be used.
-         * @param [in] countAsDiscarded True if out-filtered messages should be counted as discarded, false if not. If this member function is called multiple times, the latest value corresponding to the non-zero ipFilter will be used.
-         * @param [in] ipGroup The IP of the multicast group which to join. If this member function is called multiple times, the latest value will be used.
-         * @param [in] ttl Time-to-live value associated with the multicast traffic. The higher value will be used, either the parameter or the current internal configuration value.
+         * @brief Update the internal receiver configuration for unicast socket operation before starting the UDP element.
+         * @param [in] receiverConfiguration The receiver configuration to be registered. The receiver properties are taken into account only.
+         * @return True if success, false otherwise.
          * @note This function has no effect if this UDP element has already been started.
          */
-        void UpdateMulticastConfiguration(std::array<uint8_t,4> ipInterface, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const udp_buffer_strategy bufferStrategy, std::array<uint8_t,4> ipFilter, bool countAsDiscarded, std::array<uint8_t,4> ipGroup, uint8_t ttl);
+        bool UpdateUnicastReceiverConfiguration(const UDPConfiguration& receiverConfiguration);
+
+        /**
+         * @brief Update the internal sender configuration for multicast socket operation before starting the UDP element.
+         * @param [in] senderConfiguration The sender configuration to be registered. The sender properties are taken into account only.
+         * @return True if success, false otherwise.
+         * @note This function has no effect if this UDP element has already been started.
+         */
+        bool UpdateMulticastSenderConfiguration(const UDPConfiguration& senderConfiguration);
+
+        /**
+         * @brief Update the internal receiver configuration for multicast socket operation before starting the UDP element.
+         * @param [in] receiverConfiguration The receiver configuration to be registered. The receiver properties are taken into account only.
+         * @return True if success, false otherwise.
+         * @note This function has no effect if this UDP element has already been started.
+         */
+        bool UpdateMulticastReceiverConfiguration(const UDPConfiguration& receiverConfiguration);
 
         /**
          * @brief Start or restart the internal worker thread.
@@ -617,20 +702,22 @@ class UDPUnicastManager {
         UDPUnicastManager();
 
         /**
-         * @brief Register a new UDP unicast element.
+         * @brief Register a new UDP unicast element for a sender block.
          * @param [in] port Local port of the UDP socket. The port is used as a unique key.
-         * @param [in] ipInterface The IP of the ethernet interface to be used for this socket. If {0,0,0,0} is set, INADDR_ANY is used.
-         * @param [in] rxBufferSize Size of the receive buffer. 0 will be replace by 1 internally.
-         * @param [in] prioritySocket Socket priority, range: [0, 6].
-         * @param [in] priorityThread Receiver thread priority, range: [1, 99].
-         * @param [in] numBuffers Number of receive buffers to be used.
-         * @param [in] bufferStrategy Either DISCARD_OLDEST or DISCARD_RECEIVED. Unknown values are ignored.
-         * @param [in] ipFilter The IP of the sender address that should be allowed. If {0,0,0,0} is set, no filter is used.
-         * @param [in] countAsDiscarded True if out-filtered messages should be counted as discarded, false if not.
-         * @details If the port already exists then the interface will be updated and the larger rxBufferSize will be used.
+         * @param [in] senderConfiguration The sender configuration to be registered. The sender properties are taken into account only.
+         * @details If the port already exists then the configuration is compared to existing values and may be updated.
          * @note New sockets can only be registered before calling the @ref Create function or after calling the @ref Destroy function.
          */
-        void Register(const uint16_t port, std::array<uint8_t,4> ipInterface, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const udp_buffer_strategy bufferStrategy, std::array<uint8_t,4> ipFilter, bool countAsDiscarded);
+        void RegisterSender(const uint16_t port, const UDPConfiguration& senderConfiguration);
+
+        /**
+         * @brief Register a new UDP unicast element for a receiver block.
+         * @param [in] port Local port of the UDP socket. The port is used as a unique key.
+         * @param [in] receiverConfiguration The receiver configuration to be registered. The receiver properties are taken into account only.
+         * @details If the port already exists then the configuration is compared to existing values and may be updated.
+         * @note New sockets can only be registered before calling the @ref Create function or after calling the @ref Destroy function.
+         */
+        void RegisterReceiver(const uint16_t port, const UDPConfiguration& receiverConfiguration);
 
         /**
          * @brief Send a UDP message.
@@ -661,9 +748,10 @@ class UDPUnicastManager {
 
         /**
          * @brief Create all UDP elements.
+         * @return True if success, false otherwise, e.g. if a registration error has been occurred.
          * @details This will initialize all UDP sockets for all registered @ref elements.
          */
-        void Create(void);
+        bool Create(void);
 
         /**
          * @brief Destroy all UDP elements.
@@ -673,8 +761,9 @@ class UDPUnicastManager {
 
     private:
         bool created;                                              ///< True if UDP sockets have been created, false otherwise.
+        bool registrationError;                                    ///< True if a registration error occurred.
         std::unordered_map<uint16_t, UDPUnicastElement*> elements; ///< UDP object list.
-        std::mutex mtx;                                            ///< Protect the @ref elements.
+        std::shared_mutex mtx;                                     ///< Protect the @ref elements.
 };
 
 
@@ -689,22 +778,22 @@ class UDPMulticastManager {
         UDPMulticastManager();
 
         /**
-         * @brief Register a new UDP multicast element.
+         * @brief Register a new UDP multicast element for a sender block.
          * @param [in] port Local port of the UDP socket. The port is used as a unique key.
-         * @param [in] ipInterface The IP of the ethernet interface to be used for this socket. If {0,0,0,0} is set, INADDR_ANY is used.
-         * @param [in] ipGroup The IP of the multicast group which to join.
-         * @param [in] rxBufferSize Size of the receive buffer. 0 will be replace by 1 internally.
-         * @param [in] prioritySocket Socket priority, range: [0, 6].
-         * @param [in] priorityThread Receiver thread priority, range: [1, 99].
-         * @param [in] ttl Time-to-live value associated with the multicast traffic.
-         * @param [in] numBuffers Number of receive buffers to be used.
-         * @param [in] bufferStrategy Either DISCARD_OLDEST or DISCARD_RECEIVED. Unknown values are ignored.
-         * @param [in] ipFilter The IP of the sender address that should be allowed. If {0,0,0,0} is set, no filter is used.
-         * @param [in] countAsDiscarded True if out-filtered messages should be counted as discarded, false if not.
-         * @details If the port already exists then the interface will be updated and the larger rxBufferSize will be used.
+         * @param [in] senderConfiguration The sender configuration to be registered. The sender properties are taken into account only.
+         * @details If the port already exists then the configuration is compared to existing values and may be updated.
          * @note New sockets can only be registered before calling the @ref Create function or after calling the @ref Destroy function.
          */
-        void Register(const uint16_t port, std::array<uint8_t,4> ipInterface, std::array<uint8_t,4> ipGroup, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, uint8_t ttl, const uint32_t numBuffers, const udp_buffer_strategy bufferStrategy, std::array<uint8_t,4> ipFilter, bool countAsDiscarded);
+        void RegisterSender(const uint16_t port, const UDPConfiguration& senderConfiguration);
+
+        /**
+         * @brief Register a new UDP multicast element for a receiver block.
+         * @param [in] port Local port of the UDP socket. The port is used as a unique key.
+         * @param [in] receiverConfiguration The receiver configuration to be registered. The receiver properties are taken into account only.
+         * @details If the port already exists then the configuration is compared to existing values and may be updated.
+         * @note New sockets can only be registered before calling the @ref Create function or after calling the @ref Destroy function.
+         */
+        void RegisterReceiver(const uint16_t port, const UDPConfiguration& receiverConfiguration);
 
         /**
          * @brief Send a multicast UDP message.
@@ -735,9 +824,10 @@ class UDPMulticastManager {
 
         /**
          * @brief Create all UDP elements.
+         * @return True if success, false otherwise, e.g. if a registration error has been occurred.
          * @details This will initialize all UDP sockets for all registered @ref elements.
          */
-        void Create(void);
+        bool Create(void);
 
         /**
          * @brief Destroy all UDP elements.
@@ -747,8 +837,9 @@ class UDPMulticastManager {
 
     private:
         bool created;                                                 ///< True if UDP sockets have been created, false otherwise.
+        bool registrationError;                                       ///< True if a registration error occurred.
         std::unordered_map<uint16_t, UDPMulticastElement*> elements;  ///< UDP object list.
-        std::mutex mtx;                                               ///< Protect the @ref elements.
+        std::shared_mutex mtx;                                        ///< Protect the @ref elements.
 };
 
 

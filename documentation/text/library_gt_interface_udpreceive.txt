@@ -75,14 +75,14 @@ This port serves as the key value for the internal hash table.
 If several UDP blocks register with the same port, then these blocks are linked to the same socket.
 All UDP blocks that use the same local port thus always access the same socket.
 All other settings that can be made in a block mask always refer to the socket that belongs to the specified port.
-If, for example, two different interface addresses are specified for a socket, then the interface address that does not correspond to the null address is selected.
-If there are several such interface addresses, the last of these addresses that registers with the generic target core in the generated code is used.
+If, for example, two different interface addresses are specified for the same socket, then the generic target core reports an error and the software terminates.
 
 <div class="note-green">
 <h3 class="note-green">Note</h3>
 Only one UDP receive block should be used for a socket.
 At the same time several UDP Send blocks can be used for the same socket.
 While the UDP receive block outputs all received messages from the buffer in the executed sample step, a message is sent immediately when the UDP send block is executed.
+If multiple receivers are registered for the same port, then the generic target core reports an error and the software terminates.
 </div>
 
 <h3>Port Range</h3>

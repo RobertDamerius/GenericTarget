@@ -38,6 +38,7 @@
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 #include <windows.h>
+#include <Iphlpapi.h>
 // Unix System
 #elif __linux__
 #include <execinfo.h>
@@ -53,6 +54,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <sys/utsname.h>
+#include <net/if.h>
 #else
 // Other
 #endif

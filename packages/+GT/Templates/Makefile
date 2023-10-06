@@ -25,7 +25,7 @@ DIRECTORY_PRODUCT :=
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Libraries and symbols
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-LIBS_WIN          := -lstdc++ -lstdc++fs -lpthread -lwinmm -lgdi32 -lws2_32 -lwsock32 $TARGET_MAKEFILE_LIBS_WIN$
+LIBS_WIN          := -lstdc++ -lstdc++fs -lpthread -lwinmm -lgdi32 -lws2_32 -lwsock32 -lIphlpapi $TARGET_MAKEFILE_LIBS_WIN$
 LIBS_UNIX         := -lstdc++ -lstdc++fs -lpthread -latomic $TARGET_MAKEFILE_LIBS_UNIX$
 CC_SYMBOLS         = -DGENERIC_TARGET_IMPLEMENTATION $TARGET_MAKEFILE_CC_SYMBOLS$
 

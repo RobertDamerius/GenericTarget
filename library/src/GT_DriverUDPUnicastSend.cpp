@@ -8,18 +8,32 @@
 #endif
 
 
-void GT_DriverUDPUnicastSendInitialize(uint16_t port, uint8_t* ipInterface, int32_t prioritySocket, int32_t priorityThread){
+void GT_DriverUDPUnicastSendInitialize(uint16_t port, uint8_t* interfaceIP, int32_t prioritySocket, uint8_t allowBroadcast){
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
-        gt::GenericTarget::udpUnicastManager.Register(port, {ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]}, 1, prioritySocket, priorityThread, 1, gt::udp_buffer_strategy::IGNORE_STRATEGY, {0,0,0,0}, false);
+        gt::UDPConfiguration conf;
+        conf.unicast.interfaceIP[0] = interfaceIP[0];
+        conf.unicast.interfaceIP[1] = interfaceIP[1];
+        conf.unicast.interfaceIP[2] = interfaceIP[2];
+        conf.unicast.interfaceIP[3] = interfaceIP[3];
+        conf.prioritySocket = prioritySocket;
+        conf.allowBroadcast = static_cast<bool>(allowBroadcast);
+        gt::GenericTarget::udpUnicastManager.RegisterSender(port, conf);
     #elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
-        udpUnicastManager.Register(port, {ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]}, 1, prioritySocket, priorityThread, 1, gt_simulink_support::udp_buffer_strategy::IGNORE_STRATEGY, {0,0,0,0}, false);
+        gt_simulink_support::UDPConfiguration conf;
+        conf.unicast.interfaceIP[0] = interfaceIP[0];
+        conf.unicast.interfaceIP[1] = interfaceIP[1];
+        conf.unicast.interfaceIP[2] = interfaceIP[2];
+        conf.unicast.interfaceIP[3] = interfaceIP[3];
+        conf.prioritySocket = prioritySocket;
+        conf.allowBroadcast = static_cast<bool>(allowBroadcast);
+        udpUnicastManager.RegisterSender(port, conf);
         requireCreate = true;
         gt_simulink_support::GenericTarget::ResetStartTimepoint();
     #else
         (void)port;
-        (void)ipInterface;
+        (void)interfaceIP;
         (void)prioritySocket;
-        (void)priorityThread;
+        (void)allowBroadcast;
     #endif
 }
 
@@ -35,7 +49,7 @@ void GT_DriverUDPUnicastSendStep(int32_t* result, int32_t* lastErrorCode, uint16
     #elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
         if(requireCreate){
             requireCreate = false;
-            udpUnicastManager.Create();
+            (void) udpUnicastManager.Create();
         }
         std::tie(*result, *lastErrorCode) = udpUnicastManager.Send(port, destination, bytes, length);
     #else

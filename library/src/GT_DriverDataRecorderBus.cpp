@@ -11,6 +11,16 @@ void GT_DriverDataRecorderBusInitialize(const uint8_t* idCharacters, uint32_t nu
     gt::GenericTarget::dataRecorderManager.RegisterBus(idCharacters, numIDCharacters, numSamplesPerFile, numBytesPerSample, signalNames, strlenSignalNames, dimensions, strlenDimensions, dataTypes, strlenDataTypes);
     #elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
     gt_simulink_support::GenericTarget::ResetStartTimepoint();
+    (void)idCharacters;
+    (void)numIDCharacters;
+    (void)numSamplesPerFile;
+    (void)numBytesPerSample;
+    (void)signalNames;
+    (void)strlenSignalNames;
+    (void)dimensions;
+    (void)strlenDimensions;
+    (void)dataTypes;
+    (void)strlenDataTypes;
     #else
     (void)idCharacters;
     (void)numIDCharacters;

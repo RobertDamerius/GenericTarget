@@ -4,27 +4,60 @@ using namespace gt;
 
 UDPUnicastManager::UDPUnicastManager(){
     created = false;
+    registrationError = false;
 }
 
-void UDPUnicastManager::Register(const uint16_t port, std::array<uint8_t,4> ipInterface, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const udp_buffer_strategy bufferStrategy, std::array<uint8_t,4> ipFilter, bool countAsDiscarded){
-    // Warning if Register() is called after UDP sockets have already been created
+void UDPUnicastManager::RegisterSender(const uint16_t port, const UDPConfiguration& senderConfiguration){
+    // Print warning if UDP sockets have already been created
     mtx.lock();
     if(created){
         mtx.unlock();
-        PrintW("Cannot register UDP socket (port=%d) because socket creation was already done!\n",port);
+        PrintW("Cannot register UDP socket (port=%d) because socket creation was already done!\n", port);
         return;
     }
 
     // Check if this socket is already in the list
     auto found = elements.find(port);
     if(found != elements.end()){
-        // This socket (port) was already registered, update socket data
-        found->second->UpdateUnicastConfiguration(ipInterface, rxBufferSize, prioritySocket, priorityThread, numBuffers, bufferStrategy, ipFilter, countAsDiscarded);
+        // This socket (port) was already registered, update socket data or check values
+        if(!found->second->UpdateUnicastSenderConfiguration(senderConfiguration)){
+            registrationError = true;
+        }
     }
     else{
         // This is a new socket (port), add it to the list
         UDPUnicastElement* element = new UDPUnicastElement(port);
-        element->UpdateUnicastConfiguration(ipInterface, rxBufferSize, prioritySocket, priorityThread, numBuffers, bufferStrategy, ipFilter, countAsDiscarded);
+        if(!element->UpdateUnicastSenderConfiguration(senderConfiguration)){
+            registrationError = true;
+        }
+        elements.insert(std::pair<uint16_t, UDPUnicastElement*>(port, element));
+    }
+    mtx.unlock();
+}
+
+void UDPUnicastManager::RegisterReceiver(const uint16_t port, const UDPConfiguration& receiverConfiguration){
+    // Print warning if UDP sockets have already been created
+    mtx.lock();
+    if(created){
+        mtx.unlock();
+        PrintW("Cannot register UDP socket (port=%d) because socket creation was already done!\n", port);
+        return;
+    }
+
+    // Check if this socket is already in the list
+    auto found = elements.find(port);
+    if(found != elements.end()){
+        // This socket (port) was already registered, update socket data or check values
+        if(!found->second->UpdateUnicastReceiverConfiguration(receiverConfiguration)){
+            registrationError = true;
+        }
+    }
+    else{
+        // This is a new socket (port), add it to the list
+        UDPUnicastElement* element = new UDPUnicastElement(port);
+        if(!element->UpdateUnicastReceiverConfiguration(receiverConfiguration)){
+            registrationError = true;
+        }
         elements.insert(std::pair<uint16_t, UDPUnicastElement*>(port, element));
     }
     mtx.unlock();
@@ -54,13 +87,15 @@ int32_t UDPUnicastManager::Receive(const uint16_t port, uint16_t* sources, uint8
     return errorCode;
 }
 
-void UDPUnicastManager::Create(void){
+bool UDPUnicastManager::Create(void){
     mtx.lock();
     for(auto&& e : elements){
         e.second->Start();
     }
     created = true;
+    bool noRegistrationError = !registrationError;
     mtx.unlock();
+    return noRegistrationError;
 }
 
 void UDPUnicastManager::Destroy(void){
@@ -71,6 +106,7 @@ void UDPUnicastManager::Destroy(void){
     }
     elements.clear();
     created = false;
+    registrationError = false;
     mtx.unlock();
 }
 

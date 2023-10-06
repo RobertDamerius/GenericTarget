@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20230921</div>
+<div class="header_version">Version 20231004</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -212,7 +212,7 @@ If the <code>DEBUG</code> mode is switched off, the optimization <code>-O3</code
 <h3>additionalCompilerFlags.LIBS_WIN</h3>
 This flag specifies additional libraries to be used when linking a Windows application.
 The list of libraries for compiling a Windows application is defined as
-<pre>-lstdc++ -lstdc++fs -lpthread -lwinmm -lgdi32 -lws2_32 -lwsock32 $TARGET_MAKEFILE_LIBS_WIN$</pre>
+<pre>-lstdc++ -lstdc++fs -lpthread -lwinmm -lgdi32 -lws2_32 -lwsock32 -lIphlpapi $TARGET_MAKEFILE_LIBS_WIN$</pre>
 where the expression <code>$TARGET_MAKEFILE_LIBS_WIN$</code> is replaced by the additional libraries.
 
 <br><br>

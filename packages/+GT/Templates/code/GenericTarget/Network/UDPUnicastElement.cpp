@@ -8,9 +8,16 @@ int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
     if(!socket.Open()){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
-            PrintE("Could not open unicast UDP socket at interface %u.%u.%u.%u:%u! %s\n", conf.ipInterface[0], conf.ipInterface[1], conf.ipInterface[2], conf.ipInterface[3], port, errorString.c_str());
+            PrintE("Could not open unicast UDP socket (port=%u)! %s\n", port, errorString.c_str());
         }
         return (previousErrorCode = errorCode);
+    }
+
+    // Set broadcast option and ignore errors
+    socket.ResetLastError();
+    if(socket.AllowBroadcast(conf.allowBroadcast) < 0){
+        auto [errorCode, errorString] = socket.GetLastError();
+        PrintW("Could not set allow broadcast option for unicast UDP socket (port=%u)! %s\n", port, errorString.c_str());
     }
 
     // Set priority
@@ -20,7 +27,7 @@ int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
     if(socket.SetOption(SOL_SOCKET, SO_PRIORITY, &priority, sizeof(priority)) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
-            PrintE("Could not set socket priority %d for unicast UDP socket at interface %u.%u.%u.%u:%u! %s\n", priority, conf.ipInterface[0], conf.ipInterface[1], conf.ipInterface[2], conf.ipInterface[3], port, errorString.c_str());
+            PrintE("Could not set socket priority %d for unicast UDP socket (port=%u)! %s\n", priority, port, errorString.c_str());
         }
         socket.Close();
         return (previousErrorCode = errorCode);
@@ -31,22 +38,22 @@ int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
     socket.ResetLastError();
     if(socket.ReusePort(true) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
-        PrintW("Could not set reuse port option for unicast UDP socket at interface %u.%u.%u.%u:%u! %s\n", conf.ipInterface[0], conf.ipInterface[1], conf.ipInterface[2], conf.ipInterface[3], port, errorString.c_str());
+        PrintW("Could not set reuse port option for unicast UDP socket (port=%u)! %s\n", port, errorString.c_str());
     }
 
     // Bind the port
     socket.ResetLastError();
-    if(socket.Bind(port, conf.ipInterface) < 0){
+    if(socket.Bind(port, conf.unicast.interfaceIP) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
-            PrintE("Could not bind port %u for unicast UDP socket at interface %u.%u.%u.%u:%u! %s\n", port, conf.ipInterface[0], conf.ipInterface[1], conf.ipInterface[2], conf.ipInterface[3], port, errorString.c_str());
+            PrintE("Could not bind port for unicast UDP socket (port=%u, interface=%u.%u.%u.%u)! %s\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], errorString.c_str());
         }
         socket.Close();
         return (previousErrorCode = errorCode);
     }
 
     // Success
-    Print("Opened unicast UDP socket at interface %u.%u.%u.%u:%u\n", conf.ipInterface[0], conf.ipInterface[1], conf.ipInterface[2], conf.ipInterface[3], port);
+    Print("Opened unicast UDP socket (port=%u, interface=%u.%u.%u.%u, allowBroadcast=%u)\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], int(conf.allowBroadcast));
     return (previousErrorCode = 0);
 }
 
@@ -54,7 +61,7 @@ void UDPUnicastElement::TerminateSocket(const UDPConfiguration conf, bool verbos
     (void) conf;
     socket.Close();
     if(verbosePrint){
-        Print("Closed unicast UDP socket at interface %u.%u.%u.%u:%u\n", conf.ipInterface[0], conf.ipInterface[1], conf.ipInterface[2], conf.ipInterface[3], port);
+        Print("Closed unicast UDP socket (port=%u, interface=%u.%u.%u.%u, allowBroadcast=%u)\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], int(conf.allowBroadcast));
     }
 }
 

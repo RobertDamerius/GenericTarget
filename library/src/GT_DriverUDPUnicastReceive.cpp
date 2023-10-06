@@ -10,18 +10,45 @@
 #endif
 
 
-void GT_DriverUDPUnicastReceiveInitialize(uint16_t port, uint8_t* ipInterface, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded){
+void GT_DriverUDPUnicastReceiveInitialize(uint16_t port, uint8_t* interfaceIP, uint32_t rxBufferSize, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded){
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
-        gt::GenericTarget::udpUnicastManager.Register(port, {ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]}, rxBufferSize, prioritySocket, priorityThread, numBuffers, static_cast<gt::udp_buffer_strategy>(bufferStrategy), {ipFilter[0], ipFilter[1], ipFilter[2], ipFilter[3]}, static_cast<bool>(countAsDiscarded));
+        gt::UDPConfiguration conf;
+        conf.rxBufferSize = rxBufferSize;
+        conf.priorityThread = priorityThread;
+        conf.numBuffers = numBuffers;
+        conf.bufferStrategy = static_cast<gt::udp_buffer_strategy>(bufferStrategy);
+        conf.ipFilter[0] = ipFilter[0];
+        conf.ipFilter[1] = ipFilter[1];
+        conf.ipFilter[2] = ipFilter[2];
+        conf.ipFilter[3] = ipFilter[3];
+        conf.countAsDiscarded = static_cast<bool>(countAsDiscarded);
+        conf.unicast.interfaceIP[0] = interfaceIP[0];
+        conf.unicast.interfaceIP[1] = interfaceIP[1];
+        conf.unicast.interfaceIP[2] = interfaceIP[2];
+        conf.unicast.interfaceIP[3] = interfaceIP[3];
+        gt::GenericTarget::udpUnicastManager.RegisterReceiver(port, conf);
     #elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
-        udpUnicastManager.Register(port, {ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]}, rxBufferSize, prioritySocket, priorityThread, numBuffers, static_cast<gt_simulink_support::udp_buffer_strategy>(bufferStrategy), {ipFilter[0], ipFilter[1], ipFilter[2], ipFilter[3]}, static_cast<bool>(countAsDiscarded));
+        gt_simulink_support::UDPConfiguration conf;
+        conf.rxBufferSize = rxBufferSize;
+        conf.priorityThread = priorityThread;
+        conf.numBuffers = numBuffers;
+        conf.bufferStrategy = static_cast<gt_simulink_support::udp_buffer_strategy>(bufferStrategy);
+        conf.ipFilter[0] = ipFilter[0];
+        conf.ipFilter[1] = ipFilter[1];
+        conf.ipFilter[2] = ipFilter[2];
+        conf.ipFilter[3] = ipFilter[3];
+        conf.countAsDiscarded = static_cast<bool>(countAsDiscarded);
+        conf.unicast.interfaceIP[0] = interfaceIP[0];
+        conf.unicast.interfaceIP[1] = interfaceIP[1];
+        conf.unicast.interfaceIP[2] = interfaceIP[2];
+        conf.unicast.interfaceIP[3] = interfaceIP[3];
+        udpUnicastManager.RegisterReceiver(port, conf);
         requireCreate = true;
         gt_simulink_support::GenericTarget::ResetStartTimepoint();
     #else
         (void)port;
-        (void)ipInterface;
+        (void)interfaceIP;
         (void)rxBufferSize;
-        (void)prioritySocket;
         (void)priorityThread;
         (void)numBuffers;
         (void)bufferStrategy;
@@ -42,7 +69,7 @@ void GT_DriverUDPUnicastReceiveStep(uint16_t port, uint32_t rxBufferSize, uint32
     #elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
         if(requireCreate){
             requireCreate = false;
-            udpUnicastManager.Create();
+            (void) udpUnicastManager.Create();
         }
         *lastErrorCode = udpUnicastManager.Receive(port, sources, bytes, lengths, timestamps, numMessagesReceived, numMessagesDiscarded, rxBufferSize, maxNumMessages);
     #else

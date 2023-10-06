@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20230921</div>
+<div class="header_version">Version 20231004</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -113,10 +113,13 @@ The following table shows all block parameters.
     <tr><td style="font-family: Courier New;">showResult</td><td>Checkbox for showing the result output port.</td></tr>
     <tr><td style="font-family: Courier New;">showErrorCode</td><td>Checkbox for showing the lastErrorCode output port.</td></tr>
     <tr><td style="font-family: Courier New;">interfacePort</td><td>Local port under the "Socket" tab.</td></tr>
-    <tr><td style="font-family: Courier New;">interfaceIP</td><td>Interface under the "Socket" tab.</td></tr>
     <tr><td style="font-family: Courier New;">groupIP</td><td>Group address under the "Socket" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">interfaceJoinUseName</td><td>Interface checkbox under the "Socket" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">interfaceJoinIP</td><td>Interface IP under the "Socket" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">interfaceJoinName</td><td>Interface name under the "Socket" tab.</td></tr>
     <tr><td style="font-family: Courier New;">prioritySocket</td><td>Socket priority under the "Advanced" tab</td></tr>
     <tr><td style="font-family: Courier New;">ttl</td><td>Multicast TTL under the "Advanced" tab</td></tr>
+    <tr><td style="font-family: Courier New;">allowBroadcast</td><td>Allow broadcast checkbox under the "Advanced" tab</td></tr>
     <tr><td style="font-family: Courier New;">SampleTime</td><td>Sampletime.</td></tr>
 </table>
 
@@ -128,20 +131,27 @@ This port serves as the key value for the internal hash table.
 If several UDP blocks register with the same port, then these blocks are linked to the same socket.
 All UDP blocks that use the same local port thus always access the same socket.
 All other settings that can be made in a block mask always refer to the socket that belongs to the specified port.
-If, for example, two different interface addresses are specified for a socket, then the interface address that does not correspond to the null address is selected.
-If there are several such interface addresses, the last of these addresses that registers with the generic target core in the generated code is used.
+If, for example, two different interface addresses are specified for the same socket, then the generic target core reports an error and the software terminates.
 
 <div class="note-green">
 <h3 class="note-green">Note</h3>
 Only one UDP receive block should be used for a socket.
 At the same time several UDP Send blocks can be used for the same socket.
 While the UDP receive block outputs all received messages from the buffer in the executed sample step, a message is sent immediately when the UDP send block is executed.
+If multiple receivers are registered for the same port, then the generic target core reports an error and the software terminates.
 </div>
 
-<div class="note-red">
-<h3 class="note-red">Multicast Interface Address</h3>
+<h3>Interface</h3>
+In the send block mask, the network interface can be specified over which multicast messages are to be sent.
+The network interface used to join the multicast group is set in the <a href="library_gt_interface_multicastudpreceive.html">receive block mask</a>.
+If there is no receive block, then joining the group is also done via the interface specified in the send block.
+The interface can be specified either as IPv4 addresse or as name.
 If no interface is specified, e.g. <code>[0,0,0,0]</code>, then the interface leading to the default route is used by the operating system.
-If different interfaces are specified for the same socket, the interface that appears last in the generated code and is not null is used.
+
+<div class="note-red">
+<h3 class="note-red">Interface Fallback Address</h3>
+If the specified interface name is not found under linux, linux uses the interface IP value as fallback.
+Therefore, if the name is to be used, a fallback address should be assigned as the interface IP value.
 </div>
 
 <h3>Port Range</h3>
@@ -168,7 +178,7 @@ If different socket priorities are specified for the same socket (same port), th
 <h3>Group Address</h3>
 During the initialization phase of the model, each UDP block registers with the generic target core.
 A group address is registered for each multicast socket.
-If multiple group addresses are registered for the same socket, then the address that is executed last in the generated code is taken.
+If multiple group addresses are registered for the same socket, then the generic target core reports an error and the software terminates.
 A multicast socket then automatically joins the registered group.
 The receiving block can thus receive multicast messages.
 If messages are to be sent to a specific group address, then this must be specified as the destination address via the input port.
@@ -179,7 +189,13 @@ However, the TTL value is only set when using multicast sockets, so the Multicas
 When sending multicast messages a TTL value is set which corresponds to a hop counter.
 Each time one of these packets passes through a multicast routing device, the TTL setting decrements by 1.
 If it falls below a threshold, the multicast routing device drops the message.
-If several TTL values are registered for a socket in the target application, then the highest TTL value is used.
+If several TTL values are registered for a socket in the target application, then the generic target core reports an error and the software terminates.
+
+<h3>Allow Broadcast</h3>
+If broadcast is not allowed, then sending to a broadcast destination will result in an error (the result output will be negative).
+To allow broadcast messages to be sent you must explicitly enable it via the checkbox of the blockmask.
+Keep in mind that all parameters according to a socket must be unique, that is, if your model contains several UDP Send blocks related to the same internal socket (same port), all parameters must be identical.
+Otherwise the generic target application will report and error and is not going to start.
 
 </div>
 </div>

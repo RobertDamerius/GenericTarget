@@ -7,16 +7,15 @@
 /**
  * @brief Initialize the driver.
  * @param [in] port The port of this UDP socket.
- * @param [in] ipInterface The interface that should be used. If the interface is set to [0;0;0;0] then any interface will be used.
+ * @param [in] interfaceIP The interface that should be used. If the interface is set to [0;0;0;0] then any interface will be used.
  * @param [in] rxBufferSize The size of the receive buffer.
- * @param [in] prioritySocket Socket priority, range: [0, 6].
  * @param [in] priorityThread Receiver thread priority, range: [1, 99].
  * @param [in] numBuffers Number of receive buffers to be used.
  * @param [in] bufferStrategy Either 0 (DISCARD_OLDEST) or 1 (DISCARD_RECEIVED). Unknown values are ignored.
  * @param [in] ipFilter Array of 4 bytes containing IPv4 address of the sender address that should be allowed. If no filter should be used, all bytes must be zero.
  * @param [in] countAsDiscarded Non-zero value if out-filtered messages should be counted as discarded, zero if not.
  */
-extern void GT_DriverUDPUnicastReceiveInitialize(uint16_t port, uint8_t* ipInterface, uint32_t rxBufferSize, int32_t prioritySocket, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded);
+extern void GT_DriverUDPUnicastReceiveInitialize(uint16_t port, uint8_t* interfaceIP, uint32_t rxBufferSize, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded);
 
 /**
  * @brief Terminate the driver.
