@@ -33,18 +33,18 @@ static void __gt_simulink_support_print_verbose(const char c, const char* file, 
 //     fflush(stderr);
 // }
 
-#define Print(...) __gt_simulink_support_print(__VA_ARGS__)
-#define PrintW(...) __gt_simulink_support_print_verbose('W', __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define PrintE(...) __gt_simulink_support_print_verbose('E', __FILE__, __LINE__, __func__, __VA_ARGS__)
-//#define PrintRaw(...) __gt_simulink_support_print_raw(__VA_ARGS__)
+#define GENERIC_TARGET_PRINT(...) __gt_simulink_support_print(__VA_ARGS__)
+#define GENERIC_TARGET_PRINT_WARNING(...) __gt_simulink_support_print_verbose('W', __FILE__, __LINE__, __func__, __VA_ARGS__)
+#define GENERIC_TARGET_PRINT_ERROR(...) __gt_simulink_support_print_verbose('E', __FILE__, __LINE__, __func__, __VA_ARGS__)
+//#define GENERIC_TARGET_PRINT_RAW(...) __gt_simulink_support_print_raw(__VA_ARGS__)
 
 
 // Helper macros for sockaddr_in struct (win/linux)
-#define ADDRESS_PORT(x)   x.sin_port
+#define GENERIC_TARGET_ADDRESS_PORT(x)   x.sin_port
 #ifdef _WIN32
-#define ADDRESS_IP(x)     x.sin_addr.S_un.S_addr
+#define GENERIC_TARGET_ADDRESS_IP(x)     x.sin_addr.S_un.S_addr
 #else
-#define ADDRESS_IP(x)     x.sin_addr.s_addr
+#define GENERIC_TARGET_ADDRESS_IP(x)     x.sin_addr.s_addr
 #endif
 
 
@@ -210,8 +210,8 @@ int32_t UDPSocket::SendTo(Address destination, uint8_t *bytes, int32_t size){
     sockaddr_in addr;
     addr.sin_family = AF_INET;
     memset((void*) &addr.sin_zero[0], 0, 8);
-    ADDRESS_PORT(addr) = htons(destination.port);
-    ADDRESS_IP(addr) = htonl((0xFF000000 & (destination.ip[0] << 24)) | (0x00FF0000 & (destination.ip[1] << 16)) | (0x0000FF00 & (destination.ip[2] << 8)) | (0x000000FF & destination.ip[3]));
+    GENERIC_TARGET_ADDRESS_PORT(addr) = htons(destination.port);
+    GENERIC_TARGET_ADDRESS_IP(addr) = htonl((0xFF000000 & (destination.ip[0] << 24)) | (0x00FF0000 & (destination.ip[1] << 16)) | (0x0000FF00 & (destination.ip[2] << 8)) | (0x000000FF & destination.ip[3]));
     return static_cast<int32_t>(sendto(_socket, reinterpret_cast<const char*>(bytes), size, 0, reinterpret_cast<const struct sockaddr*>(&addr), sizeof(addr)));
 }
 
@@ -223,12 +223,12 @@ int32_t UDPSocket::ReceiveFrom(Address& source, uint8_t *bytes, int32_t maxSize)
     int address_size = sizeof(addr);
     #endif
     int rx = recvfrom(_socket, reinterpret_cast<char*>(bytes), maxSize, 0, reinterpret_cast<struct sockaddr*>(&addr), &address_size);
-    uint32_t u32 = ntohl(ADDRESS_IP(addr));
+    uint32_t u32 = ntohl(GENERIC_TARGET_ADDRESS_IP(addr));
     source.ip[0] = (uint8_t)(0x000000FF & (u32 >> 24));
     source.ip[1] = (uint8_t)(0x000000FF & (u32 >> 16));
     source.ip[2] = (uint8_t)(0x000000FF & (u32 >> 8));
     source.ip[3] = (uint8_t)(0x000000FF & u32);
-    source.port = (uint16_t)ntohs(ADDRESS_PORT(addr));
+    source.port = (uint16_t)ntohs(GENERIC_TARGET_ADDRESS_PORT(addr));
     return static_cast<int32_t>(rx);
 }
 
@@ -379,15 +379,15 @@ bool UDPConfiguration::UpdateUnicastSenderConfiguration(const UDPConfiguration& 
     if(senderPropertiesSet){
         // Compare to this configuration
         if(prioritySocket != senderConfiguration.prioritySocket){
-            PrintE("Ambiguous value for parameter \"prioritySocket\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"prioritySocket\"!");
             return false;
         }
         if((unicast.interfaceIP[0] != senderConfiguration.unicast.interfaceIP[0]) || (unicast.interfaceIP[1] != senderConfiguration.unicast.interfaceIP[1]) || (unicast.interfaceIP[2] != senderConfiguration.unicast.interfaceIP[2]) || (unicast.interfaceIP[3] != senderConfiguration.unicast.interfaceIP[3])){
-            PrintE("Ambiguous value for parameter \"unicast.interfaceIP\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.interfaceIP\"!");
             return false;
         }
         if(allowBroadcast != senderConfiguration.allowBroadcast){
-            PrintE("Ambiguous value for parameter \"allowBroadcast\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"allowBroadcast\"!");
             return false;
         }
     }
@@ -400,7 +400,7 @@ bool UDPConfiguration::UpdateUnicastSenderConfiguration(const UDPConfiguration& 
         // Check or set common properties
         if(receiverPropertiesSet){
             if((unicast.interfaceIP[0] != senderConfiguration.unicast.interfaceIP[0]) || (unicast.interfaceIP[1] != senderConfiguration.unicast.interfaceIP[1]) || (unicast.interfaceIP[2] != senderConfiguration.unicast.interfaceIP[2]) || (unicast.interfaceIP[3] != senderConfiguration.unicast.interfaceIP[3])){
-                PrintE("Ambiguous value for parameter \"unicast.interfaceIP\"!");
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.interfaceIP\"!");
                 return false;
             }
         }
@@ -415,31 +415,31 @@ bool UDPConfiguration::UpdateUnicastReceiverConfiguration(const UDPConfiguration
     if(receiverPropertiesSet){
         // Compare to this configuration
         if(rxBufferSize != receiverConfiguration.rxBufferSize){
-            PrintE("Ambiguous value for parameter \"rxBufferSize\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"rxBufferSize\"!");
             return false;
         }
         if(priorityThread != receiverConfiguration.priorityThread){
-            PrintE("Ambiguous value for parameter \"priorityThread\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"priorityThread\"!");
             return false;
         }
         if(numBuffers != receiverConfiguration.numBuffers){
-            PrintE("Ambiguous value for parameter \"numBuffers\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"numBuffers\"!");
             return false;
         }
         if(bufferStrategy != receiverConfiguration.bufferStrategy){
-            PrintE("Ambiguous value for parameter \"bufferStrategy\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"bufferStrategy\"!");
             return false;
         }
         if((ipFilter[0] != receiverConfiguration.ipFilter[0]) || (ipFilter[1] != receiverConfiguration.ipFilter[1]) || (ipFilter[2] != receiverConfiguration.ipFilter[2]) || (ipFilter[3] != receiverConfiguration.ipFilter[3])){
-            PrintE("Ambiguous value for parameter \"ipFilter\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"ipFilter\"!");
             return false;
         }
         if(countAsDiscarded != receiverConfiguration.countAsDiscarded){
-            PrintE("Ambiguous value for parameter \"countAsDiscarded\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"countAsDiscarded\"!");
             return false;
         }
         if((unicast.interfaceIP[0] != receiverConfiguration.unicast.interfaceIP[0]) || (unicast.interfaceIP[1] != receiverConfiguration.unicast.interfaceIP[1]) || (unicast.interfaceIP[2] != receiverConfiguration.unicast.interfaceIP[2]) || (unicast.interfaceIP[3] != receiverConfiguration.unicast.interfaceIP[3])){
-            PrintE("Ambiguous value for parameter \"unicast.interfaceIP\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.interfaceIP\"!");
             return false;
         }
     }
@@ -456,7 +456,7 @@ bool UDPConfiguration::UpdateUnicastReceiverConfiguration(const UDPConfiguration
         // Check or set common properties
         if(senderPropertiesSet){
             if((unicast.interfaceIP[0] != receiverConfiguration.unicast.interfaceIP[0]) || (unicast.interfaceIP[1] != receiverConfiguration.unicast.interfaceIP[1]) || (unicast.interfaceIP[2] != receiverConfiguration.unicast.interfaceIP[2]) || (unicast.interfaceIP[3] != receiverConfiguration.unicast.interfaceIP[3])){
-                PrintE("Ambiguous value for parameter \"unicast.interfaceIP\"!");
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.interfaceIP\"!");
                 return false;
             }
         }
@@ -471,34 +471,34 @@ bool UDPConfiguration::UpdateMulticastSenderConfiguration(const UDPConfiguration
     if(senderPropertiesSet){
         // Compare to this configuration
         if(prioritySocket != senderConfiguration.prioritySocket){
-            PrintE("Ambiguous value for parameter \"prioritySocket\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"prioritySocket\"!");
             return false;
         }
         if(allowBroadcast != senderConfiguration.allowBroadcast){
-            PrintE("Ambiguous value for parameter \"allowBroadcast\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"allowBroadcast\"!");
             return false;
         }
         if((multicast.group[0] != senderConfiguration.multicast.group[0]) || (multicast.group[1] != senderConfiguration.multicast.group[1]) || (multicast.group[2] != senderConfiguration.multicast.group[2]) || (multicast.group[3] != senderConfiguration.multicast.group[3])){
-            PrintE("Ambiguous value for parameter \"multicast.group\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.group\"!");
             return false;
         }
         if(multicast.ttl != senderConfiguration.multicast.ttl){
-            PrintE("Ambiguous value for parameter \"multicast.ttl\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.ttl\"!");
             return false;
         }
         if(multicast.interfaceSendUseName != senderConfiguration.multicast.interfaceSendUseName){
-            PrintE("Ambiguous value for parameter \"multicast.interfaceSendUseName\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.interfaceSendUseName\"!");
             return false;
         }
         if(multicast.interfaceSendUseName){
             if(multicast.interfaceSendName.compare(senderConfiguration.multicast.interfaceSendName)){
-                PrintE("Ambiguous value for parameter \"multicast.interfaceSendName\"!");
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.interfaceSendName\"!");
                 return false;
             }
         }
         else{
             if((multicast.interfaceSendIP[0] != senderConfiguration.multicast.interfaceSendIP[0]) || (multicast.interfaceSendIP[1] != senderConfiguration.multicast.interfaceSendIP[1]) || (multicast.interfaceSendIP[2] != senderConfiguration.multicast.interfaceSendIP[2]) || (multicast.interfaceSendIP[3] != senderConfiguration.multicast.interfaceSendIP[3])){
-                PrintE("Ambiguous value for parameter \"multicast.interfaceSendIP\"!");
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.interfaceSendIP\"!");
                 return false;
             }
         }
@@ -516,7 +516,7 @@ bool UDPConfiguration::UpdateMulticastSenderConfiguration(const UDPConfiguration
         // Check or set common properties
         if(receiverPropertiesSet){
             if((multicast.group[0] != senderConfiguration.multicast.group[0]) || (multicast.group[1] != senderConfiguration.multicast.group[1]) || (multicast.group[2] != senderConfiguration.multicast.group[2]) || (multicast.group[3] != senderConfiguration.multicast.group[3])){
-                PrintE("Ambiguous value for parameter \"multicast.group\"!");
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.group\"!");
                 return false;
             }
         }
@@ -531,46 +531,46 @@ bool UDPConfiguration::UpdateMulticastReceiverConfiguration(const UDPConfigurati
     if(receiverPropertiesSet){
         // Compare to this configuration
         if(rxBufferSize != receiverConfiguration.rxBufferSize){
-            PrintE("Ambiguous value for parameter \"rxBufferSize\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"rxBufferSize\"!");
             return false;
         }
         if(priorityThread != receiverConfiguration.priorityThread){
-            PrintE("Ambiguous value for parameter \"priorityThread\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"priorityThread\"!");
             return false;
         }
         if(numBuffers != receiverConfiguration.numBuffers){
-            PrintE("Ambiguous value for parameter \"numBuffers\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"numBuffers\"!");
             return false;
         }
         if(bufferStrategy != receiverConfiguration.bufferStrategy){
-            PrintE("Ambiguous value for parameter \"bufferStrategy\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"bufferStrategy\"!");
             return false;
         }
         if((ipFilter[0] != receiverConfiguration.ipFilter[0]) || (ipFilter[1] != receiverConfiguration.ipFilter[1]) || (ipFilter[2] != receiverConfiguration.ipFilter[2]) || (ipFilter[3] != receiverConfiguration.ipFilter[3])){
-            PrintE("Ambiguous value for parameter \"ipFilter\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"ipFilter\"!");
             return false;
         }
         if(countAsDiscarded != receiverConfiguration.countAsDiscarded){
-            PrintE("Ambiguous value for parameter \"countAsDiscarded\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"countAsDiscarded\"!");
             return false;
         }
         if((multicast.group[0] != receiverConfiguration.multicast.group[0]) || (multicast.group[1] != receiverConfiguration.multicast.group[1]) || (multicast.group[2] != receiverConfiguration.multicast.group[2]) || (multicast.group[3] != receiverConfiguration.multicast.group[3])){
-            PrintE("Ambiguous value for parameter \"multicast.group\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.group\"!");
             return false;
         }
         if(multicast.interfaceJoinUseName != receiverConfiguration.multicast.interfaceJoinUseName){
-            PrintE("Ambiguous value for parameter \"multicast.interfaceJoinUseName\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.interfaceJoinUseName\"!");
             return false;
         }
         if(multicast.interfaceJoinUseName){
             if(multicast.interfaceJoinName.compare(receiverConfiguration.multicast.interfaceJoinName)){
-                PrintE("Ambiguous value for parameter \"multicast.interfaceJoinName\"!");
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.interfaceJoinName\"!");
                 return false;
             }
         }
         else{
             if((multicast.interfaceJoinIP[0] != receiverConfiguration.multicast.interfaceJoinIP[0]) || (multicast.interfaceJoinIP[1] != receiverConfiguration.multicast.interfaceJoinIP[1]) || (multicast.interfaceJoinIP[2] != receiverConfiguration.multicast.interfaceJoinIP[2]) || (multicast.interfaceJoinIP[3] != receiverConfiguration.multicast.interfaceJoinIP[3])){
-                PrintE("Ambiguous value for parameter \"multicast.interfaceJoinIP\"!");
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.interfaceJoinIP\"!");
                 return false;
             }
         }
@@ -591,7 +591,7 @@ bool UDPConfiguration::UpdateMulticastReceiverConfiguration(const UDPConfigurati
         // Check or set common properties
         if(senderPropertiesSet){
             if((multicast.group[0] != receiverConfiguration.multicast.group[0]) || (multicast.group[1] != receiverConfiguration.multicast.group[1]) || (multicast.group[2] != receiverConfiguration.multicast.group[2]) || (multicast.group[3] != receiverConfiguration.multicast.group[3])){
-                PrintE("Ambiguous value for parameter \"multicast.group\"!");
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.group\"!");
                 return false;
             }
         }
@@ -724,7 +724,7 @@ bool UDPElementBase::UpdateUnicastSenderConfiguration(const UDPConfiguration& se
 
 bool UDPElementBase::UpdateUnicastReceiverConfiguration(const UDPConfiguration& receiverConfiguration){
     if(configuration.receiverPropertiesSet){
-        PrintE("Multiple registration of a unicast receiver (port=%u)!\n",port);
+        GENERIC_TARGET_PRINT_ERROR("Multiple registration of a unicast receiver (port=%u)!\n",port);
         return false;
     }
     return configuration.UpdateUnicastReceiverConfiguration(receiverConfiguration);
@@ -736,7 +736,7 @@ bool UDPElementBase::UpdateMulticastSenderConfiguration(const UDPConfiguration& 
 
 bool UDPElementBase::UpdateMulticastReceiverConfiguration(const UDPConfiguration& receiverConfiguration){
     if(configuration.receiverPropertiesSet){
-        PrintE("Multiple registration of a multicast receiver (port=%u)!\n",port);
+        GENERIC_TARGET_PRINT_ERROR("Multiple registration of a multicast receiver (port=%u)!\n",port);
         return false;
     }
     return configuration.UpdateMulticastReceiverConfiguration(receiverConfiguration);
@@ -759,7 +759,7 @@ void UDPElementBase::Start(void){
     struct sched_param param;
     param.sched_priority = configuration.priorityThread;
     if(0 != pthread_setschedparam(workerThread.native_handle(), SCHED_FIFO, &param)){
-        PrintW("Could not set thread priority %d!\n", configuration.priorityThread);
+        GENERIC_TARGET_PRINT_WARNING("Could not set thread priority %d!\n", configuration.priorityThread);
     }
 }
 
@@ -920,7 +920,7 @@ int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
     if(!socket.Open()){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
-            PrintE("Could not open unicast UDP socket (port=%u)! %s\n", port, errorString.c_str());
+            GENERIC_TARGET_PRINT_ERROR("Could not open unicast UDP socket (port=%u)! %s\n", port, errorString.c_str());
         }
         return (previousErrorCode = errorCode);
     }
@@ -929,7 +929,7 @@ int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
     socket.ResetLastError();
     if(socket.AllowBroadcast(conf.allowBroadcast) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
-        PrintW("Could not set allow broadcast option for unicast UDP socket (port=%u)! %s\n", port, errorString.c_str());
+        GENERIC_TARGET_PRINT_WARNING("Could not set allow broadcast option for unicast UDP socket (port=%u)! %s\n", port, errorString.c_str());
     }
 
     // Set priority
@@ -939,7 +939,7 @@ int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
     if(socket.SetOption(SOL_SOCKET, SO_PRIORITY, &priority, sizeof(priority)) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
-            PrintE("Could not set socket priority %d for unicast UDP socket (port=%u)! %s\n", priority, port, errorString.c_str());
+            GENERIC_TARGET_PRINT_ERROR("Could not set socket priority %d for unicast UDP socket (port=%u)! %s\n", priority, port, errorString.c_str());
         }
         socket.Close();
         return (previousErrorCode = errorCode);
@@ -950,7 +950,7 @@ int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
     socket.ResetLastError();
     if(socket.ReusePort(true) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
-        PrintW("Could not set reuse port option for unicast UDP socket (port=%u)! %s\n", port, errorString.c_str());
+        GENERIC_TARGET_PRINT_WARNING("Could not set reuse port option for unicast UDP socket (port=%u)! %s\n", port, errorString.c_str());
     }
 
     // Bind the port
@@ -958,14 +958,14 @@ int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
     if(socket.Bind(port, conf.unicast.interfaceIP) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
-            PrintE("Could not bind port for unicast UDP socket (port=%u, interface=%u.%u.%u.%u)! %s\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], errorString.c_str());
+            GENERIC_TARGET_PRINT_ERROR("Could not bind port for unicast UDP socket (port=%u, interface=%u.%u.%u.%u)! %s\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], errorString.c_str());
         }
         socket.Close();
         return (previousErrorCode = errorCode);
     }
 
     // Success
-    Print("Opened unicast UDP socket (port=%u, interface=%u.%u.%u.%u, allowBroadcast=%u)\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], int(conf.allowBroadcast));
+    GENERIC_TARGET_PRINT("Opened unicast UDP socket (port=%u, interface=%u.%u.%u.%u, allowBroadcast=%u)\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], int(conf.allowBroadcast));
     return (previousErrorCode = 0);
 }
 
@@ -973,7 +973,7 @@ void UDPUnicastElement::TerminateSocket(const UDPConfiguration conf, bool verbos
     (void) conf;
     socket.Close();
     if(verbosePrint){
-        Print("Closed unicast UDP socket (port=%u, interface=%u.%u.%u.%u, allowBroadcast=%u)\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], int(conf.allowBroadcast));
+        GENERIC_TARGET_PRINT("Closed unicast UDP socket (port=%u, interface=%u.%u.%u.%u, allowBroadcast=%u)\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], int(conf.allowBroadcast));
     }
 }
 
@@ -983,7 +983,7 @@ int32_t UDPMulticastElement::InitializeSocket(const UDPConfiguration conf){
     if(!socket.Open()){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
-            PrintE("Could not open multicast UDP socket (port=%u)! %s\n", port, errorString.c_str());
+            GENERIC_TARGET_PRINT_ERROR("Could not open multicast UDP socket (port=%u)! %s\n", port, errorString.c_str());
         }
         return (previousErrorCode = errorCode);
     }
@@ -992,7 +992,7 @@ int32_t UDPMulticastElement::InitializeSocket(const UDPConfiguration conf){
     socket.ResetLastError();
     if(socket.AllowBroadcast(conf.allowBroadcast) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
-        PrintW("Could not set allow broadcast option for unicast UDP socket (port=%u)! %s\n", port, errorString.c_str());
+        GENERIC_TARGET_PRINT_WARNING("Could not set allow broadcast option for unicast UDP socket (port=%u)! %s\n", port, errorString.c_str());
     }
 
     // Set priority
@@ -1002,7 +1002,7 @@ int32_t UDPMulticastElement::InitializeSocket(const UDPConfiguration conf){
     if(socket.SetOption(SOL_SOCKET, SO_PRIORITY, &priority, sizeof(priority)) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
-            PrintE("Could not set socket priority %d for multicast UDP socket (port=%u)! %s\n", priority, port, errorString.c_str());
+            GENERIC_TARGET_PRINT_ERROR("Could not set socket priority %d for multicast UDP socket (port=%u)! %s\n", priority, port, errorString.c_str());
         }
         socket.Close();
         return (previousErrorCode = errorCode);
@@ -1013,7 +1013,7 @@ int32_t UDPMulticastElement::InitializeSocket(const UDPConfiguration conf){
     socket.ResetLastError();
     if(socket.ReusePort(true) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
-        PrintW("Could not set reuse port option for multicast UDP socket (port=%u)! %s\n", port, errorString.c_str());
+        GENERIC_TARGET_PRINT_WARNING("Could not set reuse port option for multicast UDP socket (port=%u)! %s\n", port, errorString.c_str());
     }
 
     // Bind the port (ALWAYS USE ANY INTERFACE!)
@@ -1021,7 +1021,7 @@ int32_t UDPMulticastElement::InitializeSocket(const UDPConfiguration conf){
     if(socket.Bind(port) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
-            PrintE("Could not bind port for multicast UDP socket (port=%u)! %s\n", port, errorString.c_str());
+            GENERIC_TARGET_PRINT_ERROR("Could not bind port for multicast UDP socket (port=%u)! %s\n", port, errorString.c_str());
         }
         socket.Close();
         return (previousErrorCode = errorCode);
@@ -1031,7 +1031,7 @@ int32_t UDPMulticastElement::InitializeSocket(const UDPConfiguration conf){
     socket.ResetLastError();
     if(socket.SetMulticastTTL(conf.multicast.ttl) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
-        PrintW("Could not set TTL %u for multicast UDP socket (port=%u)! %s\n", conf.multicast.ttl, port, errorString.c_str());
+        GENERIC_TARGET_PRINT_WARNING("Could not set TTL %u for multicast UDP socket (port=%u)! %s\n", conf.multicast.ttl, port, errorString.c_str());
     }
 
     // Set multicast interface for outgoing traffic
@@ -1040,10 +1040,10 @@ int32_t UDPMulticastElement::InitializeSocket(const UDPConfiguration conf){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
             if(conf.multicast.interfaceSendUseName){
-                PrintE("Could not set multicast interface \"%s\" for outgoing traffic (port=%u)! %s\n", conf.multicast.interfaceSendName.c_str(), port, errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Could not set multicast interface \"%s\" for outgoing traffic (port=%u)! %s\n", conf.multicast.interfaceSendName.c_str(), port, errorString.c_str());
             }
             else{
-                PrintE("Could not set multicast interface %u.%u.%u.%u for outgoing traffic (port=%u)! %s\n", conf.multicast.interfaceSendIP[0], conf.multicast.interfaceSendIP[1], conf.multicast.interfaceSendIP[2], conf.multicast.interfaceSendIP[3], port, errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Could not set multicast interface %u.%u.%u.%u for outgoing traffic (port=%u)! %s\n", conf.multicast.interfaceSendIP[0], conf.multicast.interfaceSendIP[1], conf.multicast.interfaceSendIP[2], conf.multicast.interfaceSendIP[3], port, errorString.c_str());
             }
         }
         socket.Close();
@@ -1056,10 +1056,10 @@ int32_t UDPMulticastElement::InitializeSocket(const UDPConfiguration conf){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
             if(conf.multicast.interfaceJoinUseName){
-                PrintE("Could not join multicast group %u.%u.%u.%u at interface \"%s\" (port=%u)! %s\n", conf.multicast.group[0], conf.multicast.group[1], conf.multicast.group[2], conf.multicast.group[3], conf.multicast.interfaceJoinName.c_str(), port, errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Could not join multicast group %u.%u.%u.%u at interface \"%s\" (port=%u)! %s\n", conf.multicast.group[0], conf.multicast.group[1], conf.multicast.group[2], conf.multicast.group[3], conf.multicast.interfaceJoinName.c_str(), port, errorString.c_str());
             }
             else{
-                PrintE("Could not join multicast group %u.%u.%u.%u at interface %u.%u.%u.%u (port=%u)! %s\n", conf.multicast.group[0], conf.multicast.group[1], conf.multicast.group[2], conf.multicast.group[3], conf.multicast.interfaceJoinIP[0], conf.multicast.interfaceJoinIP[1], conf.multicast.interfaceJoinIP[2], conf.multicast.interfaceJoinIP[3], port, errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Could not join multicast group %u.%u.%u.%u at interface %u.%u.%u.%u (port=%u)! %s\n", conf.multicast.group[0], conf.multicast.group[1], conf.multicast.group[2], conf.multicast.group[3], conf.multicast.interfaceJoinIP[0], conf.multicast.interfaceJoinIP[1], conf.multicast.interfaceJoinIP[2], conf.multicast.interfaceJoinIP[3], port, errorString.c_str());
             }
         }
         socket.Close();
@@ -1075,7 +1075,7 @@ int32_t UDPMulticastElement::InitializeSocket(const UDPConfiguration conf){
     if(!conf.multicast.interfaceSendUseName){
         strSend = std::to_string(conf.multicast.interfaceSendIP[0]) + "." + std::to_string(conf.multicast.interfaceSendIP[1]) + "." + std::to_string(conf.multicast.interfaceSendIP[2]) + "." + std::to_string(conf.multicast.interfaceSendIP[3]);
     }
-    Print("Opened multicast UDP socket (port=%u, group=%u.%u.%u.%u, ttl=%u, interfaceJoin=%s, interfaceSend=%s, allowBroadcast=%u)\n", port, conf.multicast.group[0], conf.multicast.group[1], conf.multicast.group[2], conf.multicast.group[3], conf.multicast.ttl, strJoin.c_str(), strSend.c_str(), int(conf.allowBroadcast));
+    GENERIC_TARGET_PRINT("Opened multicast UDP socket (port=%u, group=%u.%u.%u.%u, ttl=%u, interfaceJoin=%s, interfaceSend=%s, allowBroadcast=%u)\n", port, conf.multicast.group[0], conf.multicast.group[1], conf.multicast.group[2], conf.multicast.group[3], conf.multicast.ttl, strJoin.c_str(), strSend.c_str(), int(conf.allowBroadcast));
     return (previousErrorCode = 0);
 }
 
@@ -1091,7 +1091,7 @@ void UDPMulticastElement::TerminateSocket(const UDPConfiguration conf, bool verb
         if(!conf.multicast.interfaceSendUseName){
             strSend = std::to_string(conf.multicast.interfaceSendIP[0]) + "." + std::to_string(conf.multicast.interfaceSendIP[1]) + "." + std::to_string(conf.multicast.interfaceSendIP[2]) + "." + std::to_string(conf.multicast.interfaceSendIP[3]);
         }
-        Print("Closed multicast UDP socket (port=%u, group=%u.%u.%u.%u, ttl=%u, interfaceJoin=%s, interfaceSend=%s, allowBroadcast=%u)\n", port, conf.multicast.group[0], conf.multicast.group[1], conf.multicast.group[2], conf.multicast.group[3], conf.multicast.ttl, strJoin.c_str(), strSend.c_str(), int(conf.allowBroadcast));
+        GENERIC_TARGET_PRINT("Closed multicast UDP socket (port=%u, group=%u.%u.%u.%u, ttl=%u, interfaceJoin=%s, interfaceSend=%s, allowBroadcast=%u)\n", port, conf.multicast.group[0], conf.multicast.group[1], conf.multicast.group[2], conf.multicast.group[3], conf.multicast.ttl, strJoin.c_str(), strSend.c_str(), int(conf.allowBroadcast));
     }
 }
 
@@ -1105,7 +1105,7 @@ void UDPUnicastManager::RegisterSender(const uint16_t port, const UDPConfigurati
     mtx.lock();
     if(created){
         mtx.unlock();
-        PrintW("Cannot register UDP socket (port=%d) because socket creation was already done!\n", port);
+        GENERIC_TARGET_PRINT_WARNING("Cannot register UDP socket (port=%d) because socket creation was already done!\n", port);
         return;
     }
 
@@ -1133,7 +1133,7 @@ void UDPUnicastManager::RegisterReceiver(const uint16_t port, const UDPConfigura
     mtx.lock();
     if(created){
         mtx.unlock();
-        PrintW("Cannot register UDP socket (port=%d) because socket creation was already done!\n", port);
+        GENERIC_TARGET_PRINT_WARNING("Cannot register UDP socket (port=%d) because socket creation was already done!\n", port);
         return;
     }
 
@@ -1213,7 +1213,7 @@ void UDPMulticastManager::RegisterSender(const uint16_t port, const UDPConfigura
     mtx.lock();
     if(created){
         mtx.unlock();
-        PrintW("Cannot register UDP socket (port=%d) because socket creation was already done!\n", port);
+        GENERIC_TARGET_PRINT_WARNING("Cannot register UDP socket (port=%d) because socket creation was already done!\n", port);
         return;
     }
 
@@ -1241,7 +1241,7 @@ void UDPMulticastManager::RegisterReceiver(const uint16_t port, const UDPConfigu
     mtx.lock();
     if(created){
         mtx.unlock();
-        PrintW("Cannot register UDP socket (port=%d) because socket creation was already done!\n", port);
+        GENERIC_TARGET_PRINT_WARNING("Cannot register UDP socket (port=%d) because socket creation was already done!\n", port);
         return;
     }
 

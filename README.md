@@ -39,7 +39,7 @@ The directory structure of this repository is as follows.
 | 2023-05-26  | 2.1      | Renamed target execution time to model execution time. Updated directory names.                                                                                               |
 | 2023-07-26  | 2.2      | Updated deployment procedure and target directory structure. Data recordings can be named. Additional compiler flags can be set. Target can be started on specific CPU cores. |
 | 2023-10-04  | 2.3      | Added support for UDP broadcast. Network interface names can now be used to specify multicast interfaces.                                                                     |
-
+| 2023-11-21  | 2.4      | Enabled option supportsMultipleExecInstances for simulink blocks. Added prefixes to prevent name collision with user code.                                                    |
 
 ## How To Start
 Look at the HTML-based documentation by opening the ``readme.html`` file with a browser. There you will find a more

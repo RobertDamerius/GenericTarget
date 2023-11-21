@@ -1,6 +1,6 @@
 #include "GT_DriverUDPUnicastSend.hpp"
 #if defined(GENERIC_TARGET_IMPLEMENTATION)
-    #include <GenericTarget/GenericTarget.hpp>
+    #include <GenericTarget/GT_GenericTarget.hpp>
 #elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
     #include "GT_SimulinkSupport.hpp"
     static gt_simulink_support::UDPUnicastManager udpUnicastManager;

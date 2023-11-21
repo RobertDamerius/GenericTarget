@@ -1,6 +1,6 @@
 #include "GT_DriverNumTaskOverloads.hpp"
 #if defined(GENERIC_TARGET_IMPLEMENTATION)
-    #include <GenericTarget/GenericTarget.hpp>
+    #include <GenericTarget/GT_GenericTarget.hpp>
     #include <SimulinkCodeGeneration/SimulinkInterface.hpp>
 #elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
     #include "GT_SimulinkSupport.hpp"

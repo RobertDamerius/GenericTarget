@@ -4,7 +4,7 @@
 %%   Simulink Coder TLC Code Generation file for SFunctionGTDriverTaskExecutionTime
 %% 
 %% Simulink version      : 10.6 (R2022b) 13-May-2022
-%% TLC file generated on : 06-Oct-2023 10:52:07
+%% TLC file generated on : 21-Nov-2023 22:12:18
 
 /%
      %%%-MATLAB_Construction_Commands_Start
@@ -18,6 +18,7 @@
      def.SampleTime = 'parameterized';
      def.Options.useTlcWithAccel = false;
      def.Options.language = 'C++';
+     def.Options.supportsMultipleExecInstances = true;
      legacy_code('sfcn_tlc_generate', def);
      %%%-MATLAB_Construction_Commands_End
 %/

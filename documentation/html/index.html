@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20231004</div>
+<div class="header_version">Version 20231121</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -173,6 +173,10 @@
     This is necessary because the generic target framework has its own main entry function.
     Since it is not distinguished whether the expressions are in a comment, there is thus the danger that also unintentionally files are removed, which contain these expressions e.g. only in comments or strings.
     Therefore, avoid the use of the keywork main when developing a software.
+    <br>
+    <h3>Avoid keyword "DEBUG"</h3>
+    If the application is built in DEBUG mode, the C macro <code>DEBUG</code> is set.
+    Therefore, no names should be selected that lead to variable names with <code>DEBUG</code> in the code generation, for example.
     <br>
     <h3>Avoid console outputs</h3>
     The console output of the target application is redirected to a text file by default at startup.

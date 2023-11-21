@@ -22,6 +22,7 @@ def.LibPaths      = {''};
 def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
+def.Options.supportsMultipleExecInstances = true;
 def.SampleTime = 'parameterized';
 defs = [defs; def];
 
@@ -42,6 +43,7 @@ def.LibPaths      = {''};
 def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
+def.Options.supportsMultipleExecInstances = true;
 def.SampleTime = 'parameterized';
 defs = [defs; def];
 
@@ -62,6 +64,7 @@ def.LibPaths      = {''};
 def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
+def.Options.supportsMultipleExecInstances = true;
 def.SampleTime = 'parameterized';
 defs = [defs; def];
 
@@ -82,6 +85,7 @@ def.LibPaths      = {''};
 def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
+def.Options.supportsMultipleExecInstances = true;
 def.SampleTime = 'parameterized';
 defs = [defs; def];
 
@@ -102,6 +106,7 @@ def.LibPaths      = {''};
 def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
+def.Options.supportsMultipleExecInstances = true;
 def.SampleTime = 'parameterized';
 defs = [defs; def];
 
@@ -122,6 +127,7 @@ def.LibPaths      = {''};
 def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
+def.Options.supportsMultipleExecInstances = true;
 def.SampleTime = 'parameterized';
 defs = [defs; def];
 
@@ -142,6 +148,7 @@ def.LibPaths      = {''};
 def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
+def.Options.supportsMultipleExecInstances = true;
 def.SampleTime = 'parameterized';
 defs = [defs; def];
 
@@ -162,6 +169,7 @@ def.LibPaths      = {''};
 def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
+def.Options.supportsMultipleExecInstances = true;
 def.SampleTime = 'parameterized';
 defs = [defs; def];
 
@@ -182,6 +190,7 @@ def.LibPaths      = {''};
 def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
+def.Options.supportsMultipleExecInstances = true;
 def.SampleTime = 'parameterized';
 defs = [defs; def];
 
@@ -202,6 +211,7 @@ def.LibPaths      = {''};
 def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
+def.Options.supportsMultipleExecInstances = true;
 def.SampleTime = 'parameterized';
 defs = [defs; def];
 
@@ -222,6 +232,7 @@ def.LibPaths      = {''};
 def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
+def.Options.supportsMultipleExecInstances = true;
 def.SampleTime = 'parameterized';
 defs = [defs; def];
 
@@ -242,6 +253,7 @@ def.LibPaths      = {''};
 def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
+def.Options.supportsMultipleExecInstances = true;
 def.SampleTime = 'parameterized';
 defs = [defs; def];
 
@@ -262,6 +274,7 @@ def.LibPaths      = {''};
 def.HostLibFiles  = {''};
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
+def.Options.supportsMultipleExecInstances = true;
 def.SampleTime = 'parameterized';
 defs = [defs; def];
 
