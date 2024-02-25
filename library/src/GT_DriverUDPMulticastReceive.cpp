@@ -40,6 +40,7 @@ void GT_DriverUDPMulticastReceiveInitialize(uint16_t port, uint8_t* ipGroup, uin
         conf.countAsDiscarded = static_cast<bool>(countAsDiscarded);
         gt::GenericTarget::udpMulticastManager.RegisterReceiver(port, conf);
     #elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
+        gt_simulink_support::GenericTarget::InitializeNetworkOnWindows();
         gt_simulink_support::UDPConfiguration conf;
         conf.multicast.group[0] = ipGroup[0];
         conf.multicast.group[1] = ipGroup[1];
@@ -88,6 +89,7 @@ void GT_DriverUDPMulticastReceiveInitialize(uint16_t port, uint8_t* ipGroup, uin
 void GT_DriverUDPMulticastReceiveTerminate(void){
     #if defined(GENERIC_TARGET_SIMULINK_SUPPORT)
         udpMulticastManager.Destroy();
+        gt_simulink_support::GenericTarget::TerminateNetworkOnWindows();
     #endif
 }
 

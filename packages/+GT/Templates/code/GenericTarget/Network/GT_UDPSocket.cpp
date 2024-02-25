@@ -151,10 +151,11 @@ int32_t UDPSocket::ReceiveFrom(Address& source, uint8_t *bytes, int32_t maxSize)
 int32_t UDPSocket::SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName, bool useInterfaceName){
     #ifdef _WIN32
     struct ip_mreq mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
+    return SetOption(IPPROTO_IP, IP_MULTICAST_IF, (const void*) &mreq.imr_interface, sizeof(mreq.imr_interface));
     #else
     struct ip_mreqn mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
-    #endif
     return SetOption(IPPROTO_IP, IP_MULTICAST_IF, (const void*) &mreq, sizeof(mreq));
+    #endif
 }
 
 int32_t UDPSocket::JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName, bool useInterfaceName){
@@ -226,16 +227,10 @@ struct ip_mreq UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, co
         sprintf(&strInterface[0], "%u.%u.%u.%u", ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]);
     }
 
-    // Pointer to the interface IP string (nullptr indicates default value: INADDR_ANY)
-    char *ip = nullptr;
-    if(ipInterface[0] || ipInterface[1] || ipInterface[2] || ipInterface[3]){
-        ip = &strInterface[0];
-    }
-
     // Create structure
     struct ip_mreq result;
     result.imr_multiaddr.s_addr = inet_addr(strGroup);
-    result.imr_interface.s_addr = ip ? inet_addr(ip) : htonl(INADDR_ANY);
+    result.imr_interface.s_addr = inet_addr(strInterface);
     return result;
 }
 #else

@@ -9,6 +9,17 @@ using namespace gt_simulink_support;
 
 // Helper macros for printing
 static void __gt_simulink_support_print(const char* format, ...){
+    // for debugging purpose:
+    // FILE *fp = fopen("debug.txt","at");
+    // if(fp){
+    //     va_list argptr;
+    //     va_start(argptr, format);
+    //     vfprintf(fp, format, argptr);
+    //     va_end(argptr);
+    //     fflush(fp);
+    //     fclose(fp);
+    // }
+
     va_list argptr;
     va_start(argptr, format);
     vfprintf(stderr, format, argptr);
@@ -17,6 +28,18 @@ static void __gt_simulink_support_print(const char* format, ...){
 }
 
 static void __gt_simulink_support_print_verbose(const char c, const char* file, const int line, const char* func, const char* format, ...){
+    // for debugging purpose:
+    // FILE *fp = fopen("debug.txt","at");
+    // if(fp){
+    //     fprintf(fp,"%c %s:%d in %s(): ", c, file, line, func);
+    //     va_list argptr;
+    //     va_start(argptr, format);
+    //     vfprintf(fp, format, argptr);
+    //     va_end(argptr);
+    //     fflush(fp);
+    //     fclose(fp);
+    // }
+
     fprintf(stderr,"%c %s:%d in %s(): ", c, file, line, func);
     va_list argptr;
     va_start(argptr, format);
@@ -58,7 +81,7 @@ static WSADATA _wsadata;
 std::chrono::time_point<std::chrono::steady_clock> GenericTarget::timePointOfStart = std::chrono::steady_clock::now();
 
 
-void InitializeNetworkOnWindows(void){
+void GenericTarget::InitializeNetworkOnWindows(void){
     #ifdef _WIN32
     if((WSAStartup(MAKEWORD(2, 2), &_wsadata)) || (LOBYTE(_wsadata.wVersion) != 2) || (HIBYTE(_wsadata.wVersion) != 2)){
         fprintf(stderr,"ERROR: WSAStartup(2,2) failed! Could not setup network for windows OS!\n");
@@ -66,7 +89,7 @@ void InitializeNetworkOnWindows(void){
     #endif
 }
 
-void TerminateNetworkOnWindows(void){
+void GenericTarget::TerminateNetworkOnWindows(void){
     #ifdef _WIN32
     WSACleanup();
     #endif
@@ -235,10 +258,11 @@ int32_t UDPSocket::ReceiveFrom(Address& source, uint8_t *bytes, int32_t maxSize)
 int32_t UDPSocket::SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName, bool useInterfaceName){
     #ifdef _WIN32
     struct ip_mreq mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
+    return SetOption(IPPROTO_IP, IP_MULTICAST_IF, (const void*) &mreq.imr_interface, sizeof(mreq.imr_interface));
     #else
     struct ip_mreqn mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
-    #endif
     return SetOption(IPPROTO_IP, IP_MULTICAST_IF, (const void*) &mreq, sizeof(mreq));
+    #endif
 }
 
 int32_t UDPSocket::JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName, bool useInterfaceName){
@@ -310,16 +334,10 @@ struct ip_mreq UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, co
         sprintf(&strInterface[0], "%u.%u.%u.%u", ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]);
     }
 
-    // Pointer to the interface IP string (nullptr indicates default value: INADDR_ANY)
-    char *ip = nullptr;
-    if(ipInterface[0] || ipInterface[1] || ipInterface[2] || ipInterface[3]){
-        ip = &strInterface[0];
-    }
-
     // Create structure
     struct ip_mreq result;
     result.imr_multiaddr.s_addr = inet_addr(strGroup);
-    result.imr_interface.s_addr = ip ? inet_addr(ip) : htonl(INADDR_ANY);
+    result.imr_interface.s_addr = inet_addr(strInterface);
     return result;
 }
 #else

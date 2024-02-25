@@ -19,6 +19,7 @@ void GT_DriverUDPUnicastSendInitialize(uint16_t port, uint8_t* interfaceIP, int3
         conf.allowBroadcast = static_cast<bool>(allowBroadcast);
         gt::GenericTarget::udpUnicastManager.RegisterSender(port, conf);
     #elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
+        gt_simulink_support::GenericTarget::InitializeNetworkOnWindows();
         gt_simulink_support::UDPConfiguration conf;
         conf.unicast.interfaceIP[0] = interfaceIP[0];
         conf.unicast.interfaceIP[1] = interfaceIP[1];
@@ -40,6 +41,7 @@ void GT_DriverUDPUnicastSendInitialize(uint16_t port, uint8_t* interfaceIP, int3
 void GT_DriverUDPUnicastSendTerminate(void){
     #if defined(GENERIC_TARGET_SIMULINK_SUPPORT)
         udpUnicastManager.Destroy();
+        gt_simulink_support::GenericTarget::TerminateNetworkOnWindows();
     #endif
 }
 

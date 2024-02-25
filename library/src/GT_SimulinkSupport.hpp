@@ -62,17 +62,6 @@ namespace gt_simulink_support {
 
 
 /**
- * @brief Initialize the network on windows. This is required to use sockets on windows.
- */
-void InitializeNetworkOnWindows(void);
-
-/**
- * @brief Terminate the network on windows. This is the counter part of @ref InitializeNetworkOnWindows.
- */
-void TerminateNetworkOnWindows(void);
-
-
-/**
  * @brief Fake the generic target class with some static member functions.
  */
 class GenericTarget {
@@ -87,6 +76,16 @@ class GenericTarget {
          * @return model execution time in seconds.
          */
         static double GetModelExecutionTime(void);
+
+        /**
+         * @brief Initialize the network on windows. This is required to use sockets on windows.
+         */
+        static void InitializeNetworkOnWindows(void);
+
+        /**
+         * @brief Terminate the network on windows. This is the counter part of @ref InitializeNetworkOnWindows.
+         */
+        static void TerminateNetworkOnWindows(void);
 
     private:
         static std::chrono::time_point<std::chrono::steady_clock> timePointOfStart;

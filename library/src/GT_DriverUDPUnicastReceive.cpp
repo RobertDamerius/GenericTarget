@@ -28,6 +28,7 @@ void GT_DriverUDPUnicastReceiveInitialize(uint16_t port, uint8_t* interfaceIP, u
         conf.unicast.interfaceIP[3] = interfaceIP[3];
         gt::GenericTarget::udpUnicastManager.RegisterReceiver(port, conf);
     #elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
+        gt_simulink_support::GenericTarget::InitializeNetworkOnWindows();
         gt_simulink_support::UDPConfiguration conf;
         conf.rxBufferSize = rxBufferSize;
         conf.priorityThread = priorityThread;
@@ -60,6 +61,7 @@ void GT_DriverUDPUnicastReceiveInitialize(uint16_t port, uint8_t* interfaceIP, u
 void GT_DriverUDPUnicastReceiveTerminate(void){
     #if defined(GENERIC_TARGET_SIMULINK_SUPPORT)
         udpUnicastManager.Destroy();
+        gt_simulink_support::GenericTarget::TerminateNetworkOnWindows();
     #endif
 }
 
