@@ -1,4 +1,4 @@
-![](doc/img/icon.svg)
+![](documentation/img/icon.svg)
 
 # Generic Target
 
