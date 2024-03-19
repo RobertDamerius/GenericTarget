@@ -254,6 +254,13 @@ class UDPSocket {
         int32_t Bind(uint16_t port, std::array<uint8_t,4> ipInterface = {0,0,0,0});
 
         /**
+         * @brief Bind the socket to a specific network device (linux only).
+         * @param [in] deviceName The name of the network device to be used for this socket.
+         * @return If no error occurs, zero is returned. On windows, always zero is returned.
+         */
+        int32_t BindToDevice(std::string deviceName);
+
+        /**
          * @brief Set socket options using the setsockopt() function.
          * @param [in] level The level at which the option is defined (for example, SOL_SOCKET).
          * @param [in] optname The socket option for which the value is to be set (for example, SO_BROADCAST).
@@ -406,6 +413,8 @@ class UDPConfiguration {
         /* Specific configuration for unicast */
         struct {
             std::array<uint8_t,4> interfaceIP;       ///< [RX/TX] IPv4 address of the interface that should be used. If {0,0,0,0} is set, any interface is used.
+            bool bindToDevice;                       ///< [RX/TX] True if the socket should be bound to a specific network device.
+            std::string deviceName;                  ///< [RX/TX] The device name to which the socket should be bound, if bindToDevice is set to true.
         } unicast;
 
         /* Specific configuration for multicast */

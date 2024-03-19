@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20231121</div>
+<div class="header_version">Version 20240319</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -82,6 +82,8 @@
 
     <a name="step1"></a>
     <h2>Step 1: Install Linux OS</h2>
+    It is recommended to use Debian, as this distribution is widely used and maintained and at the same time the realtime patch can be installed very easily via a single command.
+    However, any other Linux distribution can also be used.
     Download a linux distribution of your choice and follow the instructions.
     Usually you need to create a bootable USB stick and boot from it.
     If available, the option to only do a minimal installation should be selected - without office applications and games.
@@ -91,22 +93,35 @@
 
     <a name="step2"></a>
     <h2>Step 2: Configure Linux</h2>
+    At the beginning you can adjust basic settings.
+    For example, the energy saving setting should be adjusted so that the computer does not automatically switch to standby mode.
     If your linux distribution does not come with <code>sudo</code>, then you have to install it. <code>sudo</code> is required to run
     application with administrator privileges.
-    Connect the target to the internet and update the package database.
-    <pre>sudo apt update</pre>
-    If there're updates available, run
-    <pre>sudo apt upgrade</pre>
-    At the beginning you can adjust basic settings.
-    The user account should be set so that the user logs in automatically.
-    Furthermore, the energy saving setting should be adjusted so that the computer does not automatically switch to standby mode.
 
-        <h3>Configure sudo</h3>
+        <h3>Install and configure sudo</h3>
+        To install sudo, open a terminal and run
+        <pre>su -l</pre>
+        <pre>apt install sudo</pre>
+        <pre>adduser UserName sudo</pre>
+        where <code>UserName</code> is the user name of the computer.
+        Afterwards reboot the system.
         In order to execute sudo commands via SSH without password request, edit the sudoers file for example with the nano editor by running
         <pre>sudo nano /etc/sudoers</pre>
         The line starting with "%sudo" must look like this
         <pre>%sudo   ALL=(ALL:ALL) NOPASSWD: ALL</pre>
         Save and close the file.
+
+        <h3>Update path</h3>
+        On some distributions like Debian, some command line executables are not in the path by default.
+        Add those folders to the path variable by
+        <pre>export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin</pre>
+        and reboot the system.
+
+        <h3>Update system</h3>
+        Connect the target to the internet and update the package database.
+        <pre>sudo apt update</pre>
+        If there're updates available, run
+        <pre>sudo apt upgrade</pre>
 
         <h3>Install PREEMPT_RT patch</h3>
         The installation of the realtime kernel patch depends on the linux distribution used.
@@ -115,7 +130,13 @@
         <pre>sudo apt install linux-image-rt-amd64</pre>
         After the new kernel has been installed, reboot the machine.
         To check if the realtime kernel is active, open a terminal and type <code>uname -a</code>.
-        You should see something with "SMP PREEMPT RT".
+        You should see something with "SMP PREEMPT_RT".
+
+        <h3>Configure network buffers</h3>
+        By default the network buffers for sending and receiving messages are limited to a fairly small value of about 100 KB or 200 KB depending on the distribution.
+        To increase the maximum size of those buffers to 36 MB for each socket that is being created, run
+        <pre>sudo sysctl -w net.core.rmem_max=33554432</pre>
+        <pre>sudo sysctl -w net.core.wmem_max=33554432</pre>
 
         <h3>Install C++ Compiler + Tools</h3>
         Install the GNU compiler, build tools and C++ libraries with
@@ -235,7 +256,7 @@
     Once changes are made, update the bootloader via
     <pre>sudo update-grub</pre>
     The actual bootoptions that can be made may depend on the GRUB version and on the operating system.
-    
+
     <h3>Isolating CPU cores</h3>
     The target application can be pinned to specific CPU cores.
     Via the GRUB bootloader menu, CPU cores can be isolated with the <code>isolcpus</code> option, which are then not occupied by operating system processes.

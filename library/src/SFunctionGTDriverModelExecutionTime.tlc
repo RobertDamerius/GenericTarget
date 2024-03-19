@@ -3,8 +3,8 @@
 %% Description:
 %%   Simulink Coder TLC Code Generation file for SFunctionGTDriverModelExecutionTime
 %% 
-%% Simulink version      : 10.6 (R2022b) 13-May-2022
-%% TLC file generated on : 25-Feb-2024 23:01:01
+%% Simulink version      : 23.2 (R2023b) 01-Aug-2023
+%% TLC file generated on : 19-Mar-2024 21:38:05
 
 /%
      %%%-MATLAB_Construction_Commands_Start
@@ -60,14 +60,11 @@
         #ifdef MATLAB_MEX_FILE
         #include "tmwtypes.h"
         #else
-        #include "rtwtypes.h"
+        %<LibEmitPlatformTypeIncludes()>
         #endif
         
         
 
-        extern void SFunctionGTDriverModelExecutionTime_wrapper_Start(void);
-        extern void SFunctionGTDriverModelExecutionTime_wrapper_Output( real_T* y1);
-        extern void SFunctionGTDriverModelExecutionTime_wrapper_Terminate(void);
         
         #endif
         
@@ -80,7 +77,7 @@
         #ifdef MATLAB_MEX_FILE
         #include "tmwtypes.h"
         #else
-        #include "rtwtypes.h"
+        %<LibEmitPlatformTypeIncludes()>
         #endif
 
         #include "GT_DriverModelExecutionTime.hpp"
@@ -89,36 +86,6 @@
         extern "C" {
         %endif
         
-        %if IsModelReferenceSimTarget() && !::GenCPP
-        }
-        %endif
-
-        %if IsModelReferenceSimTarget() && !::GenCPP
-        extern "C" {
-        %endif
-        void SFunctionGTDriverModelExecutionTime_wrapper_Start(void) {
-            GT_DriverModelExecutionTimeInitialize();
-        }
-        %if IsModelReferenceSimTarget() && !::GenCPP
-        }
-        %endif
-
-        %if IsModelReferenceSimTarget() && !::GenCPP
-        extern "C" {
-        %endif
-        void SFunctionGTDriverModelExecutionTime_wrapper_Output( real_T* y1) {
-            GT_DriverModelExecutionTimeStep(y1);
-        }
-        %if IsModelReferenceSimTarget() && !::GenCPP
-        }
-        %endif
-
-        %if IsModelReferenceSimTarget() && !::GenCPP
-        extern "C" {
-        %endif
-        void SFunctionGTDriverModelExecutionTime_wrapper_Terminate(void) {
-            GT_DriverModelExecutionTimeTerminate();
-        }
         %if IsModelReferenceSimTarget() && !::GenCPP
         }
         %endif
@@ -140,7 +107,81 @@
 
 %% Function: BlockInstanceSetup ===========================================
 %function BlockInstanceSetup (block, system) void
+    %assign doubleType = LibGetDataTypeNameFromId(::CompiledModel.tSS_DOUBLE)
     %if IsModelReferenceSimTarget() || CodeFormat=="S-Function" || ::isRAccel
+        %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
+        %assign hFileName = FcnGenerateUniqueFileName("SFunctionGTDriverModelExecutionTime_wrapper_%<sfunInstanceName>", "header")
+        %assign hFileNameMacro = FEVAL("upper", hFileName)
+        %openfile hFile = "%<hFileName>.h"
+        %selectfile hFile
+        #ifndef _%<hFileNameMacro>_H_
+        #define _%<hFileNameMacro>_H_
+        
+        #ifdef MATLAB_MEX_FILE
+        #include "tmwtypes.h"
+        #else
+        %<LibEmitPlatformTypeIncludes()>
+        #endif
+        
+        extern void SFunctionGTDriverModelExecutionTime_wrapper_Start_%<sfunInstanceName>(void);
+        extern void SFunctionGTDriverModelExecutionTime_wrapper_Output_%<sfunInstanceName>( %<doubleType>* y1);
+        extern void SFunctionGTDriverModelExecutionTime_wrapper_Terminate_%<sfunInstanceName>(void);
+        
+        #endif
+        
+        %closefile hFile
+        
+        %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
+        %assign cFileName = FcnGenerateUniqueFileName("SFunctionGTDriverModelExecutionTime_wrapper_%<sfunInstanceName>", "source")
+        %openfile cFile = "%<cFileName>.cpp"
+        %selectfile cFile
+        #include <string.h>
+        #ifdef MATLAB_MEX_FILE
+        #include "tmwtypes.h"
+        #else
+        %<LibEmitPlatformTypeIncludes()>
+        #endif
+
+        #include "GT_DriverModelExecutionTime.hpp"
+
+        %if IsModelReferenceSimTarget() && !::GenCPP
+        extern "C" {
+        %endif
+        void SFunctionGTDriverModelExecutionTime_wrapper_Start_%<sfunInstanceName>(void) {
+            GT_DriverModelExecutionTimeInitialize();
+        }
+        %if IsModelReferenceSimTarget() && !::GenCPP
+        }
+        %endif
+
+        %if IsModelReferenceSimTarget() && !::GenCPP
+        extern "C" {
+        %endif
+        void SFunctionGTDriverModelExecutionTime_wrapper_Output_%<sfunInstanceName>( %<doubleType>* y1) {
+            GT_DriverModelExecutionTimeStep(y1);
+        }
+        %if IsModelReferenceSimTarget() && !::GenCPP
+        }
+        %endif
+
+        %if IsModelReferenceSimTarget() && !::GenCPP
+        extern "C" {
+        %endif
+        void SFunctionGTDriverModelExecutionTime_wrapper_Terminate_%<sfunInstanceName>(void) {
+            GT_DriverModelExecutionTimeTerminate();
+        }
+        %if IsModelReferenceSimTarget() && !::GenCPP
+        }
+        %endif
+
+        %closefile cFile
+
+        %<LibAddToCommonIncludes("%<hFileName>.h")>
+        %if IsModelReferenceSimTarget()
+            %<SLibAddToStaticSources("%<cFileName>.cpp")>
+        %else
+            %<LibAddToModelSources("%<cFileName>")>
+        %endif
     %else
         %<LibBlockSetIsExpressionCompliant(block)>
     %endif
@@ -151,7 +192,11 @@
     %if IsModelReferenceSimTarget() || CodeFormat=="S-Function" || ::isRAccel
         %% 
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
-        SFunctionGTDriverModelExecutionTime_wrapper_Start();
+        {
+            %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
+            SFunctionGTDriverModelExecutionTime_wrapper_Start_%<sfunInstanceName>();
+        
+        }
     %else
         %% 
         GT_DriverModelExecutionTimeInitialize();
@@ -164,7 +209,11 @@
         %assign y1_ptr = LibBlockOutputSignalAddr(0, "", "", 0)
         %% 
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
-        SFunctionGTDriverModelExecutionTime_wrapper_Output(%<y1_ptr>);
+        {
+            %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
+            SFunctionGTDriverModelExecutionTime_wrapper_Output_%<sfunInstanceName>(%<y1_ptr>);
+        
+        }
     %else
         %assign y1_ptr = LibBlockOutputSignalAddr(0, "", "", 0)
         %% 
@@ -177,7 +226,11 @@
     %if IsModelReferenceSimTarget() || CodeFormat=="S-Function" || ::isRAccel
         %% 
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
-        SFunctionGTDriverModelExecutionTime_wrapper_Terminate();
+        {
+            %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
+            SFunctionGTDriverModelExecutionTime_wrapper_Terminate_%<sfunInstanceName>();
+        
+        }
     %else
         %% 
         GT_DriverModelExecutionTimeTerminate();

@@ -83,6 +83,18 @@ int32_t UDPSocket::Bind(uint16_t port, std::array<uint8_t,4> ipInterface){
     return static_cast<int32_t>(bind(s, (struct sockaddr *)&addr_this, sizeof(struct sockaddr_in)));
 }
 
+int32_t UDPSocket::BindToDevice(std::string deviceName){
+    #ifdef _WIN32
+    (void)deviceName;
+    return 0;
+    #else
+    struct ifreq ifr;
+    std::memset(ifr.ifr_name, 0, sizeof(ifr.ifr_name));
+    snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), deviceName.c_str());
+    return SetOption(SOL_SOCKET, SO_BINDTODEVICE, (const void*)&ifr, sizeof(ifr));;
+    #endif
+}
+
 int UDPSocket::SetOption(int level, int optname, const void *optval, int optlen){
     #ifdef _WIN32
     return static_cast<int32_t>(setsockopt(_socket, level, optname, reinterpret_cast<const char*>(optval), optlen));

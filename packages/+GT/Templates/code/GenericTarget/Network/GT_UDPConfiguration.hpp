@@ -37,6 +37,8 @@ class UDPConfiguration {
         /* Specific configuration for unicast */
         struct {
             std::array<uint8_t,4> interfaceIP;       ///< [RX/TX] IPv4 address of the interface that should be used. If {0,0,0,0} is set, any interface is used.
+            bool bindToDevice;                       ///< [RX/TX] True if the socket should be bound to a specific network device.
+            std::string deviceName;                  ///< [RX/TX] The device name to which the socket should be bound, if bindToDevice is set to true.
         } unicast;
 
         /* Specific configuration for multicast */

@@ -9,12 +9,6 @@ During simulation via Simulink the port should be globally unique among all UDP 
 local one for each block.
 
 <h2>Output Ports</h2>
-<h3>source</h3>
-A 5-by-M vector denoting the source address, where M denotes the number of messages in the buffer. The first four values in a
-column indicate the source IPv4 address (LSB) and the fifth value in a column indicates the source port.
-<br>
-<b>Data Type:</b> <span style="font-family: Courier New">uint16</span>
-
 <h3>bytes</h3>
 An N-by-M matrix containing the messages that have been received, where N indicates the buffer size for a single message and M denotes
 the number of messages in the buffer.
@@ -26,35 +20,29 @@ An M-by-1 vector indicating the actual length of the corresponding message. M de
 <br>
 <b>Data Type:</b> <span style="font-family: Courier New">uint32</span>
 
-<h3>timestamp</h3>
-An M-by-1 vector indicating the timestamp in seconds when the corresponding message has been received by the receiver thread. This time corresponds to the <a href="library_gt_time_modelexecutiontime.html">Model Execution Time</a>.
+<h3>details</h3>
+This output port is enabled, when checking the option <b>Show details output port</b> via the block mask.
 <br>
-<b>Data Type:</b> <span style="font-family: Courier New">double</span>
-
-<h3>numReceivedMessages</h3>
-The number of messages that have been received.
+<b>Data Type:</b> <span style="font-family: Courier New">Bus</span>
+<br><br>
+The bus contains the following values.
 <br>
-<b>Data Type:</b> <span style="font-family: Courier New">uint32</span>
-
-<h3>numDiscardedMessages</h3>
-This output port is enabled, when checking the option <b>Show numDiscardedMessages output port</b> via the block mask. The value
-represents the number of messages that have been discarded.
-<br>
-<b>Data Type:</b> <span style="font-family: Courier New">uint32</span>
-
-<h3>lastErrorCode</h3>
-This output port is enabled, when checking the option <b>Show lastErrorCode output port</b> via the block mask. The value indicates the
-last socket error code from sending a message. 0 means no error. The actual meaning of non-zero values depend on the operating system.
-<br>
-<b>Data Type:</b> <span style="font-family: Courier New">int32</span>
+<table>
+    <tr><th>Parameter Name</th><th>Data Type</th><th>Description</th></tr>
+    <tr><td style="font-family: Courier New;">sourceAddress</td><td style="font-family: Courier New;">uint8</td><td>A 4-by-M matrix denoting the source IPv4 addresses, where M denotes the number of messages in the buffer.</td></tr>
+    <tr><td style="font-family: Courier New;">sourcePort</td><td style="font-family: Courier New;">uint16</td><td>An M-by-1 vector indicating the source ports, where M denotes the number of messages in the buffer.</td></tr>
+    <tr><td style="font-family: Courier New;">timestamp</td><td style="font-family: Courier New;">double</td><td>An M-by-1 vector indicating the timestamp in seconds when the corresponding message has been received by the receiver thread. This time corresponds to the model execution time.</td></tr>
+    <tr><td style="font-family: Courier New;">numReceivedMessages</td><td style="font-family: Courier New;">uint32</td><td>The number of messages that have been received.</td></tr>
+    <tr><td style="font-family: Courier New;">numDiscardedMessages</td><td style="font-family: Courier New;">uint32</td><td>The number of messages that have been discarded.</td></tr>
+    <tr><td style="font-family: Courier New;">lastErrorCode</td><td style="font-family: Courier New;">int32</td><td>The value indicates the last socket error code from sending a message. 0 means no error. The actual meaning of non-zero values depend on the operating system.</td></tr>
+</table>
 
 
 <h2>Block Parameters</h2>
 The following table shows all block parameters.
 <table>
     <tr><th>Parameter Name</th><th>Description</th></tr>
-    <tr><td style="font-family: Courier New;">showNumDiscarded</td><td>Checkbox for showing the numDiscardedMessages output port.</td></tr>
-    <tr><td style="font-family: Courier New;">showErrorCode</td><td>Checkbox for showing the lastErrorCode output port.</td></tr>
+    <tr><td style="font-family: Courier New;">showDetails</td><td>Checkbox for showing the details output port.</td></tr>
     <tr><td style="font-family: Courier New;">interfacePortRX</td><td>Local port under the "Socket" tab.</td></tr>
     <tr><td style="font-family: Courier New;">groupIP</td><td>Group address under the "Socket" tab.</td></tr>
     <tr><td style="font-family: Courier New;">interfaceSendUseName</td><td>Interface checkbox under the "Socket" tab.</td></tr>

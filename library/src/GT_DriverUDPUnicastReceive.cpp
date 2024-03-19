@@ -10,7 +10,7 @@
 #endif
 
 
-void GT_DriverUDPUnicastReceiveInitialize(uint16_t port, uint8_t* interfaceIP, uint32_t rxBufferSize, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded){
+void GT_DriverUDPUnicastReceiveInitialize(uint16_t port, uint8_t* interfaceIP, uint32_t rxBufferSize, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded, uint8_t bindToDevice, uint8_t* deviceName, uint32_t deviceNameLength){
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
         gt::UDPConfiguration conf;
         conf.rxBufferSize = rxBufferSize;
@@ -26,6 +26,14 @@ void GT_DriverUDPUnicastReceiveInitialize(uint16_t port, uint8_t* interfaceIP, u
         conf.unicast.interfaceIP[1] = interfaceIP[1];
         conf.unicast.interfaceIP[2] = interfaceIP[2];
         conf.unicast.interfaceIP[3] = interfaceIP[3];
+        conf.unicast.bindToDevice = static_cast<bool>(bindToDevice);
+        conf.unicast.deviceName.clear();
+        for(uint32_t n = 0; n < deviceNameLength; ++n){
+            char c = static_cast<char>(deviceName[n]);
+            if((c >= ' ')){
+                conf.unicast.deviceName.push_back(c);
+            }
+        }
         gt::GenericTarget::udpUnicastManager.RegisterReceiver(port, conf);
     #elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
         gt_simulink_support::GenericTarget::InitializeNetworkOnWindows();
@@ -43,6 +51,14 @@ void GT_DriverUDPUnicastReceiveInitialize(uint16_t port, uint8_t* interfaceIP, u
         conf.unicast.interfaceIP[1] = interfaceIP[1];
         conf.unicast.interfaceIP[2] = interfaceIP[2];
         conf.unicast.interfaceIP[3] = interfaceIP[3];
+        conf.unicast.bindToDevice = static_cast<bool>(bindToDevice);
+        conf.unicast.deviceName.clear();
+        for(uint32_t n = 0; n < deviceNameLength; ++n){
+            char c = static_cast<char>(deviceName[n]);
+            if((c >= ' ')){
+                conf.unicast.deviceName.push_back(c);
+            }
+        }
         udpUnicastManager.RegisterReceiver(port, conf);
         requireCreate = true;
         gt_simulink_support::GenericTarget::ResetStartTimepoint();
@@ -55,6 +71,9 @@ void GT_DriverUDPUnicastReceiveInitialize(uint16_t port, uint8_t* interfaceIP, u
         (void)bufferStrategy;
         (void)ipFilter;
         (void)countAsDiscarded;
+        (void)bindToDevice;
+        (void)deviceName;
+        (void)deviceNameLength;
     #endif
 }
 

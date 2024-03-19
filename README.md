@@ -2,7 +2,7 @@
 
 # Generic Target
 
-The Generic Target Toolbox can be used to run MATLAB/Simulink models (**>= R2022b**) on a target computer in realtime.
+The Generic Target Toolbox can be used to run MATLAB/Simulink models (**>= R2023b**) on a target computer in realtime.
 The target computer can be any computer that has at least one network interface and has a Linux operating system with
 the PREEMPT_RT realtime patch installed. All Simulink blocks that allow code generation can be used. For low-level hardware
 interfaces like network interfaces, the Generic Target Toolbox comes with its own blocks.
@@ -12,7 +12,7 @@ The directory structure of this repository is as follows.
 | File / Directory   | Description                                                                                                    |
 | :----------------- | :------------------------------------------------------------------------------------------------------------- |
 | documentation      | contains the documentation that has been created with [SimpleDoc](https://github.com/RobertDamerius/SimpleDoc) |
-| library            | contains the MATLAB/Simulink library "GenericTarget" (**>= R2022b**)                                           |
+| library            | contains the MATLAB/Simulink library "GenericTarget" (**>= R2023b**)                                           |
 | packages           | contains the MATLAB package "GT"                                                                               |
 | readme.html        | forwards to the documentation                                                                                  |
 | install.m          | MATLAB script to install the Generic Target Toolbox                                                            |
@@ -21,7 +21,7 @@ The directory structure of this repository is as follows.
 
 
 > **Note**<br>
-> The toolbox is currently in the first stage of development and testing.
+> The toolbox is currently in the stage of development and testing.
 
 ### Revision History
 | Date        | Version  | Description                                                                                                                                                                   |
@@ -40,6 +40,7 @@ The directory structure of this repository is as follows.
 | 2023-07-26  | 2.2      | Updated deployment procedure and target directory structure. Data recordings can be named. Additional compiler flags can be set. Target can be started on specific CPU cores. |
 | 2023-10-04  | 2.3      | Added support for UDP broadcast. Network interface names can now be used to specify multicast interfaces.                                                                     |
 | 2023-11-21  | 2.4      | Enabled option supportsMultipleExecInstances for simulink blocks. Added prefixes to prevent name collision with user code.                                                    |
+| 2024-03-19  | 2.5      | Added option to bind network devices for UDP unicast. Updated the block interface for UDP unicast and multicast blocks. Updated library to MATLAB R2023b.                     |
 
 ## How To Start
 Look at the HTML-based documentation by opening the ``readme.html`` file with a browser. There you will find a more

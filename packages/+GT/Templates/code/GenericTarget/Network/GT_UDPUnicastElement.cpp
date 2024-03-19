@@ -20,6 +20,19 @@ int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
         GENERIC_TARGET_PRINT_WARNING("Could not set allow broadcast option for unicast UDP socket (port=%u)! %s\n", port, errorString.c_str());
     }
 
+    // Bind socket to a network interface device if required
+    if(conf.unicast.bindToDevice){
+        socket.ResetLastError();
+        if(socket.BindToDevice(conf.unicast.deviceName) < 0){
+            auto [errorCode, errorString] = socket.GetLastError();
+            if(errorCode != previousErrorCode){
+                GENERIC_TARGET_PRINT_ERROR("Could not bind unicast UDP socket to the device \"%s\" (port=%u)! %s\n", conf.unicast.deviceName.c_str(), port, errorString.c_str());
+            }
+            socket.Close();
+            return (previousErrorCode = errorCode);
+        }
+    }
+
     // Set priority
     #ifndef _WIN32
     int priority = static_cast<int>(conf.prioritySocket);
@@ -53,7 +66,7 @@ int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
     }
 
     // Success
-    GENERIC_TARGET_PRINT("Opened unicast UDP socket (port=%u, interface=%u.%u.%u.%u, allowBroadcast=%u)\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], int(conf.allowBroadcast));
+    GENERIC_TARGET_PRINT("Opened unicast UDP socket (port=%u, interface=%u.%u.%u.%u, allowBroadcast=%u, bindToDevice=%u, deviceName=\"%s\")\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], int(conf.allowBroadcast), int(conf.unicast.bindToDevice), conf.unicast.deviceName.c_str());
     return (previousErrorCode = 0);
 }
 
@@ -61,7 +74,7 @@ void UDPUnicastElement::TerminateSocket(const UDPConfiguration conf, bool verbos
     (void) conf;
     socket.Close();
     if(verbosePrint){
-        GENERIC_TARGET_PRINT("Closed unicast UDP socket (port=%u, interface=%u.%u.%u.%u, allowBroadcast=%u)\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], int(conf.allowBroadcast));
+        GENERIC_TARGET_PRINT("Closed unicast UDP socket (port=%u, interface=%u.%u.%u.%u, allowBroadcast=%u, bindToDevice=%u, deviceName=\"%s\")\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], int(conf.allowBroadcast), int(conf.unicast.bindToDevice), conf.unicast.deviceName.c_str());
     }
 }
 

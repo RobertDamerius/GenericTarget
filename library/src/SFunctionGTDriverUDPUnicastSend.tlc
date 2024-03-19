@@ -3,15 +3,15 @@
 %% Description:
 %%   Simulink Coder TLC Code Generation file for SFunctionGTDriverUDPUnicastSend
 %% 
-%% Simulink version      : 10.6 (R2022b) 13-May-2022
-%% TLC file generated on : 25-Feb-2024 23:01:01
+%% Simulink version      : 23.2 (R2023b) 01-Aug-2023
+%% TLC file generated on : 19-Mar-2024 21:38:03
 
 /%
      %%%-MATLAB_Construction_Commands_Start
      def = legacy_code('initialize');
      def.SFunctionName = 'SFunctionGTDriverUDPUnicastSend';
      def.OutputFcnSpec = 'void GT_DriverUDPUnicastSendStep(int32 y1[1], int32 y2[1], uint16 p1, uint16 u1[5], uint8 u2[], uint32 u3)';
-     def.StartFcnSpec = 'void GT_DriverUDPUnicastSendInitialize(uint16 p1, uint8 p2[4], int32 p3, uint8 p4)';
+     def.StartFcnSpec = 'void GT_DriverUDPUnicastSendInitialize(uint16 p1, uint8 p2[4], int32 p3, uint8 p4, uint8 p5, uint8 p6[], uint32 p7)';
      def.TerminateFcnSpec = 'void GT_DriverUDPUnicastSendTerminate()';
      def.HeaderFiles = {'GT_DriverUDPUnicastSend.hpp'};
      def.SourceFiles = {'GT_DriverUDPUnicastSend.cpp', 'GT_SimulinkSupport.cpp'};
@@ -60,14 +60,11 @@
         #ifdef MATLAB_MEX_FILE
         #include "tmwtypes.h"
         #else
-        #include "rtwtypes.h"
+        %<LibEmitPlatformTypeIncludes()>
         #endif
         
         
 
-        extern void SFunctionGTDriverUDPUnicastSend_wrapper_Start(const uint16_T p1, const uint8_T* p2, const int32_T p3, const uint8_T p4);
-        extern void SFunctionGTDriverUDPUnicastSend_wrapper_Output( int32_T* y1,  int32_T* y2, const uint16_T p1, const uint16_T* u1, const uint8_T* u2, const uint32_T u3);
-        extern void SFunctionGTDriverUDPUnicastSend_wrapper_Terminate(void);
         
         #endif
         
@@ -80,7 +77,7 @@
         #ifdef MATLAB_MEX_FILE
         #include "tmwtypes.h"
         #else
-        #include "rtwtypes.h"
+        %<LibEmitPlatformTypeIncludes()>
         #endif
 
         #include "GT_DriverUDPUnicastSend.hpp"
@@ -89,36 +86,6 @@
         extern "C" {
         %endif
         
-        %if IsModelReferenceSimTarget() && !::GenCPP
-        }
-        %endif
-
-        %if IsModelReferenceSimTarget() && !::GenCPP
-        extern "C" {
-        %endif
-        void SFunctionGTDriverUDPUnicastSend_wrapper_Start(const uint16_T p1, const uint8_T* p2, const int32_T p3, const uint8_T p4) {
-            GT_DriverUDPUnicastSendInitialize((uint16_T)(p1), (uint8_T*)(p2), (int32_T)(p3), (uint8_T)(p4));
-        }
-        %if IsModelReferenceSimTarget() && !::GenCPP
-        }
-        %endif
-
-        %if IsModelReferenceSimTarget() && !::GenCPP
-        extern "C" {
-        %endif
-        void SFunctionGTDriverUDPUnicastSend_wrapper_Output( int32_T* y1,  int32_T* y2, const uint16_T p1, const uint16_T* u1, const uint8_T* u2, const uint32_T u3) {
-            GT_DriverUDPUnicastSendStep(y1, y2, (uint16_T)(p1), (uint16_T*)(u1), (uint8_T*)(u2), (uint32_T)(u3));
-        }
-        %if IsModelReferenceSimTarget() && !::GenCPP
-        }
-        %endif
-
-        %if IsModelReferenceSimTarget() && !::GenCPP
-        extern "C" {
-        %endif
-        void SFunctionGTDriverUDPUnicastSend_wrapper_Terminate(void) {
-            GT_DriverUDPUnicastSendTerminate();
-        }
         %if IsModelReferenceSimTarget() && !::GenCPP
         }
         %endif
@@ -140,7 +107,84 @@
 
 %% Function: BlockInstanceSetup ===========================================
 %function BlockInstanceSetup (block, system) void
+    %assign int32Type = LibGetDataTypeNameFromId(::CompiledModel.tSS_INT32)
+    %assign uint32Type = LibGetDataTypeNameFromId(::CompiledModel.tSS_UINT32)
+    %assign uint16Type = LibGetDataTypeNameFromId(::CompiledModel.tSS_UINT16)
+    %assign uint8Type = LibGetDataTypeNameFromId(::CompiledModel.tSS_UINT8)
     %if IsModelReferenceSimTarget() || CodeFormat=="S-Function" || ::isRAccel
+        %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
+        %assign hFileName = FcnGenerateUniqueFileName("SFunctionGTDriverUDPUnicastSend_wrapper_%<sfunInstanceName>", "header")
+        %assign hFileNameMacro = FEVAL("upper", hFileName)
+        %openfile hFile = "%<hFileName>.h"
+        %selectfile hFile
+        #ifndef _%<hFileNameMacro>_H_
+        #define _%<hFileNameMacro>_H_
+        
+        #ifdef MATLAB_MEX_FILE
+        #include "tmwtypes.h"
+        #else
+        %<LibEmitPlatformTypeIncludes()>
+        #endif
+        
+        extern void SFunctionGTDriverUDPUnicastSend_wrapper_Start_%<sfunInstanceName>(const %<uint16Type> p1, const %<uint8Type>* p2, const %<int32Type> p3, const %<uint8Type> p4, const %<uint8Type> p5, const %<uint8Type>* p6, const %<uint32Type> p7);
+        extern void SFunctionGTDriverUDPUnicastSend_wrapper_Output_%<sfunInstanceName>( %<int32Type>* y1,  %<int32Type>* y2, const %<uint16Type> p1, const %<uint16Type>* u1, const %<uint8Type>* u2, const %<uint32Type> u3);
+        extern void SFunctionGTDriverUDPUnicastSend_wrapper_Terminate_%<sfunInstanceName>(void);
+        
+        #endif
+        
+        %closefile hFile
+        
+        %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
+        %assign cFileName = FcnGenerateUniqueFileName("SFunctionGTDriverUDPUnicastSend_wrapper_%<sfunInstanceName>", "source")
+        %openfile cFile = "%<cFileName>.cpp"
+        %selectfile cFile
+        #include <string.h>
+        #ifdef MATLAB_MEX_FILE
+        #include "tmwtypes.h"
+        #else
+        %<LibEmitPlatformTypeIncludes()>
+        #endif
+
+        #include "GT_DriverUDPUnicastSend.hpp"
+
+        %if IsModelReferenceSimTarget() && !::GenCPP
+        extern "C" {
+        %endif
+        void SFunctionGTDriverUDPUnicastSend_wrapper_Start_%<sfunInstanceName>(const %<uint16Type> p1, const %<uint8Type>* p2, const %<int32Type> p3, const %<uint8Type> p4, const %<uint8Type> p5, const %<uint8Type>* p6, const %<uint32Type> p7) {
+            GT_DriverUDPUnicastSendInitialize((%<uint16Type>)(p1), (%<uint8Type>*)(p2), (%<int32Type>)(p3), (%<uint8Type>)(p4), (%<uint8Type>)(p5), (%<uint8Type>*)(p6), (%<uint32Type>)(p7));
+        }
+        %if IsModelReferenceSimTarget() && !::GenCPP
+        }
+        %endif
+
+        %if IsModelReferenceSimTarget() && !::GenCPP
+        extern "C" {
+        %endif
+        void SFunctionGTDriverUDPUnicastSend_wrapper_Output_%<sfunInstanceName>( %<int32Type>* y1,  %<int32Type>* y2, const %<uint16Type> p1, const %<uint16Type>* u1, const %<uint8Type>* u2, const %<uint32Type> u3) {
+            GT_DriverUDPUnicastSendStep(y1, y2, (%<uint16Type>)(p1), (%<uint16Type>*)(u1), (%<uint8Type>*)(u2), (%<uint32Type>)(u3));
+        }
+        %if IsModelReferenceSimTarget() && !::GenCPP
+        }
+        %endif
+
+        %if IsModelReferenceSimTarget() && !::GenCPP
+        extern "C" {
+        %endif
+        void SFunctionGTDriverUDPUnicastSend_wrapper_Terminate_%<sfunInstanceName>(void) {
+            GT_DriverUDPUnicastSendTerminate();
+        }
+        %if IsModelReferenceSimTarget() && !::GenCPP
+        }
+        %endif
+
+        %closefile cFile
+
+        %<LibAddToCommonIncludes("%<hFileName>.h")>
+        %if IsModelReferenceSimTarget()
+            %<SLibAddToStaticSources("%<cFileName>.cpp")>
+        %else
+            %<LibAddToModelSources("%<cFileName>")>
+        %endif
     %else
         %<LibBlockSetIsExpressionCompliant(block)>
     %endif
@@ -148,26 +192,39 @@
 
 %% Function: Start ========================================================
 %function Start (block, system) Output
+    %assign uint8Type = LibGetDataTypeNameFromId(::CompiledModel.tSS_UINT8)
     %if IsModelReferenceSimTarget() || CodeFormat=="S-Function" || ::isRAccel
         %assign p1_val = LibBlockParameter(p1, "", "", 0)
         %assign p2_ptr = LibBlockParameterBaseAddr(p2)
         %assign p3_val = LibBlockParameter(p3, "", "", 0)
         %assign p4_val = LibBlockParameter(p4, "", "", 0)
+        %assign p5_val = LibBlockParameter(p5, "", "", 0)
+        %assign p6_ptr = LibBlockParameterBaseAddr(p6)
+        %assign p7_val = LibBlockParameter(p7, "", "", 0)
         %% 
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
-        SFunctionGTDriverUDPUnicastSend_wrapper_Start(%<p1_val>, %<p2_ptr>, %<p3_val>, %<p4_val>);
+        {
+            %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
+            SFunctionGTDriverUDPUnicastSend_wrapper_Start_%<sfunInstanceName>(%<p1_val>, %<p2_ptr>, %<p3_val>, %<p4_val>, %<p5_val>, %<p6_ptr>, %<p7_val>);
+        
+        }
     %else
         %assign p1_val = LibBlockParameter(p1, "", "", 0)
         %assign p2_ptr = LibBlockParameterBaseAddr(p2)
         %assign p3_val = LibBlockParameter(p3, "", "", 0)
         %assign p4_val = LibBlockParameter(p4, "", "", 0)
+        %assign p5_val = LibBlockParameter(p5, "", "", 0)
+        %assign p6_ptr = LibBlockParameterBaseAddr(p6)
+        %assign p7_val = LibBlockParameter(p7, "", "", 0)
         %% 
-        GT_DriverUDPUnicastSendInitialize(%<p1_val>, (uint8_T*)%<p2_ptr>, %<p3_val>, %<p4_val>);
+        GT_DriverUDPUnicastSendInitialize(%<p1_val>, (%<uint8Type>*)%<p2_ptr>, %<p3_val>, %<p4_val>, %<p5_val>, (%<uint8Type>*)%<p6_ptr>, %<p7_val>);
     %endif
 %endfunction
 
 %% Function: Outputs ======================================================
 %function Outputs (block, system) Output
+    %assign uint16Type = LibGetDataTypeNameFromId(::CompiledModel.tSS_UINT16)
+    %assign uint8Type = LibGetDataTypeNameFromId(::CompiledModel.tSS_UINT8)
     %if IsModelReferenceSimTarget() || CodeFormat=="S-Function" || ::isRAccel
         %assign y1_ptr = LibBlockOutputSignalAddr(0, "", "", 0)
         %assign y2_ptr = LibBlockOutputSignalAddr(1, "", "", 0)
@@ -177,7 +234,11 @@
         %assign u3_val = LibBlockInputSignal(2, "", "", 0)
         %% 
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
-        SFunctionGTDriverUDPUnicastSend_wrapper_Output(%<y1_ptr>, %<y2_ptr>, %<p1_val>, %<u1_ptr>, %<u2_ptr>, %<u3_val>);
+        {
+            %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
+            SFunctionGTDriverUDPUnicastSend_wrapper_Output_%<sfunInstanceName>(%<y1_ptr>, %<y2_ptr>, %<p1_val>, %<u1_ptr>, %<u2_ptr>, %<u3_val>);
+        
+        }
     %else
         %assign y1_ptr = LibBlockOutputSignalAddr(0, "", "", 0)
         %assign y2_ptr = LibBlockOutputSignalAddr(1, "", "", 0)
@@ -186,7 +247,7 @@
         %assign u2_ptr = LibBlockInputSignalAddr(1, "", "", 0)
         %assign u3_val = LibBlockInputSignal(2, "", "", 0)
         %% 
-        GT_DriverUDPUnicastSendStep(%<y1_ptr>, %<y2_ptr>, %<p1_val>, (uint16_T*)%<u1_ptr>, (uint8_T*)%<u2_ptr>, %<u3_val>);
+        GT_DriverUDPUnicastSendStep(%<y1_ptr>, %<y2_ptr>, %<p1_val>, (%<uint16Type>*)%<u1_ptr>, (%<uint8Type>*)%<u2_ptr>, %<u3_val>);
     %endif
 %endfunction
 
@@ -195,7 +256,11 @@
     %if IsModelReferenceSimTarget() || CodeFormat=="S-Function" || ::isRAccel
         %% 
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
-        SFunctionGTDriverUDPUnicastSend_wrapper_Terminate();
+        {
+            %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
+            SFunctionGTDriverUDPUnicastSend_wrapper_Terminate_%<sfunInstanceName>();
+        
+        }
     %else
         %% 
         GT_DriverUDPUnicastSendTerminate();

@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20231121</div>
+<div class="header_version">Version 20240319</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -76,9 +76,13 @@ local one for each block.
 
 
 <h2>Input Ports</h2>
-<h3>destination</h3>
-A 5-by-1 vector denoting the destination address, where the first four values indicate the destination IPv4 address (LSByte)
-and the fifth value indicates the destination port. Internally, the first four values are masked by <code>0x00FF</code>.
+<h3>destinationAddress</h3>
+A 4-dimensional vector indicating the destination IPv4 address.
+<br>
+<b>Data Type:</b> <span style="font-family: Courier New">uint8</span>
+
+<h3>destinationPort</h3>
+The destination port.
 <br>
 <b>Data Type:</b> <span style="font-family: Courier New">uint16</span>
 
@@ -93,27 +97,29 @@ The number of bytes that should be sent. The length must not be greater than 655
 <b>Data Type:</b> <span style="font-family: Courier New">uint32</span>
 
 <h2>Output Ports</h2>
-<h3>result</h3>
-This output port is enabled, when checking the option <b>Show result output port</b> via the block mask. The value represents the number
-of bytes that have been sent or a negative value in case of errors.
+<h3>details</h3>
+This output port is enabled, when checking the option <b>Show details output port</b> via the block mask.
 <br>
-<b>Data Type:</b> <span style="font-family: Courier New">int32</span>
-
-<h3>lastErrorCode</h3>
-This output port is enabled, when checking the option <b>Show lastErrorCode output port</b> via the block mask. The value indicates the
-last socket error code from sending a message. 0 means no error. The actual meaning of non-zero values depend on the operating system.
+<b>Data Type:</b> <span style="font-family: Courier New">Bus</span>
+<br><br>
+The bus contains the following values.
 <br>
-<b>Data Type:</b> <span style="font-family: Courier New">int32</span>
+<table>
+    <tr><th>Parameter Name</th><th>Data Type</th><th>Description</th></tr>
+    <tr><td style="font-family: Courier New;">result</td><td style="font-family: Courier New;">int32</td><td>The value represents the number of bytes that have been sent or a negative value in case of errors.</td></tr>
+    <tr><td style="font-family: Courier New;">lastErrorCode</td><td style="font-family: Courier New;">int32</td><td>The value indicates the last socket error code from sending a message. 0 means no error. The actual meaning of non-zero values depend on the operating system.</td></tr>
+</table>
 
 
 <h2>Block Parameters</h2>
 The following table shows all block parameters.
 <table>
     <tr><th>Parameter Name</th><th>Description</th></tr>
-    <tr><td style="font-family: Courier New;">showResult</td><td>Checkbox for showing the result output port.</td></tr>
-    <tr><td style="font-family: Courier New;">showErrorCode</td><td>Checkbox for showing the lastErrorCode output port.</td></tr>
+    <tr><td style="font-family: Courier New;">showDetails</td><td>Checkbox for showing the details output port.</td></tr>
     <tr><td style="font-family: Courier New;">interfacePort</td><td>Local port under the "Socket" tab.</td></tr>
     <tr><td style="font-family: Courier New;">interfaceIP</td><td>Interface under the "Socket" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">bindToDevice</td><td>Bind to device checkbox under the "Socket" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">deviceName</td><td>Device name under the "Socket" tab.</td></tr>
     <tr><td style="font-family: Courier New;">prioritySocket</td><td>Socket priority under the "Advanced" tab</td></tr>
     <tr><td style="font-family: Courier New;">allowBroadcast</td><td>Allow broadcast checkbox under the "Advanced" tab</td></tr>
     <tr><td style="font-family: Courier New;">SampleTime</td><td>Sampletime.</td></tr>

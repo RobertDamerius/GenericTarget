@@ -14,8 +14,11 @@
  * @param [in] bufferStrategy Either 0 (DISCARD_OLDEST) or 1 (DISCARD_RECEIVED). Unknown values are ignored.
  * @param [in] ipFilter Array of 4 bytes containing IPv4 address of the sender address that should be allowed. If no filter should be used, all bytes must be zero.
  * @param [in] countAsDiscarded Non-zero value if out-filtered messages should be counted as discarded, zero if not.
+ * @param [in] bindToDevice True if the socket should be bound to a specific network device.
+ * @param [in] deviceName The device name to which the socket should be bound, if bindToDevice is set to true.
+ * @param [in] deviceNameLength The number of characters representing the device name.
  */
-extern void GT_DriverUDPUnicastReceiveInitialize(uint16_t port, uint8_t* interfaceIP, uint32_t rxBufferSize, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded);
+extern void GT_DriverUDPUnicastReceiveInitialize(uint16_t port, uint8_t* interfaceIP, uint32_t rxBufferSize, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded, uint8_t bindToDevice, uint8_t* deviceName, uint32_t deviceNameLength);
 
 /**
  * @brief Terminate the driver.

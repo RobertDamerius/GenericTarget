@@ -190,6 +190,18 @@ int32_t UDPSocket::Bind(uint16_t port, std::array<uint8_t,4> ipInterface){
     return static_cast<int32_t>(bind(s, (struct sockaddr *)&addr_this, sizeof(struct sockaddr_in)));
 }
 
+int32_t UDPSocket::BindToDevice(std::string deviceName){
+    #ifdef _WIN32
+    (void)deviceName;
+    return 0;
+    #else
+    struct ifreq ifr;
+    std::memset(ifr.ifr_name, 0, sizeof(ifr.ifr_name));
+    snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), deviceName.c_str());
+    return SetOption(SOL_SOCKET, SO_BINDTODEVICE, (const void*)&ifr, sizeof(ifr));;
+    #endif
+}
+
 int UDPSocket::SetOption(int level, int optname, const void *optval, int optlen){
     #ifdef _WIN32
     return static_cast<int32_t>(setsockopt(_socket, level, optname, reinterpret_cast<const char*>(optval), optlen));
@@ -383,6 +395,8 @@ UDPConfiguration::UDPConfiguration(){
     countAsDiscarded = true;
     allowBroadcast = false;
     unicast.interfaceIP = {0,0,0,0};
+    unicast.bindToDevice = false;
+    unicast.deviceName = "";
     multicast.group = {239,0,0,0};
     multicast.ttl = 1;
     multicast.interfaceJoinUseName = false;
@@ -408,6 +422,14 @@ bool UDPConfiguration::UpdateUnicastSenderConfiguration(const UDPConfiguration& 
             GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"allowBroadcast\"!");
             return false;
         }
+        if(unicast.bindToDevice != senderConfiguration.unicast.bindToDevice){
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.bindToDevice\"!");
+            return false;
+        }
+        if(unicast.deviceName.compare(senderConfiguration.unicast.deviceName)){
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.deviceName\"!");
+            return false;
+        }
     }
     else{
         // Set sender properties
@@ -421,9 +443,19 @@ bool UDPConfiguration::UpdateUnicastSenderConfiguration(const UDPConfiguration& 
                 GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.interfaceIP\"!");
                 return false;
             }
+            if(unicast.bindToDevice != senderConfiguration.unicast.bindToDevice){
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.bindToDevice\"!");
+                return false;
+            }
+            if(unicast.deviceName.compare(senderConfiguration.unicast.deviceName)){
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.deviceName\"!");
+                return false;
+            }
         }
         else{
             unicast.interfaceIP = senderConfiguration.unicast.interfaceIP;
+            unicast.bindToDevice = senderConfiguration.unicast.bindToDevice;
+            unicast.deviceName = senderConfiguration.unicast.deviceName;
         }
     }
     return true;
@@ -460,6 +492,14 @@ bool UDPConfiguration::UpdateUnicastReceiverConfiguration(const UDPConfiguration
             GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.interfaceIP\"!");
             return false;
         }
+        if(unicast.bindToDevice != receiverConfiguration.unicast.bindToDevice){
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.bindToDevice\"!");
+            return false;
+        }
+        if(unicast.deviceName.compare(receiverConfiguration.unicast.deviceName)){
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.deviceName\"!");
+            return false;
+        }
     }
     else{
         // Set receiver properties
@@ -477,9 +517,19 @@ bool UDPConfiguration::UpdateUnicastReceiverConfiguration(const UDPConfiguration
                 GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.interfaceIP\"!");
                 return false;
             }
+            if(unicast.bindToDevice != receiverConfiguration.unicast.bindToDevice){
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.bindToDevice\"!");
+                return false;
+            }
+            if(unicast.deviceName.compare(receiverConfiguration.unicast.deviceName)){
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.deviceName\"!");
+                return false;
+            }
         }
         else{
             unicast.interfaceIP = receiverConfiguration.unicast.interfaceIP;
+            unicast.bindToDevice = receiverConfiguration.unicast.bindToDevice;
+            unicast.deviceName = receiverConfiguration.unicast.deviceName;
         }
     }
     return true;
@@ -950,6 +1000,19 @@ int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
         GENERIC_TARGET_PRINT_WARNING("Could not set allow broadcast option for unicast UDP socket (port=%u)! %s\n", port, errorString.c_str());
     }
 
+    // Bind socket to a network interface device if required
+    if(conf.unicast.bindToDevice){
+        socket.ResetLastError();
+        if(socket.BindToDevice(conf.unicast.deviceName) < 0){
+            auto [errorCode, errorString] = socket.GetLastError();
+            if(errorCode != previousErrorCode){
+                GENERIC_TARGET_PRINT_ERROR("Could not bind unicast UDP socket to the device \"%s\" (port=%u)! %s\n", conf.unicast.deviceName.c_str(), port, errorString.c_str());
+            }
+            socket.Close();
+            return (previousErrorCode = errorCode);
+        }
+    }
+
     // Set priority
     #ifndef _WIN32
     int priority = static_cast<int>(conf.prioritySocket);
@@ -983,7 +1046,7 @@ int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
     }
 
     // Success
-    GENERIC_TARGET_PRINT("Opened unicast UDP socket (port=%u, interface=%u.%u.%u.%u, allowBroadcast=%u)\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], int(conf.allowBroadcast));
+    GENERIC_TARGET_PRINT("Opened unicast UDP socket (port=%u, interface=%u.%u.%u.%u, allowBroadcast=%u, bindToDevice=%u, deviceName=\"%s\")\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], int(conf.allowBroadcast), int(conf.unicast.bindToDevice), conf.unicast.deviceName.c_str());
     return (previousErrorCode = 0);
 }
 
@@ -991,7 +1054,7 @@ void UDPUnicastElement::TerminateSocket(const UDPConfiguration conf, bool verbos
     (void) conf;
     socket.Close();
     if(verbosePrint){
-        GENERIC_TARGET_PRINT("Closed unicast UDP socket (port=%u, interface=%u.%u.%u.%u, allowBroadcast=%u)\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], int(conf.allowBroadcast));
+        GENERIC_TARGET_PRINT("Closed unicast UDP socket (port=%u, interface=%u.%u.%u.%u, allowBroadcast=%u, bindToDevice=%u, deviceName=\"%s\")\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], int(conf.allowBroadcast), int(conf.unicast.bindToDevice), conf.unicast.deviceName.c_str());
     }
 }
 

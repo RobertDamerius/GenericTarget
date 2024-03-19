@@ -3,8 +3,8 @@
 %% Description:
 %%   Simulink Coder TLC Code Generation file for SFunctionGTDriverDataRecorderBus
 %% 
-%% Simulink version      : 10.6 (R2022b) 13-May-2022
-%% TLC file generated on : 25-Feb-2024 23:01:02
+%% Simulink version      : 23.2 (R2023b) 01-Aug-2023
+%% TLC file generated on : 19-Mar-2024 21:38:05
 
 /%
      %%%-MATLAB_Construction_Commands_Start
@@ -60,14 +60,11 @@
         #ifdef MATLAB_MEX_FILE
         #include "tmwtypes.h"
         #else
-        #include "rtwtypes.h"
+        %<LibEmitPlatformTypeIncludes()>
         #endif
         
         
 
-        extern void SFunctionGTDriverDataRecorderBus_wrapper_Start(const uint8_T* p1, const uint32_T p2, const uint32_T p3, const uint32_T p4, const uint8_T* p5, const uint32_T p6, const uint8_T* p7, const uint32_T p8, const uint8_T* p9, const uint32_T p10);
-        extern void SFunctionGTDriverDataRecorderBus_wrapper_Output(const uint8_T* p1, const uint32_T p2, const real_T u1, const uint8_T* u2, const uint32_T p4);
-        extern void SFunctionGTDriverDataRecorderBus_wrapper_Terminate(void);
         
         #endif
         
@@ -80,7 +77,7 @@
         #ifdef MATLAB_MEX_FILE
         #include "tmwtypes.h"
         #else
-        #include "rtwtypes.h"
+        %<LibEmitPlatformTypeIncludes()>
         #endif
 
         #include "GT_DriverDataRecorderBus.hpp"
@@ -89,36 +86,6 @@
         extern "C" {
         %endif
         
-        %if IsModelReferenceSimTarget() && !::GenCPP
-        }
-        %endif
-
-        %if IsModelReferenceSimTarget() && !::GenCPP
-        extern "C" {
-        %endif
-        void SFunctionGTDriverDataRecorderBus_wrapper_Start(const uint8_T* p1, const uint32_T p2, const uint32_T p3, const uint32_T p4, const uint8_T* p5, const uint32_T p6, const uint8_T* p7, const uint32_T p8, const uint8_T* p9, const uint32_T p10) {
-            GT_DriverDataRecorderBusInitialize((uint8_T*)(p1), (uint32_T)(p2), (uint32_T)(p3), (uint32_T)(p4), (uint8_T*)(p5), (uint32_T)(p6), (uint8_T*)(p7), (uint32_T)(p8), (uint8_T*)(p9), (uint32_T)(p10));
-        }
-        %if IsModelReferenceSimTarget() && !::GenCPP
-        }
-        %endif
-
-        %if IsModelReferenceSimTarget() && !::GenCPP
-        extern "C" {
-        %endif
-        void SFunctionGTDriverDataRecorderBus_wrapper_Output(const uint8_T* p1, const uint32_T p2, const real_T u1, const uint8_T* u2, const uint32_T p4) {
-            GT_DriverDataRecorderBusStep((uint8_T*)(p1), (uint32_T)(p2), (real_T)(u1), (uint8_T*)(u2), (uint32_T)(p4));
-        }
-        %if IsModelReferenceSimTarget() && !::GenCPP
-        }
-        %endif
-
-        %if IsModelReferenceSimTarget() && !::GenCPP
-        extern "C" {
-        %endif
-        void SFunctionGTDriverDataRecorderBus_wrapper_Terminate(void) {
-            GT_DriverDataRecorderBusTerminate();
-        }
         %if IsModelReferenceSimTarget() && !::GenCPP
         }
         %endif
@@ -140,7 +107,83 @@
 
 %% Function: BlockInstanceSetup ===========================================
 %function BlockInstanceSetup (block, system) void
+    %assign uint32Type = LibGetDataTypeNameFromId(::CompiledModel.tSS_UINT32)
+    %assign uint8Type = LibGetDataTypeNameFromId(::CompiledModel.tSS_UINT8)
+    %assign doubleType = LibGetDataTypeNameFromId(::CompiledModel.tSS_DOUBLE)
     %if IsModelReferenceSimTarget() || CodeFormat=="S-Function" || ::isRAccel
+        %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
+        %assign hFileName = FcnGenerateUniqueFileName("SFunctionGTDriverDataRecorderBus_wrapper_%<sfunInstanceName>", "header")
+        %assign hFileNameMacro = FEVAL("upper", hFileName)
+        %openfile hFile = "%<hFileName>.h"
+        %selectfile hFile
+        #ifndef _%<hFileNameMacro>_H_
+        #define _%<hFileNameMacro>_H_
+        
+        #ifdef MATLAB_MEX_FILE
+        #include "tmwtypes.h"
+        #else
+        %<LibEmitPlatformTypeIncludes()>
+        #endif
+        
+        extern void SFunctionGTDriverDataRecorderBus_wrapper_Start_%<sfunInstanceName>(const %<uint8Type>* p1, const %<uint32Type> p2, const %<uint32Type> p3, const %<uint32Type> p4, const %<uint8Type>* p5, const %<uint32Type> p6, const %<uint8Type>* p7, const %<uint32Type> p8, const %<uint8Type>* p9, const %<uint32Type> p10);
+        extern void SFunctionGTDriverDataRecorderBus_wrapper_Output_%<sfunInstanceName>(const %<uint8Type>* p1, const %<uint32Type> p2, const %<doubleType> u1, const %<uint8Type>* u2, const %<uint32Type> p4);
+        extern void SFunctionGTDriverDataRecorderBus_wrapper_Terminate_%<sfunInstanceName>(void);
+        
+        #endif
+        
+        %closefile hFile
+        
+        %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
+        %assign cFileName = FcnGenerateUniqueFileName("SFunctionGTDriverDataRecorderBus_wrapper_%<sfunInstanceName>", "source")
+        %openfile cFile = "%<cFileName>.cpp"
+        %selectfile cFile
+        #include <string.h>
+        #ifdef MATLAB_MEX_FILE
+        #include "tmwtypes.h"
+        #else
+        %<LibEmitPlatformTypeIncludes()>
+        #endif
+
+        #include "GT_DriverDataRecorderBus.hpp"
+
+        %if IsModelReferenceSimTarget() && !::GenCPP
+        extern "C" {
+        %endif
+        void SFunctionGTDriverDataRecorderBus_wrapper_Start_%<sfunInstanceName>(const %<uint8Type>* p1, const %<uint32Type> p2, const %<uint32Type> p3, const %<uint32Type> p4, const %<uint8Type>* p5, const %<uint32Type> p6, const %<uint8Type>* p7, const %<uint32Type> p8, const %<uint8Type>* p9, const %<uint32Type> p10) {
+            GT_DriverDataRecorderBusInitialize((%<uint8Type>*)(p1), (%<uint32Type>)(p2), (%<uint32Type>)(p3), (%<uint32Type>)(p4), (%<uint8Type>*)(p5), (%<uint32Type>)(p6), (%<uint8Type>*)(p7), (%<uint32Type>)(p8), (%<uint8Type>*)(p9), (%<uint32Type>)(p10));
+        }
+        %if IsModelReferenceSimTarget() && !::GenCPP
+        }
+        %endif
+
+        %if IsModelReferenceSimTarget() && !::GenCPP
+        extern "C" {
+        %endif
+        void SFunctionGTDriverDataRecorderBus_wrapper_Output_%<sfunInstanceName>(const %<uint8Type>* p1, const %<uint32Type> p2, const %<doubleType> u1, const %<uint8Type>* u2, const %<uint32Type> p4) {
+            GT_DriverDataRecorderBusStep((%<uint8Type>*)(p1), (%<uint32Type>)(p2), (%<doubleType>)(u1), (%<uint8Type>*)(u2), (%<uint32Type>)(p4));
+        }
+        %if IsModelReferenceSimTarget() && !::GenCPP
+        }
+        %endif
+
+        %if IsModelReferenceSimTarget() && !::GenCPP
+        extern "C" {
+        %endif
+        void SFunctionGTDriverDataRecorderBus_wrapper_Terminate_%<sfunInstanceName>(void) {
+            GT_DriverDataRecorderBusTerminate();
+        }
+        %if IsModelReferenceSimTarget() && !::GenCPP
+        }
+        %endif
+
+        %closefile cFile
+
+        %<LibAddToCommonIncludes("%<hFileName>.h")>
+        %if IsModelReferenceSimTarget()
+            %<SLibAddToStaticSources("%<cFileName>.cpp")>
+        %else
+            %<LibAddToModelSources("%<cFileName>")>
+        %endif
     %else
         %<LibBlockSetIsExpressionCompliant(block)>
     %endif
@@ -148,6 +191,7 @@
 
 %% Function: Start ========================================================
 %function Start (block, system) Output
+    %assign uint8Type = LibGetDataTypeNameFromId(::CompiledModel.tSS_UINT8)
     %if IsModelReferenceSimTarget() || CodeFormat=="S-Function" || ::isRAccel
         %assign p1_ptr = LibBlockParameterBaseAddr(p1)
         %assign p2_val = LibBlockParameter(p2, "", "", 0)
@@ -161,7 +205,11 @@
         %assign p10_val = LibBlockParameter(p10, "", "", 0)
         %% 
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
-        SFunctionGTDriverDataRecorderBus_wrapper_Start(%<p1_ptr>, %<p2_val>, %<p3_val>, %<p4_val>, %<p5_ptr>, %<p6_val>, %<p7_ptr>, %<p8_val>, %<p9_ptr>, %<p10_val>);
+        {
+            %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
+            SFunctionGTDriverDataRecorderBus_wrapper_Start_%<sfunInstanceName>(%<p1_ptr>, %<p2_val>, %<p3_val>, %<p4_val>, %<p5_ptr>, %<p6_val>, %<p7_ptr>, %<p8_val>, %<p9_ptr>, %<p10_val>);
+        
+        }
     %else
         %assign p1_ptr = LibBlockParameterBaseAddr(p1)
         %assign p2_val = LibBlockParameter(p2, "", "", 0)
@@ -174,12 +222,13 @@
         %assign p9_ptr = LibBlockParameterBaseAddr(p9)
         %assign p10_val = LibBlockParameter(p10, "", "", 0)
         %% 
-        GT_DriverDataRecorderBusInitialize((uint8_T*)%<p1_ptr>, %<p2_val>, %<p3_val>, %<p4_val>, (uint8_T*)%<p5_ptr>, %<p6_val>, (uint8_T*)%<p7_ptr>, %<p8_val>, (uint8_T*)%<p9_ptr>, %<p10_val>);
+        GT_DriverDataRecorderBusInitialize((%<uint8Type>*)%<p1_ptr>, %<p2_val>, %<p3_val>, %<p4_val>, (%<uint8Type>*)%<p5_ptr>, %<p6_val>, (%<uint8Type>*)%<p7_ptr>, %<p8_val>, (%<uint8Type>*)%<p9_ptr>, %<p10_val>);
     %endif
 %endfunction
 
 %% Function: Outputs ======================================================
 %function Outputs (block, system) Output
+    %assign uint8Type = LibGetDataTypeNameFromId(::CompiledModel.tSS_UINT8)
     %if IsModelReferenceSimTarget() || CodeFormat=="S-Function" || ::isRAccel
         %assign p1_ptr = LibBlockParameterBaseAddr(p1)
         %assign p2_val = LibBlockParameter(p2, "", "", 0)
@@ -188,7 +237,11 @@
         %assign p4_val = LibBlockParameter(p4, "", "", 0)
         %% 
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
-        SFunctionGTDriverDataRecorderBus_wrapper_Output(%<p1_ptr>, %<p2_val>, %<u1_val>, %<u2_ptr>, %<p4_val>);
+        {
+            %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
+            SFunctionGTDriverDataRecorderBus_wrapper_Output_%<sfunInstanceName>(%<p1_ptr>, %<p2_val>, %<u1_val>, %<u2_ptr>, %<p4_val>);
+        
+        }
     %else
         %assign p1_ptr = LibBlockParameterBaseAddr(p1)
         %assign p2_val = LibBlockParameter(p2, "", "", 0)
@@ -196,7 +249,7 @@
         %assign u2_ptr = LibBlockInputSignalAddr(1, "", "", 0)
         %assign p4_val = LibBlockParameter(p4, "", "", 0)
         %% 
-        GT_DriverDataRecorderBusStep((uint8_T*)%<p1_ptr>, %<p2_val>, %<u1_val>, (uint8_T*)%<u2_ptr>, %<p4_val>);
+        GT_DriverDataRecorderBusStep((%<uint8Type>*)%<p1_ptr>, %<p2_val>, %<u1_val>, (%<uint8Type>*)%<u2_ptr>, %<p4_val>);
     %endif
 %endfunction
 
@@ -205,7 +258,11 @@
     %if IsModelReferenceSimTarget() || CodeFormat=="S-Function" || ::isRAccel
         %% 
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
-        SFunctionGTDriverDataRecorderBus_wrapper_Terminate();
+        {
+            %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
+            SFunctionGTDriverDataRecorderBus_wrapper_Terminate_%<sfunInstanceName>();
+        
+        }
     %else
         %% 
         GT_DriverDataRecorderBusTerminate();

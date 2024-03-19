@@ -14,6 +14,8 @@ UDPConfiguration::UDPConfiguration(){
     countAsDiscarded = true;
     allowBroadcast = false;
     unicast.interfaceIP = {0,0,0,0};
+    unicast.bindToDevice = false;
+    unicast.deviceName = "";
     multicast.group = {239,0,0,0};
     multicast.ttl = 1;
     multicast.interfaceJoinUseName = false;
@@ -39,6 +41,14 @@ bool UDPConfiguration::UpdateUnicastSenderConfiguration(const UDPConfiguration& 
             GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"allowBroadcast\"!");
             return false;
         }
+        if(unicast.bindToDevice != senderConfiguration.unicast.bindToDevice){
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.bindToDevice\"!");
+            return false;
+        }
+        if(unicast.deviceName.compare(senderConfiguration.unicast.deviceName)){
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.deviceName\"!");
+            return false;
+        }
     }
     else{
         // Set sender properties
@@ -52,9 +62,19 @@ bool UDPConfiguration::UpdateUnicastSenderConfiguration(const UDPConfiguration& 
                 GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.interfaceIP\"!");
                 return false;
             }
+            if(unicast.bindToDevice != senderConfiguration.unicast.bindToDevice){
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.bindToDevice\"!");
+                return false;
+            }
+            if(unicast.deviceName.compare(senderConfiguration.unicast.deviceName)){
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.deviceName\"!");
+                return false;
+            }
         }
         else{
             unicast.interfaceIP = senderConfiguration.unicast.interfaceIP;
+            unicast.bindToDevice = senderConfiguration.unicast.bindToDevice;
+            unicast.deviceName = senderConfiguration.unicast.deviceName;
         }
     }
     return true;
@@ -91,6 +111,14 @@ bool UDPConfiguration::UpdateUnicastReceiverConfiguration(const UDPConfiguration
             GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.interfaceIP\"!");
             return false;
         }
+        if(unicast.bindToDevice != receiverConfiguration.unicast.bindToDevice){
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.bindToDevice\"!");
+            return false;
+        }
+        if(unicast.deviceName.compare(receiverConfiguration.unicast.deviceName)){
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.deviceName\"!");
+            return false;
+        }
     }
     else{
         // Set receiver properties
@@ -108,9 +136,19 @@ bool UDPConfiguration::UpdateUnicastReceiverConfiguration(const UDPConfiguration
                 GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.interfaceIP\"!");
                 return false;
             }
+            if(unicast.bindToDevice != receiverConfiguration.unicast.bindToDevice){
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.bindToDevice\"!");
+                return false;
+            }
+            if(unicast.deviceName.compare(receiverConfiguration.unicast.deviceName)){
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.deviceName\"!");
+                return false;
+            }
         }
         else{
             unicast.interfaceIP = receiverConfiguration.unicast.interfaceIP;
+            unicast.bindToDevice = receiverConfiguration.unicast.bindToDevice;
+            unicast.deviceName = receiverConfiguration.unicast.deviceName;
         }
     }
     return true;
