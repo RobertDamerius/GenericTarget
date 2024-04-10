@@ -74,7 +74,7 @@ bool UDPConfiguration::UpdateUnicastSenderConfiguration(const UDPConfiguration& 
         else{
             unicast.interfaceIP = senderConfiguration.unicast.interfaceIP;
             unicast.bindToDevice = senderConfiguration.unicast.bindToDevice;
-            unicast.deviceName = senderConfiguration.unicast.deviceName;
+            unicast.deviceName = gt::ToPrintableString(senderConfiguration.unicast.deviceName);
         }
     }
     return true;
@@ -148,7 +148,7 @@ bool UDPConfiguration::UpdateUnicastReceiverConfiguration(const UDPConfiguration
         else{
             unicast.interfaceIP = receiverConfiguration.unicast.interfaceIP;
             unicast.bindToDevice = receiverConfiguration.unicast.bindToDevice;
-            unicast.deviceName = receiverConfiguration.unicast.deviceName;
+            unicast.deviceName = gt::ToPrintableString(receiverConfiguration.unicast.deviceName);
         }
     }
     return true;
@@ -197,7 +197,7 @@ bool UDPConfiguration::UpdateMulticastSenderConfiguration(const UDPConfiguration
         allowBroadcast = senderConfiguration.allowBroadcast;
         multicast.ttl = senderConfiguration.multicast.ttl;
         multicast.interfaceSendUseName = senderConfiguration.multicast.interfaceSendUseName;
-        multicast.interfaceSendName = senderConfiguration.multicast.interfaceSendName;
+        multicast.interfaceSendName = gt::ToPrintableString(senderConfiguration.multicast.interfaceSendName);
         multicast.interfaceSendIP = senderConfiguration.multicast.interfaceSendIP;
 
         // Check or set common properties
@@ -272,7 +272,7 @@ bool UDPConfiguration::UpdateMulticastReceiverConfiguration(const UDPConfigurati
         ipFilter = receiverConfiguration.ipFilter;
         countAsDiscarded = receiverConfiguration.countAsDiscarded;
         multicast.interfaceJoinUseName = receiverConfiguration.multicast.interfaceJoinUseName;
-        multicast.interfaceJoinName = receiverConfiguration.multicast.interfaceJoinName;
+        multicast.interfaceJoinName = gt::ToPrintableString(receiverConfiguration.multicast.interfaceJoinName);
         multicast.interfaceJoinIP = receiverConfiguration.multicast.interfaceJoinIP;
 
         // Check or set common properties

@@ -84,13 +84,14 @@ int32_t UDPSocket::Bind(uint16_t port, std::array<uint8_t,4> ipInterface){
 }
 
 int32_t UDPSocket::BindToDevice(std::string deviceName){
+    deviceName = gt::ToPrintableString(deviceName);
     #ifdef _WIN32
     (void)deviceName;
     return 0;
     #else
     struct ifreq ifr;
     std::memset(ifr.ifr_name, 0, sizeof(ifr.ifr_name));
-    snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), deviceName.c_str());
+    snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", deviceName.c_str());
     return SetOption(SOL_SOCKET, SO_BINDTODEVICE, (const void*)&ifr, sizeof(ifr));;
     #endif
 }

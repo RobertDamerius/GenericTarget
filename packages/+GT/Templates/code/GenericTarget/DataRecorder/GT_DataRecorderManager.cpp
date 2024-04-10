@@ -203,8 +203,9 @@ bool DataRecorderManager::WriteIndexFile(std::string filename, int32_t date_year
 std::string DataRecorderManager::ConvertToPrintableString(const uint8_t* data, uint32_t numCharacters){
     std::string result;
     for(uint32_t n = 0; n < numCharacters; ++n){
-        if((data[n] >= 0x20) && (data[n] < 0x7F))
+        if((data[n] >= ' ') && (data[n] <= '~')){
             result.push_back(data[n]);
+        }
     }
     return result;
 }

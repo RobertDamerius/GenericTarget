@@ -56,6 +56,17 @@ static void __gt_simulink_support_print_verbose(const char c, const char* file, 
 //     fflush(stderr);
 // }
 
+static std::string __gt_simulink_support_ToPrintableString(std::string s){
+    std::string result;
+    for(auto&& c : s){
+        if((c >= ' ') || (c <= '~')){
+            result.push_back(c);
+        }
+    }
+    return result;
+}
+
+
 #define GENERIC_TARGET_PRINT(...) __gt_simulink_support_print(__VA_ARGS__)
 #define GENERIC_TARGET_PRINT_WARNING(...) __gt_simulink_support_print_verbose('W', __FILE__, __LINE__, __func__, __VA_ARGS__)
 #define GENERIC_TARGET_PRINT_ERROR(...) __gt_simulink_support_print_verbose('E', __FILE__, __LINE__, __func__, __VA_ARGS__)
@@ -191,13 +202,14 @@ int32_t UDPSocket::Bind(uint16_t port, std::array<uint8_t,4> ipInterface){
 }
 
 int32_t UDPSocket::BindToDevice(std::string deviceName){
+    deviceName = __gt_simulink_support_ToPrintableString(deviceName);
     #ifdef _WIN32
     (void)deviceName;
     return 0;
     #else
     struct ifreq ifr;
     std::memset(ifr.ifr_name, 0, sizeof(ifr.ifr_name));
-    snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), deviceName.c_str());
+    snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", deviceName.c_str());
     return SetOption(SOL_SOCKET, SO_BINDTODEVICE, (const void*)&ifr, sizeof(ifr));;
     #endif
 }
@@ -455,7 +467,7 @@ bool UDPConfiguration::UpdateUnicastSenderConfiguration(const UDPConfiguration& 
         else{
             unicast.interfaceIP = senderConfiguration.unicast.interfaceIP;
             unicast.bindToDevice = senderConfiguration.unicast.bindToDevice;
-            unicast.deviceName = senderConfiguration.unicast.deviceName;
+            unicast.deviceName = __gt_simulink_support_ToPrintableString(senderConfiguration.unicast.deviceName);
         }
     }
     return true;
@@ -529,7 +541,7 @@ bool UDPConfiguration::UpdateUnicastReceiverConfiguration(const UDPConfiguration
         else{
             unicast.interfaceIP = receiverConfiguration.unicast.interfaceIP;
             unicast.bindToDevice = receiverConfiguration.unicast.bindToDevice;
-            unicast.deviceName = receiverConfiguration.unicast.deviceName;
+            unicast.deviceName = __gt_simulink_support_ToPrintableString(receiverConfiguration.unicast.deviceName);
         }
     }
     return true;
@@ -578,7 +590,7 @@ bool UDPConfiguration::UpdateMulticastSenderConfiguration(const UDPConfiguration
         allowBroadcast = senderConfiguration.allowBroadcast;
         multicast.ttl = senderConfiguration.multicast.ttl;
         multicast.interfaceSendUseName = senderConfiguration.multicast.interfaceSendUseName;
-        multicast.interfaceSendName = senderConfiguration.multicast.interfaceSendName;
+        multicast.interfaceSendName = __gt_simulink_support_ToPrintableString(senderConfiguration.multicast.interfaceSendName);
         multicast.interfaceSendIP = senderConfiguration.multicast.interfaceSendIP;
 
         // Check or set common properties
@@ -653,7 +665,7 @@ bool UDPConfiguration::UpdateMulticastReceiverConfiguration(const UDPConfigurati
         ipFilter = receiverConfiguration.ipFilter;
         countAsDiscarded = receiverConfiguration.countAsDiscarded;
         multicast.interfaceJoinUseName = receiverConfiguration.multicast.interfaceJoinUseName;
-        multicast.interfaceJoinName = receiverConfiguration.multicast.interfaceJoinName;
+        multicast.interfaceJoinName = __gt_simulink_support_ToPrintableString(receiverConfiguration.multicast.interfaceJoinName);
         multicast.interfaceJoinIP = receiverConfiguration.multicast.interfaceJoinIP;
 
         // Check or set common properties
@@ -982,7 +994,9 @@ void UDPElementBase::CopyMessageToBuffer(uint8_t* messageBytes, uint32_t message
     }
 }
 
-int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
+int32_t UDPUnicastElement::InitializeSocket(UDPConfiguration conf){
+    conf.unicast.deviceName = __gt_simulink_support_ToPrintableString(conf.unicast.deviceName);
+
     // Open the UDP socket
     socket.ResetLastError();
     if(!socket.Open()){
@@ -1050,15 +1064,18 @@ int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
     return (previousErrorCode = 0);
 }
 
-void UDPUnicastElement::TerminateSocket(const UDPConfiguration conf, bool verbosePrint){
-    (void) conf;
+void UDPUnicastElement::TerminateSocket(UDPConfiguration conf, bool verbosePrint){
+    conf.unicast.deviceName = __gt_simulink_support_ToPrintableString(conf.unicast.deviceName);
     socket.Close();
     if(verbosePrint){
         GENERIC_TARGET_PRINT("Closed unicast UDP socket (port=%u, interface=%u.%u.%u.%u, allowBroadcast=%u, bindToDevice=%u, deviceName=\"%s\")\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], int(conf.allowBroadcast), int(conf.unicast.bindToDevice), conf.unicast.deviceName.c_str());
     }
 }
 
-int32_t UDPMulticastElement::InitializeSocket(const UDPConfiguration conf){
+int32_t UDPMulticastElement::InitializeSocket(UDPConfiguration conf){
+    conf.multicast.interfaceSendName = __gt_simulink_support_ToPrintableString(conf.multicast.interfaceSendName);
+    conf.multicast.interfaceJoinName = __gt_simulink_support_ToPrintableString(conf.multicast.interfaceJoinName);
+
     // Open the UDP socket
     socket.ResetLastError();
     if(!socket.Open()){
@@ -1160,7 +1177,9 @@ int32_t UDPMulticastElement::InitializeSocket(const UDPConfiguration conf){
     return (previousErrorCode = 0);
 }
 
-void UDPMulticastElement::TerminateSocket(const UDPConfiguration conf, bool verbosePrint){
+void UDPMulticastElement::TerminateSocket(UDPConfiguration conf, bool verbosePrint){
+    conf.multicast.interfaceSendName = __gt_simulink_support_ToPrintableString(conf.multicast.interfaceSendName);
+    conf.multicast.interfaceJoinName = __gt_simulink_support_ToPrintableString(conf.multicast.interfaceJoinName);
     socket.LeaveMulticastGroup(conf.multicast.group, conf.multicast.interfaceJoinIP, conf.multicast.interfaceJoinName, conf.multicast.interfaceJoinUseName);
     socket.Close();
     if(verbosePrint){

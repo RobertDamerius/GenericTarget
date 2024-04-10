@@ -169,7 +169,7 @@ void GenericTarget::PrintInfo(int argc, char**argv){
     GENERIC_TARGET_PRINT_RAW("Date (UTC):               %04u-%02u-%02u %02u:%02u:%02u.%03u\n", 1900 + upTime.year, 1 + upTime.month, upTime.mday, upTime.hour, upTime.minute, upTime.second, upTime.nanoseconds / 1000000);
     GENERIC_TARGET_PRINT_RAW("Arguments:               "); for(int i = 1; i < argc; i++){ GENERIC_TARGET_PRINT_RAW(" [%s]", argv[i]); } GENERIC_TARGET_PRINT_RAW("\n");
     GENERIC_TARGET_PRINT_RAW("\n");
-    GENERIC_TARGET_PRINT_RAW("modelName:                %s\n", SimulinkInterface::modelName.c_str());
+    GENERIC_TARGET_PRINT_RAW("modelName:                %s\n", gt::ToPrintableString(SimulinkInterface::modelName).c_str());
     GENERIC_TARGET_PRINT_RAW("portAppSocket:            %u\n", SimulinkInterface::portAppSocket);
     GENERIC_TARGET_PRINT_RAW("terminateAtTaskOverload:  %s\n", SimulinkInterface::terminateAtTaskOverload ? "true" : "false");
     GENERIC_TARGET_PRINT_RAW("terminateAtCPUOverload:   %s\n", SimulinkInterface::terminateAtCPUOverload ? "true" : "false");

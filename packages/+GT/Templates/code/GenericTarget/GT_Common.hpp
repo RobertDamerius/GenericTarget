@@ -97,6 +97,21 @@ inline void print_raw(const char* format, ...){
     fflush(stderr);
 }
 
+/**
+ * @brief Convert given string data to a C++ string and use only printable characters.
+ * @param [in] s The input string to be converted.
+ * @return String containing only printable characters.
+ */
+inline std::string ToPrintableString(std::string s){
+    std::string result;
+    for(auto&& c : s){
+        if((c >= ' ') || (c <= '~')){
+            result.push_back(c);
+        }
+    }
+    return result;
+}
+
 } /* namespace: gt */
 
 #define GENERIC_TARGET_PRINT(...) gt::print(__VA_ARGS__)

@@ -2,7 +2,9 @@
 using namespace gt;
 
 
-int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
+int32_t UDPUnicastElement::InitializeSocket(UDPConfiguration conf){
+    conf.unicast.deviceName = gt::ToPrintableString(conf.unicast.deviceName);
+
     // Open the UDP socket
     socket.ResetLastError();
     if(!socket.Open()){
@@ -70,8 +72,8 @@ int32_t UDPUnicastElement::InitializeSocket(const UDPConfiguration conf){
     return (previousErrorCode = 0);
 }
 
-void UDPUnicastElement::TerminateSocket(const UDPConfiguration conf, bool verbosePrint){
-    (void) conf;
+void UDPUnicastElement::TerminateSocket(UDPConfiguration conf, bool verbosePrint){
+    conf.unicast.deviceName = gt::ToPrintableString(conf.unicast.deviceName);
     socket.Close();
     if(verbosePrint){
         GENERIC_TARGET_PRINT("Closed unicast UDP socket (port=%u, interface=%u.%u.%u.%u, allowBroadcast=%u, bindToDevice=%u, deviceName=\"%s\")\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], int(conf.allowBroadcast), int(conf.unicast.bindToDevice), conf.unicast.deviceName.c_str());

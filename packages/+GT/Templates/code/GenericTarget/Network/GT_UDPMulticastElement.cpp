@@ -2,7 +2,10 @@
 using namespace gt;
 
 
-int32_t UDPMulticastElement::InitializeSocket(const UDPConfiguration conf){
+int32_t UDPMulticastElement::InitializeSocket(UDPConfiguration conf){
+    conf.multicast.interfaceSendName = gt::ToPrintableString(conf.multicast.interfaceSendName);
+    conf.multicast.interfaceJoinName = gt::ToPrintableString(conf.multicast.interfaceJoinName);
+
     // Open the UDP socket
     socket.ResetLastError();
     if(!socket.Open()){
@@ -104,7 +107,9 @@ int32_t UDPMulticastElement::InitializeSocket(const UDPConfiguration conf){
     return (previousErrorCode = 0);
 }
 
-void UDPMulticastElement::TerminateSocket(const UDPConfiguration conf, bool verbosePrint){
+void UDPMulticastElement::TerminateSocket(UDPConfiguration conf, bool verbosePrint){
+    conf.multicast.interfaceSendName = gt::ToPrintableString(conf.multicast.interfaceSendName);
+    conf.multicast.interfaceJoinName = gt::ToPrintableString(conf.multicast.interfaceJoinName);
     socket.LeaveMulticastGroup(conf.multicast.group, conf.multicast.interfaceJoinIP, conf.multicast.interfaceJoinName, conf.multicast.interfaceJoinUseName);
     socket.Close();
     if(verbosePrint){

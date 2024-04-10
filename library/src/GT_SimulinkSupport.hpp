@@ -602,14 +602,14 @@ class UDPElementBase {
          * @param [in] conf The configuration to be used.
          * @return Error code or 0 if success.
          */
-        virtual int32_t InitializeSocket(const UDPConfiguration conf) = 0;
+        virtual int32_t InitializeSocket(UDPConfiguration conf) = 0;
 
         /**
          * @brief Terminate the UDP socket.
          * @param [in] conf The configuration to be used.
          * @param [in] verbosePrint True if verbose prints should be enabled, false otherwise.
          */
-        virtual void TerminateSocket(const UDPConfiguration conf, bool verbosePrint) = 0;
+        virtual void TerminateSocket(UDPConfiguration conf, bool verbosePrint) = 0;
 
     private:
         UDPConfiguration configuration;   ///< Internal configuration to be used when this UDP element is started by @ref Start.
@@ -654,14 +654,14 @@ class UDPUnicastElement: public UDPElementBase {
          * @param [in] conf The configuration to be used.
          * @return Error code or 0 if success.
          */
-        int32_t InitializeSocket(const UDPConfiguration conf);
+        int32_t InitializeSocket(UDPConfiguration conf);
 
         /**
          * @brief Terminate the UDP socket.
          * @param [in] conf The configuration to be used.
          * @param [in] verbosePrint True if verbose prints should be enabled, false otherwise.
          */
-        void TerminateSocket(const UDPConfiguration conf, bool verbosePrint);
+        void TerminateSocket(UDPConfiguration conf, bool verbosePrint);
 
     private:
         int32_t previousErrorCode;  ///< The previous error code during initialization. This value is used to prevent printing the same error message over and over again.
@@ -685,14 +685,14 @@ class UDPMulticastElement: public UDPElementBase {
          * @param [in] conf The configuration to be used.
          * @return Error code or 0 if success.
          */
-        int32_t InitializeSocket(const UDPConfiguration conf);
+        int32_t InitializeSocket(UDPConfiguration conf);
 
         /**
          * @brief Terminate the UDP socket.
          * @param [in] conf The configuration to be used.
          * @param [in] verbosePrint True if verbose prints should be enabled, false otherwise.
          */
-        void TerminateSocket(const UDPConfiguration conf, bool verbosePrint);
+        void TerminateSocket(UDPConfiguration conf, bool verbosePrint);
 
     private:
         int32_t previousErrorCode;  ///< The previous error code during initialization. This value is used to prevent printing the same error message over and over again.
