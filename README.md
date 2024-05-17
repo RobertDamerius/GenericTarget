@@ -14,9 +14,11 @@ The directory structure of this repository is as follows.
 | documentation      | contains the documentation that has been created with [SimpleDoc](https://github.com/RobertDamerius/SimpleDoc) |
 | library            | contains the MATLAB/Simulink library "GenericTarget" (**>= R2023b**)                                           |
 | packages           | contains the MATLAB package "GT"                                                                               |
-| readme.html        | forwards to the documentation                                                                                  |
-| install.m          | MATLAB script to install the Generic Target Toolbox                                                            |
+| resources          | contains project definition files for the MATLAB/Simulink project                                              |
+| GenericTarget.prj  | Simulink project file                                                                                          |
+| install.m          | MATLAB script to add the Generic Target Toolbox to the MATLAB path                                             |
 | LICENSE            | license information                                                                                            |
+| readme.html        | forwards to the documentation                                                                                  |
 | README.md          | this file                                                                                                      |
 
 
@@ -42,7 +44,7 @@ The directory structure of this repository is as follows.
 | 2023-11-21  | 2.4      | Enabled option supportsMultipleExecInstances for simulink blocks. Added prefixes to prevent name collision with user code.                                                    |
 | 2024-03-19  | 2.5      | Added option to bind network devices for UDP unicast. Updated the block interface for UDP unicast and multicast blocks. Updated library to MATLAB R2023b.                     |
 
-## How To Start
+## Getting Started
 Look at the HTML-based documentation by opening the ``readme.html`` file with a browser. There you will find a more
 detailed description of the Generic Target Toolbox as well as instructions on how to prepare the target computer and create
 your first realtime application.
