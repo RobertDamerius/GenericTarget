@@ -11,16 +11,16 @@ namespace gt {
  * @brief Structure containing time information about the current system time.
  */
 struct TimeInfo {
-    int32_t nanoseconds;   ///< Nanoseconds of the current second [0, 999999999].
-    int32_t second;        ///< Seconds after the minute [0, 59] (on some systems [0,60] or [0,61] to allow leap seconds).
-    int32_t minute;        ///< Minutes after the hour [0, 59].
-    int32_t hour;          ///< Hours since midnight [0, 23].
-    int32_t mday;          ///< Day of the month [1, 31].
-    int32_t month;         ///< Month since January [0, 11].
-    int32_t year;          ///< Years since 1900.
-    int32_t wday;          ///< Days since Sunday [0, 6].
-    int32_t yday;          ///< Days since January 1 [0, 365].
-    int32_t isdst;         ///< Daylight Saving Time flag. The value is positive if DST is in effect, zero if not and negative if no information is available.
+    int32_t nanoseconds;   // Nanoseconds of the current second [0, 999999999].
+    int32_t second;        // Seconds after the minute [0, 59] (on some systems [0,60] or [0,61] to allow leap seconds).
+    int32_t minute;        // Minutes after the hour [0, 59].
+    int32_t hour;          // Hours since midnight [0, 23].
+    int32_t mday;          // Day of the month [1, 31].
+    int32_t month;         // Month since January [0, 11].
+    int32_t year;          // Years since 1900.
+    int32_t wday;          // Days since Sunday [0, 6].
+    int32_t yday;          // Days since January 1 [0, 365].
+    int32_t isdst;         // Daylight Saving Time flag. The value is positive if DST is in effect, zero if not and negative if no information is available.
 };
 
 
@@ -71,8 +71,8 @@ class TargetTime {
         TimeInfo GetLocalTime(void);
 
     private:
-        TimeInfo upTime;        ///< UTC time indicating the timepoint when this class has been constructed.
-        std::string strUpTime;  ///< String representing the @ref upTime, format: YYYYMMDD_hhmmssmmm.
+        TimeInfo upTime;        // UTC time indicating the timepoint when this class has been constructed.
+        std::string strUpTime;  // String representing the @ref upTime, format: YYYYMMDD_hhmmssmmm.
 };
 
 

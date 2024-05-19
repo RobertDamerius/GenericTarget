@@ -46,12 +46,12 @@ class FileSystem {
 
         /**
          * @brief Keep the N latest protocol files by removing older ones.
-         * @param [in] N The number of the latest protocol files to keep.
+         * @param[in] N The number of the latest protocol files to keep.
          */
         void KeepNLatestProtocolFiles(uint32_t N);
 
     private:
-        std::filesystem::path pathToApplication; ///< Absolute path to the application (generated during construction).
+        std::filesystem::path pathToApplication; // Absolute path to the application (generated during construction).
 };
 
 

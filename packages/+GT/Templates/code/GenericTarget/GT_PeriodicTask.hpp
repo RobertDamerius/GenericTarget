@@ -17,7 +17,7 @@ class PeriodicTask {
 
         /**
          * @brief Create a periodic task.
-         * @param [in] taskID The task ID for the simulink interface.
+         * @param[in] taskID The task ID for the simulink interface.
          */
         explicit PeriodicTask(const uint32_t taskID);
 
@@ -61,16 +61,16 @@ class PeriodicTask {
         }
 
     private:
-        std::thread t;                            ///< Thread object.
-        std::mutex mtx;                           ///< Mutex for thread notification.
-        std::condition_variable cv;               ///< Condition variable for thread notification.
-        bool notified;                            ///< Boolean flag for thread notification.
-        std::atomic<bool> started;                ///< True if periodic task has been started, false otherwise.
-        std::atomic<bool> terminate;              ///< True if thread is to be terminated, false otherwise.
-        std::atomic<bool> jobRunning;             ///< True if a job is running, e.g. the thread is executing some model code, false otherwise.
-        std::atomic<uint64_t> numTaskOverloads;   ///< Total number of task overloads.
-        std::atomic<int> ticks;                   ///< Decrementing tick counter to be used to notify the actual thread with a multiple of the base sampletime.
-        std::atomic<double> taskExecutionTime;    ///< Task-execution time in seconds.
+        std::thread t;                            // Thread object.
+        std::mutex mtx;                           // Mutex for thread notification.
+        std::condition_variable cv;               // Condition variable for thread notification.
+        bool notified;                            // Boolean flag for thread notification.
+        std::atomic<bool> started;                // True if periodic task has been started, false otherwise.
+        std::atomic<bool> terminate;              // True if thread is to be terminated, false otherwise.
+        std::atomic<bool> jobRunning;             // True if a job is running, e.g. the thread is executing some model code, false otherwise.
+        std::atomic<uint64_t> numTaskOverloads;   // Total number of task overloads.
+        std::atomic<int> ticks;                   // Decrementing tick counter to be used to notify the actual thread with a multiple of the base sampletime.
+        std::atomic<double> taskExecutionTime;    // Task-execution time in seconds.
 
         /**
          *  @brief Internal thread function.

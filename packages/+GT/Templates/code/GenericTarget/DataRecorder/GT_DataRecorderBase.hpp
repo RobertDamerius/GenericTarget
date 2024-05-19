@@ -22,7 +22,7 @@ class DataRecorderBase {
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         /**
          * @brief Start the data recorder.
-         * @param [in] filename The absolute filename of the log file.
+         * @param[in] filename The absolute filename of the log file.
          * @return True if success, false otherwise.
          */
         virtual bool Start(std::string filename) = 0;

@@ -24,12 +24,12 @@ namespace gt {
  */
 class GenericTarget {
     public:
-        static ApplicationArguments args;                 ///< Arguments passed to the application. They are parsed when calling @ref Run.
-        static FileSystem fileSystem;                     ///< The file system manager for the application.
-        static TargetTime targetTime;                     ///< The target time containing the up time.
-        static DataRecorderManager dataRecorderManager;   ///< Manager for data recordings.
-        static UDPUnicastManager udpUnicastManager;       ///< Manager for UDP unicast operation.
-        static UDPMulticastManager udpMulticastManager;   ///< Manager for UDP multicast operation.
+        static ApplicationArguments args;                 // Arguments passed to the application. They are parsed when calling @ref Run.
+        static FileSystem fileSystem;                     // The file system manager for the application.
+        static TargetTime targetTime;                     // The target time containing the up time.
+        static DataRecorderManager dataRecorderManager;   // Manager for data recordings.
+        static UDPUnicastManager udpUnicastManager;       // Manager for UDP unicast operation.
+        static UDPMulticastManager udpMulticastManager;   // Manager for UDP multicast operation.
 
         /**
          * @brief Get the model execution time (steady clock), that is, the elapsed time to the start of the master clock.
@@ -52,7 +52,7 @@ class GenericTarget {
 
         /**
          * @brief Get the latest task execution time for a task.
-         * @param [in] taskID The ID of the task from which to obtain the latest task execution time.
+         * @param[in] taskID The ID of the task from which to obtain the latest task execution time.
          * @return The latest task execution time in seconds or a negative value if the taskID is invalid.
          * @details The task execution time is the computation time required by the step function of the model.
          */
@@ -60,7 +60,7 @@ class GenericTarget {
 
         /**
          * @brief Get the number of task overloads for a task.
-         * @param [in] taskID The ID of the task from which to obtain the latest number of task overloads.
+         * @param[in] taskID The ID of the task from which to obtain the latest number of task overloads.
          * @return The latest task overload counter or zero if the taskID is invalid.
          */
         static inline uint64_t GetNumTaskOverloads(const uint32_t taskID){ return scheduler.GetNumTaskOverloads(taskID); }
@@ -76,20 +76,20 @@ class GenericTarget {
 
         /**
          * @brief Run the main application.
-         * @param [in] argc Number of arguments passed to the application.
-         * @param [in] argv Array of arguments passed to the application.
+         * @param[in] argc Number of arguments passed to the application.
+         * @param[in] argv Array of arguments passed to the application.
          */
         static void Run(int argc, char** argv);
 
     private:
-        static std::atomic<bool> shouldTerminate;  ///< True if application should be terminated, false otherwise.
-        static UDPSocket appSocket;                ///< The application socket to ensure only one application instance is running on the machine.
-        static BaseRateScheduler scheduler;        ///< The scheduler for the simulink model.
+        static std::atomic<bool> shouldTerminate;  // True if application should be terminated, false otherwise.
+        static UDPSocket appSocket;                // The application socket to ensure only one application instance is running on the machine.
+        static BaseRateScheduler scheduler;        // The scheduler for the simulink model.
 
         /**
          * @brief Initialize the generic target application.
-         * @param [in] argc Number of arguments passed to the application.
-         * @param [in] argv Array of arguments passed to the application.
+         * @param[in] argc Number of arguments passed to the application.
+         * @param[in] argv Array of arguments passed to the application.
          * @return True if success, false if application should close.
          */
         static bool Initialize(int argc, char**argv);
@@ -112,7 +112,7 @@ class GenericTarget {
 
         /**
          * @brief The signal handler.
-         * @param [in] signum Signal that was received.
+         * @param[in] signum Signal that was received.
          */
         static void SignalHandler(int signum);
 
@@ -130,8 +130,8 @@ class GenericTarget {
 
         /**
          * @brief Print initial information to the console output.
-         * @param [in] argc Number of arguments passed to the application.
-         * @param [in] argv Array of arguments passed to the application.
+         * @param[in] argc Number of arguments passed to the application.
+         * @param[in] argv Array of arguments passed to the application.
          */
         static void PrintInfo(int argc, char**argv);
 

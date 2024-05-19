@@ -9,8 +9,8 @@ static WSADATA _wsadata;
 
 /**
  * @brief The main entry function for the generic target application.
- * @param [in] argc Number of arguments passed to the application.
- * @param [in] argv Array of arguments passed to the application.
+ * @param[in] argc Number of arguments passed to the application.
+ * @param[in] argv Array of arguments passed to the application.
  * @return Always 0.
  */
 int main(int argc, char **argv){

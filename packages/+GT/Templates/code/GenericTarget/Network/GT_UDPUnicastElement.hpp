@@ -14,27 +14,27 @@ class UDPUnicastElement: public UDPElementBase {
     public:
         /**
          * @brief Construct a new UDP unicast element object with a specific port as identifier.
-         * @param [in] port The port to be used as identifier.
+         * @param[in] port The port to be used as identifier.
          */
         explicit UDPUnicastElement(uint16_t port):UDPElementBase(port),previousErrorCode(0){}
 
     protected:
         /**
          * @brief Initialize the UDP socket.
-         * @param [in] conf The configuration to be used.
+         * @param[in] conf The configuration to be used.
          * @return Error code or 0 if success.
          */
         int32_t InitializeSocket(UDPConfiguration conf);
 
         /**
          * @brief Terminate the UDP socket.
-         * @param [in] conf The configuration to be used.
-         * @param [in] verbosePrint True if verbose prints should be enabled, false otherwise.
+         * @param[in] conf The configuration to be used.
+         * @param[in] verbosePrint True if verbose prints should be enabled, false otherwise.
          */
         void TerminateSocket(UDPConfiguration conf, bool verbosePrint);
 
     private:
-        int32_t previousErrorCode;  ///< The previous error code during initialization. This value is used to prevent printing the same error message over and over again.
+        int32_t previousErrorCode;  // The previous error code during initialization. This value is used to prevent printing the same error message over and over again.
 };
 
 

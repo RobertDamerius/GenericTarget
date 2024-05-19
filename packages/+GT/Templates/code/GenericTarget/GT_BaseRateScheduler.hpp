@@ -48,7 +48,7 @@ class BaseRateScheduler {
 
         /**
          * @brief Get the latest task execution time for a task.
-         * @param [in] taskID The ID of the task from which to obtain the latest task execution time.
+         * @param[in] taskID The ID of the task from which to obtain the latest task execution time.
          * @return The latest task execution time in seconds or a negative value if the taskID is invalid.
          * @details The task execution time is the computation time required by the step function of the model.
          */
@@ -60,7 +60,7 @@ class BaseRateScheduler {
 
         /**
          * @brief Get the number of task overloads for a task.
-         * @param [in] taskID The ID of the task from which to obtain the latest number of task overloads.
+         * @param[in] taskID The ID of the task from which to obtain the latest number of task overloads.
          * @return The latest task overload counter or zero if the taskID is invalid.
          */
         inline uint64_t GetNumTaskOverloads(const uint32_t taskID){
@@ -70,10 +70,10 @@ class BaseRateScheduler {
         }
 
     private:
-        std::thread masterThread;           ///< Thread object for the master thread.
-        std::atomic<bool> terminate;        ///< Termination flag: true if master thread is to be terminated, false otherwise.
-        std::vector<PeriodicTask*> tasks;   ///< A list of periodic worker tasks.
-        PeriodicTimer masterClock;          ///< A periodic timer that represents the master clock.
+        std::thread masterThread;           // Thread object for the master thread.
+        std::atomic<bool> terminate;        // Termination flag: true if master thread is to be terminated, false otherwise.
+        std::vector<PeriodicTask*> tasks;   // A list of periodic worker tasks.
+        PeriodicTimer masterClock;          // A periodic timer that represents the master clock.
 
         /**
          * @brief Internal master thread function.

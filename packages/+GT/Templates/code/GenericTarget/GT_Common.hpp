@@ -99,7 +99,7 @@ inline void print_raw(const char* format, ...){
 
 /**
  * @brief Convert given string data to a C++ string and use only printable characters.
- * @param [in] s The input string to be converted.
+ * @param[in] s The input string to be converted.
  * @return String containing only printable characters.
  */
 inline std::string ToPrintableString(std::string s){

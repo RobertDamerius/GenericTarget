@@ -16,7 +16,7 @@ extern void GT_DriverModelExecutionTimeTerminate(void);
 
 /**
  * @brief Perform one step of the driver.
- * @param [out] time Model execution time in seconds.
+ * @param[out] time Model execution time in seconds.
  */
 extern void GT_DriverModelExecutionTimeStep(double* time);
 
