@@ -1,7 +1,7 @@
-%% file : SFunctionGTDriverUTCTime.tlc
+%% file : SFunctionGTDriverUTCTimestamp.tlc
 %% 
 %% Description:
-%%   Simulink Coder TLC Code Generation file for SFunctionGTDriverUTCTime
+%%   Simulink Coder TLC Code Generation file for SFunctionGTDriverUTCTimestamp
 %% 
 %% Simulink version      : 23.2 (R2023b) 01-Aug-2023
 %% TLC file generated on : 20-May-2024 01:41:36
@@ -9,12 +9,12 @@
 /%
      %%%-MATLAB_Construction_Commands_Start
      def = legacy_code('initialize');
-     def.SFunctionName = 'SFunctionGTDriverUTCTime';
-     def.OutputFcnSpec = 'void GT_DriverUTCTimeStep(int32 y1[1], int32 y2[1], int32 y3[1], int32 y4[1], int32 y5[1], int32 y6[1], int32 y7[1], int32 y8[1], int32 y9[1], int32 y10[1])';
-     def.StartFcnSpec = 'void GT_DriverUTCTimeInitialize()';
-     def.TerminateFcnSpec = 'void GT_DriverUTCTimeTerminate()';
-     def.HeaderFiles = {'GT_DriverUTCTime.hpp'};
-     def.SourceFiles = {'GT_DriverUTCTime.cpp', 'GT_SimulinkSupport.cpp'};
+     def.SFunctionName = 'SFunctionGTDriverUTCTimestamp';
+     def.OutputFcnSpec = 'void GT_DriverUTCTimestampStep(double y1[1])';
+     def.StartFcnSpec = 'void GT_DriverUTCTimestampInitialize()';
+     def.TerminateFcnSpec = 'void GT_DriverUTCTimestampTerminate()';
+     def.HeaderFiles = {'GT_DriverUTCTimestamp.hpp'};
+     def.SourceFiles = {'GT_DriverUTCTimestamp.cpp', 'GT_SimulinkSupport.cpp'};
      def.SampleTime = 'parameterized';
      def.Options.useTlcWithAccel = false;
      def.Options.language = 'C++';
@@ -23,7 +23,7 @@
      %%%-MATLAB_Construction_Commands_End
 %/
 
-%implements SFunctionGTDriverUTCTime "C"
+%implements SFunctionGTDriverUTCTimestamp "C"
 
 %% Function: FcnGenerateUniqueFileName ====================================
 %function FcnGenerateUniqueFileName (filename, type) void
@@ -50,7 +50,7 @@
     %endif
 
     %if IsModelReferenceSimTarget() || CodeFormat=="S-Function" || ::isRAccel
-        %assign hFileName = FcnGenerateUniqueFileName("SFunctionGTDriverUTCTime_wrapper", "header")
+        %assign hFileName = FcnGenerateUniqueFileName("SFunctionGTDriverUTCTimestamp_wrapper", "header")
         %assign hFileNameMacro = FEVAL("upper", hFileName)
         %openfile hFile = "%<hFileName>.h"
         %selectfile hFile
@@ -70,7 +70,7 @@
         
         %closefile hFile
         
-        %assign cFileName = FcnGenerateUniqueFileName("SFunctionGTDriverUTCTime_wrapper", "source")
+        %assign cFileName = FcnGenerateUniqueFileName("SFunctionGTDriverUTCTimestamp_wrapper", "source")
         %openfile cFile = "%<cFileName>.cpp"
         %selectfile cFile
         #include <string.h>
@@ -80,7 +80,7 @@
         %<LibEmitPlatformTypeIncludes()>
         #endif
 
-        #include "GT_DriverUTCTime.hpp"
+        #include "GT_DriverUTCTimestamp.hpp"
 
         %if IsModelReferenceSimTarget() && !::GenCPP
         extern "C" {
@@ -99,18 +99,18 @@
             %<LibAddToModelSources("%<cFileName>")>
         %endif
     %else
-        %<LibAddToCommonIncludes("GT_DriverUTCTime.hpp")>
+        %<LibAddToCommonIncludes("GT_DriverUTCTimestamp.hpp")>
     %endif
-    %<SLibAddToStaticSources("GT_DriverUTCTime.cpp")>
+    %<SLibAddToStaticSources("GT_DriverUTCTimestamp.cpp")>
     %<SLibAddToStaticSources("GT_SimulinkSupport.cpp")>
 %endfunction
 
 %% Function: BlockInstanceSetup ===========================================
 %function BlockInstanceSetup (block, system) void
-    %assign int32Type = LibGetDataTypeNameFromId(::CompiledModel.tSS_INT32)
+    %assign doubleType = LibGetDataTypeNameFromId(::CompiledModel.tSS_DOUBLE)
     %if IsModelReferenceSimTarget() || CodeFormat=="S-Function" || ::isRAccel
         %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
-        %assign hFileName = FcnGenerateUniqueFileName("SFunctionGTDriverUTCTime_wrapper_%<sfunInstanceName>", "header")
+        %assign hFileName = FcnGenerateUniqueFileName("SFunctionGTDriverUTCTimestamp_wrapper_%<sfunInstanceName>", "header")
         %assign hFileNameMacro = FEVAL("upper", hFileName)
         %openfile hFile = "%<hFileName>.h"
         %selectfile hFile
@@ -123,16 +123,16 @@
         %<LibEmitPlatformTypeIncludes()>
         #endif
         
-        extern void SFunctionGTDriverUTCTime_wrapper_Start_%<sfunInstanceName>(void);
-        extern void SFunctionGTDriverUTCTime_wrapper_Output_%<sfunInstanceName>( %<int32Type>* y1,  %<int32Type>* y2,  %<int32Type>* y3,  %<int32Type>* y4,  %<int32Type>* y5,  %<int32Type>* y6,  %<int32Type>* y7,  %<int32Type>* y8,  %<int32Type>* y9,  %<int32Type>* y10);
-        extern void SFunctionGTDriverUTCTime_wrapper_Terminate_%<sfunInstanceName>(void);
+        extern void SFunctionGTDriverUTCTimestamp_wrapper_Start_%<sfunInstanceName>(void);
+        extern void SFunctionGTDriverUTCTimestamp_wrapper_Output_%<sfunInstanceName>( %<doubleType>* y1);
+        extern void SFunctionGTDriverUTCTimestamp_wrapper_Terminate_%<sfunInstanceName>(void);
         
         #endif
         
         %closefile hFile
         
         %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
-        %assign cFileName = FcnGenerateUniqueFileName("SFunctionGTDriverUTCTime_wrapper_%<sfunInstanceName>", "source")
+        %assign cFileName = FcnGenerateUniqueFileName("SFunctionGTDriverUTCTimestamp_wrapper_%<sfunInstanceName>", "source")
         %openfile cFile = "%<cFileName>.cpp"
         %selectfile cFile
         #include <string.h>
@@ -142,23 +142,13 @@
         %<LibEmitPlatformTypeIncludes()>
         #endif
 
-        #include "GT_DriverUTCTime.hpp"
+        #include "GT_DriverUTCTimestamp.hpp"
 
         %if IsModelReferenceSimTarget() && !::GenCPP
         extern "C" {
         %endif
-        void SFunctionGTDriverUTCTime_wrapper_Start_%<sfunInstanceName>(void) {
-            GT_DriverUTCTimeInitialize();
-        }
-        %if IsModelReferenceSimTarget() && !::GenCPP
-        }
-        %endif
-
-        %if IsModelReferenceSimTarget() && !::GenCPP
-        extern "C" {
-        %endif
-        void SFunctionGTDriverUTCTime_wrapper_Output_%<sfunInstanceName>( %<int32Type>* y1,  %<int32Type>* y2,  %<int32Type>* y3,  %<int32Type>* y4,  %<int32Type>* y5,  %<int32Type>* y6,  %<int32Type>* y7,  %<int32Type>* y8,  %<int32Type>* y9,  %<int32Type>* y10) {
-            GT_DriverUTCTimeStep(y1, y2, y3, y4, y5, y6, y7, y8, y9, y10);
+        void SFunctionGTDriverUTCTimestamp_wrapper_Start_%<sfunInstanceName>(void) {
+            GT_DriverUTCTimestampInitialize();
         }
         %if IsModelReferenceSimTarget() && !::GenCPP
         }
@@ -167,8 +157,18 @@
         %if IsModelReferenceSimTarget() && !::GenCPP
         extern "C" {
         %endif
-        void SFunctionGTDriverUTCTime_wrapper_Terminate_%<sfunInstanceName>(void) {
-            GT_DriverUTCTimeTerminate();
+        void SFunctionGTDriverUTCTimestamp_wrapper_Output_%<sfunInstanceName>( %<doubleType>* y1) {
+            GT_DriverUTCTimestampStep(y1);
+        }
+        %if IsModelReferenceSimTarget() && !::GenCPP
+        }
+        %endif
+
+        %if IsModelReferenceSimTarget() && !::GenCPP
+        extern "C" {
+        %endif
+        void SFunctionGTDriverUTCTimestamp_wrapper_Terminate_%<sfunInstanceName>(void) {
+            GT_DriverUTCTimestampTerminate();
         }
         %if IsModelReferenceSimTarget() && !::GenCPP
         }
@@ -194,12 +194,12 @@
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
         {
             %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
-            SFunctionGTDriverUTCTime_wrapper_Start_%<sfunInstanceName>();
+            SFunctionGTDriverUTCTimestamp_wrapper_Start_%<sfunInstanceName>();
         
         }
     %else
         %% 
-        GT_DriverUTCTimeInitialize();
+        GT_DriverUTCTimestampInitialize();
     %endif
 %endfunction
 
@@ -207,35 +207,17 @@
 %function Outputs (block, system) Output
     %if IsModelReferenceSimTarget() || CodeFormat=="S-Function" || ::isRAccel
         %assign y1_ptr = LibBlockOutputSignalAddr(0, "", "", 0)
-        %assign y2_ptr = LibBlockOutputSignalAddr(1, "", "", 0)
-        %assign y3_ptr = LibBlockOutputSignalAddr(2, "", "", 0)
-        %assign y4_ptr = LibBlockOutputSignalAddr(3, "", "", 0)
-        %assign y5_ptr = LibBlockOutputSignalAddr(4, "", "", 0)
-        %assign y6_ptr = LibBlockOutputSignalAddr(5, "", "", 0)
-        %assign y7_ptr = LibBlockOutputSignalAddr(6, "", "", 0)
-        %assign y8_ptr = LibBlockOutputSignalAddr(7, "", "", 0)
-        %assign y9_ptr = LibBlockOutputSignalAddr(8, "", "", 0)
-        %assign y10_ptr = LibBlockOutputSignalAddr(9, "", "", 0)
         %% 
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
         {
             %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
-            SFunctionGTDriverUTCTime_wrapper_Output_%<sfunInstanceName>(%<y1_ptr>, %<y2_ptr>, %<y3_ptr>, %<y4_ptr>, %<y5_ptr>, %<y6_ptr>, %<y7_ptr>, %<y8_ptr>, %<y9_ptr>, %<y10_ptr>);
+            SFunctionGTDriverUTCTimestamp_wrapper_Output_%<sfunInstanceName>(%<y1_ptr>);
         
         }
     %else
         %assign y1_ptr = LibBlockOutputSignalAddr(0, "", "", 0)
-        %assign y2_ptr = LibBlockOutputSignalAddr(1, "", "", 0)
-        %assign y3_ptr = LibBlockOutputSignalAddr(2, "", "", 0)
-        %assign y4_ptr = LibBlockOutputSignalAddr(3, "", "", 0)
-        %assign y5_ptr = LibBlockOutputSignalAddr(4, "", "", 0)
-        %assign y6_ptr = LibBlockOutputSignalAddr(5, "", "", 0)
-        %assign y7_ptr = LibBlockOutputSignalAddr(6, "", "", 0)
-        %assign y8_ptr = LibBlockOutputSignalAddr(7, "", "", 0)
-        %assign y9_ptr = LibBlockOutputSignalAddr(8, "", "", 0)
-        %assign y10_ptr = LibBlockOutputSignalAddr(9, "", "", 0)
         %% 
-        GT_DriverUTCTimeStep(%<y1_ptr>, %<y2_ptr>, %<y3_ptr>, %<y4_ptr>, %<y5_ptr>, %<y6_ptr>, %<y7_ptr>, %<y8_ptr>, %<y9_ptr>, %<y10_ptr>);
+        GT_DriverUTCTimestampStep(%<y1_ptr>);
     %endif
 %endfunction
 
@@ -246,12 +228,12 @@
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
         {
             %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
-            SFunctionGTDriverUTCTime_wrapper_Terminate_%<sfunInstanceName>();
+            SFunctionGTDriverUTCTimestamp_wrapper_Terminate_%<sfunInstanceName>();
         
         }
     %else
         %% 
-        GT_DriverUTCTimeTerminate();
+        GT_DriverUTCTimestampTerminate();
     %endif
 %endfunction
 

@@ -11,8 +11,17 @@ namespace gt {
  * @brief This enumeration represents the buffer strategy to be used if the UDP receive buffer is full.
  */
 enum class udp_buffer_strategy : uint32_t {
-    DISCARD_OLDEST = 0,                       ///< Discard the oldest message in the buffer and insert the received message into the buffer if the receive buffer is full.
-    DISCARD_RECEIVED = 1                      ///< Discard the received message if the receive buffer is full.
+    DISCARD_OLDEST = 0,    ///< Discard the oldest message in the buffer and insert the received message into the buffer if the receive buffer is full.
+    DISCARD_RECEIVED = 1   ///< Discard the received message if the receive buffer is full.
+};
+
+
+/**
+ * @brief This enumeration represents the time source to be used for timestamps.
+ */
+enum class udp_timestamp_source : uint8_t {
+    TIMESTAMPSOURCE_MODEL_EXECUTION_TIME = 0,   ///< Use the model execution time as time source (default).
+    TIMESTAMPSOURCE_UTC_TIMESTAMP = 1           ///< Use the UTC timestamp as time source.
 };
 
 
@@ -29,6 +38,7 @@ class UDPConfiguration {
         int32_t priorityThread;                      ///< [RX] Receiver thread priority, range: [1, 99].
         uint32_t numBuffers;                         ///< [RX] Number of buffers, must be greater than zero.
         udp_buffer_strategy bufferStrategy;          ///< [RX] The buffer strategy.
+        udp_timestamp_source timestampSource;        ///< [RX] The time source to be used for timestamps.
         std::array<uint8_t,4> ipFilter;              ///< [RX] IP address to be used for address filtering when receiving messages.
         bool countAsDiscarded;                       ///< [RX] True if out-filtered messages should be counted as discarded.
         int32_t prioritySocket;                      ///< [TX] Socket priority, range: [0, 6].

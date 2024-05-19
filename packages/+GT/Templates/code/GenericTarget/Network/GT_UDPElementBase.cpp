@@ -162,7 +162,17 @@ void UDPElementBase::WorkerThread(const UDPConfiguration conf){
         while(!terminate && socket.IsOpen()){
             // Wait for next message to be received
             int32_t rx = socket.ReceiveFrom(source, &localBuffer[0], conf.rxBufferSize);
-            double timestamp = GenericTarget::GetModelExecutionTime();
+            double t1 = GenericTarget::GetModelExecutionTime();
+            double t2 = GenericTarget::targetTime.GetUTCTimestamp();
+            double timestamp = t1;
+            switch(conf.timestampSource){
+                case udp_timestamp_source::TIMESTAMPSOURCE_MODEL_EXECUTION_TIME:
+                    timestamp = t1;
+                    break;
+                case udp_timestamp_source::TIMESTAMPSOURCE_UTC_TIMESTAMP:
+                    timestamp = t2;
+                    break;
+            }
             if((rx < 0) || !socket.IsOpen() || terminate){
                 break;
             }

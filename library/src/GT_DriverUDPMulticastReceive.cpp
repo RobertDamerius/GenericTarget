@@ -10,7 +10,7 @@
 #endif
 
 
-void GT_DriverUDPMulticastReceiveInitialize(uint16_t port, uint8_t* ipGroup, uint8_t interfaceJoinUseName, uint8_t* interfaceJoinIP, uint8_t* interfaceJoinName, uint32_t interfaceJoinNameLength, uint32_t rxBufferSize, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded){
+void GT_DriverUDPMulticastReceiveInitialize(uint16_t port, uint8_t* ipGroup, uint8_t interfaceJoinUseName, uint8_t* interfaceJoinIP, uint8_t* interfaceJoinName, uint32_t interfaceJoinNameLength, uint32_t rxBufferSize, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded, uint8_t timestampSource){
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
         gt::UDPConfiguration conf;
         conf.multicast.group[0] = ipGroup[0];
@@ -33,6 +33,7 @@ void GT_DriverUDPMulticastReceiveInitialize(uint16_t port, uint8_t* ipGroup, uin
         conf.priorityThread = priorityThread;
         conf.numBuffers = numBuffers;
         conf.bufferStrategy = static_cast<gt::udp_buffer_strategy>(bufferStrategy);
+        conf.timestampSource = static_cast<gt::udp_timestamp_source>(timestampSource);
         conf.ipFilter[0] = ipFilter[0];
         conf.ipFilter[1] = ipFilter[1];
         conf.ipFilter[2] = ipFilter[2];
@@ -62,6 +63,7 @@ void GT_DriverUDPMulticastReceiveInitialize(uint16_t port, uint8_t* ipGroup, uin
         conf.priorityThread = priorityThread;
         conf.numBuffers = numBuffers;
         conf.bufferStrategy = static_cast<gt_simulink_support::udp_buffer_strategy>(bufferStrategy);
+        conf.timestampSource = static_cast<gt_simulink_support::udp_timestamp_source>(timestampSource);
         conf.ipFilter[0] = ipFilter[0];
         conf.ipFilter[1] = ipFilter[1];
         conf.ipFilter[2] = ipFilter[2];
@@ -83,6 +85,7 @@ void GT_DriverUDPMulticastReceiveInitialize(uint16_t port, uint8_t* ipGroup, uin
         (void)bufferStrategy;
         (void)ipFilter;
         (void)countAsDiscarded;
+        (void)timestampSource;
     #endif
 }
 

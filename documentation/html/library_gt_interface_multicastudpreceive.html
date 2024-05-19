@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20240518</div>
+<div class="header_version">Version 20240520</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -97,7 +97,7 @@ The bus contains the following values.
     <tr><th>Parameter Name</th><th>Data Type</th><th>Description</th></tr>
     <tr><td style="font-family: Courier New;">sourceAddress</td><td style="font-family: Courier New;">uint8</td><td>A 4-by-M matrix denoting the source IPv4 addresses, where M denotes the number of messages in the buffer.</td></tr>
     <tr><td style="font-family: Courier New;">sourcePort</td><td style="font-family: Courier New;">uint16</td><td>An M-by-1 vector indicating the source ports, where M denotes the number of messages in the buffer.</td></tr>
-    <tr><td style="font-family: Courier New;">timestamp</td><td style="font-family: Courier New;">double</td><td>An M-by-1 vector indicating the timestamp in seconds when the corresponding message has been received by the receiver thread. This time corresponds to the model execution time.</td></tr>
+    <tr><td style="font-family: Courier New;">timestamp</td><td style="font-family: Courier New;">double</td><td>An M-by-1 vector indicating the timestamp in seconds when the corresponding message has been received by the receiver thread. The time source is selected in the Advanced tab of the block mask.</td></tr>
     <tr><td style="font-family: Courier New;">numReceivedMessages</td><td style="font-family: Courier New;">uint32</td><td>The number of messages that have been received.</td></tr>
     <tr><td style="font-family: Courier New;">numDiscardedMessages</td><td style="font-family: Courier New;">uint32</td><td>The number of messages that have been discarded.</td></tr>
     <tr><td style="font-family: Courier New;">lastErrorCode</td><td style="font-family: Courier New;">int32</td><td>The value indicates the last socket error code from sending a message. 0 means no error. The actual meaning of non-zero values depend on the operating system.</td></tr>

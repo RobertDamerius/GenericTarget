@@ -10,6 +10,7 @@ UDPConfiguration::UDPConfiguration(){
     priorityThread = 21;
     numBuffers = 1;
     bufferStrategy = udp_buffer_strategy::DISCARD_OLDEST;
+    timestampSource = udp_timestamp_source::TIMESTAMPSOURCE_MODEL_EXECUTION_TIME;
     ipFilter = {0,0,0,0};
     countAsDiscarded = true;
     allowBroadcast = false;
@@ -99,6 +100,10 @@ bool UDPConfiguration::UpdateUnicastReceiverConfiguration(const UDPConfiguration
             GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"bufferStrategy\"!");
             return false;
         }
+        if(timestampSource != receiverConfiguration.timestampSource){
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"timestampSource\"!");
+            return false;
+        }
         if((ipFilter[0] != receiverConfiguration.ipFilter[0]) || (ipFilter[1] != receiverConfiguration.ipFilter[1]) || (ipFilter[2] != receiverConfiguration.ipFilter[2]) || (ipFilter[3] != receiverConfiguration.ipFilter[3])){
             GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"ipFilter\"!");
             return false;
@@ -127,6 +132,7 @@ bool UDPConfiguration::UpdateUnicastReceiverConfiguration(const UDPConfiguration
         priorityThread = receiverConfiguration.priorityThread;
         numBuffers = receiverConfiguration.numBuffers;
         bufferStrategy = receiverConfiguration.bufferStrategy;
+        timestampSource = receiverConfiguration.timestampSource;
         ipFilter = receiverConfiguration.ipFilter;
         countAsDiscarded = receiverConfiguration.countAsDiscarded;
 
@@ -233,6 +239,10 @@ bool UDPConfiguration::UpdateMulticastReceiverConfiguration(const UDPConfigurati
             GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"bufferStrategy\"!");
             return false;
         }
+        if(timestampSource != receiverConfiguration.timestampSource){
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"timestampSource\"!");
+            return false;
+        }
         if((ipFilter[0] != receiverConfiguration.ipFilter[0]) || (ipFilter[1] != receiverConfiguration.ipFilter[1]) || (ipFilter[2] != receiverConfiguration.ipFilter[2]) || (ipFilter[3] != receiverConfiguration.ipFilter[3])){
             GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"ipFilter\"!");
             return false;
@@ -269,6 +279,7 @@ bool UDPConfiguration::UpdateMulticastReceiverConfiguration(const UDPConfigurati
         priorityThread = receiverConfiguration.priorityThread;
         numBuffers = receiverConfiguration.numBuffers;
         bufferStrategy = receiverConfiguration.bufferStrategy;
+        timestampSource = receiverConfiguration.timestampSource;
         ipFilter = receiverConfiguration.ipFilter;
         countAsDiscarded = receiverConfiguration.countAsDiscarded;
         multicast.interfaceJoinUseName = receiverConfiguration.multicast.interfaceJoinUseName;

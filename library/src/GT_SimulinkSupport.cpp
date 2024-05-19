@@ -114,6 +114,20 @@ double GenericTarget::GetModelExecutionTime(void){
     return 1e-9 * static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - GenericTarget::timePointOfStart).count());
 }
 
+double GenericTarget::GetUTCTimestamp(void){
+    auto timePoint = std::chrono::system_clock::now();
+    std::time_t systemTime = std::chrono::system_clock::to_time_t(timePoint);
+    std::tm* gmTime = std::gmtime(&systemTime);
+    double s = static_cast<double>(gmTime->tm_sec);
+    double m = static_cast<double>(gmTime->tm_min);
+    double h = static_cast<double>(gmTime->tm_hour);
+    auto duration = timePoint.time_since_epoch();
+    auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
+    duration -= seconds;
+    s += 1e-9 * static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count());
+    return 3600.0 * h + 60.0 * m + s;
+}
+
 Address::Address(uint8_t ip0, uint8_t ip1, uint8_t ip2, uint8_t ip3, uint16_t port){
     ip[0] = ip0;
     ip[1] = ip1;
@@ -403,6 +417,7 @@ UDPConfiguration::UDPConfiguration(){
     priorityThread = 21;
     numBuffers = 1;
     bufferStrategy = udp_buffer_strategy::DISCARD_OLDEST;
+    timestampSource = udp_timestamp_source::TIMESTAMPSOURCE_MODEL_EXECUTION_TIME;
     ipFilter = {0,0,0,0};
     countAsDiscarded = true;
     allowBroadcast = false;
@@ -492,6 +507,10 @@ bool UDPConfiguration::UpdateUnicastReceiverConfiguration(const UDPConfiguration
             GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"bufferStrategy\"!");
             return false;
         }
+        if(timestampSource != receiverConfiguration.timestampSource){
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"timestampSource\"!");
+            return false;
+        }
         if((ipFilter[0] != receiverConfiguration.ipFilter[0]) || (ipFilter[1] != receiverConfiguration.ipFilter[1]) || (ipFilter[2] != receiverConfiguration.ipFilter[2]) || (ipFilter[3] != receiverConfiguration.ipFilter[3])){
             GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"ipFilter\"!");
             return false;
@@ -520,6 +539,7 @@ bool UDPConfiguration::UpdateUnicastReceiverConfiguration(const UDPConfiguration
         priorityThread = receiverConfiguration.priorityThread;
         numBuffers = receiverConfiguration.numBuffers;
         bufferStrategy = receiverConfiguration.bufferStrategy;
+        timestampSource = receiverConfiguration.timestampSource;
         ipFilter = receiverConfiguration.ipFilter;
         countAsDiscarded = receiverConfiguration.countAsDiscarded;
 
@@ -626,6 +646,10 @@ bool UDPConfiguration::UpdateMulticastReceiverConfiguration(const UDPConfigurati
             GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"bufferStrategy\"!");
             return false;
         }
+        if(timestampSource != receiverConfiguration.timestampSource){
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"timestampSource\"!");
+            return false;
+        }
         if((ipFilter[0] != receiverConfiguration.ipFilter[0]) || (ipFilter[1] != receiverConfiguration.ipFilter[1]) || (ipFilter[2] != receiverConfiguration.ipFilter[2]) || (ipFilter[3] != receiverConfiguration.ipFilter[3])){
             GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"ipFilter\"!");
             return false;
@@ -662,6 +686,7 @@ bool UDPConfiguration::UpdateMulticastReceiverConfiguration(const UDPConfigurati
         priorityThread = receiverConfiguration.priorityThread;
         numBuffers = receiverConfiguration.numBuffers;
         bufferStrategy = receiverConfiguration.bufferStrategy;
+        timestampSource = receiverConfiguration.timestampSource;
         ipFilter = receiverConfiguration.ipFilter;
         countAsDiscarded = receiverConfiguration.countAsDiscarded;
         multicast.interfaceJoinUseName = receiverConfiguration.multicast.interfaceJoinUseName;
@@ -934,7 +959,17 @@ void UDPElementBase::WorkerThread(const UDPConfiguration conf){
         while(!terminate && socket.IsOpen()){
             // Wait for next message to be received
             int32_t rx = socket.ReceiveFrom(source, &localBuffer[0], conf.rxBufferSize);
-            double timestamp = GenericTarget::GetModelExecutionTime();
+            double t1 = GenericTarget::GetModelExecutionTime();
+            double t2 = GenericTarget::GetUTCTimestamp();
+            double timestamp = t1;
+            switch(conf.timestampSource){
+                case udp_timestamp_source::TIMESTAMPSOURCE_MODEL_EXECUTION_TIME:
+                    timestamp = t1;
+                    break;
+                case udp_timestamp_source::TIMESTAMPSOURCE_UTC_TIMESTAMP:
+                    timestamp = t2;
+                    break;
+            }
             if((rx < 0) || !socket.IsOpen() || terminate){
                 break;
             }

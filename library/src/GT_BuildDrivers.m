@@ -1,3 +1,4 @@
+cd(extractBefore(mfilename('fullpath'),strlength(mfilename('fullpath')) - strlength(mfilename) + 1));
 fprintf('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n B U I L D   S I M U L I N K - I N T E R F A C E\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
 str = input('Simulink blocks will only implement their functionality on the target and thus have no effect during simulation using Simulink.\nHowever, for some blocks a Simulink support are available, that is, their functionality will also work in Simulink.\n\nCompile with Simulink support? [y]:  ','s');
 useSimulinkSupport = strcmp('y',str);
@@ -32,7 +33,7 @@ defs = [defs; def];
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
 def.SFunctionName = 'SFunctionGTDriverUDPUnicastReceive';
-def.StartFcnSpec  = 'void GT_DriverUDPUnicastReceiveInitialize(uint16 p1, uint8 p2[4], uint32 p3, int32 p4, uint32 p5, uint32 p6, uint8 p7[4], uint8 p8, uint8 p9, uint8 p10[], uint32 p11)';
+def.StartFcnSpec  = 'void GT_DriverUDPUnicastReceiveInitialize(uint16 p1, uint8 p2[4], uint32 p3, int32 p4, uint32 p5, uint32 p6, uint8 p7[4], uint8 p8, uint8 p9, uint8 p10[], uint32 p11, uint8 p12)';
 def.TerminateFcnSpec = 'void GT_DriverUDPUnicastReceiveTerminate()';
 def.OutputFcnSpec = 'void GT_DriverUDPUnicastReceiveStep(uint16 p1, uint32 p3, uint32 p5, uint16 y1[5*p5], uint8 y2[p3*p5], uint32 y3[p5], double y4[p5], uint32 y5[1], uint32 y6[1], int32 y7[1])';
 def.HeaderFiles   = {'GT_DriverUDPUnicastReceive.hpp'};
@@ -74,7 +75,7 @@ defs = [defs; def];
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
 def.SFunctionName = 'SFunctionGTDriverUDPMulticastReceive';
-def.StartFcnSpec  = 'void GT_DriverUDPMulticastReceiveInitialize(uint16 p1, uint8 p2[4], uint8 p3, uint8 p4[4], uint8 p5[], uint32 p6, uint32 p7, int32 p8, uint32 p9, uint32 p10, uint8 p11[4], uint8 p12)';
+def.StartFcnSpec  = 'void GT_DriverUDPMulticastReceiveInitialize(uint16 p1, uint8 p2[4], uint8 p3, uint8 p4[4], uint8 p5[], uint32 p6, uint32 p7, int32 p8, uint32 p9, uint32 p10, uint8 p11[4], uint8 p12, uint8 p13)';
 def.TerminateFcnSpec = 'void GT_DriverUDPMulticastReceiveTerminate()';
 def.OutputFcnSpec = 'void GT_DriverUDPMulticastReceiveStep(uint16 p1, uint32 p7, uint32 p9, uint16 y1[5*p9], uint8 y2[p7*p9], uint32 y3[p9], double y4[p9], uint32 y5[1], uint32 y6[1], int32 y7[1])';
 def.HeaderFiles   = {'GT_DriverUDPMulticastReceive.hpp'};
@@ -121,6 +122,27 @@ def.TerminateFcnSpec = 'void GT_DriverUnixTimeTerminate()';
 def.OutputFcnSpec = 'void GT_DriverUnixTimeStep(double y1[1])';
 def.HeaderFiles   = {'GT_DriverUnixTime.hpp'};
 def.SourceFiles   = {'GT_DriverUnixTime.cpp','GT_SimulinkSupport.cpp'};
+def.IncPaths      = {''};
+def.SrcPaths      = {''};
+def.LibPaths      = {''};
+def.HostLibFiles  = {''};
+def.Options.language = 'C++';
+def.Options.useTlcWithAccel = false;
+def.Options.supportsMultipleExecInstances = true;
+def.SampleTime = 'parameterized';
+defs = [defs; def];
+
+
+% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Driver: UTC Timestamp
+% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def = legacy_code('initialize');
+def.SFunctionName = 'SFunctionGTDriverUTCTimestamp';
+def.StartFcnSpec  = 'void GT_DriverUTCTimestampInitialize()';
+def.TerminateFcnSpec = 'void GT_DriverUTCTimestampTerminate()';
+def.OutputFcnSpec = 'void GT_DriverUTCTimestampStep(double y1[1])';
+def.HeaderFiles   = {'GT_DriverUTCTimestamp.hpp'};
+def.SourceFiles   = {'GT_DriverUTCTimestamp.cpp','GT_SimulinkSupport.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};

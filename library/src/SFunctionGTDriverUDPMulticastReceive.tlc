@@ -4,14 +4,14 @@
 %%   Simulink Coder TLC Code Generation file for SFunctionGTDriverUDPMulticastReceive
 %% 
 %% Simulink version      : 23.2 (R2023b) 01-Aug-2023
-%% TLC file generated on : 10-Apr-2024 10:39:39
+%% TLC file generated on : 20-May-2024 01:41:36
 
 /%
      %%%-MATLAB_Construction_Commands_Start
      def = legacy_code('initialize');
      def.SFunctionName = 'SFunctionGTDriverUDPMulticastReceive';
      def.OutputFcnSpec = 'void GT_DriverUDPMulticastReceiveStep(uint16 p1, uint32 p7, uint32 p9, uint16 y1[5*p9], uint8 y2[p7*p9], uint32 y3[p9], double y4[p9], uint32 y5[1], uint32 y6[1], int32 y7[1])';
-     def.StartFcnSpec = 'void GT_DriverUDPMulticastReceiveInitialize(uint16 p1, uint8 p2[4], uint8 p3, uint8 p4[4], uint8 p5[], uint32 p6, uint32 p7, int32 p8, uint32 p9, uint32 p10, uint8 p11[4], uint8 p12)';
+     def.StartFcnSpec = 'void GT_DriverUDPMulticastReceiveInitialize(uint16 p1, uint8 p2[4], uint8 p3, uint8 p4[4], uint8 p5[], uint32 p6, uint32 p7, int32 p8, uint32 p9, uint32 p10, uint8 p11[4], uint8 p12, uint8 p13)';
      def.TerminateFcnSpec = 'void GT_DriverUDPMulticastReceiveTerminate()';
      def.HeaderFiles = {'GT_DriverUDPMulticastReceive.hpp'};
      def.SourceFiles = {'GT_DriverUDPMulticastReceive.cpp', 'GT_SimulinkSupport.cpp'};
@@ -127,7 +127,7 @@
         %<LibEmitPlatformTypeIncludes()>
         #endif
         
-        extern void SFunctionGTDriverUDPMulticastReceive_wrapper_Start_%<sfunInstanceName>(const %<uint16Type> p1, const %<uint8Type>* p2, const %<uint8Type> p3, const %<uint8Type>* p4, const %<uint8Type>* p5, const %<uint32Type> p6, const %<uint32Type> p7, const %<int32Type> p8, const %<uint32Type> p9, const %<uint32Type> p10, const %<uint8Type>* p11, const %<uint8Type> p12);
+        extern void SFunctionGTDriverUDPMulticastReceive_wrapper_Start_%<sfunInstanceName>(const %<uint16Type> p1, const %<uint8Type>* p2, const %<uint8Type> p3, const %<uint8Type>* p4, const %<uint8Type>* p5, const %<uint32Type> p6, const %<uint32Type> p7, const %<int32Type> p8, const %<uint32Type> p9, const %<uint32Type> p10, const %<uint8Type>* p11, const %<uint8Type> p12, const %<uint8Type> p13);
         extern void SFunctionGTDriverUDPMulticastReceive_wrapper_Output_%<sfunInstanceName>(const %<uint16Type> p1, const %<uint32Type> p7, const %<uint32Type> p9,  %<uint16Type>* y1,  %<uint8Type>* y2,  %<uint32Type>* y3,  %<doubleType>* y4,  %<uint32Type>* y5,  %<uint32Type>* y6,  %<int32Type>* y7);
         extern void SFunctionGTDriverUDPMulticastReceive_wrapper_Terminate_%<sfunInstanceName>(void);
         
@@ -151,8 +151,8 @@
         %if IsModelReferenceSimTarget() && !::GenCPP
         extern "C" {
         %endif
-        void SFunctionGTDriverUDPMulticastReceive_wrapper_Start_%<sfunInstanceName>(const %<uint16Type> p1, const %<uint8Type>* p2, const %<uint8Type> p3, const %<uint8Type>* p4, const %<uint8Type>* p5, const %<uint32Type> p6, const %<uint32Type> p7, const %<int32Type> p8, const %<uint32Type> p9, const %<uint32Type> p10, const %<uint8Type>* p11, const %<uint8Type> p12) {
-            GT_DriverUDPMulticastReceiveInitialize((%<uint16Type>)(p1), (%<uint8Type>*)(p2), (%<uint8Type>)(p3), (%<uint8Type>*)(p4), (%<uint8Type>*)(p5), (%<uint32Type>)(p6), (%<uint32Type>)(p7), (%<int32Type>)(p8), (%<uint32Type>)(p9), (%<uint32Type>)(p10), (%<uint8Type>*)(p11), (%<uint8Type>)(p12));
+        void SFunctionGTDriverUDPMulticastReceive_wrapper_Start_%<sfunInstanceName>(const %<uint16Type> p1, const %<uint8Type>* p2, const %<uint8Type> p3, const %<uint8Type>* p4, const %<uint8Type>* p5, const %<uint32Type> p6, const %<uint32Type> p7, const %<int32Type> p8, const %<uint32Type> p9, const %<uint32Type> p10, const %<uint8Type>* p11, const %<uint8Type> p12, const %<uint8Type> p13) {
+            GT_DriverUDPMulticastReceiveInitialize((%<uint16Type>)(p1), (%<uint8Type>*)(p2), (%<uint8Type>)(p3), (%<uint8Type>*)(p4), (%<uint8Type>*)(p5), (%<uint32Type>)(p6), (%<uint32Type>)(p7), (%<int32Type>)(p8), (%<uint32Type>)(p9), (%<uint32Type>)(p10), (%<uint8Type>*)(p11), (%<uint8Type>)(p12), (%<uint8Type>)(p13));
         }
         %if IsModelReferenceSimTarget() && !::GenCPP
         }
@@ -207,11 +207,12 @@
         %assign p10_val = LibBlockParameter(p10, "", "", 0)
         %assign p11_ptr = LibBlockParameterBaseAddr(p11)
         %assign p12_val = LibBlockParameter(p12, "", "", 0)
+        %assign p13_val = LibBlockParameter(p13, "", "", 0)
         %% 
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
         {
             %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
-            SFunctionGTDriverUDPMulticastReceive_wrapper_Start_%<sfunInstanceName>(%<p1_val>, %<p2_ptr>, %<p3_val>, %<p4_ptr>, %<p5_ptr>, %<p6_val>, %<p7_val>, %<p8_val>, %<p9_val>, %<p10_val>, %<p11_ptr>, %<p12_val>);
+            SFunctionGTDriverUDPMulticastReceive_wrapper_Start_%<sfunInstanceName>(%<p1_val>, %<p2_ptr>, %<p3_val>, %<p4_ptr>, %<p5_ptr>, %<p6_val>, %<p7_val>, %<p8_val>, %<p9_val>, %<p10_val>, %<p11_ptr>, %<p12_val>, %<p13_val>);
         
         }
     %else
@@ -227,8 +228,9 @@
         %assign p10_val = LibBlockParameter(p10, "", "", 0)
         %assign p11_ptr = LibBlockParameterBaseAddr(p11)
         %assign p12_val = LibBlockParameter(p12, "", "", 0)
+        %assign p13_val = LibBlockParameter(p13, "", "", 0)
         %% 
-        GT_DriverUDPMulticastReceiveInitialize(%<p1_val>, (%<uint8Type>*)%<p2_ptr>, %<p3_val>, (%<uint8Type>*)%<p4_ptr>, (%<uint8Type>*)%<p5_ptr>, %<p6_val>, %<p7_val>, %<p8_val>, %<p9_val>, %<p10_val>, (%<uint8Type>*)%<p11_ptr>, %<p12_val>);
+        GT_DriverUDPMulticastReceiveInitialize(%<p1_val>, (%<uint8Type>*)%<p2_ptr>, %<p3_val>, (%<uint8Type>*)%<p4_ptr>, (%<uint8Type>*)%<p5_ptr>, %<p6_val>, %<p7_val>, %<p8_val>, %<p9_val>, %<p10_val>, (%<uint8Type>*)%<p11_ptr>, %<p12_val>, %<p13_val>);
     %endif
 %endfunction
 

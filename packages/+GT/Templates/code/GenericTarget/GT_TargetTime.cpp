@@ -16,6 +16,20 @@ double TargetTime::GetUnixTime(void){
     return 0.001 * static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(timePoint.time_since_epoch()).count());
 }
 
+double TargetTime::GetUTCTimestamp(void){
+    auto timePoint = std::chrono::system_clock::now();
+    std::time_t systemTime = std::chrono::system_clock::to_time_t(timePoint);
+    std::tm* gmTime = std::gmtime(&systemTime);
+    double s = static_cast<double>(gmTime->tm_sec);
+    double m = static_cast<double>(gmTime->tm_min);
+    double h = static_cast<double>(gmTime->tm_hour);
+    auto duration = timePoint.time_since_epoch();
+    auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
+    duration -= seconds;
+    s += 1e-9 * static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count());
+    return (3600.0 * h + 60.0 * m + s);
+}
+
 TimeInfo TargetTime::GetUTCTime(void){
     TimeInfo utc;
     auto timePoint = std::chrono::system_clock::now();

@@ -53,6 +53,12 @@ class TargetTime {
         double GetUnixTime(void);
 
         /**
+         * @brief Get the current UTC timestamp.
+         * @return UTC second of the day in seconds in range [0,86400) (on some systems [0,86401) or [0,86402) to allow leap seconds). 
+         */
+        double GetUTCTimestamp(void);
+
+        /**
          * @brief Get the current UTC time from the system clock.
          * @return TimeInfo struct containing the current UTC time.
          */

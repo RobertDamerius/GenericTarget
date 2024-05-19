@@ -17,8 +17,9 @@
  * @param [in] bindToDevice True if the socket should be bound to a specific network device.
  * @param [in] deviceName The device name to which the socket should be bound, if bindToDevice is set to true.
  * @param [in] deviceNameLength The number of characters representing the device name.
+ * @param [in] timestampSource Indicates the timesource to be used for timestamps.
  */
-extern void GT_DriverUDPUnicastReceiveInitialize(uint16_t port, uint8_t* interfaceIP, uint32_t rxBufferSize, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded, uint8_t bindToDevice, uint8_t* deviceName, uint32_t deviceNameLength);
+extern void GT_DriverUDPUnicastReceiveInitialize(uint16_t port, uint8_t* interfaceIP, uint32_t rxBufferSize, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded, uint8_t bindToDevice, uint8_t* deviceName, uint32_t deviceNameLength, uint8_t timestampSource);
 
 /**
  * @brief Terminate the driver.

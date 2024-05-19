@@ -10,13 +10,14 @@
 #endif
 
 
-void GT_DriverUDPUnicastReceiveInitialize(uint16_t port, uint8_t* interfaceIP, uint32_t rxBufferSize, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded, uint8_t bindToDevice, uint8_t* deviceName, uint32_t deviceNameLength){
+void GT_DriverUDPUnicastReceiveInitialize(uint16_t port, uint8_t* interfaceIP, uint32_t rxBufferSize, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded, uint8_t bindToDevice, uint8_t* deviceName, uint32_t deviceNameLength, uint8_t timestampSource){
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
         gt::UDPConfiguration conf;
         conf.rxBufferSize = rxBufferSize;
         conf.priorityThread = priorityThread;
         conf.numBuffers = numBuffers;
         conf.bufferStrategy = static_cast<gt::udp_buffer_strategy>(bufferStrategy);
+        conf.timestampSource = static_cast<gt::udp_timestamp_source>(timestampSource);
         conf.ipFilter[0] = ipFilter[0];
         conf.ipFilter[1] = ipFilter[1];
         conf.ipFilter[2] = ipFilter[2];
@@ -42,6 +43,7 @@ void GT_DriverUDPUnicastReceiveInitialize(uint16_t port, uint8_t* interfaceIP, u
         conf.priorityThread = priorityThread;
         conf.numBuffers = numBuffers;
         conf.bufferStrategy = static_cast<gt_simulink_support::udp_buffer_strategy>(bufferStrategy);
+        conf.timestampSource = static_cast<gt_simulink_support::udp_timestamp_source>(timestampSource);
         conf.ipFilter[0] = ipFilter[0];
         conf.ipFilter[1] = ipFilter[1];
         conf.ipFilter[2] = ipFilter[2];
@@ -74,6 +76,7 @@ void GT_DriverUDPUnicastReceiveInitialize(uint16_t port, uint8_t* interfaceIP, u
         (void)bindToDevice;
         (void)deviceName;
         (void)deviceNameLength;
+        (void)timestampSource;
     #endif
 }
 
