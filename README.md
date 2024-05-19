@@ -43,7 +43,7 @@ The directory structure of this repository is as follows.
 | 2023-10-04  | 2.3      | Added support for UDP broadcast. Network interface names can now be used to specify multicast interfaces.                                                                     |
 | 2023-11-21  | 2.4      | Enabled option supportsMultipleExecInstances for simulink blocks. Added prefixes to prevent name collision with user code.                                                    |
 | 2024-03-19  | 2.5      | Added option to bind network devices for UDP unicast. Updated the block interface for UDP unicast and multicast blocks. Updated library to MATLAB R2023b.                     |
-| 2024-05-19  | 2.6      | Time source of timestamps for UDP receive blocks can be selected via the block mask.                                                                  |
+| 2024-05-20  | 2.6      | Time source of timestamps for UDP receive blocks can be selected via the block mask.                                                                                          |
 
 ## Getting Started
 Look at the HTML-based documentation by opening the ``readme.html`` file with a browser. There you will find a more
