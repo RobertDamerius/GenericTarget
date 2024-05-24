@@ -38,13 +38,13 @@
 <li class="linav"><a href="library_gt_interface_multicastudpreceive.html">Interface / Multicast UDP Receive</a></li>
 <li class="linav"><a href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
 <li class="linav"><a href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
-<li class="linav"><a href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
+<li class="linav_active"><a href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
 <li class="linav"><a href="library_gt_time_modelexecutiontime.html">Time / Model Execution Time</a></li>
 <li class="linav"><a href="library_gt_time_unixtime.html">Time / UNIX Time</a></li>
 <li class="linav"><a href="library_gt_time_utctime.html">Time / UTC Time</a></li>
 <li class="linav"><a href="library_gt_time_localtime.html">Time / Local Time</a></li>
 <li class="linav"><a href="library_gt_time_taskexecutiontime.html">Time / Task Execution Time</a></li>
-<li class="linav_active"><a href="library_gt_time_taskoverloads.html">Time / Task Overloads</a></li>
+<li class="linav"><a href="library_gt_time_taskoverloads.html">Time / Task Overloads</a></li>
 <li class="linav"><a href="library_gt_time_cpuoverloads.html">Time / CPU Overloads</a></li>
 <li class="linav"><a href="library_gt_time_utctimestamp.html">Time / UTC Timestamp</a></li>
 <li class="linav"><a href="library_gt_time_timetolatestutctimestamp.html">Time / Time To Latest UTC Timestamp</a></li>
@@ -65,29 +65,26 @@
 
 </div>
 <div class="content">
-<h1>Task Overloads</h1>
+<h1>Stop Execution</h1>
 <h3>Library</h3>
-<span style="font-family: Courier New">GenericTarget / Time / Task Overloads</span>
+<span style="font-family: Courier New">GenericTarget / Interface / Stop Execution</span>
 
 
 <h3>Description</h3>
-Get the current number of <a href="timingscheduling.html#taskoverload">task overloads</a> for the task running at the specified sampletime.
-If this task does not exist, zero is returned.
-During simulation this block has no effect.
+Stop the execution of the target model. During simulation this block has no effect.
 
 
-<h2>Output Ports</h2>
-<h3>numTaskOverloads</h3>
-The number of task overloads that have occurred to this point for the specified task.
+<h2>Input Ports</h2>
+<h3>stop</h3>
+True if the execution is to be stopped, false otherwise.
 <br>
-<b>Data Type:</b> <span style="font-family: Courier New">uint64</span>
+<b>Data Type:</b> <span style="font-family: Courier New">bool</span>
 
 
 <h2>Block Parameters</h2>
 The following table shows all block parameters.
 <table>
     <tr><th>Parameter Name</th><th>Description</th></tr>
-    <tr><td style="font-family: Courier New;">strTaskName</td><td>A string representing the task name.</td></tr>
     <tr><td style="font-family: Courier New;">SampleTime</td><td>Sampletime.</td></tr>
 </table>
 

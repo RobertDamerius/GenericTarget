@@ -69,7 +69,8 @@ class PeriodicTask {
         std::atomic<bool> terminate;              // True if thread is to be terminated, false otherwise.
         std::atomic<bool> jobRunning;             // True if a job is running, e.g. the thread is executing some model code, false otherwise.
         std::atomic<uint64_t> numTaskOverloads;   // Total number of task overloads.
-        std::atomic<int> ticks;                   // Decrementing tick counter to be used to notify the actual thread with a multiple of the base sampletime.
+        std::atomic<int32_t> ticks;               // Decrementing tick counter to be used to notify the actual thread with a multiple of the base sampletime.
+        std::atomic<int32_t> offsetSamples;       // Decrementing tick counter to be used to wait for some ticks before starting with the actual periodic task.
         std::atomic<double> taskExecutionTime;    // Task-execution time in seconds.
 
         /**

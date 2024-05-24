@@ -1,48 +1,3 @@
-% GenericTarget.m
-% 
-% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% Version     Author                 Changes
-% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% 20191010    Robert Damerius        Initial release.
-% 20200807    Robert Damerius        Added 'mkdir -p' command during setup to create directory structure with subdirectories.
-% 20200803    Robert Damerius        SSH/SCP is used directly via system() command.
-% 20200909    Robert Damerius        Updated code generation for R2020b: new files rtw_windows.c and rtw_linux.c are deleted.
-% 20210202    Robert Damerius        Generated source code is no longer removed from code generation folder after deployment.
-%                                    Source code is updated in separate subdirectory based on model name.
-%                                    Generic Target application is no longer stopped when deploying a new model.
-% 20210203    Robert Damerius        Added DownloadAllData(), Reboot(), Shutdown() and SendCommand() member functions.
-% 20210208    Robert Damerius        Updated data logging on target.
-% 20210210    Robert Damerius        Updated data decoding to handle a various amount of splitted data files.
-%                                    DecodeTargetLog() has been renamed to DecodeTargetLogDirectory().
-%                                    DeleteData() has been renamed to DeleteAllData().
-% 20210218    Robert Damerius        Added portSSH property. Added DeployToHost() member function.
-% 20210319    Robert Damerius        Renamed SendCommand() member function to RunCommandOnTarget().
-%                                    Static decoder functions have been moved to the GT namespace.
-%                                    Added GetTargetLogDirectoryName() member function.
-%                                    Replaced several strcat() calls by vector concatenation because strcat does not
-%                                    concatenate white spaces.
-%                                    DownloadData() has been renamed to DownloadDataDirectory() and does not decode.
-%                                    Constant properties are now public.
-% 20210531    Robert Damerius        Added customCode property that allows directories to be integrated in the code directory.
-% 20210727    Robert Damerius        Added DeployGeneratedCode() member function.
-% 20220216    Robert Damerius        Searching for main entry functions in source files now also works for empty source files.
-% 20220518    Robert Damerius        Getting class name and header of generated code from constructor code info: codeInfo.ConstructorFunction.Prototype.
-% 20221010    Robert Damerius        Name of the simulink interface code is now hardcoded. Updated default priorities and verobse prints.
-% 20221011    Robert Damerius        Added control for task overloads.
-% 20230228    Robert Damerius        Lowest thread priority is set to 1.
-% 20230406    Robert Damerius        Added ConnectTimeout option for SSH and SCP.
-% 20230524    Robert Damerius        Renamed log directory to data directory and added protocol directory.
-%                                    Added number of old protocol files to keep.
-%                                    Updated Start() and Stop() command. Removed command for redirecting into text file as protocol writing is now handled by the target application.
-%                                    Added ShowLatestProtocol(), DeleteAllProtocols(), DownloadAllProtocols().
-% 20230719    Robert Damerius        Removed Setup(), whole framework is deployed during Deploy().
-%                                    Updated code generation process.
-%                                    Added properties for additional compiler flags and added checks for class properties.
-%                                    Added property targetProductName to change executable name if desired.
-%                                    Added property targetBitmaskCPUCores to use CPU affinity and pin the target application to specific CPU cores during Start().
-%
-% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 classdef GenericTarget < handle
     %GT.GenericTarget Generate code from a simulink model and build and deploy the model
     % on a generic target running a linux OS with the PREEMPT_RT patch.
@@ -728,8 +683,9 @@ classdef GenericTarget < handle
             baseSampleTime = inf;
             for n = uint32(1):numTimings
                 assert(strcmp(codeInfo.OutputFunctions(n).Timing.TimingMode,'PERIODIC'), 'GT.GenericTarget.GenerateInterfaceCode(): Timing mode for all model step functions must be "PERIODIC"!');
-                assert(strcmp(codeInfo.OutputFunctions(n).Timing.TaskingMode,'IMPLICIT_TASKING'), 'GT.GenericTarget.GenerateInterfaceCode(): Tasking mode for all model step functions must be "IMPLICIT_TASKING"!');
-                assert(codeInfo.OutputFunctions(n).Timing.SampleOffset < eps, 'GT.GenericTarget.GenerateInterfaceCode(): A SampleOffset other than zero is not supported for output functions!');
+                assert(strcmp(codeInfo.OutputFunctions(n).Timing.TaskingMode,'IMPLICIT_TASKING') || strcmp(codeInfo.OutputFunctions(n).Timing.TaskingMode,'EXPLICIT_TASKING'), 'GT.GenericTarget.GenerateInterfaceCode(): Tasking mode for all model step functions must be either "IMPLICIT_TASKING" or "EXPLICIT_TASKING"!');
+                assert(codeInfo.OutputFunctions(n).Timing.SamplePeriod > 0, 'GT.GenericTarget.GenerateInterfaceCode(): The SamplePeriod must be greater than zero!');
+                assert(codeInfo.OutputFunctions(n).Timing.SampleOffset >= 0, 'GT.GenericTarget.GenerateInterfaceCode(): A negative SampleOffset is not supported for output functions!');
                 if(codeInfo.OutputFunctions(n).Timing.SamplePeriod < baseSampleTime)
                     baseSampleTime = codeInfo.OutputFunctions(n).Timing.SamplePeriod;
                 end
@@ -739,14 +695,19 @@ classdef GenericTarget < handle
             % Get priority array, sampleTick array, prototype names and task names
             priorities = uint32(zeros(numTimings, 1));
             sampleTicks = uint32(zeros(numTimings, 1));
+            offsetTicks = int32(zeros(numTimings, 1));
             stepPrototypes = string(zeros(numTimings, 1));
             taskNames = string(zeros(numTimings, 1));
             for n = uint32(1):numTimings
                 priorities(n) = codeInfo.OutputFunctions(n).Timing.Priority;
                 sampleTicks(n) = uint32(round(codeInfo.OutputFunctions(n).Timing.SamplePeriod / baseSampleTime));
+                offsetTicks(n) = int32(round(codeInfo.OutputFunctions(n).Timing.SampleOffset / baseSampleTime));
                 stepPrototypes(n) = codeInfo.OutputFunctions(n).Prototype.Name;
                 taskNames(n) = codeInfo.OutputFunctions(n).Timing.NonFcnCallPartitionName;
             end
+
+            % Check for unique task names
+            assert(numel(unique(taskNames)) == numel(taskNames), 'GT.GenericTarget.GenerateInterfaceCode(): Task and/or partition names are not unique!');
 
             % Set priority based on upper thread priority
             maxPriority = uint32(max(priorities));
@@ -754,11 +715,13 @@ classdef GenericTarget < handle
 
             % Generate strings
             strArraySampleTicks = sprintf('%d',sampleTicks(1));
+            strArrayOffsetTicks = sprintf('%d',offsetTicks(1));
             strArrayPriorities = sprintf('%d',priorities(1));
             strArrayTaskNames = sprintf('"%s"',taskNames(1));
             strStepSwitch = sprintf('        case 0: model.%s(); break;',stepPrototypes(1));
             for n = uint32(2):numTimings
                 strArraySampleTicks = strcat(strArraySampleTicks, sprintf(',%d',sampleTicks(n)));
+                strArrayOffsetTicks = strcat(strArrayOffsetTicks, sprintf(',%d',offsetTicks(n)));
                 strArrayPriorities = strcat(strArrayPriorities, sprintf(',%d',priorities(n)));
                 strStepSwitch = [strStepSwitch, sprintf('\n        case %d: model.%s(); break;',uint32(n-1),stepPrototypes(n))];
                 strArrayTaskNames = [strArrayTaskNames, sprintf(', "%s"',taskNames(n))];
@@ -804,6 +767,8 @@ classdef GenericTarget < handle
             strSource = strrep(strSource, '$BASE_SAMPLE_TIME$', strBaseSampleTime);
             strHeader = strrep(strHeader, '$ARRAY_SAMPLE_TICKS$', strArraySampleTicks);
             strSource = strrep(strSource, '$ARRAY_SAMPLE_TICKS$', strArraySampleTicks);
+            strHeader = strrep(strHeader, '$ARRAY_OFFSET_TICKS$', strArrayOffsetTicks);
+            strSource = strrep(strSource, '$ARRAY_OFFSET_TICKS$', strArrayOffsetTicks);
             strHeader = strrep(strHeader, '$ARRAY_PRIORITIES$', strArrayPriorities);
             strSource = strrep(strSource, '$ARRAY_PRIORITIES$', strArrayPriorities);
             strHeader = strrep(strHeader, '$ARRAY_TASK_NAMES$', strArrayTaskNames);

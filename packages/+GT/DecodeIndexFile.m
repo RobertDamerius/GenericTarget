@@ -6,17 +6,6 @@ function info = DecodeIndexFile(filename)
     % 
     % RETURN
     % info ... Structure that contains information about the data recording.
-    % 
-    % REVISION HISTORY
-    % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    % Version     Author                 Changes
-    % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    % 20210319    Robert Damerius        Initial release.
-    % 20221009    Robert Damerius        Updated verbose prints.
-    % 20230523    Robert Damerius        Updated file protocol.
-    % 20230719    Robert Damerius        Changed data recording IDs from uint32 to character arrays.
-    % 
-    % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     % Check input and set default output
     assert(ischar(filename), 'GT.DecodeIndexFile(): Input "filename" must be a string!');

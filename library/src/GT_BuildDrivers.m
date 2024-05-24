@@ -245,7 +245,7 @@ def = legacy_code('initialize');
 def.SFunctionName = 'SFunctionGTDriverTaskExecutionTime';
 def.StartFcnSpec  = 'void GT_DriverTaskExecutionTimeInitialize()';
 def.TerminateFcnSpec = 'void GT_DriverTaskExecutionTimeTerminate()';
-def.OutputFcnSpec = 'void GT_DriverTaskExecutionTimeStep(double p1, double y1[1])';
+def.OutputFcnSpec = 'void GT_DriverTaskExecutionTimeStep(double y1[1], uint8 p1[], uint32 p2)';
 def.HeaderFiles   = {'GT_DriverTaskExecutionTime.hpp'};
 def.SourceFiles   = {'GT_DriverTaskExecutionTime.cpp','GT_SimulinkSupport.cpp'};
 def.IncPaths      = {''};
@@ -266,7 +266,7 @@ def = legacy_code('initialize');
 def.SFunctionName = 'SFunctionGTDriverNumTaskOverloads';
 def.StartFcnSpec  = 'void GT_DriverNumTaskOverloadsInitialize()';
 def.TerminateFcnSpec = 'void GT_DriverNumTaskOverloadsTerminate()';
-def.OutputFcnSpec = 'void GT_DriverNumTaskOverloadsStep(double p1, uint64 y1[1])';
+def.OutputFcnSpec = 'void GT_DriverNumTaskOverloadsStep(uint64 y1[1], uint8 p1[], uint32 p2)';
 def.HeaderFiles   = {'GT_DriverNumTaskOverloads.hpp'};
 def.SourceFiles   = {'GT_DriverNumTaskOverloads.cpp','GT_SimulinkSupport.cpp'};
 def.IncPaths      = {''};
@@ -290,6 +290,27 @@ def.TerminateFcnSpec = 'void GT_DriverNumCPUOverloadsTerminate()';
 def.OutputFcnSpec = 'void GT_DriverNumCPUOverloadsStep(uint64 y1[1], uint64 y2[1])';
 def.HeaderFiles   = {'GT_DriverNumCPUOverloads.hpp'};
 def.SourceFiles   = {'GT_DriverNumCPUOverloads.cpp','GT_SimulinkSupport.cpp'};
+def.IncPaths      = {''};
+def.SrcPaths      = {''};
+def.LibPaths      = {''};
+def.HostLibFiles  = {''};
+def.Options.language = 'C++';
+def.Options.useTlcWithAccel = false;
+def.Options.supportsMultipleExecInstances = true;
+def.SampleTime = 'parameterized';
+defs = [defs; def];
+
+
+% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Driver: Stop Execution
+% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def = legacy_code('initialize');
+def.SFunctionName = 'SFunctionGTDriverStopExecution';
+def.StartFcnSpec  = 'void GT_DriverStopExecutionInitialize()';
+def.TerminateFcnSpec = 'void GT_DriverStopExecutionTerminate()';
+def.OutputFcnSpec = 'void GT_DriverStopExecutionStep(uint8 u1)';
+def.HeaderFiles   = {'GT_DriverStopExecution.hpp'};
+def.SourceFiles   = {'GT_DriverStopExecution.cpp','GT_SimulinkSupport.cpp'};
 def.IncPaths      = {''};
 def.SrcPaths      = {''};
 def.LibPaths      = {''};
@@ -337,10 +358,11 @@ if(useSimulinkSupport)
     fprintf('\t---------------------------------------------------\n');
     fprintf('\tInterface/UDP Send                       partially (*)\n');
     fprintf('\tInterface/UDP Receive                    partially (*)\n');
-    fprintf('\tInterface/Write Scalar Doubles To File   no\n');
-    fprintf('\tInterface/Write Bus To File              no\n');
     fprintf('\tInterface/Multicast UDP Send             partially (*)\n');
     fprintf('\tInterface/Multicast UDP Receive          partially (*)\n');
+    fprintf('\tInterface/Write Scalar Doubles To File   no\n');
+    fprintf('\tInterface/Write Bus To File              no\n');
+    fprintf('\tInterface/Stop Execution                 no\n');
     fprintf('\tTime/Model Execution Time                yes\n');
     fprintf('\tTime/UNIX Time                           yes\n');
     fprintf('\tTime/UTC Time                            yes\n');

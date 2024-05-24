@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20240520</div>
+<div class="header_version">Version 20240524</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -38,6 +38,7 @@
 <li class="linav"><a href="library_gt_interface_multicastudpreceive.html">Interface / Multicast UDP Receive</a></li>
 <li class="linav"><a href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
 <li class="linav"><a href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
+<li class="linav"><a href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
 <li class="linav"><a href="library_gt_time_modelexecutiontime.html">Time / Model Execution Time</a></li>
 <li class="linav"><a href="library_gt_time_unixtime.html">Time / UNIX Time</a></li>
 <li class="linav"><a href="library_gt_time_utctime.html">Time / UTC Time</a></li>
@@ -71,18 +72,12 @@ In addition to the clock time, times relating to the target can also be determin
 Furthermore, the timing status of the target application can be monitored.
 This includes <a href="library_gt_time_taskexecutiontime.html">Task Execution Time</a>, <a href="library_gt_time_taskoverloads.html">Task Overloads</a> and <a href="library_gt_time_cpuoverloads.html">CPU Overloads</a>.
 
-<div class="note-orange">
-<h3 class="note-orange">Warning</h3>
-If the library blocks are built with the <a href="installtoolbox.html#simulinksupport">Simulink support</a> option, most of these times can also be determined in simulation.
-However, for some blocks the behavior is different in the simulation than on the target computer.
-</div>
-
 <div class="note-red">
 <h3 class="note-red">Limited Support for Windows</h3>
 CPU overload and lost ticks are not supported for windows operating system. Keep that in mind when deploying a model to a host running windows.
 </div>
 
-The target application uses multi-threading. Each sample rate in the Simulink model corresponds to a separate thread.
+The target application uses multi-threading. Each sample rate or periodic partition in the Simulink model corresponds to a separate thread.
 These worker threads are executed in parallel. The number of threads actually executed in parallel at the same time is
 given by the number of CPU cores. Which threads are executed in parallel is decided by the operating system's scheduler.
 In the target application there is a hardware timer that generates events at periodic intervals. The period duration
@@ -157,14 +152,12 @@ In the actual <a href="application.html#mainloop">main loop</a> this thread rece
 <br>
 <br>
 The number of additional threads depends on the Simulink model.
-For each sample rate, one additional worker thread is added.
+For each sample rate or periodic partition, one additional worker thread is added.
 The maximum priority is set via the property <a href="packages_gt_generictarget.html#upperThreadPriority">upperThreadPriority</a>.
 One additional thread is added for each Write To File block.
 The priority is specified via the property <a href="packages_gt_generictarget.html#priorityDataRecorder">priorityDataRecorder</a>.
 For each UDP socket, which is uniquely identified by its port, an additional thread is created.
 The priority is set via the block mask of the corresponding block.
-Only one receive block but several send blocks should be used for one UDP port.
-If different priorities are specified for a UDP port, the highest value is used.
 
 
 </div>

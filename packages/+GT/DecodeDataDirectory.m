@@ -8,17 +8,6 @@ function [data,info] = DecodeDataDirectory(directory)
     % RETURN
     % data ... The data structure containing timeseries for all recorded signals.
     % info ... Structure that contains information about the data recording.
-    % 
-    % REVISION HISTORY
-    % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    % Version     Author                 Changes
-    % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    % 20210319    Robert Damerius        Initial release.
-    % 20210419    Robert Damerius        Ignoring empty data file names.
-    % 20230523    Robert Damerius        Updated function name.
-    % 20230720    Robert Damerius        Custom ID names are now supported.
-    % 
-    % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     % Default working directory and fallback output
     if(1 ~= nargin)

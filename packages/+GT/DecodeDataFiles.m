@@ -6,17 +6,6 @@ function data = DecodeDataFiles(dataFileNames)
     % 
     % RETURN
     % data ... The data structure containing timeseries for all recorded signals.
-    % 
-    % REVISION HISTORY
-    % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    % Version     Author                 Changes
-    % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    % 20210319    Robert Damerius        Initial release.
-    % 20210531    Robert Damerius        Increased performance. Complete signal data is now casted and assigned at one time.
-    % 20221009    Robert Damerius        Updated verbose prints.
-    % 20230426    Robert Damerius        Fixed bug concerning the calculation of numberOfSamples in case of incomplete data.
-    % 
-    % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     % Check for correct input
     if(ischar(dataFileNames))

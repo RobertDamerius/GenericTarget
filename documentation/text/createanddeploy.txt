@@ -62,6 +62,8 @@ target.Deploy(model);</pre>
     After the model has been successfully deployed to the target hardware, the application is started with <code>target.Start()</code> and stopped with <code>target.Stop()</code>.
     If you want to execute the application on specific CPU cores, modify the <a href="packages_gt_generictarget.html#targetBitmaskCPUCores">targetBitmaskCPUCores</a> property of the target object. For example to run the application on
     the six cores 0 to 5, set the option <code>target.targetBitmaskCPUCores = '0x3f';</code> before calling the <a href="packages_gt_generictarget.html#Start">Start</a> member function.
+    Note, that the simulation time of the simulink model does not affect the execution time of a deployed target model.
+    The target model runs forever but you can stop the execution by using the <a href="library_gt_interface_stopexecution.html">Stop Execution</a> block that comes with the library.
 
     <br>
     <br>

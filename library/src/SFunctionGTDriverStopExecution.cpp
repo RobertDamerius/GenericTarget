@@ -1,11 +1,11 @@
 /**
- * SFunctionGTDriverUTCTimestamp.cpp
+ * SFunctionGTDriverStopExecution.cpp
  *
  *    ABSTRACT:
  *      The purpose of this sfunction is to call a simple legacy
  *      function during simulation:
  *
- *         void GT_DriverUTCTimestampStep(double y1[1])
+ *         void GT_DriverStopExecutionStep(uint8 u1)
  *
  *    Simulink version           : 23.2 (R2023b) 01-Aug-2023
  *    C++ source code generated on : 23-May-2024 09:21:48
@@ -16,12 +16,12 @@
 /**
      %%%-MATLAB_Construction_Commands_Start
      def = legacy_code('initialize');
-     def.SFunctionName = 'SFunctionGTDriverUTCTimestamp';
-     def.OutputFcnSpec = 'void GT_DriverUTCTimestampStep(double y1[1])';
-     def.StartFcnSpec = 'void GT_DriverUTCTimestampInitialize()';
-     def.TerminateFcnSpec = 'void GT_DriverUTCTimestampTerminate()';
-     def.HeaderFiles = {'GT_DriverUTCTimestamp.hpp'};
-     def.SourceFiles = {'GT_DriverUTCTimestamp.cpp', 'GT_SimulinkSupport.cpp'};
+     def.SFunctionName = 'SFunctionGTDriverStopExecution';
+     def.OutputFcnSpec = 'void GT_DriverStopExecutionStep(uint8 u1)';
+     def.StartFcnSpec = 'void GT_DriverStopExecutionInitialize()';
+     def.TerminateFcnSpec = 'void GT_DriverStopExecutionTerminate()';
+     def.HeaderFiles = {'GT_DriverStopExecution.hpp'};
+     def.SourceFiles = {'GT_DriverStopExecution.cpp', 'GT_SimulinkSupport.cpp'};
      def.SampleTime = 'parameterized';
      def.Options.useTlcWithAccel = false;
      def.Options.language = 'C++';
@@ -32,7 +32,7 @@
  */
 
 /* Must specify the S_FUNCTION_NAME as the name of the S-function */
-#define S_FUNCTION_NAME  SFunctionGTDriverUTCTimestamp
+#define S_FUNCTION_NAME  SFunctionGTDriverStopExecution
 #define S_FUNCTION_LEVEL 2
 
 /**
@@ -47,7 +47,7 @@
 #endif
 
 /* Specific header file(s) required by the legacy code function */
-#include "GT_DriverUTCTimestamp.hpp"
+#include "GT_DriverStopExecution.hpp"
 
 #define EDIT_OK(S, P_IDX) \
        (!((ssGetSimMode(S)==SS_SIMMODE_SIZES_CALL_ONLY) && mxIsEmpty(ssGetSFcnParam(S, P_IDX))))
@@ -152,45 +152,48 @@ static void mdlInitializeSizes(SimStruct *S)
     ssSetNumPWork(S, 0);
 
     /* Set the number of input ports */
-    if (!ssSetNumInputPorts(S, 0)) return;
+    if (!ssSetNumInputPorts(S, 1)) return;
+
+    /* Configure the input port 1 */
+    ssSetInputPortDataType(S, 0, SS_UINT8);
+    {
+        int_T u1Width = 1;
+        ssSetInputPortWidth(S, 0, u1Width);
+    }
+    ssSetInputPortComplexSignal(S, 0, COMPLEX_NO);
+    ssSetInputPortDirectFeedThrough(S, 0, 1);
+    ssSetInputPortAcceptExprInRTW(S, 0, 1);
+    ssSetInputPortOverWritable(S, 0, 1);
+    ssSetInputPortOptimOpts(S, 0, SS_REUSABLE_AND_LOCAL);
+    ssSetInputPortRequiredContiguous(S, 0, 1);
+    ssSetInputPortDimensionsMode(S, 0, FIXED_DIMS_MODE);
 
     /* Set the number of output ports */
-    if (!ssSetNumOutputPorts(S, 1)) return;
-
-    /* Configure the output port 1 */
-    ssSetOutputPortDataType(S, 0, SS_DOUBLE);
-    {
-        int_T y1Width = 1;
-        ssSetOutputPortWidth(S, 0, y1Width);
-    }
-    ssSetOutputPortComplexSignal(S, 0, COMPLEX_NO);
-    ssSetOutputPortOptimOpts(S, 0, SS_REUSABLE_AND_LOCAL);
-    ssSetOutputPortOutputExprInRTW(S, 0, 0);
-    ssSetOutputPortDimensionsMode(S, 0, FIXED_DIMS_MODE);
+    if (!ssSetNumOutputPorts(S, 0)) return;
 
     /* Register reserved identifiers to avoid name conflict */
     if (ssRTWGenIsCodeGen(S) || ssGetSimMode(S)==SS_SIMMODE_EXTERNAL) {
 
         /* Register reserved identifier for  */
-        ssRegMdlInfo(S, "GT_DriverUTCTimestampInitialize", MDL_INFO_ID_RESERVED, 0, 0, ssGetPath(S));
+        ssRegMdlInfo(S, "GT_DriverStopExecutionInitialize", MDL_INFO_ID_RESERVED, 0, 0, ssGetPath(S));
 
         /* Register reserved identifier for  */
-        ssRegMdlInfo(S, "GT_DriverUTCTimestampStep", MDL_INFO_ID_RESERVED, 0, 0, ssGetPath(S));
+        ssRegMdlInfo(S, "GT_DriverStopExecutionStep", MDL_INFO_ID_RESERVED, 0, 0, ssGetPath(S));
 
         /* Register reserved identifier for  */
-        ssRegMdlInfo(S, "GT_DriverUTCTimestampTerminate", MDL_INFO_ID_RESERVED, 0, 0, ssGetPath(S));
+        ssRegMdlInfo(S, "GT_DriverStopExecutionTerminate", MDL_INFO_ID_RESERVED, 0, 0, ssGetPath(S));
 
         /* Register reserved identifier for wrappers */
         if (ssRTWGenIsModelReferenceSimTarget(S)) {
 
             /* Register reserved identifier for  */
-            ssRegMdlInfo(S, "GT_DriverUTCTimestampInitialize_wrapper_Start", MDL_INFO_ID_RESERVED, 0, 0, ssGetPath(S));
+            ssRegMdlInfo(S, "GT_DriverStopExecutionInitialize_wrapper_Start", MDL_INFO_ID_RESERVED, 0, 0, ssGetPath(S));
 
             /* Register reserved identifier for  */
-            ssRegMdlInfo(S, "GT_DriverUTCTimestampStep_wrapper_Output", MDL_INFO_ID_RESERVED, 0, 0, ssGetPath(S));
+            ssRegMdlInfo(S, "GT_DriverStopExecutionStep_wrapper_Output", MDL_INFO_ID_RESERVED, 0, 0, ssGetPath(S));
 
             /* Register reserved identifier for  */
-            ssRegMdlInfo(S, "GT_DriverUTCTimestampTerminate_wrapper_Terminate", MDL_INFO_ID_RESERVED, 0, 0, ssGetPath(S));
+            ssRegMdlInfo(S, "GT_DriverStopExecutionTerminate_wrapper_Terminate", MDL_INFO_ID_RESERVED, 0, 0, ssGetPath(S));
         } /* if */
     } /* if */
 
@@ -278,7 +281,7 @@ static void mdlStart(SimStruct *S)
 {
 
     /* Call the legacy code function */
-    GT_DriverUTCTimestampInitialize();
+    GT_DriverStopExecutionInitialize();
 }
 #endif
 
@@ -292,11 +295,11 @@ static void mdlOutputs(SimStruct *S, int_T tid)
 {
 
     /* Get access to Parameter/Input/Output/DWork data */
-    real_T* y1 = (real_T*) ssGetOutputPortSignal(S, 0);
+    uint8_T* u1 = (uint8_T*) ssGetInputPortSignal(S, 0);
 
 
     /* Call the legacy code function */
-    GT_DriverUTCTimestampStep(y1);
+    GT_DriverStopExecutionStep(*u1);
 }
 
 /* Function: mdlTerminate =================================================
@@ -308,7 +311,7 @@ static void mdlTerminate(SimStruct *S)
 {
 
     /* Call the legacy code function */
-    GT_DriverUTCTimestampTerminate();
+    GT_DriverStopExecutionTerminate();
 }
 
 #define MDL_RTW

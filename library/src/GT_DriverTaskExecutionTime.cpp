@@ -2,6 +2,7 @@
 #if defined(GENERIC_TARGET_IMPLEMENTATION)
     #include <GenericTarget/GT_GenericTarget.hpp>
     #include <SimulinkCodeGeneration/SimulinkInterface.hpp>
+    #include <string>
 #elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
     #include "GT_SimulinkSupport.hpp"
 #endif
@@ -15,19 +16,19 @@ void GT_DriverTaskExecutionTimeInitialize(void){
 
 void GT_DriverTaskExecutionTimeTerminate(void){}
 
-void GT_DriverTaskExecutionTimeStep(double sampletime, double* taskExecutionTime){
+void GT_DriverTaskExecutionTimeStep(double* taskExecutionTime, uint8_t* taskName, uint32_t taskNameLength){
+    *taskExecutionTime = 0.0;
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
-        *taskExecutionTime = -1.0;
-        int32_t ticks = static_cast<int32_t>(std::floor(0.5 + sampletime / SimulinkInterface::baseSampleTime));
+        std::string s(reinterpret_cast<char*>(taskName), static_cast<size_t>(taskNameLength));
         for(uint32_t id = 0; id < SIMULINK_INTERFACE_NUM_TIMINGS; id++){
-            if(ticks == SimulinkInterface::sampleTicks[id]){
+            if(!s.compare(SimulinkInterface::taskNames[id])){
                 *taskExecutionTime = gt::GenericTarget::GetTaskExecutionTime(id);
                 break;
             }
         }
     #else
-        (void)sampletime;
-        *taskExecutionTime = 0.0;
+        (void)taskName;
+        (void)taskNameLength;
     #endif
 }
 

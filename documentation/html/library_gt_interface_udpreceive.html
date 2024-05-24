@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20240520</div>
+<div class="header_version">Version 20240524</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -38,6 +38,7 @@
 <li class="linav"><a href="library_gt_interface_multicastudpreceive.html">Interface / Multicast UDP Receive</a></li>
 <li class="linav"><a href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
 <li class="linav"><a href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
+<li class="linav"><a href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
 <li class="linav"><a href="library_gt_time_modelexecutiontime.html">Time / Model Execution Time</a></li>
 <li class="linav"><a href="library_gt_time_unixtime.html">Time / UNIX Time</a></li>
 <li class="linav"><a href="library_gt_time_utctime.html">Time / UTC Time</a></li>
@@ -157,14 +158,14 @@ This port is set via the <a href="packages_gt_generictarget.html">GT.GenericTarg
 
 <h3>Buffering</h3>
 Each socket has its own thread in which the data is received.
-All received messages are collected in a buffer.
+All received messages are collected in a software buffer.
 The maximum number of messages is set with the <code>maxNumMessages</code> parameter.
 Each message in the buffer has a maximum number of bytes, which is set with the <code>rxBufferSize</code> parameter.
 If the buffer is full and more messages are received, then either the received message or the oldest message is deleted from the buffer, depending on which rule is set with the <code>bufferStrategy</code> parameter.
 In each sampling step in which the receive block is executed, the entire buffer with all messages is read out and made available at the outputs of the block.
 The buffer is then cleared.
 The actual number of received messages is defined by the output <code>numReceivedMessages</code>.
-The <code>numDiscardedMessages</code> output indicates how many messages were discarded, for example because more messages were received than could be stored in the buffer.
+The <code>numDiscardedMessages</code> output indicates how many messages were discarded, for example because more messages were received than could be stored in the software buffer.
 
 </div>
 </div>
