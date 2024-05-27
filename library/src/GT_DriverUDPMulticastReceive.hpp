@@ -8,9 +8,8 @@
  * @brief Initialize the driver.
  * @param[in] port The port of this UDP socket.
  * @param[in] ipGroup The multicast group which to join.
- * @param[in] interfaceJoinUseName 0 if interfaceJoinIP is to be used as interface address. Otherwise the interfaceJoinName is used.
  * @param[in] interfaceJoinIP The interface IP to be used. If the interface is set to {0,0,0,0} then all interfaces are used for joining the group.
- * @param[in] interfaceJoinName Bytes of the string representing the interface name to be joined if interfaceJoinUseName is not zero.
+ * @param[in] interfaceJoinName Bytes of the string representing the interface name to be joined if interfaceJoinNameLength is not zero.
  * @param[in] interfaceJoinNameLength String length of the interfaceJoinName string.
  * @param[in] rxBufferSize The size of the receive buffer.
  * @param[in] priorityThread Receiver thread priority, range: [1, 99].
@@ -20,7 +19,7 @@
  * @param[in] countAsDiscarded Non-zero value if out-filtered messages should be counted as discarded, zero if not.
  * @param[in] timestampSource Indicates the timesource to be used for timestamps.
  */
-extern void GT_DriverUDPMulticastReceiveInitialize(uint16_t port, uint8_t* ipGroup, uint8_t interfaceJoinUseName, uint8_t* interfaceJoinIP, uint8_t* interfaceJoinName, uint32_t interfaceJoinNameLength, uint32_t rxBufferSize, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded, uint8_t timestampSource);
+extern void GT_DriverUDPMulticastReceiveInitialize(uint16_t port, uint8_t* ipGroup, uint8_t* interfaceJoinIP, uint8_t* interfaceJoinName, uint32_t interfaceJoinNameLength, uint32_t rxBufferSize, int32_t priorityThread, const uint32_t numBuffers, const uint32_t bufferStrategy, uint8_t* ipFilter, uint8_t countAsDiscarded, uint8_t timestampSource);
 
 /**
  * @brief Terminate the driver.

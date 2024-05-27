@@ -10,11 +10,10 @@
  * @param[in] interfaceIP The interface that should be used. If the interface is set to [0;0;0;0] then any interface will be used.
  * @param[in] prioritySocket Socket priority, range: [0, 6].
  * @param[in] allowBroadcast True if broadcast messages are allowed to be sent, false otherwise.
- * @param[in] bindToDevice True if the socket should be bound to a specific network device.
- * @param[in] deviceName The device name to which the socket should be bound, if bindToDevice is set to true.
+ * @param[in] deviceName The device name to which the socket should be bound, if deviceNameLength is non-zero.
  * @param[in] deviceNameLength The number of characters representing the device name.
  */
-extern void GT_DriverUDPUnicastSendInitialize(uint16_t port, uint8_t* interfaceIP, int32_t prioritySocket, uint8_t allowBroadcast, uint8_t bindToDevice, uint8_t* deviceName, uint32_t deviceNameLength);
+extern void GT_DriverUDPUnicastSendInitialize(uint16_t port, uint8_t* interfaceIP, int32_t prioritySocket, uint8_t allowBroadcast, uint8_t* deviceName, uint32_t deviceNameLength);
 
 /**
  * @brief Terminate the driver.

@@ -52,7 +52,6 @@ The following table shows all block parameters.
     <tr><td style="font-family: Courier New;">showDetails</td><td>Checkbox for showing the details output port.</td></tr>
     <tr><td style="font-family: Courier New;">interfacePort</td><td>Local port under the "Socket" tab.</td></tr>
     <tr><td style="font-family: Courier New;">groupIP</td><td>Group address under the "Socket" tab.</td></tr>
-    <tr><td style="font-family: Courier New;">interfaceJoinUseName</td><td>Interface checkbox under the "Socket" tab.</td></tr>
     <tr><td style="font-family: Courier New;">interfaceJoinIP</td><td>Interface IP under the "Socket" tab.</td></tr>
     <tr><td style="font-family: Courier New;">interfaceJoinName</td><td>Interface name under the "Socket" tab.</td></tr>
     <tr><td style="font-family: Courier New;">prioritySocket</td><td>Socket priority under the "Advanced" tab</td></tr>
@@ -85,6 +84,7 @@ The network interface used to join the multicast group is set in the <a href="li
 If there is no receive block, then joining the group is also done via the interface specified in the send block.
 The interface can be specified either as IPv4 addresse or as name.
 If no interface is specified, e.g. <code>[0,0,0,0]</code>, then the interface leading to the default route is used by the operating system.
+If the parameter <code>interfaceJoinName</code> is non-empty, then this value is used instead of <code>interfaceJoinIP</code>
 
 <div class="note-red">
 <h3 class="note-red">Interface Fallback Address</h3>

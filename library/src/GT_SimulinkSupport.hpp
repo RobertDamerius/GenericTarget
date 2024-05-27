@@ -338,31 +338,28 @@ class UDPSocket {
          * @brief Set the network interface to be used for sending multicast traffic.
          * @param[in] ipGroup IPv4 address of the group to be joined.
          * @param[in] ipInterface IPv4 address of the network interface to be used. Set this value to {0,0,0,0} to use the default network interface.
-         * @param[in] interfaceName Name of the related interface.
-         * @param[in] useInterfaceName True if interfaceName is to be used instead of ipInterface, false otherwise.
+         * @param[in] interfaceName Name of the related interface. If this value is non-empty, then it is used instead of ipInterface.
          * @return Result of the internal setsockopt() function call.
          */
-        int32_t SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName, bool useInterfaceName);
+        int32_t SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName);
 
         /**
          * @brief Join a multicast group at a specific network interface.
          * @param[in] ipGroup IPv4 address of the group to be joined.
          * @param[in] ipInterface IPv4 address of the network interface to be used. Set this value to {0,0,0,0} to use all network interfaces.
-         * @param[in] interfaceName Name of the related interface.
-         * @param[in] useInterfaceName True if interfaceName is to be used instead of ipInterface, false otherwise.
+         * @param[in] interfaceName Name of the related interface. If this value is non-empty, then it is used instead of ipInterface.
          * @return Result of the internal setsockopt() function call.
          */
-        int32_t JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName, bool useInterfaceName);
+        int32_t JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName);
 
         /**
          * @brief Leave a multicast group on a given network interface.
          * @param[in] ipGroup IPv4 address of the group to be left.
          * @param[in] ipInterface IPv4 address of the related network interface.
-         * @param[in] interfaceName Name of the related interface.
-         * @param[in] useInterfaceName True if interfaceName is to be used instead of ipInterface, false otherwise.
+         * @param[in] interfaceName Name of the related interface. If this value is non-empty, then it is used instead of ipInterface.
          * @return Result of the internal setsockopt() function call.
          */
-        int32_t LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName, bool useInterfaceName);
+        int32_t LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName);
 
         /**
          * @brief Set time-to-live multicast messages.
@@ -395,14 +392,13 @@ class UDPSocket {
          * @brief Convert the given group and interface specification to an ip_mreq structure, depending on the operating system.
          * @param[in] ipGroup IPv4 group address.
          * @param[in] ipInterface IPv4 interface address.
-         * @param[in] interfaceName Name of the interface.
-         * @param[in] useInterfaceName True if interfaceName is to be used instead of ipInterface, false otherwise.
+         * @param[in] interfaceName Name of the interface. If this value is non-empty, then it is used instead of ipInterface.
          * @return ip_mreq structure under windows and ip_mreqn under linux.
          */
         #ifdef _WIN32
-        struct ip_mreq ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::array<uint8_t,4>& ipInterface, const std::string& interfaceName, bool useInterfaceName);
+        struct ip_mreq ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::array<uint8_t,4>& ipInterface, const std::string& interfaceName);
         #else
-        struct ip_mreqn ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::array<uint8_t,4>& ipInterface, const std::string& interfaceName, bool useInterfaceName);
+        struct ip_mreqn ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::array<uint8_t,4>& ipInterface, const std::string& interfaceName);
         #endif
 };
 
@@ -429,19 +425,16 @@ class UDPConfiguration {
         /* Specific configuration for unicast */
         struct {
             std::array<uint8_t,4> interfaceIP;       // [RX/TX] IPv4 address of the interface that should be used. If {0,0,0,0} is set, any interface is used.
-            bool bindToDevice;                       // [RX/TX] True if the socket should be bound to a specific network device.
-            std::string deviceName;                  // [RX/TX] The device name to which the socket should be bound, if bindToDevice is set to true.
+            std::string deviceName;                  // [RX/TX] The device name to which the socket should be bound, if this string is non-empty.
         } unicast;
 
         /* Specific configuration for multicast */
         struct {
             std::array<uint8_t,4> group;             // [RX/TX] The multicast group address.
-            bool interfaceJoinUseName;               // [RX] True if @ref interfaceJoinName should be used instead of the @ref interfaceJoinIP, false otherwise.
             std::array<uint8_t,4> interfaceJoinIP;   // [RX] IPv4 address of the interface at which to join a multicast group. If {0,0,0,0} is set, all interfaces are used.
-            std::string interfaceJoinName;           // [RX] The interface name to be used for joining multicast groups.
-            bool interfaceSendUseName;               // [TX] True if @ref interfaceSendName should be used instead of the @ref interfaceSendIP, false otherwise.
+            std::string interfaceJoinName;           // [RX] The interface name to be used for joining multicast groups. If this string is non-empty, then this name is used to specify instead of @ref interfaceJoinIP.
             std::array<uint8_t,4> interfaceSendIP;   // [TX] IPv4 address of the interface via which to send a multicast messages. If {0,0,0,0} is set, the default route of the operating system is used.
-            std::string interfaceSendName;           // [TX] The interface name to be used for sending multicast traffic.
+            std::string interfaceSendName;           // [TX] The interface name to be used for sending multicast traffic. If this string is non-empty, then this name is used to specify instead of @ref interfaceSendIP.
             uint8_t ttl;                             // [TX] Time-to-live for multicast messages.
         } multicast;
 

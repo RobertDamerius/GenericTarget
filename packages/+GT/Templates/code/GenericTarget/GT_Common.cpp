@@ -14,7 +14,7 @@ const std::string gt::strOS("Windows");
 #else
 const std::string gt::strOS("unknown");
 #endif
-const std::string gt::strVersion("20240524");
+const std::string gt::strVersion("20240527");
 const std::string gt::strCompilerVersion(__VERSION__);
 const std::string gt::strBuilt(__DATE__ " " __TIME__);
 

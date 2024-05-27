@@ -4,14 +4,14 @@
 %%   Simulink Coder TLC Code Generation file for SFunctionGTDriverUDPUnicastSend
 %% 
 %% Simulink version      : 23.2 (R2023b) 01-Aug-2023
-%% TLC file generated on : 23-May-2024 09:23:07
+%% TLC file generated on : 27-May-2024 10:58:34
 
 /%
      %%%-MATLAB_Construction_Commands_Start
      def = legacy_code('initialize');
      def.SFunctionName = 'SFunctionGTDriverUDPUnicastSend';
      def.OutputFcnSpec = 'void GT_DriverUDPUnicastSendStep(int32 y1[1], int32 y2[1], uint16 p1, uint16 u1[5], uint8 u2[], uint32 u3)';
-     def.StartFcnSpec = 'void GT_DriverUDPUnicastSendInitialize(uint16 p1, uint8 p2[4], int32 p3, uint8 p4, uint8 p5, uint8 p6[], uint32 p7)';
+     def.StartFcnSpec = 'void GT_DriverUDPUnicastSendInitialize(uint16 p1, uint8 p2[4], int32 p3, uint8 p4, uint8 p5[], uint32 p6)';
      def.TerminateFcnSpec = 'void GT_DriverUDPUnicastSendTerminate()';
      def.HeaderFiles = {'GT_DriverUDPUnicastSend.hpp'};
      def.SourceFiles = {'GT_DriverUDPUnicastSend.cpp', 'GT_SimulinkSupport.cpp'};
@@ -126,7 +126,7 @@
         %<LibEmitPlatformTypeIncludes()>
         #endif
         
-        extern void SFunctionGTDriverUDPUnicastSend_wrapper_Start_%<sfunInstanceName>(const %<uint16Type> p1, const %<uint8Type>* p2, const %<int32Type> p3, const %<uint8Type> p4, const %<uint8Type> p5, const %<uint8Type>* p6, const %<uint32Type> p7);
+        extern void SFunctionGTDriverUDPUnicastSend_wrapper_Start_%<sfunInstanceName>(const %<uint16Type> p1, const %<uint8Type>* p2, const %<int32Type> p3, const %<uint8Type> p4, const %<uint8Type>* p5, const %<uint32Type> p6);
         extern void SFunctionGTDriverUDPUnicastSend_wrapper_Output_%<sfunInstanceName>( %<int32Type>* y1,  %<int32Type>* y2, const %<uint16Type> p1, const %<uint16Type>* u1, const %<uint8Type>* u2, const %<uint32Type> u3);
         extern void SFunctionGTDriverUDPUnicastSend_wrapper_Terminate_%<sfunInstanceName>(void);
         
@@ -150,8 +150,8 @@
         %if IsModelReferenceSimTarget() && !::GenCPP
         extern "C" {
         %endif
-        void SFunctionGTDriverUDPUnicastSend_wrapper_Start_%<sfunInstanceName>(const %<uint16Type> p1, const %<uint8Type>* p2, const %<int32Type> p3, const %<uint8Type> p4, const %<uint8Type> p5, const %<uint8Type>* p6, const %<uint32Type> p7) {
-            GT_DriverUDPUnicastSendInitialize((%<uint16Type>)(p1), (%<uint8Type>*)(p2), (%<int32Type>)(p3), (%<uint8Type>)(p4), (%<uint8Type>)(p5), (%<uint8Type>*)(p6), (%<uint32Type>)(p7));
+        void SFunctionGTDriverUDPUnicastSend_wrapper_Start_%<sfunInstanceName>(const %<uint16Type> p1, const %<uint8Type>* p2, const %<int32Type> p3, const %<uint8Type> p4, const %<uint8Type>* p5, const %<uint32Type> p6) {
+            GT_DriverUDPUnicastSendInitialize((%<uint16Type>)(p1), (%<uint8Type>*)(p2), (%<int32Type>)(p3), (%<uint8Type>)(p4), (%<uint8Type>*)(p5), (%<uint32Type>)(p6));
         }
         %if IsModelReferenceSimTarget() && !::GenCPP
         }
@@ -198,14 +198,13 @@
         %assign p2_ptr = LibBlockParameterBaseAddr(p2)
         %assign p3_val = LibBlockParameter(p3, "", "", 0)
         %assign p4_val = LibBlockParameter(p4, "", "", 0)
-        %assign p5_val = LibBlockParameter(p5, "", "", 0)
-        %assign p6_ptr = LibBlockParameterBaseAddr(p6)
-        %assign p7_val = LibBlockParameter(p7, "", "", 0)
+        %assign p5_ptr = LibBlockParameterBaseAddr(p5)
+        %assign p6_val = LibBlockParameter(p6, "", "", 0)
         %% 
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
         {
             %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
-            SFunctionGTDriverUDPUnicastSend_wrapper_Start_%<sfunInstanceName>(%<p1_val>, %<p2_ptr>, %<p3_val>, %<p4_val>, %<p5_val>, %<p6_ptr>, %<p7_val>);
+            SFunctionGTDriverUDPUnicastSend_wrapper_Start_%<sfunInstanceName>(%<p1_val>, %<p2_ptr>, %<p3_val>, %<p4_val>, %<p5_ptr>, %<p6_val>);
         
         }
     %else
@@ -213,11 +212,10 @@
         %assign p2_ptr = LibBlockParameterBaseAddr(p2)
         %assign p3_val = LibBlockParameter(p3, "", "", 0)
         %assign p4_val = LibBlockParameter(p4, "", "", 0)
-        %assign p5_val = LibBlockParameter(p5, "", "", 0)
-        %assign p6_ptr = LibBlockParameterBaseAddr(p6)
-        %assign p7_val = LibBlockParameter(p7, "", "", 0)
+        %assign p5_ptr = LibBlockParameterBaseAddr(p5)
+        %assign p6_val = LibBlockParameter(p6, "", "", 0)
         %% 
-        GT_DriverUDPUnicastSendInitialize(%<p1_val>, (%<uint8Type>*)%<p2_ptr>, %<p3_val>, %<p4_val>, %<p5_val>, (%<uint8Type>*)%<p6_ptr>, %<p7_val>);
+        GT_DriverUDPUnicastSendInitialize(%<p1_val>, (%<uint8Type>*)%<p2_ptr>, %<p3_val>, %<p4_val>, (%<uint8Type>*)%<p5_ptr>, %<p6_val>);
     %endif
 %endfunction
 

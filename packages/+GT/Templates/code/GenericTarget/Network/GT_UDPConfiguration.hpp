@@ -47,19 +47,16 @@ class UDPConfiguration {
         /* Specific configuration for unicast */
         struct {
             std::array<uint8_t,4> interfaceIP;       // [RX/TX] IPv4 address of the interface that should be used. If {0,0,0,0} is set, any interface is used.
-            bool bindToDevice;                       // [RX/TX] True if the socket should be bound to a specific network device.
-            std::string deviceName;                  // [RX/TX] The device name to which the socket should be bound, if bindToDevice is set to true.
+            std::string deviceName;                  // [RX/TX] The device name to which the socket should be bound, if this string is non-empty.
         } unicast;
 
         /* Specific configuration for multicast */
         struct {
             std::array<uint8_t,4> group;             // [RX/TX] The multicast group address.
-            bool interfaceJoinUseName;               // [RX] True if @ref interfaceJoinName should be used instead of the @ref interfaceJoinIP, false otherwise.
             std::array<uint8_t,4> interfaceJoinIP;   // [RX] IPv4 address of the interface at which to join a multicast group. If {0,0,0,0} is set, all interfaces are used.
-            std::string interfaceJoinName;           // [RX] The interface name to be used for joining multicast groups.
-            bool interfaceSendUseName;               // [TX] True if @ref interfaceSendName should be used instead of the @ref interfaceSendIP, false otherwise.
+            std::string interfaceJoinName;           // [RX] The interface name to be used for joining multicast groups. If this string is non-empty, then this name is used to specify instead of @ref interfaceJoinIP.
             std::array<uint8_t,4> interfaceSendIP;   // [TX] IPv4 address of the interface via which to send a multicast messages. If {0,0,0,0} is set, the default route of the operating system is used.
-            std::string interfaceSendName;           // [TX] The interface name to be used for sending multicast traffic.
+            std::string interfaceSendName;           // [TX] The interface name to be used for sending multicast traffic. If this string is non-empty, then this name is used to specify instead of @ref interfaceSendIP.
             uint8_t ttl;                             // [TX] Time-to-live for multicast messages.
         } multicast;
 

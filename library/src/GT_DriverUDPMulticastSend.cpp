@@ -8,14 +8,13 @@
 #endif
 
 
-void GT_DriverUDPMulticastSendInitialize(uint16_t port, uint8_t* ipGroup, uint8_t interfaceSendUseName, uint8_t* interfaceSendIP, uint8_t* interfaceSendName, uint32_t interfaceSendNameLength, int32_t prioritySocket, uint8_t ttl, uint8_t allowBroadcast){
+void GT_DriverUDPMulticastSendInitialize(uint16_t port, uint8_t* ipGroup, uint8_t* interfaceSendIP, uint8_t* interfaceSendName, uint32_t interfaceSendNameLength, int32_t prioritySocket, uint8_t ttl, uint8_t allowBroadcast){
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
         gt::UDPConfiguration conf;
         conf.multicast.group[0] = ipGroup[0];
         conf.multicast.group[1] = ipGroup[1];
         conf.multicast.group[2] = ipGroup[2];
         conf.multicast.group[3] = ipGroup[3];
-        conf.multicast.interfaceSendUseName = static_cast<bool>(interfaceSendUseName);
         conf.multicast.interfaceSendIP[0] = interfaceSendIP[0];
         conf.multicast.interfaceSendIP[1] = interfaceSendIP[1];
         conf.multicast.interfaceSendIP[2] = interfaceSendIP[2];
@@ -38,7 +37,6 @@ void GT_DriverUDPMulticastSendInitialize(uint16_t port, uint8_t* ipGroup, uint8_
         conf.multicast.group[1] = ipGroup[1];
         conf.multicast.group[2] = ipGroup[2];
         conf.multicast.group[3] = ipGroup[3];
-        conf.multicast.interfaceSendUseName = static_cast<bool>(interfaceSendUseName);
         conf.multicast.interfaceSendIP[0] = interfaceSendIP[0];
         conf.multicast.interfaceSendIP[1] = interfaceSendIP[1];
         conf.multicast.interfaceSendIP[2] = interfaceSendIP[2];
@@ -59,7 +57,6 @@ void GT_DriverUDPMulticastSendInitialize(uint16_t port, uint8_t* ipGroup, uint8_
     #else
         (void)port;
         (void)ipGroup;
-        (void)interfaceSendUseName;
         (void)interfaceSendIP;
         (void)interfaceSendName;
         (void)interfaceSendNameLength;

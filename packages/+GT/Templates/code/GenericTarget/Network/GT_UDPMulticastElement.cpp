@@ -64,10 +64,10 @@ int32_t UDPMulticastElement::InitializeSocket(UDPConfiguration conf){
 
     // Set multicast interface for outgoing traffic
     socket.ResetLastError();
-    if(socket.SetMulticastInterface(conf.multicast.group, conf.multicast.interfaceSendIP, conf.multicast.interfaceSendName, conf.multicast.interfaceSendUseName) < 0){
+    if(socket.SetMulticastInterface(conf.multicast.group, conf.multicast.interfaceSendIP, conf.multicast.interfaceSendName) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
-            if(conf.multicast.interfaceSendUseName){
+            if(conf.multicast.interfaceSendName.size()){
                 GENERIC_TARGET_PRINT_ERROR("Could not set multicast interface \"%s\" for outgoing traffic (port=%u)! %s\n", conf.multicast.interfaceSendName.c_str(), port, errorString.c_str());
             }
             else{
@@ -80,10 +80,10 @@ int32_t UDPMulticastElement::InitializeSocket(UDPConfiguration conf){
 
     // Join multicast group
     socket.ResetLastError();
-    if(socket.JoinMulticastGroup(conf.multicast.group, conf.multicast.interfaceJoinIP, conf.multicast.interfaceJoinName, conf.multicast.interfaceJoinUseName) < 0){
+    if(socket.JoinMulticastGroup(conf.multicast.group, conf.multicast.interfaceJoinIP, conf.multicast.interfaceJoinName) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
-            if(conf.multicast.interfaceJoinUseName){
+            if(conf.multicast.interfaceJoinName.size()){
                 GENERIC_TARGET_PRINT_ERROR("Could not join multicast group %u.%u.%u.%u at interface \"%s\" (port=%u)! %s\n", conf.multicast.group[0], conf.multicast.group[1], conf.multicast.group[2], conf.multicast.group[3], conf.multicast.interfaceJoinName.c_str(), port, errorString.c_str());
             }
             else{
@@ -95,12 +95,12 @@ int32_t UDPMulticastElement::InitializeSocket(UDPConfiguration conf){
     }
 
     // Success
-    std::string strJoin = conf.multicast.interfaceJoinName;
-    if(!conf.multicast.interfaceJoinUseName){
+    std::string strJoin = "\"" + conf.multicast.interfaceJoinName + "\"";
+    if(conf.multicast.interfaceJoinName.empty()){
         strJoin = std::to_string(conf.multicast.interfaceJoinIP[0]) + "." + std::to_string(conf.multicast.interfaceJoinIP[1]) + "." + std::to_string(conf.multicast.interfaceJoinIP[2]) + "." + std::to_string(conf.multicast.interfaceJoinIP[3]);
     }
-    std::string strSend = conf.multicast.interfaceSendName;
-    if(!conf.multicast.interfaceSendUseName){
+    std::string strSend = "\"" + conf.multicast.interfaceSendName + "\"";
+    if(conf.multicast.interfaceSendName.empty()){
         strSend = std::to_string(conf.multicast.interfaceSendIP[0]) + "." + std::to_string(conf.multicast.interfaceSendIP[1]) + "." + std::to_string(conf.multicast.interfaceSendIP[2]) + "." + std::to_string(conf.multicast.interfaceSendIP[3]);
     }
     GENERIC_TARGET_PRINT("Opened multicast UDP socket (port=%u, group=%u.%u.%u.%u, ttl=%u, interfaceJoin=%s, interfaceSend=%s, allowBroadcast=%u)\n", port, conf.multicast.group[0], conf.multicast.group[1], conf.multicast.group[2], conf.multicast.group[3], conf.multicast.ttl, strJoin.c_str(), strSend.c_str(), int(conf.allowBroadcast));
@@ -110,15 +110,15 @@ int32_t UDPMulticastElement::InitializeSocket(UDPConfiguration conf){
 void UDPMulticastElement::TerminateSocket(UDPConfiguration conf, bool verbosePrint){
     conf.multicast.interfaceSendName = gt::ToPrintableString(conf.multicast.interfaceSendName);
     conf.multicast.interfaceJoinName = gt::ToPrintableString(conf.multicast.interfaceJoinName);
-    socket.LeaveMulticastGroup(conf.multicast.group, conf.multicast.interfaceJoinIP, conf.multicast.interfaceJoinName, conf.multicast.interfaceJoinUseName);
+    socket.LeaveMulticastGroup(conf.multicast.group, conf.multicast.interfaceJoinIP, conf.multicast.interfaceJoinName);
     socket.Close();
     if(verbosePrint){
-        std::string strJoin = conf.multicast.interfaceJoinName;
-        if(!conf.multicast.interfaceJoinUseName){
+        std::string strJoin = "\"" + conf.multicast.interfaceJoinName + "\"";
+        if(conf.multicast.interfaceJoinName.empty()){
             strJoin = std::to_string(conf.multicast.interfaceJoinIP[0]) + "." + std::to_string(conf.multicast.interfaceJoinIP[1]) + "." + std::to_string(conf.multicast.interfaceJoinIP[2]) + "." + std::to_string(conf.multicast.interfaceJoinIP[3]);
         }
-        std::string strSend = conf.multicast.interfaceSendName;
-        if(!conf.multicast.interfaceSendUseName){
+        std::string strSend = "\"" + conf.multicast.interfaceSendName + "\"";
+        if(conf.multicast.interfaceSendName.empty()){
             strSend = std::to_string(conf.multicast.interfaceSendIP[0]) + "." + std::to_string(conf.multicast.interfaceSendIP[1]) + "." + std::to_string(conf.multicast.interfaceSendIP[2]) + "." + std::to_string(conf.multicast.interfaceSendIP[3]);
         }
         GENERIC_TARGET_PRINT("Closed multicast UDP socket (port=%u, group=%u.%u.%u.%u, ttl=%u, interfaceJoin=%s, interfaceSend=%s, allowBroadcast=%u)\n", port, conf.multicast.group[0], conf.multicast.group[1], conf.multicast.group[2], conf.multicast.group[3], conf.multicast.ttl, strJoin.c_str(), strSend.c_str(), int(conf.allowBroadcast));

@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20240524</div>
+<div class="header_version">Version 20240527</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -112,7 +112,6 @@ The following table shows all block parameters.
     <tr><td style="font-family: Courier New;">showDetails</td><td>Checkbox for showing the details output port.</td></tr>
     <tr><td style="font-family: Courier New;">interfacePortRX</td><td>Local port under the "Socket" tab.</td></tr>
     <tr><td style="font-family: Courier New;">groupIP</td><td>Group address under the "Socket" tab.</td></tr>
-    <tr><td style="font-family: Courier New;">interfaceSendUseName</td><td>Interface checkbox under the "Socket" tab.</td></tr>
     <tr><td style="font-family: Courier New;">interfaceSendIP</td><td>Interface IP under the "Socket" tab.</td></tr>
     <tr><td style="font-family: Courier New;">interfaceSendName</td><td>Interface name under the "Socket" tab.</td></tr>
     <tr><td style="font-family: Courier New;">priorityThread</td><td>Receiver thread priority under the "Advanced" tab</td></tr>
@@ -146,6 +145,7 @@ If multiple receivers are registered for the same port, then the generic target 
 The network interface used to join the multicast group is set in the receive block mask.
 The interface can be specified either as IPv4 addresse or as name.
 If no interface is specified, e.g. <code>[0,0,0,0]</code>, then all interfaces are used to join the multicast group.
+If the parameter <code>interfaceSendName</code> is non-empty, then this value is used instead of <code>interfaceSendIP</code>
 
 <h3>Port Range</h3>
 The port range [0,1023] is reserved for system ports and should not be used.

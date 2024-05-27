@@ -161,30 +161,30 @@ int32_t UDPSocket::ReceiveFrom(Address& source, uint8_t *bytes, int32_t maxSize)
     return static_cast<int32_t>(rx);
 }
 
-int32_t UDPSocket::SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName, bool useInterfaceName){
+int32_t UDPSocket::SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName){
     #ifdef _WIN32
-    struct ip_mreq mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
+    struct ip_mreq mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName);
     return SetOption(IPPROTO_IP, IP_MULTICAST_IF, (const void*) &mreq.imr_interface, sizeof(mreq.imr_interface));
     #else
-    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
+    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName);
     return SetOption(IPPROTO_IP, IP_MULTICAST_IF, (const void*) &mreq, sizeof(mreq));
     #endif
 }
 
-int32_t UDPSocket::JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName, bool useInterfaceName){
+int32_t UDPSocket::JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName){
     #ifdef _WIN32
-    struct ip_mreq mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
+    struct ip_mreq mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName);
     #else
-    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
+    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName);
     #endif
     return SetOption(IPPROTO_IP, IP_ADD_MEMBERSHIP, (const void*) &mreq, sizeof(mreq));
 }
 
-int32_t UDPSocket::LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName, bool useInterfaceName){
+int32_t UDPSocket::LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName){
     #ifdef _WIN32
-    struct ip_mreq mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
+    struct ip_mreq mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName);
     #else
-    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
+    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName);
     #endif
     return SetOption(IPPROTO_IP, IP_DROP_MEMBERSHIP, (const void*) &mreq, sizeof(mreq));
 }
@@ -225,14 +225,14 @@ void UDPSocket::ResetLastError(void){
 }
 
 #ifdef _WIN32
-struct ip_mreq UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::array<uint8_t,4>& ipInterface, const std::string& interfaceName, bool useInterfaceName){
+struct ip_mreq UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::array<uint8_t,4>& ipInterface, const std::string& interfaceName){
     // Convert group IP to string
     char strGroup[16];
     sprintf(&strGroup[0], "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
 
     // Convert interface IP or name to string
     char strInterface[16];
-    if(useInterfaceName){
+    if(interfaceName.size()){
         uint8_t index = static_cast<uint8_t>(if_nametoindex(interfaceName.c_str()));
         sprintf(&strInterface[0], "0.0.0.%u", index);
     }
@@ -247,7 +247,7 @@ struct ip_mreq UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, co
     return result;
 }
 #else
-struct ip_mreqn UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::array<uint8_t,4>& ipInterface, const std::string& interfaceName, bool useInterfaceName){
+struct ip_mreqn UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::array<uint8_t,4>& ipInterface, const std::string& interfaceName){
     // Convert group IP to string
     char strGroup[16];
     sprintf(&strGroup[0], "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
@@ -264,7 +264,7 @@ struct ip_mreqn UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, c
 
     // If commanded, set interface index based on interface name
     int index = 0;
-    if(useInterfaceName){
+    if(interfaceName.size()){
         index = if_nametoindex(interfaceName.c_str());
     }
 

@@ -178,7 +178,7 @@ void GenericTarget::PrintInfo(int argc, char**argv){
     GENERIC_TARGET_PRINT_RAW("tasks:                    ");
     for(int i = 0; i < SIMULINK_INTERFACE_NUM_TIMINGS; ++i){
         if(i) GENERIC_TARGET_PRINT_RAW("                          ");
-        GENERIC_TARGET_PRINT_RAW("[%d]: name=\"%s\", sampleTicks=%d, priority=%d\n", i, SimulinkInterface::taskNames[i], SimulinkInterface::sampleTicks[i], SimulinkInterface::priorities[i]);
+        GENERIC_TARGET_PRINT_RAW("[%d]: name=\"%s\", sampleTicks=%d, sampleOffset=%d, priority=%d\n", i, SimulinkInterface::taskNames[i], SimulinkInterface::sampleTicks[i], SimulinkInterface::offsetTicks[i], SimulinkInterface::priorities[i]);
     }
     GENERIC_TARGET_PRINT_RAW("\n");
     GENERIC_TARGET_PRINT_RAW("\n");

@@ -293,30 +293,30 @@ int32_t UDPSocket::ReceiveFrom(Address& source, uint8_t *bytes, int32_t maxSize)
     return static_cast<int32_t>(rx);
 }
 
-int32_t UDPSocket::SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName, bool useInterfaceName){
+int32_t UDPSocket::SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName){
     #ifdef _WIN32
-    struct ip_mreq mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
+    struct ip_mreq mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName);
     return SetOption(IPPROTO_IP, IP_MULTICAST_IF, (const void*) &mreq.imr_interface, sizeof(mreq.imr_interface));
     #else
-    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
+    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName);
     return SetOption(IPPROTO_IP, IP_MULTICAST_IF, (const void*) &mreq, sizeof(mreq));
     #endif
 }
 
-int32_t UDPSocket::JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName, bool useInterfaceName){
+int32_t UDPSocket::JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName){
     #ifdef _WIN32
-    struct ip_mreq mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
+    struct ip_mreq mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName);
     #else
-    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
+    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName);
     #endif
     return SetOption(IPPROTO_IP, IP_ADD_MEMBERSHIP, (const void*) &mreq, sizeof(mreq));
 }
 
-int32_t UDPSocket::LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName, bool useInterfaceName){
+int32_t UDPSocket::LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName){
     #ifdef _WIN32
-    struct ip_mreq mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
+    struct ip_mreq mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName);
     #else
-    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName, useInterfaceName);
+    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName);
     #endif
     return SetOption(IPPROTO_IP, IP_DROP_MEMBERSHIP, (const void*) &mreq, sizeof(mreq));
 }
@@ -357,14 +357,14 @@ void UDPSocket::ResetLastError(void){
 }
 
 #ifdef _WIN32
-struct ip_mreq UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::array<uint8_t,4>& ipInterface, const std::string& interfaceName, bool useInterfaceName){
+struct ip_mreq UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::array<uint8_t,4>& ipInterface, const std::string& interfaceName){
     // Convert group IP to string
     char strGroup[16];
     sprintf(&strGroup[0], "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
 
     // Convert interface IP or name to string
     char strInterface[16];
-    if(useInterfaceName){
+    if(interfaceName.size()){
         uint8_t index = static_cast<uint8_t>(if_nametoindex(interfaceName.c_str()));
         sprintf(&strInterface[0], "0.0.0.%u", index);
     }
@@ -379,7 +379,7 @@ struct ip_mreq UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, co
     return result;
 }
 #else
-struct ip_mreqn UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::array<uint8_t,4>& ipInterface, const std::string& interfaceName, bool useInterfaceName){
+struct ip_mreqn UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::array<uint8_t,4>& ipInterface, const std::string& interfaceName){
     // Convert group IP to string
     char strGroup[16];
     sprintf(&strGroup[0], "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
@@ -396,7 +396,7 @@ struct ip_mreqn UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, c
 
     // If commanded, set interface index based on interface name
     int index = 0;
-    if(useInterfaceName){
+    if(interfaceName.size()){
         index = if_nametoindex(interfaceName.c_str());
     }
 
@@ -422,14 +422,11 @@ UDPConfiguration::UDPConfiguration(){
     countAsDiscarded = true;
     allowBroadcast = false;
     unicast.interfaceIP = {0,0,0,0};
-    unicast.bindToDevice = false;
     unicast.deviceName = "";
     multicast.group = {239,0,0,0};
     multicast.ttl = 1;
-    multicast.interfaceJoinUseName = false;
     multicast.interfaceJoinName = "";
     multicast.interfaceJoinIP = {0,0,0,0};
-    multicast.interfaceSendUseName = false;
     multicast.interfaceSendName = "";
     multicast.interfaceSendIP = {0,0,0,0};
 }
@@ -438,23 +435,19 @@ bool UDPConfiguration::UpdateUnicastSenderConfiguration(const UDPConfiguration& 
     if(senderPropertiesSet){
         // Compare to this configuration
         if(prioritySocket != senderConfiguration.prioritySocket){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"prioritySocket\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"prioritySocket\"!\n");
             return false;
         }
         if((unicast.interfaceIP[0] != senderConfiguration.unicast.interfaceIP[0]) || (unicast.interfaceIP[1] != senderConfiguration.unicast.interfaceIP[1]) || (unicast.interfaceIP[2] != senderConfiguration.unicast.interfaceIP[2]) || (unicast.interfaceIP[3] != senderConfiguration.unicast.interfaceIP[3])){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.interfaceIP\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.interfaceIP\"!\n");
             return false;
         }
         if(allowBroadcast != senderConfiguration.allowBroadcast){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"allowBroadcast\"!");
-            return false;
-        }
-        if(unicast.bindToDevice != senderConfiguration.unicast.bindToDevice){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.bindToDevice\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"allowBroadcast\"!\n");
             return false;
         }
         if(unicast.deviceName.compare(senderConfiguration.unicast.deviceName)){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.deviceName\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.deviceName\"!\n");
             return false;
         }
     }
@@ -467,21 +460,16 @@ bool UDPConfiguration::UpdateUnicastSenderConfiguration(const UDPConfiguration& 
         // Check or set common properties
         if(receiverPropertiesSet){
             if((unicast.interfaceIP[0] != senderConfiguration.unicast.interfaceIP[0]) || (unicast.interfaceIP[1] != senderConfiguration.unicast.interfaceIP[1]) || (unicast.interfaceIP[2] != senderConfiguration.unicast.interfaceIP[2]) || (unicast.interfaceIP[3] != senderConfiguration.unicast.interfaceIP[3])){
-                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.interfaceIP\"!");
-                return false;
-            }
-            if(unicast.bindToDevice != senderConfiguration.unicast.bindToDevice){
-                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.bindToDevice\"!");
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.interfaceIP\"!\n");
                 return false;
             }
             if(unicast.deviceName.compare(senderConfiguration.unicast.deviceName)){
-                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.deviceName\"!");
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.deviceName\"!\n");
                 return false;
             }
         }
         else{
             unicast.interfaceIP = senderConfiguration.unicast.interfaceIP;
-            unicast.bindToDevice = senderConfiguration.unicast.bindToDevice;
             unicast.deviceName = __gt_simulink_support_ToPrintableString(senderConfiguration.unicast.deviceName);
         }
     }
@@ -492,43 +480,39 @@ bool UDPConfiguration::UpdateUnicastReceiverConfiguration(const UDPConfiguration
     if(receiverPropertiesSet){
         // Compare to this configuration
         if(rxBufferSize != receiverConfiguration.rxBufferSize){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"rxBufferSize\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"rxBufferSize\"!\n");
             return false;
         }
         if(priorityThread != receiverConfiguration.priorityThread){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"priorityThread\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"priorityThread\"!\n");
             return false;
         }
         if(numBuffers != receiverConfiguration.numBuffers){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"numBuffers\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"numBuffers\"!\n");
             return false;
         }
         if(bufferStrategy != receiverConfiguration.bufferStrategy){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"bufferStrategy\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"bufferStrategy\"!\n");
             return false;
         }
         if(timestampSource != receiverConfiguration.timestampSource){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"timestampSource\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"timestampSource\"!\n");
             return false;
         }
         if((ipFilter[0] != receiverConfiguration.ipFilter[0]) || (ipFilter[1] != receiverConfiguration.ipFilter[1]) || (ipFilter[2] != receiverConfiguration.ipFilter[2]) || (ipFilter[3] != receiverConfiguration.ipFilter[3])){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"ipFilter\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"ipFilter\"!\n");
             return false;
         }
         if(countAsDiscarded != receiverConfiguration.countAsDiscarded){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"countAsDiscarded\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"countAsDiscarded\"!\n");
             return false;
         }
         if((unicast.interfaceIP[0] != receiverConfiguration.unicast.interfaceIP[0]) || (unicast.interfaceIP[1] != receiverConfiguration.unicast.interfaceIP[1]) || (unicast.interfaceIP[2] != receiverConfiguration.unicast.interfaceIP[2]) || (unicast.interfaceIP[3] != receiverConfiguration.unicast.interfaceIP[3])){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.interfaceIP\"!");
-            return false;
-        }
-        if(unicast.bindToDevice != receiverConfiguration.unicast.bindToDevice){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.bindToDevice\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.interfaceIP\"!\n");
             return false;
         }
         if(unicast.deviceName.compare(receiverConfiguration.unicast.deviceName)){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.deviceName\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.deviceName\"!\n");
             return false;
         }
     }
@@ -546,21 +530,16 @@ bool UDPConfiguration::UpdateUnicastReceiverConfiguration(const UDPConfiguration
         // Check or set common properties
         if(senderPropertiesSet){
             if((unicast.interfaceIP[0] != receiverConfiguration.unicast.interfaceIP[0]) || (unicast.interfaceIP[1] != receiverConfiguration.unicast.interfaceIP[1]) || (unicast.interfaceIP[2] != receiverConfiguration.unicast.interfaceIP[2]) || (unicast.interfaceIP[3] != receiverConfiguration.unicast.interfaceIP[3])){
-                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.interfaceIP\"!");
-                return false;
-            }
-            if(unicast.bindToDevice != receiverConfiguration.unicast.bindToDevice){
-                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.bindToDevice\"!");
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.interfaceIP\"!\n");
                 return false;
             }
             if(unicast.deviceName.compare(receiverConfiguration.unicast.deviceName)){
-                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.deviceName\"!");
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"unicast.deviceName\"!\n");
                 return false;
             }
         }
         else{
             unicast.interfaceIP = receiverConfiguration.unicast.interfaceIP;
-            unicast.bindToDevice = receiverConfiguration.unicast.bindToDevice;
             unicast.deviceName = __gt_simulink_support_ToPrintableString(receiverConfiguration.unicast.deviceName);
         }
     }
@@ -571,36 +550,28 @@ bool UDPConfiguration::UpdateMulticastSenderConfiguration(const UDPConfiguration
     if(senderPropertiesSet){
         // Compare to this configuration
         if(prioritySocket != senderConfiguration.prioritySocket){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"prioritySocket\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"prioritySocket\"!\n");
             return false;
         }
         if(allowBroadcast != senderConfiguration.allowBroadcast){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"allowBroadcast\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"allowBroadcast\"!\n");
             return false;
         }
         if((multicast.group[0] != senderConfiguration.multicast.group[0]) || (multicast.group[1] != senderConfiguration.multicast.group[1]) || (multicast.group[2] != senderConfiguration.multicast.group[2]) || (multicast.group[3] != senderConfiguration.multicast.group[3])){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.group\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.group\"!\n");
             return false;
         }
         if(multicast.ttl != senderConfiguration.multicast.ttl){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.ttl\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.ttl\"!\n");
             return false;
         }
-        if(multicast.interfaceSendUseName != senderConfiguration.multicast.interfaceSendUseName){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.interfaceSendUseName\"!");
+        if(multicast.interfaceSendName.compare(senderConfiguration.multicast.interfaceSendName)){
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.interfaceSendName\"!\n");
             return false;
         }
-        if(multicast.interfaceSendUseName){
-            if(multicast.interfaceSendName.compare(senderConfiguration.multicast.interfaceSendName)){
-                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.interfaceSendName\"!");
-                return false;
-            }
-        }
-        else{
-            if((multicast.interfaceSendIP[0] != senderConfiguration.multicast.interfaceSendIP[0]) || (multicast.interfaceSendIP[1] != senderConfiguration.multicast.interfaceSendIP[1]) || (multicast.interfaceSendIP[2] != senderConfiguration.multicast.interfaceSendIP[2]) || (multicast.interfaceSendIP[3] != senderConfiguration.multicast.interfaceSendIP[3])){
-                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.interfaceSendIP\"!");
-                return false;
-            }
+        if((multicast.interfaceSendIP[0] != senderConfiguration.multicast.interfaceSendIP[0]) || (multicast.interfaceSendIP[1] != senderConfiguration.multicast.interfaceSendIP[1]) || (multicast.interfaceSendIP[2] != senderConfiguration.multicast.interfaceSendIP[2]) || (multicast.interfaceSendIP[3] != senderConfiguration.multicast.interfaceSendIP[3])){
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.interfaceSendIP\"!\n");
+            return false;
         }
     }
     else{
@@ -609,14 +580,13 @@ bool UDPConfiguration::UpdateMulticastSenderConfiguration(const UDPConfiguration
         prioritySocket = senderConfiguration.prioritySocket;
         allowBroadcast = senderConfiguration.allowBroadcast;
         multicast.ttl = senderConfiguration.multicast.ttl;
-        multicast.interfaceSendUseName = senderConfiguration.multicast.interfaceSendUseName;
         multicast.interfaceSendName = __gt_simulink_support_ToPrintableString(senderConfiguration.multicast.interfaceSendName);
         multicast.interfaceSendIP = senderConfiguration.multicast.interfaceSendIP;
 
         // Check or set common properties
         if(receiverPropertiesSet){
             if((multicast.group[0] != senderConfiguration.multicast.group[0]) || (multicast.group[1] != senderConfiguration.multicast.group[1]) || (multicast.group[2] != senderConfiguration.multicast.group[2]) || (multicast.group[3] != senderConfiguration.multicast.group[3])){
-                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.group\"!");
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.group\"!\n");
                 return false;
             }
         }
@@ -631,52 +601,44 @@ bool UDPConfiguration::UpdateMulticastReceiverConfiguration(const UDPConfigurati
     if(receiverPropertiesSet){
         // Compare to this configuration
         if(rxBufferSize != receiverConfiguration.rxBufferSize){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"rxBufferSize\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"rxBufferSize\"!\n");
             return false;
         }
         if(priorityThread != receiverConfiguration.priorityThread){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"priorityThread\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"priorityThread\"!\n");
             return false;
         }
         if(numBuffers != receiverConfiguration.numBuffers){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"numBuffers\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"numBuffers\"!\n");
             return false;
         }
         if(bufferStrategy != receiverConfiguration.bufferStrategy){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"bufferStrategy\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"bufferStrategy\"!\n");
             return false;
         }
         if(timestampSource != receiverConfiguration.timestampSource){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"timestampSource\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"timestampSource\"!\n");
             return false;
         }
         if((ipFilter[0] != receiverConfiguration.ipFilter[0]) || (ipFilter[1] != receiverConfiguration.ipFilter[1]) || (ipFilter[2] != receiverConfiguration.ipFilter[2]) || (ipFilter[3] != receiverConfiguration.ipFilter[3])){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"ipFilter\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"ipFilter\"!\n");
             return false;
         }
         if(countAsDiscarded != receiverConfiguration.countAsDiscarded){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"countAsDiscarded\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"countAsDiscarded\"!\n");
             return false;
         }
         if((multicast.group[0] != receiverConfiguration.multicast.group[0]) || (multicast.group[1] != receiverConfiguration.multicast.group[1]) || (multicast.group[2] != receiverConfiguration.multicast.group[2]) || (multicast.group[3] != receiverConfiguration.multicast.group[3])){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.group\"!");
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.group\"!\n");
             return false;
         }
-        if(multicast.interfaceJoinUseName != receiverConfiguration.multicast.interfaceJoinUseName){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.interfaceJoinUseName\"!");
+        if(multicast.interfaceJoinName.compare(receiverConfiguration.multicast.interfaceJoinName)){
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.interfaceJoinName\"!\n");
             return false;
         }
-        if(multicast.interfaceJoinUseName){
-            if(multicast.interfaceJoinName.compare(receiverConfiguration.multicast.interfaceJoinName)){
-                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.interfaceJoinName\"!");
-                return false;
-            }
-        }
-        else{
-            if((multicast.interfaceJoinIP[0] != receiverConfiguration.multicast.interfaceJoinIP[0]) || (multicast.interfaceJoinIP[1] != receiverConfiguration.multicast.interfaceJoinIP[1]) || (multicast.interfaceJoinIP[2] != receiverConfiguration.multicast.interfaceJoinIP[2]) || (multicast.interfaceJoinIP[3] != receiverConfiguration.multicast.interfaceJoinIP[3])){
-                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.interfaceJoinIP\"!");
-                return false;
-            }
+        if((multicast.interfaceJoinIP[0] != receiverConfiguration.multicast.interfaceJoinIP[0]) || (multicast.interfaceJoinIP[1] != receiverConfiguration.multicast.interfaceJoinIP[1]) || (multicast.interfaceJoinIP[2] != receiverConfiguration.multicast.interfaceJoinIP[2]) || (multicast.interfaceJoinIP[3] != receiverConfiguration.multicast.interfaceJoinIP[3])){
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.interfaceJoinIP\"!\n");
+            return false;
         }
     }
     else{
@@ -689,14 +651,13 @@ bool UDPConfiguration::UpdateMulticastReceiverConfiguration(const UDPConfigurati
         timestampSource = receiverConfiguration.timestampSource;
         ipFilter = receiverConfiguration.ipFilter;
         countAsDiscarded = receiverConfiguration.countAsDiscarded;
-        multicast.interfaceJoinUseName = receiverConfiguration.multicast.interfaceJoinUseName;
         multicast.interfaceJoinName = __gt_simulink_support_ToPrintableString(receiverConfiguration.multicast.interfaceJoinName);
         multicast.interfaceJoinIP = receiverConfiguration.multicast.interfaceJoinIP;
 
         // Check or set common properties
         if(senderPropertiesSet){
             if((multicast.group[0] != receiverConfiguration.multicast.group[0]) || (multicast.group[1] != receiverConfiguration.multicast.group[1]) || (multicast.group[2] != receiverConfiguration.multicast.group[2]) || (multicast.group[3] != receiverConfiguration.multicast.group[3])){
-                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.group\"!");
+                GENERIC_TARGET_PRINT_ERROR("Ambiguous value for parameter \"multicast.group\"!\n");
                 return false;
             }
         }
@@ -709,12 +670,10 @@ bool UDPConfiguration::UpdateMulticastReceiverConfiguration(const UDPConfigurati
 
 void UDPConfiguration::FillMissing(void){
     if(senderPropertiesSet && !receiverPropertiesSet){
-        multicast.interfaceJoinUseName = multicast.interfaceSendUseName;
         multicast.interfaceJoinName = multicast.interfaceSendName;
         multicast.interfaceJoinIP = multicast.interfaceSendIP;
     }
     else if(receiverPropertiesSet && !senderPropertiesSet){
-        multicast.interfaceSendUseName = multicast.interfaceJoinUseName;
         multicast.interfaceSendName = multicast.interfaceJoinName;
         multicast.interfaceSendIP = multicast.interfaceJoinIP;
     }
@@ -1050,7 +1009,7 @@ int32_t UDPUnicastElement::InitializeSocket(UDPConfiguration conf){
     }
 
     // Bind socket to a network interface device if required
-    if(conf.unicast.bindToDevice){
+    if(conf.unicast.deviceName.size()){
         socket.ResetLastError();
         if(socket.BindToDevice(conf.unicast.deviceName) < 0){
             auto [errorCode, errorString] = socket.GetLastError();
@@ -1095,7 +1054,7 @@ int32_t UDPUnicastElement::InitializeSocket(UDPConfiguration conf){
     }
 
     // Success
-    GENERIC_TARGET_PRINT("Opened unicast UDP socket (port=%u, interface=%u.%u.%u.%u, allowBroadcast=%u, bindToDevice=%u, deviceName=\"%s\")\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], int(conf.allowBroadcast), int(conf.unicast.bindToDevice), conf.unicast.deviceName.c_str());
+    GENERIC_TARGET_PRINT("Opened unicast UDP socket (port=%u, interface=%u.%u.%u.%u, allowBroadcast=%u, deviceName=\"%s\")\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], int(conf.allowBroadcast), conf.unicast.deviceName.c_str());
     return (previousErrorCode = 0);
 }
 
@@ -1103,7 +1062,7 @@ void UDPUnicastElement::TerminateSocket(UDPConfiguration conf, bool verbosePrint
     conf.unicast.deviceName = __gt_simulink_support_ToPrintableString(conf.unicast.deviceName);
     socket.Close();
     if(verbosePrint){
-        GENERIC_TARGET_PRINT("Closed unicast UDP socket (port=%u, interface=%u.%u.%u.%u, allowBroadcast=%u, bindToDevice=%u, deviceName=\"%s\")\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], int(conf.allowBroadcast), int(conf.unicast.bindToDevice), conf.unicast.deviceName.c_str());
+        GENERIC_TARGET_PRINT("Closed unicast UDP socket (port=%u, interface=%u.%u.%u.%u, allowBroadcast=%u, deviceName=\"%s\")\n", port, conf.unicast.interfaceIP[0], conf.unicast.interfaceIP[1], conf.unicast.interfaceIP[2], conf.unicast.interfaceIP[3], int(conf.allowBroadcast), conf.unicast.deviceName.c_str());
     }
 }
 
@@ -1169,10 +1128,10 @@ int32_t UDPMulticastElement::InitializeSocket(UDPConfiguration conf){
 
     // Set multicast interface for outgoing traffic
     socket.ResetLastError();
-    if(socket.SetMulticastInterface(conf.multicast.group, conf.multicast.interfaceSendIP, conf.multicast.interfaceSendName, conf.multicast.interfaceSendUseName) < 0){
+    if(socket.SetMulticastInterface(conf.multicast.group, conf.multicast.interfaceSendIP, conf.multicast.interfaceSendName) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
-            if(conf.multicast.interfaceSendUseName){
+            if(conf.multicast.interfaceSendName.size()){
                 GENERIC_TARGET_PRINT_ERROR("Could not set multicast interface \"%s\" for outgoing traffic (port=%u)! %s\n", conf.multicast.interfaceSendName.c_str(), port, errorString.c_str());
             }
             else{
@@ -1185,10 +1144,10 @@ int32_t UDPMulticastElement::InitializeSocket(UDPConfiguration conf){
 
     // Join multicast group
     socket.ResetLastError();
-    if(socket.JoinMulticastGroup(conf.multicast.group, conf.multicast.interfaceJoinIP, conf.multicast.interfaceJoinName, conf.multicast.interfaceJoinUseName) < 0){
+    if(socket.JoinMulticastGroup(conf.multicast.group, conf.multicast.interfaceJoinIP, conf.multicast.interfaceJoinName) < 0){
         auto [errorCode, errorString] = socket.GetLastError();
         if(errorCode != previousErrorCode){
-            if(conf.multicast.interfaceJoinUseName){
+            if(conf.multicast.interfaceJoinName.size()){
                 GENERIC_TARGET_PRINT_ERROR("Could not join multicast group %u.%u.%u.%u at interface \"%s\" (port=%u)! %s\n", conf.multicast.group[0], conf.multicast.group[1], conf.multicast.group[2], conf.multicast.group[3], conf.multicast.interfaceJoinName.c_str(), port, errorString.c_str());
             }
             else{
@@ -1200,12 +1159,12 @@ int32_t UDPMulticastElement::InitializeSocket(UDPConfiguration conf){
     }
 
     // Success
-    std::string strJoin = conf.multicast.interfaceJoinName;
-    if(!conf.multicast.interfaceJoinUseName){
+    std::string strJoin = "\"" + conf.multicast.interfaceJoinName + "\"";
+    if(conf.multicast.interfaceJoinName.empty()){
         strJoin = std::to_string(conf.multicast.interfaceJoinIP[0]) + "." + std::to_string(conf.multicast.interfaceJoinIP[1]) + "." + std::to_string(conf.multicast.interfaceJoinIP[2]) + "." + std::to_string(conf.multicast.interfaceJoinIP[3]);
     }
-    std::string strSend = conf.multicast.interfaceSendName;
-    if(!conf.multicast.interfaceSendUseName){
+    std::string strSend = "\"" + conf.multicast.interfaceSendName + "\"";
+    if(conf.multicast.interfaceSendName.empty()){
         strSend = std::to_string(conf.multicast.interfaceSendIP[0]) + "." + std::to_string(conf.multicast.interfaceSendIP[1]) + "." + std::to_string(conf.multicast.interfaceSendIP[2]) + "." + std::to_string(conf.multicast.interfaceSendIP[3]);
     }
     GENERIC_TARGET_PRINT("Opened multicast UDP socket (port=%u, group=%u.%u.%u.%u, ttl=%u, interfaceJoin=%s, interfaceSend=%s, allowBroadcast=%u)\n", port, conf.multicast.group[0], conf.multicast.group[1], conf.multicast.group[2], conf.multicast.group[3], conf.multicast.ttl, strJoin.c_str(), strSend.c_str(), int(conf.allowBroadcast));
@@ -1215,15 +1174,15 @@ int32_t UDPMulticastElement::InitializeSocket(UDPConfiguration conf){
 void UDPMulticastElement::TerminateSocket(UDPConfiguration conf, bool verbosePrint){
     conf.multicast.interfaceSendName = __gt_simulink_support_ToPrintableString(conf.multicast.interfaceSendName);
     conf.multicast.interfaceJoinName = __gt_simulink_support_ToPrintableString(conf.multicast.interfaceJoinName);
-    socket.LeaveMulticastGroup(conf.multicast.group, conf.multicast.interfaceJoinIP, conf.multicast.interfaceJoinName, conf.multicast.interfaceJoinUseName);
+    socket.LeaveMulticastGroup(conf.multicast.group, conf.multicast.interfaceJoinIP, conf.multicast.interfaceJoinName);
     socket.Close();
     if(verbosePrint){
-        std::string strJoin = conf.multicast.interfaceJoinName;
-        if(!conf.multicast.interfaceJoinUseName){
+        std::string strJoin = "\"" + conf.multicast.interfaceJoinName + "\"";
+        if(conf.multicast.interfaceJoinName.empty()){
             strJoin = std::to_string(conf.multicast.interfaceJoinIP[0]) + "." + std::to_string(conf.multicast.interfaceJoinIP[1]) + "." + std::to_string(conf.multicast.interfaceJoinIP[2]) + "." + std::to_string(conf.multicast.interfaceJoinIP[3]);
         }
-        std::string strSend = conf.multicast.interfaceSendName;
-        if(!conf.multicast.interfaceSendUseName){
+        std::string strSend = "\"" + conf.multicast.interfaceSendName + "\"";
+        if(conf.multicast.interfaceSendName.empty()){
             strSend = std::to_string(conf.multicast.interfaceSendIP[0]) + "." + std::to_string(conf.multicast.interfaceSendIP[1]) + "." + std::to_string(conf.multicast.interfaceSendIP[2]) + "." + std::to_string(conf.multicast.interfaceSendIP[3]);
         }
         GENERIC_TARGET_PRINT("Closed multicast UDP socket (port=%u, group=%u.%u.%u.%u, ttl=%u, interfaceJoin=%s, interfaceSend=%s, allowBroadcast=%u)\n", port, conf.multicast.group[0], conf.multicast.group[1], conf.multicast.group[2], conf.multicast.group[3], conf.multicast.ttl, strJoin.c_str(), strSend.c_str(), int(conf.allowBroadcast));
