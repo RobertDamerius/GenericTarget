@@ -216,6 +216,14 @@ std::tuple<int32_t, std::string> UDPSocket::GetLastError(void){
     return std::make_tuple(static_cast<int32_t>(err), errStr);
 }
 
+int32_t UDPSocket::GetLastErrorCode(void){
+    #ifdef _WIN32
+    return static_cast<int32_t>(WSAGetLastError());
+    #else
+    return static_cast<int32_t>(errno);
+    #endif
+}
+
 void UDPSocket::ResetLastError(void){
     #ifdef _WIN32
     WSASetLastError(0);

@@ -37,12 +37,6 @@ class Address {
          * @param[in] port Port value.
          */
         Address(std::array<uint8_t,4> ip, uint16_t port);
-
-        /**
-         * @brief Check whether both IP and port are zero.
-         * @return True if all values of @ref ip and the @ref port are zero.
-         */
-        inline bool IsZero(void){ return !(ip[0] || ip[1] || ip[2] || ip[3] || port); }
 };
 
 

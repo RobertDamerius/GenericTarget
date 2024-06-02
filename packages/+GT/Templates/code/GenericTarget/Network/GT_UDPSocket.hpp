@@ -167,6 +167,12 @@ class UDPSocket {
         std::tuple<int32_t, std::string> GetLastError(void);
 
         /**
+         * @brief Get the last error code.
+         * @return Last error code.
+         */
+        int32_t GetLastErrorCode(void);
+
+        /**
          * @brief Reset the last error code to zero.
          */
         void ResetLastError(void);

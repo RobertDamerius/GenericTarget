@@ -162,6 +162,7 @@ void UDPElementBase::WorkerThread(const UDPConfiguration conf){
         while(!terminate && socket.IsOpen()){
             // Wait for next message to be received
             int32_t rx = socket.ReceiveFrom(source, &localBuffer[0], conf.rxBufferSize);
+            errorCode = socket.GetLastErrorCode();
             double t1 = GenericTarget::GetModelExecutionTime();
             double t2 = GenericTarget::targetTime.GetUTCTimestamp();
             double timestamp = t1;
@@ -173,11 +174,18 @@ void UDPElementBase::WorkerThread(const UDPConfiguration conf){
                     timestamp = t2;
                     break;
             }
-            if((rx < 0) || !socket.IsOpen() || terminate){
+            if(!socket.IsOpen() || terminate){
                 break;
             }
-            if(source.IsZero()){
-                udpRetryTimer.WaitFor(GENERIC_TARGET_UDP_RETRY_TIME_MS);
+            if(rx < 0){
+                mtxReceiveBuffer.lock();
+                receiveBuffer.latestErrorCode = errorCode;
+                mtxReceiveBuffer.unlock();
+                #ifdef _WIN32
+                if(WSAEMSGSIZE == errorCode){
+                    continue;
+                }
+                #endif
                 break;
             }
 

@@ -88,7 +88,15 @@ void GenericTarget::MainLoop(void){
     uint8_t u[4];
     while(!shouldTerminate && appSocket.IsOpen()){
         int32_t rx = appSocket.ReceiveFrom(source, &u[0], 4);
-        if((rx < 0) || source.IsZero()){
+        int32_t errorCode = appSocket.GetLastErrorCode();
+        if(rx < 0){
+            #ifdef _WIN32
+            if(WSAEMSGSIZE == errorCode){
+                continue;
+            }
+            #else
+            (void)errorCode;
+            #endif
             break;
         }
         if((source.ip == std::array<uint8_t,4>({127,0,0,1})) && (4 == rx) && (0x47 == u[0]) && (0x54 == u[1]) && (0xDE == u[2]) && (0xAD == u[3])){
