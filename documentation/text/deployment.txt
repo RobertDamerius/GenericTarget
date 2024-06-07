@@ -39,9 +39,9 @@
     <br>
 
     <div class="note-blue">
-	<h3 class="note-blue">Note on code generation</h3>
+    <h3 class="note-blue">Note on code generation</h3>
     If only the code is to be generated (blue area, steps 1 to 9), the <a href="packages_gt_generictarget.html#GenerateCode">GenerateCode</a> member function can be used.
-	</div>
+    </div>
 
     <h3>1. Copy Generic Target Core</h3>
     A temporary code generation folder is created that is going to contain the generated application software.
@@ -67,11 +67,11 @@
     There is the possibility that other MATLAB versions generate different prototypes!
     </span>
     <div class="note-red">
-	<h3 class="note-red">Important</h3>
+    <h3 class="note-red">Important</h3>
     All source and header files, that contain <code>int_T main(</code> or <code>int main(</code> are removed!
     It is not examined whether these expressions are part of a comment or not.
     As soon as one of the expressions appears within a file, this file is removed!
-	</div>
+    </div>
 
     <h3>5. Replace RTW Headers</h3>
     All header files named <code>rtw_windows.h</code> and <code>rtw_linux.h</code> are replaced by header files of the same name, which are located in the <code>packages/+GT/Templates/</code>
@@ -107,12 +107,12 @@
     From the template folder a zip archive (MODELNAME.zip) is generated at this point.
 
     <div class="note-orange">
-	<h3 class="note-orange">SSH/SCP</h3>
-	MATLAB does not currently have an SSH or SCP client.
+    <h3 class="note-orange">SSH/SCP</h3>
+    MATLAB does not currently have an SSH or SCP client.
     Although it is possible to transfer data to MATLAB via FTP, SSH is required to execute commands anyway.
     For this reason, SSH and SCP commands are called with the <code>system()</code> function of MATLAB.
     An SSH and SCP client must be available on the host computer.
-	</div>
+    </div>
 
     <h3>10. SCP: Upload MODELNAME.zip</h3>
     The archive MODELNAME.zip is moved to the home/user directory on the target computer.

@@ -82,21 +82,21 @@
     </div>
 
     The directory structure of the <b>Generic Target Toolbox</b> is as follows:
-	<ul class="dir">
-		<li>documentation</li>
-		<li>library</li>
-		<li>packages</li>
-		<li>resources</li>
-	</ul>
-	<ul class="file">
+    <ul class="dir">
+        <li>documentation</li>
+        <li>library</li>
+        <li>packages</li>
+        <li>resources</li>
+    </ul>
+    <ul class="file">
         <li>GenericTarget.prj</li>
         <li>install.m</li>
         <li>readme.html</li>
-	</ul>
+    </ul>
     <br>
     <table>
-		<tr><th>Directory/File</th><th>Description</th></tr>
-		<tr><td><b>documentation</b></td><td>
+        <tr><th>Directory/File</th><th>Description</th></tr>
+        <tr><td><b>documentation</b></td><td>
             Contains this HTML-based documentation.</td></tr>
         <tr><td><b>library</b></td><td>
             Contains the Simulink library "GenericTarget".</td></tr>
@@ -110,7 +110,7 @@
             MATLAB script to install the Generic Target Toolbox and save it to the MATLAB path.</td></tr>
         <tr><td><b>readme.html</b></td><td>
             Open this file with a browser to show the HTML-based documentation.</td></tr>
-	</table>
+    </table>
 
     <h2>Rebuild Library Blocks (optional)</h2>
     The toolbox is shipped with prebuild library blocks for Windows and Linux.
@@ -119,7 +119,7 @@
 
     <a name="simulinksupport"></a>
     <div class="note-green">
-	<h3 class="note-green">Simulink Support</h3>
+    <h3 class="note-green">Simulink Support</h3>
     If the option "Simulink support" is set during the building of the library library blocks, most of them will also be usable for simulation in Simulink.
     If the "Simulink support" option is disabled, most blocks have no effect during simulation and serve only as code placeholders for the application on the target PC.
     On the target, all blocks have their intended functionality.
@@ -127,7 +127,7 @@
     <br>
     <br>
     <table>
-		<tr><th>Block</th><th>No Simulink Support</th><th>With Simulink Support</th></tr>
+        <tr><th>Block</th><th>No Simulink Support</th><th>With Simulink Support</th></tr>
         <tr><td>Interface/UDP Send                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
         <tr><td>Interface/UDP Receive                 </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
         <tr><td>Interface/Multicast UDP Send          </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
@@ -153,7 +153,7 @@
     The reason for that is, that each block runs in its own environment during simulation.
     Thus a Send and a Receive block do not share the internal network socket and each block generates its own receive thread.
     For multicast this is less of a problem, since these messages are received via loopback on all associated multicast sockets anyway.
-	</div>
+    </div>
     At the moment only <b>gcc</b> (Linux) and <b>MSYS2/MinGW64</b> (Windows) are supported as compilers to create blocks with Simulink support.
     For compilers that are not yet supported, the Simulink support option can be skipped.
 

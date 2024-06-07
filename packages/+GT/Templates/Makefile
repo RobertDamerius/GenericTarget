@@ -42,13 +42,13 @@ POSTCOMPILE     = mv -f $(DIRECTORY_BUILD)$*.Td $(DIRECTORY_BUILD)$*.d
 
 # Additional build flags depending on debug mode
 ifeq ($(DEBUG_MODE), 1)
-	CC_FLAGS   += -ggdb
-	CPP_FLAGS  += -ggdb
-	CC_SYMBOLS += -DDEBUG
+    CC_FLAGS   += -ggdb
+    CPP_FLAGS  += -ggdb
+    CC_SYMBOLS += -DDEBUG
 else
-	CC_FLAGS   += -O3
-	CPP_FLAGS  += -O3
-	LD_FLAGS   += -O3 -s
+    CC_FLAGS   += -O3
+    CPP_FLAGS  += -O3
+    LD_FLAGS   += -O3 -s
 endif
 
 # Libs and shared objects
@@ -124,51 +124,51 @@ $(shell $(MKDIR) $(DIRECTORY_BUILD) $(addprefix $(DIRECTORY_BUILD), $(DIRECTORY_
 all: $(PRODUCT)
 
 info:
-	@echo ""
-	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo "AppName: $(PRODUCT_NAME)"
-	@echo "OS:      $(OS)"
-	@echo ""
-	@echo "~~~~~~~ COMMAND LIST ~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo "all:     Makes complete software (no precompiled headers)."
-	@echo "clean:   Removes out built project files (.o, .d), build directory \"$(DIRECTORY_BUILD)\" and binaries".
-	@echo "info:    Shows this info."
-	@echo ""
-	@echo "~~~~~~~ DIRECTORY SETTINGS ~~~~~~~~~~~~~~~~~~"
-	@echo "Source:  [$(DIRECTORY_SOURCE)]"
-	@echo "Build:   [$(DIRECTORY_BUILD)]"
-	@echo "Product: [$(DIRECTORY_PRODUCT)]"
-	@echo ""
-	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    @echo ""
+    @echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    @echo "AppName: $(PRODUCT_NAME)"
+    @echo "OS:      $(OS)"
+    @echo ""
+    @echo "~~~~~~~ COMMAND LIST ~~~~~~~~~~~~~~~~~~~~~~~~"
+    @echo "all:     Makes complete software (no precompiled headers)."
+    @echo "clean:   Removes out built project files (.o, .d), build directory \"$(DIRECTORY_BUILD)\" and binaries".
+    @echo "info:    Shows this info."
+    @echo ""
+    @echo "~~~~~~~ DIRECTORY SETTINGS ~~~~~~~~~~~~~~~~~~"
+    @echo "Source:  [$(DIRECTORY_SOURCE)]"
+    @echo "Build:   [$(DIRECTORY_BUILD)]"
+    @echo "Product: [$(DIRECTORY_PRODUCT)]"
+    @echo ""
+    @echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
 clean:
-	@$(RM) $(call rwildcard,$(DIRECTORY_BUILD),*.o) $(call rwildcard,$(DIRECTORY_BUILD),*.d) $(PRODUCT)
-	@$(RM) $(DIRECTORY_BUILD)
-	@echo "Clean: Done."
+    @$(RM) $(call rwildcard,$(DIRECTORY_BUILD),*.o) $(call rwildcard,$(DIRECTORY_BUILD),*.d) $(PRODUCT)
+    @$(RM) $(DIRECTORY_BUILD)
+    @echo "Clean: Done."
 
 $(PRODUCT): $(OBJECTS_ALL)
-	@printf "[APP]  > $@\n"
-	@$(CC) $(LD_FLAGS) $(LIBRARY_PATHS) -o $@ $^ $(SHARED_OBJECTS) $(LD_LIBS)
+    @printf "[APP]  > $@\n"
+    @$(CC) $(LD_FLAGS) $(LIBRARY_PATHS) -o $@ $^ $(SHARED_OBJECTS) $(LD_LIBS)
 
 $(DIRECTORY_BUILD)%.o: %.c
 $(DIRECTORY_BUILD)%.o: %.c $(DIRECTORY_BUILD)%.d
-	@printf "[C]    > $<\n"
-	@$(CC) $(INCLUDE_PATHS) $(CC_FLAGS) $(DEP_FLAGS) -o $@ -c $< $(CC_SYMBOLS)
-	@$(POSTCOMPILE)
+    @printf "[C]    > $<\n"
+    @$(CC) $(INCLUDE_PATHS) $(CC_FLAGS) $(DEP_FLAGS) -o $@ -c $< $(CC_SYMBOLS)
+    @$(POSTCOMPILE)
 
 $(DIRECTORY_BUILD)%.o: %.cpp
 $(DIRECTORY_BUILD)%.o: %.cpp $(DIRECTORY_BUILD)%.d
-	@printf "[CPP]  > $<\n"
-	@$(CPP) $(INCLUDE_PATHS) $(CPP_FLAGS) $(DEP_FLAGS) -o $@ -c $< $(CC_SYMBOLS)
-	@$(POSTCOMPILE)
+    @printf "[CPP]  > $<\n"
+    @$(CPP) $(INCLUDE_PATHS) $(CPP_FLAGS) $(DEP_FLAGS) -o $@ -c $< $(CC_SYMBOLS)
+    @$(POSTCOMPILE)
 
 $(DIRECTORY_BUILD)%.o: %.rc
-	@printf "[.RC]  > $<\n"
-	@$(WINDRES) $< -O coff -o $@
+    @printf "[.RC]  > $<\n"
+    @$(WINDRES) $< -O coff -o $@
 
 $(DIRECTORY_BUILD)%.o: %.bin
-	@printf "[BIN]  > $<\n"
-	@$(LD) -r -b binary -o $@ $<
+    @printf "[BIN]  > $<\n"
+    @$(LD) -r -b binary -o $@ $<
 
 $(DIRECTORY_BUILD)%.d: ;
 .PRECIOUS: $(DIRECTORY_BUILD)%.d
