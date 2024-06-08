@@ -10,30 +10,30 @@
     The directory in which the application is located has the following structure.
     <br>
     <br>
-	<ul class="dir">
-		<li>.vscode</li>
-		<li>build</li>
-		<li>code</li>
-		<li>data</li>
-		<li>protocol</li>
-	</ul>
+    <ul class="dir">
+        <li>.vscode</li>
+        <li>build</li>
+        <li>code</li>
+        <li>data</li>
+        <li>protocol</li>
+    </ul>
     <ul class="file">
         <li>GenericTarget</li>
         <li>Makefile</li>
         <li>README.md</li>
     </ul>
-	<br>
+    <br>
     <table>
-		<tr><th width="200px">Directory/File</th><th>Description</th></tr>
-		<tr><td>.vscode</td><td>This directory contains metadata for VSCode and allows for <a href="example_debugging.html">debugging</a> the application with VSCode, just in case.</td></tr>
-		<tr><td>build</td><td>This directory is created during the compilation process. During compilation, object files and dependency files are first created from the source file, which are then linked together to the application. The dependency files ensure that when a source or header file is changed, only those source files are recompiled that depend on the changed files.</td></tr>
-		<tr><td>code</td><td>This directory contains the source code of the application including the generic target core, the generated code from Simulink as well as optional custom code.</td></tr>
-		<tr><td>data</td><td>This directory is created by the application to store <a href="datarecording.html">data recording files</a>, if data recording is to be used, i.e. if there're Write To File blocks in the model.</td></tr>
-		<tr><td>protocol</td><td>This directory is created by the application to store <a href="protocolfile.html">protocol files</a>.</td></tr>
-		<tr><td>GenericTarget</td><td>This is the executable. The name can be changed via the property <a href="packages_gt_generictarget.html#targetProductName">targetProductName</a>.</tr>
-		<tr><td>Makefile</td><td>On the target computer the software is compiled with the g++ compiler. For this purpose the make tool is used, which uses the Makefile to execute appropriate commands. The Makefile compiles all source files in the <code>code/</code> directory.</td></tr>
-		<tr><td>README.md</td><td>A readme file providing additional information.</td></tr>
-	</table>
+        <tr><th width="200px">Directory/File</th><th>Description</th></tr>
+        <tr><td>.vscode</td><td>This directory contains metadata for VSCode and allows for <a href="example_debugging.html">debugging</a> the application with VSCode, just in case.</td></tr>
+        <tr><td>build</td><td>This directory is created during the compilation process. During compilation, object files and dependency files are first created from the source file, which are then linked together to the application. The dependency files ensure that when a source or header file is changed, only those source files are recompiled that depend on the changed files.</td></tr>
+        <tr><td>code</td><td>This directory contains the source code of the application including the generic target core, the generated code from Simulink as well as optional custom code.</td></tr>
+        <tr><td>data</td><td>This directory is created by the application to store <a href="datarecording.html">data recording files</a>, if data recording is to be used, i.e. if there're Write To File blocks in the model.</td></tr>
+        <tr><td>protocol</td><td>This directory is created by the application to store <a href="protocolfile.html">protocol files</a>.</td></tr>
+        <tr><td>GenericTarget</td><td>This is the executable. The name can be changed via the property <a href="packages_gt_generictarget.html#targetProductName">targetProductName</a>.</tr>
+        <tr><td>Makefile</td><td>On the target computer the software is compiled with the g++ compiler. For this purpose the make tool is used, which uses the Makefile to execute appropriate commands. The Makefile compiles all source files in the <code>code/</code> directory.</td></tr>
+        <tr><td>README.md</td><td>A readme file providing additional information.</td></tr>
+    </table>
     <br>
 
     <a name="arguments"></a>
@@ -148,11 +148,11 @@
     If the UDP message comes from a different address, this message is ignored.
     
     <div class="note-green">
-	<h3 class="note-green">Note</h3>
+    <h3 class="note-green">Note</h3>
     The termination message can also be sent from another application on the target PC.
     It is also possible to use a UDP Send block in the Simulink model that sends a termination message to the application socket.
     In this way, the generic target application can be terminated by the model software.
-	</div>
+    </div>
 
     <h3>4. Message is Termination Message</h3>
     If the received message is a termination message, the main loop is interrupted.

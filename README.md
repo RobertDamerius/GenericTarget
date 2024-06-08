@@ -45,6 +45,7 @@ The directory structure of this repository is as follows.
 | 2024-03-19      | Added option to bind network devices for UDP unicast. Updated the block interface for UDP unicast and multicast blocks. Updated library to MATLAB R2023b.                     |
 | 2024-05-20      | Time source of timestamps for UDP receive blocks can be selected via the block mask.                                                                                          |
 | 2024-05-24      | Added support for periodic partitions and sample offset. Added stop execution block. Task name is now used for task execution time and task overload blocks.                  |
+| 2024-06-08      | Model step functions are not executed in a delayed manner after a task overload but are called at their next possible time slot.                                              |
 
 ## Getting Started
 Look at the HTML-based documentation by opening the ``readme.html`` file with a browser. There you will find a more

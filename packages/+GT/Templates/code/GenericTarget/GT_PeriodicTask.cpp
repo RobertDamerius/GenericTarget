@@ -63,32 +63,30 @@ void PeriodicTask::Stop(void){
 }
 
 void PeriodicTask::Notify(void){
-    if(started){
-        // Decrement sample offset, only continue if tick counter is less than zero
-        if((--offsetSamples) < 0){
-            offsetSamples = 0;
+    // Decrement sample offset, only continue if tick counter is less than zero
+    if((--offsetSamples) < 0){
+        offsetSamples = 0;
 
-            // Decrement ticks, only signal thread if tick counter is zero (or less)
-            if((--ticks) < 1){
-                // Reset tick counter to specified model sample ticks
-                ticks = SimulinkInterface::sampleTicks[taskID];
+        // Decrement ticks, only signal thread if tick counter is zero (or less)
+        if((--ticks) < 1){
+            // Reset tick counter to specified model sample ticks
+            ticks = SimulinkInterface::sampleTicks[taskID];
 
-                // If a job is still running: task overload
-                if(jobRunning){
-                    uint64_t n = ++numTaskOverloads;
-                    GENERIC_TARGET_PRINT_ERROR("Task overload (task=\"%s\", priority=%d, sampletime=%lf, overloads=%lu)\n", SimulinkInterface::taskNames[taskID], SimulinkInterface::priorities[taskID], SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]), n);
-                    if(SimulinkInterface::terminateAtTaskOverload){
-                        GenericTarget::ShouldTerminate();
-                        return;
-                    }
+            // If a job is still running: task overload, do not notify
+            if(jobRunning){
+                uint64_t n = ++numTaskOverloads;
+                GENERIC_TARGET_PRINT_ERROR("Task overload (task=\"%s\", priority=%d, sampletime=%lf, overloads=%lu)\n", SimulinkInterface::taskNames[taskID], SimulinkInterface::priorities[taskID], SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]), n);
+                if(SimulinkInterface::terminateAtTaskOverload){
+                    GenericTarget::ShouldTerminate();
                 }
+                return;
+            }
 
-                // Notify the actual thread
-                {
-                    std::unique_lock<std::mutex> lock(mtx);
-                    notified = true;
-                    cv.notify_one();
-                }
+            // Notify the actual thread
+            {
+                std::unique_lock<std::mutex> lock(mtx);
+                notified = true;
+                cv.notify_one();
             }
         }
     }
@@ -113,8 +111,8 @@ void PeriodicTask::Thread(void){
         auto t1 = std::chrono::steady_clock::now();
         SimulinkInterface::Step(taskID);
         auto t2 = std::chrono::steady_clock::now();
-        jobRunning = false;
         taskExecutionTime = 1e-9 * double(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
+        jobRunning = false;
     }
 }
 

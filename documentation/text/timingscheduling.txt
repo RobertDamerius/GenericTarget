@@ -26,7 +26,7 @@ a small latency (in the range of microseconds) elapses before the master thread 
 system and can react to the timer event. This latency is not constant.
 The generic target application uses a FIFO strategy for scheduling.
 If there are several tasks to do, they are processed one after the other.
-The following figure shows the already mentioned example for the case that only one thread can work at the same time.
+The following figure shows an example for the case that all worker threads can work at the same time.
 <br>
 <br>
 <center><object data="../img/timingscheduling.svg" type="image/svg+xml"></object></center>
@@ -37,7 +37,7 @@ The following figure shows the already mentioned example for the case that only 
 <h3>CPU Overload</h3>
 The high-priority realtime thread of the base rate scheduler waits for the event of a periodic timer that is set with the specified base sampletime of the model.
 Due to operating-system related latency the realtime thread is not able to handle that event immediately but after some short delay. If the timer produced multiple
-events but the realtime thread was not able to handle them in time, a <a href="#cpuoverload">lost tick event</a> occurs. In this case, the number of CPU overloads is incremented and the
+events but the realtime thread was not able to handle them in time, a lost tick event occurs. In this case, the number of CPU overloads is incremented and the
 number of lost ticks is incremented by the number of tick events that have been lost.
 <br>
 <br>
@@ -48,9 +48,10 @@ number of lost ticks is incremented by the number of tick events that have been 
 <a name="taskoverload"></a>
 <h3>Task Overload</h3>
 The master thread triggers the worker thread. If the worker thread is still working, it misses the event from the master thread and a
-lost wakeup occurs. The event remains and the associated task is executed in a delayed manner. The number of lost events is irrelevant.
-An existing event corresponds to a Boolean variable and not an integer. Several lost events therefore cause the worker thread to execute
-only one event. The master thread detects all lost wakeups and thus recognizes task overloads.
+lost wakeup occurs. The event from the master thread is lost and the worker thread loses a time step.
+The worker thread is only triggered again synchronously with a subsequent event from the master thread if it is not running.
+This, if several lost wakeups occur during a step calculation, a corresponding number of step calls are missing.
+The master thread detects all lost wakeups and thus recognizes task overloads.
 <br>
 <br>
 <center><object data="../img/taskoverload.svg" type="image/svg+xml"></object></center>

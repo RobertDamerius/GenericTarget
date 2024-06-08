@@ -39,7 +39,7 @@ class PeriodicTask {
 
         /**
          * @brief Notify the thread with the base sampletime.
-         * @details This function returns immediately if the task was not started.
+         * @note The thread must have been started.
          */
         void Notify(void);
 

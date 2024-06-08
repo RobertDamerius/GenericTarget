@@ -2,116 +2,116 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generiert durch Microsoft Visio, SVG Export ApplicationTerminate.svg ApplicationTerminate -->
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
-		xmlns:v="http://schemas.microsoft.com/visio/2003/SVGExtensions/" width="3.57108in" height="2.58683in"
-		viewBox="0 0 257.118 186.252" xml:space="preserve" color-interpolation-filters="sRGB" class="st12">
-	<v:documentProperties v:langID="1031" v:metric="true" v:viewMarkup="false">
-		<v:userDefs>
-			<v:ud v:nameU="msvNoAutoConnect" v:val="VT0(1):26"/>
-		</v:userDefs>
-	</v:documentProperties>
+        xmlns:v="http://schemas.microsoft.com/visio/2003/SVGExtensions/" width="3.57108in" height="2.58683in"
+        viewBox="0 0 257.118 186.252" xml:space="preserve" color-interpolation-filters="sRGB" class="st12">
+    <v:documentProperties v:langID="1031" v:metric="true" v:viewMarkup="false">
+        <v:userDefs>
+            <v:ud v:nameU="msvNoAutoConnect" v:val="VT0(1):26"/>
+        </v:userDefs>
+    </v:documentProperties>
 
-	<style type="text/css">
-	<![CDATA[
-		.st1 {marker-end:url(#mrkr13-6);stroke:#171850;stroke-width:1}
-		.st2 {fill:#171850;fill-opacity:1;stroke:#171850;stroke-opacity:1;stroke-width:0.40983606557377}
-		.st3 {fill:#27e4c3;stroke:#171850;stroke-width:1}
-		.st4 {fill:#171850;font-family:Courier New;font-size:0.833336em}
-		.st5 {fill:#24e0d0;stroke:#171850;stroke-width:1}
-		.st6 {fill:#1bbbd5;stroke:#171850;stroke-width:1}
-		.st7 {fill:#18a6d1;stroke:#171850;stroke-width:1}
-		.st8 {fill:#1591cd;stroke:#171850;stroke-width:1}
-		.st9 {fill:#35db20;stroke:#171850;stroke-width:1}
-		.st10 {fill:#171850;font-family:Courier New;font-size:0.833336em;font-weight:bold}
-		.st11 {fill:#1ed0da;stroke:#171850;stroke-width:1}
-		.st12 {fill:none;fill-rule:evenodd;font-size:12px;overflow:visible;stroke-linecap:square;stroke-miterlimit:3}
-	]]>
-	</style>
+    <style type="text/css">
+    <![CDATA[
+        .st1 {marker-end:url(#mrkr13-6);stroke:#171850;stroke-width:1}
+        .st2 {fill:#171850;fill-opacity:1;stroke:#171850;stroke-opacity:1;stroke-width:0.40983606557377}
+        .st3 {fill:#27e4c3;stroke:#171850;stroke-width:1}
+        .st4 {fill:#171850;font-family:Courier New;font-size:0.833336em}
+        .st5 {fill:#24e0d0;stroke:#171850;stroke-width:1}
+        .st6 {fill:#1bbbd5;stroke:#171850;stroke-width:1}
+        .st7 {fill:#18a6d1;stroke:#171850;stroke-width:1}
+        .st8 {fill:#1591cd;stroke:#171850;stroke-width:1}
+        .st9 {fill:#35db20;stroke:#171850;stroke-width:1}
+        .st10 {fill:#171850;font-family:Courier New;font-size:0.833336em;font-weight:bold}
+        .st11 {fill:#1ed0da;stroke:#171850;stroke-width:1}
+        .st12 {fill:none;fill-rule:evenodd;font-size:12px;overflow:visible;stroke-linecap:square;stroke-miterlimit:3}
+    ]]>
+    </style>
 
-	<defs id="Markers">
-		<g id="lend13">
-			<path d="M 3 1 L 0 0 L 3 -1 L 3 1 " style="stroke:none"/>
-		</g>
-		<marker id="mrkr13-6" class="st2" v:arrowType="13" v:arrowSize="0" v:setback="7.32" refX="-7.32" orient="auto"
-				markerUnits="strokeWidth" overflow="visible">
-			<use xlink:href="#lend13" transform="scale(-2.44,-2.44) "/>
-		</marker>
-	</defs>
-	<g v:mID="19" v:index="8" v:groupContext="foregroundPage">
-		<title>ApplicationTerminate</title>
-		<v:pageProperties v:drawingScale="0.0393701" v:pageScale="0.0393701" v:drawingUnits="24" v:shadowOffsetX="9"
-				v:shadowOffsetY="-9"/>
-		<g id="shape15-1" v:mID="15" v:groupContext="shape" transform="translate(314.811,71.8661) rotate(90)">
-			<title>Tabelle.15</title>
-			<path d="M0 186.25 L6.85 186.25" class="st1"/>
-		</g>
-		<g id="shape13-7" v:mID="13" v:groupContext="shape" transform="translate(314.811,156.906) rotate(90)">
-			<title>Tabelle.13</title>
-			<path d="M0 186.25 L6.85 186.25" class="st1"/>
-		</g>
-		<g id="shape1-12" v:mID="1" v:groupContext="shape" transform="translate(314.811,15.1732) rotate(90)">
-			<title>Tabelle.1</title>
-			<path d="M0 186.25 L6.85 186.25" class="st1"/>
-		</g>
-		<g id="shape8-17" v:mID="8" v:groupContext="shape" transform="translate(314.811,43.5197) rotate(90)">
-			<title>Tabelle.8</title>
-			<path d="M0 186.25 L6.85 186.25" class="st1"/>
-		</g>
-		<g id="shape9-22" v:mID="9" v:groupContext="shape" transform="translate(314.811,100.213) rotate(90)">
-			<title>Tabelle.9</title>
-			<path d="M0 186.25 L6.85 186.25" class="st1"/>
-		</g>
-		<g id="shape10-27" v:mID="10" v:groupContext="shape" transform="translate(314.811,128.559) rotate(90)">
-			<title>Tabelle.10</title>
-			<path d="M0 186.25 L6.85 186.25" class="st1"/>
-		</g>
-		<g id="shape2-32" v:mID="2" v:groupContext="shape" transform="translate(1,-171.079)">
-			<title>Tabelle.2</title>
-			<desc>1. Stop Scheduler</desc>
-			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="127.559" cy="179.165" width="255.12" height="14.1732"/>
-			<rect x="0" y="172.079" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st3"/>
-			<text x="4" y="182.17" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>1. Stop Scheduler</text>		</g>
-		<g id="shape3-35" v:mID="3" v:groupContext="shape" transform="translate(1,-142.732)">
-			<title>Tabelle.3</title>
-			<desc>2. SimulinkInterface::Terminate()</desc>
-			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="127.559" cy="179.165" width="255.12" height="14.1732"/>
-			<rect x="0" y="172.079" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st5"/>
-			<text x="4" y="182.17" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>2. SimulinkInterface::Terminate()</text>		</g>
-		<g id="shape4-38" v:mID="4" v:groupContext="shape" transform="translate(1.00001,-86.0394)">
-			<title>Tabelle.4</title>
-			<desc>4. UDPObjectManager::Destroy()</desc>
-			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="127.559" cy="179.165" width="255.12" height="14.1732"/>
-			<rect x="0" y="172.079" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st6"/>
-			<text x="4" y="182.17" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>4. UDPObjectManager::Destroy()</text>		</g>
-		<g id="shape5-41" v:mID="5" v:groupContext="shape" transform="translate(1.00001,-57.6929)">
-			<title>Tabelle.5</title>
-			<desc>5. DataRecorderManager::Destroy()</desc>
-			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="127.559" cy="179.165" width="255.12" height="14.1732"/>
-			<rect x="0" y="172.079" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
-			<text x="4" y="182.17" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>5. DataRecorderManager::Destroy()</text>		</g>
-		<g id="shape7-44" v:mID="7" v:groupContext="shape" transform="translate(1.00001,-29.3465)">
-			<title>Tabelle.7</title>
-			<desc>6. Close AppSocket</desc>
-			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="127.559" cy="179.165" width="255.12" height="14.1732"/>
-			<rect x="0" y="172.079" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st8"/>
-			<text x="4" y="182.17" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>6. Close AppSocket</text>		</g>
-		<g id="shape12-47" v:mID="12" v:groupContext="shape" transform="translate(1.00001,-1)">
-			<title>Tabelle.12</title>
-			<desc>Termination Succeeded</desc>
-			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="127.559" cy="179.165" width="255.12" height="14.1732"/>
-			<rect x="0" y="172.079" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st9"/>
-			<text x="64.55" y="182.17" class="st10" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Termination Succeeded</text>		</g>
-		<g id="shape14-50" v:mID="14" v:groupContext="shape" transform="translate(1.00001,-114.386)">
-			<title>Tabelle.14</title>
-			<desc>3. MulticastUDPObjectManager::Destroy()</desc>
-			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="127.559" cy="179.165" width="255.12" height="14.1732"/>
-			<rect x="0" y="172.079" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st11"/>
-			<text x="4" y="182.17" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>3. MulticastUDPObjectManager::Destroy()</text>		</g>
-	</g>
+    <defs id="Markers">
+        <g id="lend13">
+            <path d="M 3 1 L 0 0 L 3 -1 L 3 1 " style="stroke:none"/>
+        </g>
+        <marker id="mrkr13-6" class="st2" v:arrowType="13" v:arrowSize="0" v:setback="7.32" refX="-7.32" orient="auto"
+                markerUnits="strokeWidth" overflow="visible">
+            <use xlink:href="#lend13" transform="scale(-2.44,-2.44) "/>
+        </marker>
+    </defs>
+    <g v:mID="19" v:index="8" v:groupContext="foregroundPage">
+        <title>ApplicationTerminate</title>
+        <v:pageProperties v:drawingScale="0.0393701" v:pageScale="0.0393701" v:drawingUnits="24" v:shadowOffsetX="9"
+                v:shadowOffsetY="-9"/>
+        <g id="shape15-1" v:mID="15" v:groupContext="shape" transform="translate(314.811,71.8661) rotate(90)">
+            <title>Tabelle.15</title>
+            <path d="M0 186.25 L6.85 186.25" class="st1"/>
+        </g>
+        <g id="shape13-7" v:mID="13" v:groupContext="shape" transform="translate(314.811,156.906) rotate(90)">
+            <title>Tabelle.13</title>
+            <path d="M0 186.25 L6.85 186.25" class="st1"/>
+        </g>
+        <g id="shape1-12" v:mID="1" v:groupContext="shape" transform="translate(314.811,15.1732) rotate(90)">
+            <title>Tabelle.1</title>
+            <path d="M0 186.25 L6.85 186.25" class="st1"/>
+        </g>
+        <g id="shape8-17" v:mID="8" v:groupContext="shape" transform="translate(314.811,43.5197) rotate(90)">
+            <title>Tabelle.8</title>
+            <path d="M0 186.25 L6.85 186.25" class="st1"/>
+        </g>
+        <g id="shape9-22" v:mID="9" v:groupContext="shape" transform="translate(314.811,100.213) rotate(90)">
+            <title>Tabelle.9</title>
+            <path d="M0 186.25 L6.85 186.25" class="st1"/>
+        </g>
+        <g id="shape10-27" v:mID="10" v:groupContext="shape" transform="translate(314.811,128.559) rotate(90)">
+            <title>Tabelle.10</title>
+            <path d="M0 186.25 L6.85 186.25" class="st1"/>
+        </g>
+        <g id="shape2-32" v:mID="2" v:groupContext="shape" transform="translate(1,-171.079)">
+            <title>Tabelle.2</title>
+            <desc>1. Stop Scheduler</desc>
+            <v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+            <v:textRect cx="127.559" cy="179.165" width="255.12" height="14.1732"/>
+            <rect x="0" y="172.079" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st3"/>
+            <text x="4" y="182.17" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>1. Stop Scheduler</text>        </g>
+        <g id="shape3-35" v:mID="3" v:groupContext="shape" transform="translate(1,-142.732)">
+            <title>Tabelle.3</title>
+            <desc>2. SimulinkInterface::Terminate()</desc>
+            <v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+            <v:textRect cx="127.559" cy="179.165" width="255.12" height="14.1732"/>
+            <rect x="0" y="172.079" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st5"/>
+            <text x="4" y="182.17" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>2. SimulinkInterface::Terminate()</text>        </g>
+        <g id="shape4-38" v:mID="4" v:groupContext="shape" transform="translate(1.00001,-86.0394)">
+            <title>Tabelle.4</title>
+            <desc>4. UDPObjectManager::Destroy()</desc>
+            <v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+            <v:textRect cx="127.559" cy="179.165" width="255.12" height="14.1732"/>
+            <rect x="0" y="172.079" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st6"/>
+            <text x="4" y="182.17" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>4. UDPObjectManager::Destroy()</text>        </g>
+        <g id="shape5-41" v:mID="5" v:groupContext="shape" transform="translate(1.00001,-57.6929)">
+            <title>Tabelle.5</title>
+            <desc>5. DataRecorderManager::Destroy()</desc>
+            <v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+            <v:textRect cx="127.559" cy="179.165" width="255.12" height="14.1732"/>
+            <rect x="0" y="172.079" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st7"/>
+            <text x="4" y="182.17" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>5. DataRecorderManager::Destroy()</text>        </g>
+        <g id="shape7-44" v:mID="7" v:groupContext="shape" transform="translate(1.00001,-29.3465)">
+            <title>Tabelle.7</title>
+            <desc>6. Close AppSocket</desc>
+            <v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+            <v:textRect cx="127.559" cy="179.165" width="255.12" height="14.1732"/>
+            <rect x="0" y="172.079" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st8"/>
+            <text x="4" y="182.17" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>6. Close AppSocket</text>        </g>
+        <g id="shape12-47" v:mID="12" v:groupContext="shape" transform="translate(1.00001,-1)">
+            <title>Tabelle.12</title>
+            <desc>Termination Succeeded</desc>
+            <v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+            <v:textRect cx="127.559" cy="179.165" width="255.12" height="14.1732"/>
+            <rect x="0" y="172.079" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st9"/>
+            <text x="64.55" y="182.17" class="st10" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Termination Succeeded</text>        </g>
+        <g id="shape14-50" v:mID="14" v:groupContext="shape" transform="translate(1.00001,-114.386)">
+            <title>Tabelle.14</title>
+            <desc>3. MulticastUDPObjectManager::Destroy()</desc>
+            <v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+            <v:textRect cx="127.559" cy="179.165" width="255.12" height="14.1732"/>
+            <rect x="0" y="172.079" width="255.118" height="14.1732" rx="5.66929" ry="5.66929" class="st11"/>
+            <text x="4" y="182.17" class="st4" v:langID="1031"><v:paragraph/><v:tabList/>3. MulticastUDPObjectManager::Destroy()</text>        </g>
+    </g>
 </svg>
