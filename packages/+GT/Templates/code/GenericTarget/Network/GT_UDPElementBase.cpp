@@ -161,6 +161,7 @@ void UDPElementBase::WorkerThread(const UDPConfiguration conf){
         Address source;
         while(!terminate && socket.IsOpen()){
             // Wait for next message to be received
+            socket.ResetLastError();
             int32_t rx = socket.ReceiveFrom(source, &localBuffer[0], conf.rxBufferSize);
             errorCode = socket.GetLastErrorCode();
             double t1 = GenericTarget::GetModelExecutionTime();

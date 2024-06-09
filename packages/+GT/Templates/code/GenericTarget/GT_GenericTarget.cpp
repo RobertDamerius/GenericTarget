@@ -87,6 +87,7 @@ void GenericTarget::MainLoop(void){
     Address source;
     uint8_t u[4];
     while(!shouldTerminate && appSocket.IsOpen()){
+        appSocket.ResetLastError();
         int32_t rx = appSocket.ReceiveFrom(source, &u[0], 4);
         int32_t errorCode = appSocket.GetLastErrorCode();
         if(rx < 0){
