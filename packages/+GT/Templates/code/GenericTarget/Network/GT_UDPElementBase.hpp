@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include <GenericTarget/GT_Common.hpp>
 #include <GenericTarget/Network/GT_UDPConfiguration.hpp>
 #include <GenericTarget/Network/GT_UDPReceiveBuffer.hpp>
 #include <GenericTarget/Network/GT_UDPSocket.hpp>

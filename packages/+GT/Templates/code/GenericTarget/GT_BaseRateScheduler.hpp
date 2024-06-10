@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include <GenericTarget/GT_Common.hpp>
 #include <GenericTarget/GT_PeriodicTimer.hpp>
 #include <GenericTarget/GT_PeriodicTask.hpp>
 

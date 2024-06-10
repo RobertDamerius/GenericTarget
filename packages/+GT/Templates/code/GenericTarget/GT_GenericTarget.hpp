@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include <GenericTarget/GT_Common.hpp>
 #include <GenericTarget/GT_TargetTime.hpp>
 #include <GenericTarget/GT_BaseRateScheduler.hpp>
 #include <GenericTarget/GT_ApplicationArguments.hpp>

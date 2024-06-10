@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include <GenericTarget/GT_Common.hpp>
 #include <GenericTarget/DataRecorder/GT_DataRecorderBase.hpp>
 
 

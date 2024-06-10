@@ -1,3 +1,4 @@
+#include <GenericTarget/GT_Common.hpp>
 #include <GenericTarget/GT_GenericTarget.hpp>
 
 
