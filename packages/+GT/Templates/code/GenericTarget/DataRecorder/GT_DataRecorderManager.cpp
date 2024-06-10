@@ -19,7 +19,7 @@ void DataRecorderManager::RegisterScalarDoubles(const uint8_t* idCharacters, uin
     std::string signalLabels = ConvertToPrintableString(signalNames, numCharacters);
     std::string id = ConvertToPrintableString(idCharacters, numIDCharacters);
     if(created){
-        GENERIC_TARGET_PRINT_WARNING("Cannot register data recorder (id=\"%s\") because all data recorders have already been created and started!\n",id.c_str());
+        GENERIC_TARGET_PRINT_ERROR("Cannot register data recorder (id=\"%s\") because all data recorders have already been created and started!\n",id.c_str());
         return;
     }
 
@@ -59,7 +59,7 @@ void DataRecorderManager::RegisterBus(const uint8_t* idCharacters, uint32_t numI
     std::string strDimensions = ConvertToPrintableString(dimensions, strlenDimensions);
     std::string strDataTypes = ConvertToPrintableString(dataTypes, strlenDataTypes);
     if(created){
-        GENERIC_TARGET_PRINT_WARNING("Cannot register data recorder (id=\"%s\") because all data recorders have already been created and started!\n",id.c_str());
+        GENERIC_TARGET_PRINT_ERROR("Cannot register data recorder (id=\"%s\") because all data recorders have already been created and started!\n",id.c_str());
         return;
     }
 

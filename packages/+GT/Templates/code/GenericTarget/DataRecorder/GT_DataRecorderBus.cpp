@@ -34,7 +34,11 @@ bool DataRecorderBus::Start(std::string filename){
     struct sched_param param;
     param.sched_priority = SimulinkInterface::priorityDataRecorder;
     if(0 != pthread_setschedparam(threadDataRecorder.native_handle(), SCHED_FIFO, &param)){
-        GENERIC_TARGET_PRINT_WARNING("Could not set thread priority %d for data recorder thread!\n", SimulinkInterface::priorityDataRecorder);
+        GENERIC_TARGET_PRINT_ERROR("Could not set thread priority %d for data recorder thread!\n", SimulinkInterface::priorityDataRecorder);
+        #ifndef _WIN32
+        Stop();
+        return false;
+        #endif
     }
 
     // Started, return success

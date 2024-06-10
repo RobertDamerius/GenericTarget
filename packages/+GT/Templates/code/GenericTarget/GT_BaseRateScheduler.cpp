@@ -8,9 +8,8 @@ BaseRateScheduler::BaseRateScheduler(){
     terminate = false;
 }
 
-void BaseRateScheduler::Start(void){
-    StartWorkerThreads();
-    StartMasterThread();
+bool BaseRateScheduler::Start(void){
+    return StartWorkerThreads() && StartMasterThread();
 }
 
 void BaseRateScheduler::Stop(void){
@@ -67,11 +66,13 @@ void BaseRateScheduler::MasterThread(void){
     GENERIC_TARGET_PRINT("Master thread has been stopped (%lu CPU overloads, %lu lost ticks)\n", numCPUOverloads, numLostTicks);
 }
 
-void BaseRateScheduler::StartWorkerThreads(void){
+bool BaseRateScheduler::StartWorkerThreads(void){
+    bool success = true;
     for(uint32_t id = 0; id < SIMULINK_INTERFACE_NUM_TIMINGS; id++){
         tasks.push_back(new PeriodicTask(id));
-        tasks.back()->Start();
+        success &= tasks.back()->Start();
     }
+    return success;
 }
 
 void BaseRateScheduler::StopWorkerThreads(void){
@@ -84,13 +85,18 @@ void BaseRateScheduler::StopWorkerThreads(void){
     tasks.shrink_to_fit();
 }
 
-void BaseRateScheduler::StartMasterThread(void){
+bool BaseRateScheduler::StartMasterThread(void){
     masterThread = std::thread(&BaseRateScheduler::MasterThread, this);
     struct sched_param param;
     param.sched_priority = GENERIC_TARGET_PRIORITY_BASE_RATE_SCHEDULER;
     if(0 != pthread_setschedparam(masterThread.native_handle(), SCHED_FIFO, &param)){
-        GENERIC_TARGET_PRINT_WARNING("Could not set thread priority %d for base rate scheduler (sampletime=%lf)\n", GENERIC_TARGET_PRIORITY_BASE_RATE_SCHEDULER, SimulinkInterface::baseSampleTime);
+        GENERIC_TARGET_PRINT_ERROR("Could not set thread priority %d for base rate scheduler (sampletime=%lf)\n", GENERIC_TARGET_PRIORITY_BASE_RATE_SCHEDULER, SimulinkInterface::baseSampleTime);
+        #ifndef _WIN32
+        StopMasterThread();
+        return false;
+        #endif
     }
+    return true;
 }
 
 void BaseRateScheduler::StopMasterThread(void){

@@ -60,8 +60,9 @@ class UDPElementBase {
 
         /**
          * @brief Start or restart the internal worker thread.
+         * @return True if success, false otherwise.
          */
-        void Start(void);
+        bool Start(void);
 
         /**
          * @brief Stop the internal worker thread.

@@ -19,7 +19,7 @@ PeriodicTask::~PeriodicTask(){
     Stop();
 }
 
-void PeriodicTask::Start(void){
+bool PeriodicTask::Start(void){
     // Make sure that the task is stopped
     Stop();
 
@@ -34,8 +34,13 @@ void PeriodicTask::Start(void){
     struct sched_param param;
     param.sched_priority = SimulinkInterface::priorities[taskID];
     if(0 != pthread_setschedparam(t.native_handle(), SCHED_FIFO, &param)){
-        GENERIC_TARGET_PRINT_WARNING("Could not set thread priority %d for task \"%s\" (sampletime=%lf)\n", SimulinkInterface::priorities[taskID], SimulinkInterface::taskNames[taskID], SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]));
+        GENERIC_TARGET_PRINT_ERROR("Could not set thread priority %d for task \"%s\" (sampletime=%lf)\n", SimulinkInterface::priorities[taskID], SimulinkInterface::taskNames[taskID], SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]));
+        #ifndef _WIN32
+        Stop();
+        return false;
+        #endif
     }
+    return true;
 }
 
 void PeriodicTask::Stop(void){

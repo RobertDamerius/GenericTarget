@@ -50,7 +50,7 @@ bool UDPElementBase::UpdateMulticastReceiverConfiguration(const UDPConfiguration
     return configuration.UpdateMulticastReceiverConfiguration(receiverConfiguration);
 }
 
-void UDPElementBase::Start(void){
+bool UDPElementBase::Start(void){
     // Make sure that this UDP element is stopped
     Stop();
 
@@ -67,8 +67,13 @@ void UDPElementBase::Start(void){
     struct sched_param param;
     param.sched_priority = configuration.priorityThread;
     if(0 != pthread_setschedparam(workerThread.native_handle(), SCHED_FIFO, &param)){
-        GENERIC_TARGET_PRINT_WARNING("Could not set thread priority %d!\n", configuration.priorityThread);
+        GENERIC_TARGET_PRINT_ERROR("Could not set thread priority %d!\n", configuration.priorityThread);
+        #ifndef _WIN32
+        Stop();
+        return false;
+        #endif
     }
+    return true;
 }
 
 void UDPElementBase::Stop(void){

@@ -29,8 +29,9 @@ class PeriodicTask {
         /**
          * @brief Start or restart the periodic task.
          * @details The number of task overloads will be reset to zero.
+         * @return True if success, false otherwise.
          */
-        void Start(void);
+        bool Start(void);
 
         /**
          * @brief Stop the periodic task.

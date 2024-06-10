@@ -240,14 +240,14 @@ void GenericTarget::StopOtherTargetApplication(void){
         return;
     }
     if(appSocket.Bind(0) < 0){
-        GENERIC_TARGET_PRINT_WARNING("Unable to bind a random port for the application socket: %s\n", appSocket.GetLastErrorString().c_str());
+        GENERIC_TARGET_PRINT_ERROR("Unable to bind a random port for the application socket: %s\n", appSocket.GetLastErrorString().c_str());
     }
 
     // Send termination message and close socket
     Address localHost(127, 0, 0, 1, SimulinkInterface::portAppSocket);
     const uint8_t msgTerminate[] = {0x47,0x54,0xDE,0xAD};
     if(sizeof(msgTerminate) != appSocket.SendTo(localHost, (uint8_t*)&msgTerminate[0], sizeof(msgTerminate))){
-        GENERIC_TARGET_PRINT_WARNING("Could not send termination message: %s\n", appSocket.GetLastErrorString().c_str());
+        GENERIC_TARGET_PRINT_ERROR("Could not send termination message: %s\n", appSocket.GetLastErrorString().c_str());
     }
     appSocket.Close();
 }

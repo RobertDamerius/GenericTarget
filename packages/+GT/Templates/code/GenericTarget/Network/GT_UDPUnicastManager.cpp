@@ -12,7 +12,7 @@ void UDPUnicastManager::RegisterSender(const uint16_t port, const UDPConfigurati
     mtx.lock();
     if(created){
         mtx.unlock();
-        GENERIC_TARGET_PRINT_WARNING("Cannot register UDP socket (port=%d) because socket creation was already done!\n", port);
+        GENERIC_TARGET_PRINT_ERROR("Cannot register UDP socket (port=%d) because socket creation was already done!\n", port);
         return;
     }
 
@@ -40,7 +40,7 @@ void UDPUnicastManager::RegisterReceiver(const uint16_t port, const UDPConfigura
     mtx.lock();
     if(created){
         mtx.unlock();
-        GENERIC_TARGET_PRINT_WARNING("Cannot register UDP socket (port=%d) because socket creation was already done!\n", port);
+        GENERIC_TARGET_PRINT_ERROR("Cannot register UDP socket (port=%d) because socket creation was already done!\n", port);
         return;
     }
 
@@ -88,14 +88,15 @@ int32_t UDPUnicastManager::Receive(const uint16_t port, uint16_t* sources, uint8
 }
 
 bool UDPUnicastManager::Create(void){
+    bool success = true;
     mtx.lock();
     for(auto&& e : elements){
-        e.second->Start();
+        success &= e.second->Start();
     }
     created = true;
     bool noRegistrationError = !registrationError;
     mtx.unlock();
-    return noRegistrationError;
+    return success && noRegistrationError;
 }
 
 void UDPUnicastManager::Destroy(void){

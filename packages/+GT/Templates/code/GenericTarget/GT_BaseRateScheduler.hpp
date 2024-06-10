@@ -20,8 +20,9 @@ class BaseRateScheduler {
 
         /**
          * @brief Start or restart the base-rate scheduler.
+         * @return True if success, false otherwise.
          */
-        void Start(void);
+        bool Start(void);
 
         /**
          * @brief Stop the base-rate scheduler.
@@ -82,8 +83,9 @@ class BaseRateScheduler {
 
         /**
          * @brief Start all worker threads.
+         * @return True if success, false otherwise.
          */
-        void StartWorkerThreads(void);
+        bool StartWorkerThreads(void);
 
         /**
          * @brief Stop all worker threads.
@@ -92,8 +94,9 @@ class BaseRateScheduler {
 
         /**
          * @brief Start the master thread.
+         * @return True if success, false otherwise.
          */
-        void StartMasterThread(void);
+        bool StartMasterThread(void);
 
         /**
          * @brief Stop the master thread.
