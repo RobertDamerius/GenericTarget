@@ -33,12 +33,13 @@
 
 
 /* OS depending */
-// Windows System
+// Windows System (MinGW)
 #ifdef _WIN32
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 #include <windows.h>
 #include <Iphlpapi.h>
+#include <sys/stat.h>
 // Unix System
 #elif __linux__
 #include <execinfo.h>
@@ -55,6 +56,7 @@
 #include <netdb.h>
 #include <sys/utsname.h>
 #include <net/if.h>
+#include <sys/stat.h>
 #else
 // Other
 #endif

@@ -23,6 +23,9 @@ int main(int argc, char **argv){
     }
     #endif
 
+    // set file mode creation mask (all users, groups, etc. are allowed to read/write data that is created by this application)
+    umask(0000);
+
     // Run actual application
     gt::GenericTarget::Run(argc, argv);
 

@@ -136,7 +136,7 @@ classdef GenericTarget < handle
 
             % SSH: remove old code/build/Makfile/etc., unzip new source and compile
             fprintf(['[GENERIC TARGET] SSH: Build new software on target ' this.targetIPAddress '\n']);
-            cmdSSH2 = this.RunCommandOnTarget(['sudo rm -r -f ' this.targetSoftwareDirectory '.vscode ' this.targetSoftwareDirectory 'code ' this.targetSoftwareDirectory 'build ' this.targetSoftwareDirectory 'Makefile ' this.targetSoftwareDirectory 'README.md ; sudo unzip -qq -o ' targetZipFile ' -d ' this.targetSoftwareDirectory ' ; sudo rm ' targetZipFile ' ; cd ' this.targetSoftwareDirectory ' && make clean && make -j8']);
+            cmdSSH2 = this.RunCommandOnTarget(['sudo rm -r -f ' this.targetSoftwareDirectory '.vscode ' this.targetSoftwareDirectory 'code ' this.targetSoftwareDirectory 'build ' this.targetSoftwareDirectory 'Makefile ' this.targetSoftwareDirectory 'README.md ; unzip -qq -o ' targetZipFile ' -d ' this.targetSoftwareDirectory ' ; sudo rm ' targetZipFile ' ; cd ' this.targetSoftwareDirectory ' && make clean && make -j8']);
             t = toc(tStart);
             fprintf('\n[GENERIC TARGET] Code deployment completed after %f seconds\n',t);
             commands = {cmdSSH1, cmdSCP, cmdSSH2};
