@@ -166,6 +166,8 @@ void GenericTarget::RedirectPrintsToFile(void){
 
 void GenericTarget::PrintInfo(int argc, char**argv){
     TimeInfo upTime = targetTime.GetUpTimeUTC();
+    int priorityMax = sched_get_priority_max(SCHED_FIFO);
+    int priorityMin = sched_get_priority_min(SCHED_FIFO);
     GENERIC_TARGET_PRINT_RAW("GenericTarget\n");
     GENERIC_TARGET_PRINT_RAW("\n");
     GENERIC_TARGET_PRINT_RAW("Operating System:         %s\n", gt::strOS.c_str());
@@ -177,6 +179,8 @@ void GenericTarget::PrintInfo(int argc, char**argv){
     GENERIC_TARGET_PRINT_RAW("Built (local):            %s\n", strBuilt.c_str());
     GENERIC_TARGET_PRINT_RAW("Date (UTC):               %04u-%02u-%02u %02u:%02u:%02u.%03u\n", 1900 + upTime.year, 1 + upTime.month, upTime.mday, upTime.hour, upTime.minute, upTime.second, upTime.nanoseconds / 1000000);
     GENERIC_TARGET_PRINT_RAW("Arguments:               "); for(int i = 1; i < argc; i++){ GENERIC_TARGET_PRINT_RAW(" [%s]", argv[i]); } GENERIC_TARGET_PRINT_RAW("\n");
+    GENERIC_TARGET_PRINT_RAW("Maximum thread priority:  %d\n",priorityMax);
+    GENERIC_TARGET_PRINT_RAW("Minimum thread priority:  %d\n",priorityMin);
     GENERIC_TARGET_PRINT_RAW("\n");
     GENERIC_TARGET_PRINT_RAW("modelName:                %s\n", gt::ToPrintableString(SimulinkInterface::modelName).c_str());
     GENERIC_TARGET_PRINT_RAW("portAppSocket:            %u\n", SimulinkInterface::portAppSocket);
