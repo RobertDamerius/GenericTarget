@@ -3,8 +3,8 @@
 %% Description:
 %%   Simulink Coder TLC Code Generation file for SFunctionGTDriverUDPUnicastReceive
 %% 
-%% Simulink version      : 23.2 (R2023b) 01-Aug-2023
-%% TLC file generated on : 10-Jun-2024 15:17:02
+%% Simulink version      : 24.1 (R2024a) 19-Nov-2023
+%% TLC file generated on : 18-Aug-2024 17:04:41
 
 /%
      %%%-MATLAB_Construction_Commands_Start
@@ -24,22 +24,6 @@
 %/
 
 %implements SFunctionGTDriverUDPUnicastReceive "C"
-
-%% Function: FcnGenerateUniqueFileName ====================================
-%function FcnGenerateUniqueFileName (filename, type) void
-    %assign isReserved = TLC_FALSE
-    %foreach idxFile = CompiledModel.DataObjectUsage.NumFiles[0]
-        %assign thisFile = CompiledModel.DataObjectUsage.File[idxFile]
-        %if (thisFile.Name==filename) && (thisFile.Type==type)
-            %assign isReserved = TLC_TRUE
-            %break
-        %endif
-    %endforeach
-    %if (isReserved==TLC_TRUE)
-        %assign filename = FcnGenerateUniqueFileName(filename + "_", type)
-    %endif
-    %return filename
-%endfunction
 
 %% Function: BlockTypeSetup ===============================================
 %function BlockTypeSetup (block, system) void
@@ -113,7 +97,7 @@
     %assign uint8Type = LibGetDataTypeNameFromId(::CompiledModel.tSS_UINT8)
     %assign doubleType = LibGetDataTypeNameFromId(::CompiledModel.tSS_DOUBLE)
     %if IsModelReferenceSimTarget() || CodeFormat=="S-Function" || ::isRAccel
-        %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
+        %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", LibBlockIdentifier(block))
         %assign hFileName = FcnGenerateUniqueFileName("SFunctionGTDriverUDPUnicastReceive_wrapper_%<sfunInstanceName>", "header")
         %assign hFileNameMacro = FEVAL("upper", hFileName)
         %openfile hFile = "%<hFileName>.h"
@@ -135,7 +119,7 @@
         
         %closefile hFile
         
-        %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
+        %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", LibBlockIdentifier(block))
         %assign cFileName = FcnGenerateUniqueFileName("SFunctionGTDriverUDPUnicastReceive_wrapper_%<sfunInstanceName>", "source")
         %openfile cFile = "%<cFileName>.cpp"
         %selectfile cFile
@@ -209,7 +193,7 @@
         %% 
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
         {
-            %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
+            %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", LibBlockIdentifier(block))
             SFunctionGTDriverUDPUnicastReceive_wrapper_Start_%<sfunInstanceName>(%<p1_val>, %<p2_ptr>, %<p3_val>, %<p4_val>, %<p5_val>, %<p6_val>, %<p7_ptr>, %<p8_val>, %<p9_ptr>, %<p10_val>, %<p11_val>);
         
         }
@@ -246,7 +230,7 @@
         %% 
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
         {
-            %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
+            %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", LibBlockIdentifier(block))
             SFunctionGTDriverUDPUnicastReceive_wrapper_Output_%<sfunInstanceName>(%<p1_val>, %<p3_val>, %<p5_val>, %<y1_ptr>, %<y2_ptr>, %<y3_ptr>, %<y4_ptr>, %<y5_ptr>, %<y6_ptr>, %<y7_ptr>);
         
         }
@@ -272,7 +256,7 @@
         %% 
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
         {
-            %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", block.Identifier)
+            %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", LibBlockIdentifier(block))
             SFunctionGTDriverUDPUnicastReceive_wrapper_Terminate_%<sfunInstanceName>();
         
         }

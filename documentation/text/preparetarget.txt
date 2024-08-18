@@ -39,6 +39,14 @@
         <pre>adduser UserName sudo</pre>
         where <code>UserName</code> is the user name of the computer.
         Afterwards reboot the system.
+        <div class="note-orange">
+        <h3 class="note-orange">Note</h3>
+        If sudo is installed but the user is not in the sudoers file, then go into root mode and add the user via
+        <pre>su -l</pre>
+        <pre>adduser UserName sudo</pre>
+        where <code>UserName</code> is the user name of the computer.
+        Afterwards reboot the system.
+        </div>
         In order to execute sudo commands via SSH without password request, edit the sudoers file for example with the nano editor by running
         <pre>sudo nano /etc/sudoers</pre>
         The line starting with "%sudo" must look like this
@@ -120,7 +128,7 @@
 
         <h3>2. Copy Public Key to Target</h3>
         To copy the generated key (public key) to a target computer use the command
-        <pre>ssh-copy-id -i ~/.ssh/id_rsa.pub UserName@RemoteServer</pre>
+        <pre>ssh-copy-id -i ~/.ssh/id_ed25519.pub UserName@RemoteServer</pre>
         Here <code>UserName</code> and <code>RemoteServer</code> must be replaced by the user name and IP address of the target computer, respectively.
 
         <h3>3. Add Private Key</h3>
@@ -178,9 +186,7 @@
     <ul>
         <li>enable turbo boost if your system supports it</li>
         <li>disable CPU "C states" (CPU sleep states and CPU frequency scaling)</li>
-        <li>disable any kind of energy saving options</li>
         <li>disable Hyper-Threading to avoid virtual CPU cores</li>
-        <li>if you don't need USB, disable it</li>
     </ul>
     <h3>Update GRUB bootloader menu</h3>
     The GRUB menu may be updated to, e.g. reduce the timeout for the bootloader.
@@ -196,6 +202,7 @@
     Via the GRUB bootloader menu, CPU cores can be isolated with the <code>isolcpus</code> option, which are then not occupied by operating system processes.
     These cores are then free.
     In this way, it is possible to restrict the operating system to certain cores and have the target application run on those isolated cores.
-    For example, on a 4 cores CPU, you can leave core 0 and 1 to the OS and isolate core 2 and 3 by modifying the GRUB command line option as follows:
-    <pre>GRUB_CMDLINE_LINUX_DEFAULT="quiet splash isolcpus=2,3"</pre>
+    For example, on an 8 cores CPU, you can leave core 0 and 1 to the OS and isolate core 2 to 7 by modifying the GRUB command line option as follows:
+    <pre>GRUB_CMDLINE_LINUX_DEFAULT="isolcpus=2-7"</pre>
     If you make changes to the bootloader menu, don't forget to run <code>sudo update-grub</code>.
+    Reboot the target.
