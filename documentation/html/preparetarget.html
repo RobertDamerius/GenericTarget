@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20240818</div>
+<div class="header_version">Version 20241107</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -34,8 +34,6 @@
 <li class="litext">SIMULINK LIBRARY</li>
 <li class="linav"><a href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
 <li class="linav"><a href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
-<li class="linav"><a href="library_gt_interface_multicastudpsend.html">Interface / Multicast UDP Send</a></li>
-<li class="linav"><a href="library_gt_interface_multicastudpreceive.html">Interface / Multicast UDP Receive</a></li>
 <li class="linav"><a href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
 <li class="linav"><a href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
 <li class="linav"><a href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
@@ -267,12 +265,12 @@
     <h3>Isolating CPU cores</h3>
     The target application can be pinned to specific CPU cores.
     Via the GRUB bootloader menu, CPU cores can be isolated with the <code>isolcpus</code> option, which are then not occupied by operating system processes.
-    These cores are then free.
     In this way, it is possible to restrict the operating system to certain cores and have the target application run on those isolated cores.
     For example, on an 8 cores CPU, you can leave core 0 and 1 to the OS and isolate core 2 to 7 by modifying the GRUB command line option as follows:
     <pre>GRUB_CMDLINE_LINUX_DEFAULT="isolcpus=2-7"</pre>
     If you make changes to the bootloader menu, don't forget to run <code>sudo update-grub</code>.
     Reboot the target.
+
 
 </div>
 </div>

@@ -18,13 +18,13 @@ void BaseRateScheduler::Stop(void){
 }
 
 void BaseRateScheduler::MasterThread(void){
-    // Some helpful variables
+    // some helpful variables
     bool firstTick = true;
     uint64_t numCPUOverloads = 0;
     uint64_t numLostTicks = 0;
     uint64_t previousCPUOverloads = 0;
 
-    // Start the master clock
+    // start the master clock
     GENERIC_TARGET_PRINT("Master thread started (baseSampleTime=%lf)\n", SimulinkInterface::baseSampleTime);
     if(!masterClock.Start(SimulinkInterface::baseSampleTime)){
         masterClock.Stop();
@@ -32,15 +32,15 @@ void BaseRateScheduler::MasterThread(void){
         return;
     }
 
-    // Thread loop
+    // thread loop
     while(!terminate){
-        // Wait for a tick event from the master clock and break if clock was destroyed
+        // wait for a tick event from the master clock and break if clock was destroyed
         if(!masterClock.WaitForTick(firstTick)) break;
         firstTick = false;
         numCPUOverloads = masterClock.GetNumCPUOverloads();
         numLostTicks = masterClock.GetNumLostTicks();
 
-        // Check for CPU overloads
+        // check for CPU overloads
         if(previousCPUOverloads != numCPUOverloads){
             previousCPUOverloads = numCPUOverloads;
             GENERIC_TARGET_PRINT_ERROR("CPU overload (overloads=%lu, lostTicks=%lu)\n", numCPUOverloads, numLostTicks);
@@ -50,18 +50,18 @@ void BaseRateScheduler::MasterThread(void){
             }
         }
 
-        // Check termination flag
+        // check termination flag
         if(terminate){
             break;
         }
 
-        // Signal periodic model tasks
+        // signal periodic model tasks
         for(auto&& task : tasks){
             task->Notify();
         }
     }
 
-    // Stop the master clock
+    // stop the master clock
     masterClock.Stop();
     GENERIC_TARGET_PRINT("Master thread has been stopped (%lu CPU overloads, %lu lost ticks)\n", numCPUOverloads, numLostTicks);
 }
@@ -86,11 +86,12 @@ void BaseRateScheduler::StopWorkerThreads(void){
 }
 
 bool BaseRateScheduler::StartMasterThread(void){
+    int priorityMax = sched_get_priority_max(SCHED_FIFO);
     masterThread = std::thread(&BaseRateScheduler::MasterThread, this);
     struct sched_param param;
-    param.sched_priority = GENERIC_TARGET_PRIORITY_BASE_RATE_SCHEDULER;
+    param.sched_priority = priorityMax;
     if(0 != pthread_setschedparam(masterThread.native_handle(), SCHED_FIFO, &param)){
-        GENERIC_TARGET_PRINT_ERROR("Could not set thread priority %d for base rate scheduler (sampletime=%lf)\n", GENERIC_TARGET_PRIORITY_BASE_RATE_SCHEDULER, SimulinkInterface::baseSampleTime);
+        GENERIC_TARGET_PRINT_ERROR("Could not set maximum thread priority %d for base rate scheduler (sampletime=%lf)\n", priorityMax, SimulinkInterface::baseSampleTime);
         #ifndef _WIN32
         StopMasterThread();
         return false;

@@ -8,12 +8,12 @@ ApplicationArguments::ApplicationArguments(){
 }
 
 void ApplicationArguments::Parse(int argc, char** argv){
-    // Set default values
+    // set default values
     stop = false;
     console = false;
     bool help = false;
 
-    // Scan all arguments, ignore unknown arguments
+    // scan all arguments, ignore unknown arguments
     for(int i = 1; i < argc; ++i){
         std::string arg(argv[i]);
         stop |= (0 == arg.compare("--stop"));
@@ -21,7 +21,7 @@ void ApplicationArguments::Parse(int argc, char** argv){
         help |= (0 == arg.compare("--help"));
     }
 
-    // Print help if requested
+    // print help if requested
     if(help){
         PrintHelp();
     }

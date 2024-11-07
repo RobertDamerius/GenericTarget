@@ -9,7 +9,7 @@ namespace gt {
 
 
 /**
- * @brief This class represents a socket to be used for UDP operation. Unicast and multicast is supported.
+ * @brief This class represents a socket to be used for UDP operation.
  */
 class UDPSocket {
     public:
@@ -51,14 +51,14 @@ class UDPSocket {
          * @brief Bind a port to a socket. The socket must be opened.
          * @param[in] port A port that should be bound to the socket.
          * @param[in] ipInterface The IP of the ethernet interface to be used for this socket. If {0,0,0,0} is set, INADDR_ANY is used.
-         * @return 0 if success, < 0 if failure or already bound.
+         * @return Result of the internal setsockopt() function call.
          */
         int32_t Bind(uint16_t port, std::array<uint8_t,4> ipInterface = {0,0,0,0});
 
         /**
          * @brief Bind the socket to a specific network device (linux only).
          * @param[in] deviceName The name of the network device to be used for this socket.
-         * @return If no error occurs, zero is returned. On windows, always zero is returned.
+         * @return Result of the internal setsockopt() function call. On windows, always zero is returned.
          */
         int32_t BindToDevice(std::string deviceName);
 
@@ -85,21 +85,22 @@ class UDPSocket {
         /**
          * @brief Set socket option to reuse the address.
          * @param[in] reuse True if address reuse should be enabled, false otherwise.
-         * @return If no error occurs, zero is returned.
+         * @return Result of the internal setsockopt() function call.
          */
         int32_t ReuseAddrress(bool reuse);
 
         /**
          * @brief Set socket option to reuse the port to allow multiple sockets to use the same port number.
          * @param[in] reuse True if address reuse should be enabled, false otherwise.
-         * @return If no error occurs, zero is returned.
+         * @return Result of the internal setsockopt() function call.
+         * @details On windows, this function has no effect and always returns zero.
          */
         int32_t ReusePort(bool reuse);
 
         /**
          * @brief Set socket option to allow broadcast to be sent.
          * @param[in] allow True if broadcast is to be allowed, false otherwise.
-         * @return If no error occurs, zero is returned.
+         * @return Result of the internal setsockopt() function call.
          */
         int32_t AllowBroadcast(bool allow);
 
@@ -114,46 +115,71 @@ class UDPSocket {
 
         /**
          * @brief Receive bytes from address.
-         * @param[out] address Address, where to store the sender information.
+         * @param[out] source Address, where to store the source address.
          * @param[out] bytes Pointer to data array, where received bytes should be stored.
          * @param[in] maxSize The maximum size of the data array.
          * @return Number of bytes that have been received. If an error occurred, the return value is < 0.
          */
-        int32_t ReceiveFrom(Address& address, uint8_t *bytes, int32_t maxSize);
+        int32_t ReceiveFrom(Address& source, uint8_t *bytes, int32_t maxSize);
 
         /**
          * @brief Set the network interface to be used for sending multicast traffic.
          * @param[in] ipGroup IPv4 address of the group to be joined.
-         * @param[in] ipInterface IPv4 address of the network interface to be used. Set this value to {0,0,0,0} to use the default network interface.
-         * @param[in] interfaceName Name of the related interface. If this value is non-empty, then it is used instead of ipInterface.
+         * @param[in] interfaceName Name of the related interface.
          * @return Result of the internal setsockopt() function call.
          */
-        int32_t SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName);
+        int32_t SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::string interfaceName);
 
         /**
          * @brief Join a multicast group at a specific network interface.
          * @param[in] ipGroup IPv4 address of the group to be joined.
-         * @param[in] ipInterface IPv4 address of the network interface to be used. Set this value to {0,0,0,0} to use all network interfaces.
-         * @param[in] interfaceName Name of the related interface. If this value is non-empty, then it is used instead of ipInterface.
+         * @param[in] interfaceName Name of the related interface.
          * @return Result of the internal setsockopt() function call.
          */
-        int32_t JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName);
+        int32_t JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName);
 
         /**
          * @brief Leave a multicast group on a given network interface.
          * @param[in] ipGroup IPv4 address of the group to be left.
-         * @param[in] ipInterface IPv4 address of the related network interface.
-         * @param[in] interfaceName Name of the related interface. If this value is non-empty, then it is used instead of ipInterface.
+         * @param[in] interfaceName Name of the related interface.
          * @return Result of the internal setsockopt() function call.
          */
-        int32_t LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName);
+        int32_t LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName);
 
         /**
          * @brief Set time-to-live multicast messages.
          * @param[in] ttl Time-to-live.
-         * @return If no error occurs, zero is returned.
+         * @return Result of the internal setsockopt() function call.
          */
         int32_t SetMulticastTTL(uint8_t ttl);
+
+        /**
+         * @brief Set the IP_MULTICAST_ALL socket option.
+         * @param[in] multicastAll True if IP_MULTICAST_ALL socket option should be set, false otherwise.
+         * @return Result of the internal setsockopt() function call.
+         * @details On windows, this function has no effect and always returns zero.
+         */
+        int32_t SetMulticastAll(bool multicastAll);
+
+        /**
+         * @brief Set the IP_MULTICAST_LOOP socket option.
+         * @param[in] multicastLoop True if IP_MULTICAST_LOOP socket option should be set, false otherwise.
+         * @return Result of the internal setsockopt() function call.
+         */
+        int32_t SetMulticastLoop(bool multicastAll);
+
+        /**
+         * @brief Enable non-blocking mode for the socket.
+         * @return True if success, false otherwise.
+         */
+        bool EnableNonBlockingMode(void);
+
+        /**
+         * @brief Set the socket priority.
+         * @param[in] priority The socket priority to be set, usually in range [0, 6].
+         * @return Result of the internal setsockopt() function call.
+         */
+        int32_t SetSocketPriority(int32_t priority);
 
         /**
          * @brief Get the string representing the last error value.
@@ -179,19 +205,18 @@ class UDPSocket {
         void ResetLastError(void);
 
     private:
-        std::atomic<int> _socket; // Internal socket value.
+        int _socket;   // Internal socket file descriptor.
 
         /**
          * @brief Convert the given group and interface specification to an ip_mreq structure, depending on the operating system.
          * @param[in] ipGroup IPv4 group address.
-         * @param[in] ipInterface IPv4 interface address.
-         * @param[in] interfaceName Name of the interface. If this value is non-empty, then it is used instead of ipInterface.
+         * @param[in] interfaceName Name of the interface.
          * @return ip_mreq structure under windows and ip_mreqn under linux.
          */
         #ifdef _WIN32
-        struct ip_mreq ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::array<uint8_t,4>& ipInterface, const std::string& interfaceName);
+        struct ip_mreq ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName);
         #else
-        struct ip_mreqn ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::array<uint8_t,4>& ipInterface, const std::string& interfaceName);
+        struct ip_mreqn ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName);
         #endif
 };
 

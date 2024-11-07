@@ -7,9 +7,8 @@
 #include <GenericTarget/GT_ApplicationArguments.hpp>
 #include <GenericTarget/GT_FileSystem.hpp>
 #include <GenericTarget/DataRecorder/GT_DataRecorderManager.hpp>
-#include <GenericTarget/Network/GT_UDPUnicastManager.hpp>
-#include <GenericTarget/Network/GT_UDPMulticastManager.hpp>
 #include <GenericTarget/Network/GT_UDPSocket.hpp>
+#include <GenericTarget/Network/GT_UDPServiceManager.hpp>
 
 
 /* Forward declaration of the main entry function. It's used as friend and has access to the protected member functions of the MainApplication class. */
@@ -29,8 +28,7 @@ class GenericTarget {
         static FileSystem fileSystem;                     // The file system manager for the application.
         static TargetTime targetTime;                     // The target time containing the up time.
         static DataRecorderManager dataRecorderManager;   // Manager for data recordings.
-        static UDPUnicastManager udpUnicastManager;       // Manager for UDP unicast operation.
-        static UDPMulticastManager udpMulticastManager;   // Manager for UDP multicast operation.
+        static UDPServiceManager udpManager;              // Manager for UDP communication.
 
         /**
          * @brief Get the model execution time (steady clock), that is, the elapsed time to the start of the master clock.

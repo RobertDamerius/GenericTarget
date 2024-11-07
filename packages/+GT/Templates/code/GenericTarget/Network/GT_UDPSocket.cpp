@@ -2,12 +2,41 @@
 using namespace gt;
 
 
-// Helper macros for sockaddr_in struct (win/linux)
+// helper macros for sockaddr_in struct (win/linux)
 #define GENERIC_TARGET_ADDRESS_PORT(x)   x.sin_port
 #ifdef _WIN32
 #define GENERIC_TARGET_ADDRESS_IP(x)     x.sin_addr.S_un.S_addr
 #else
 #define GENERIC_TARGET_ADDRESS_IP(x)     x.sin_addr.s_addr
+#endif
+
+
+// name to index function for windows
+#ifdef _WIN32
+static int32_t win32_if_nametoindex(std::string name){
+    int32_t result = 0;
+    PIP_ADAPTER_INFO pAdapterInfo = 0;
+    PIP_ADAPTER_INFO pAdapter;
+    DWORD dwSize = 0;
+    if(GetAdaptersInfo(pAdapterInfo, &dwSize) == ERROR_BUFFER_OVERFLOW){
+        pAdapterInfo = (PIP_ADAPTER_INFO)malloc(dwSize);
+    }
+    if(GetAdaptersInfo(pAdapterInfo, &dwSize) == NO_ERROR){
+        pAdapter = pAdapterInfo;
+        while(pAdapter){
+            std::string adapterName(pAdapter->AdapterName);
+            std::string adapterDesc(pAdapter->Description);
+            if((adapterName == name) || (adapterDesc == name)){
+                result = static_cast<int32_t>(pAdapter->Index);
+            }
+            pAdapter = pAdapter->Next;
+        }
+    }
+    if(pAdapterInfo){
+        free(pAdapterInfo);
+    }
+    return result;
+}
 #endif
 
 
@@ -26,7 +55,7 @@ bool UDPSocket::Open(void){
         return false;
     }
 
-    // Special option to fix windows bug
+    // special option to fix windows bug
     #ifdef _WIN32
     BOOL bNewBehavior = FALSE;
     DWORD dwBytesReturned = 0;
@@ -40,8 +69,7 @@ bool UDPSocket::IsOpen(void){
 }
 
 void UDPSocket::Close(void){
-    // Close socket if it is open
-    if(-1 != _socket){
+    if(IsOpen()){
         #ifdef _WIN32
         (void) shutdown(_socket, SD_BOTH);
         (void) closesocket(_socket);
@@ -49,10 +77,8 @@ void UDPSocket::Close(void){
         (void) shutdown(_socket, SHUT_RDWR);
         (void) close(_socket);
         #endif
+        _socket = -1;
     }
-
-    // Set default values
-    _socket = -1;
 }
 
 uint16_t UDPSocket::GetPort(void){
@@ -62,11 +88,10 @@ uint16_t UDPSocket::GetPort(void){
         return 0;
     }
     return static_cast<uint16_t>(ntohs(addr_this.sin_port));
-
 }
 
 int32_t UDPSocket::Bind(uint16_t port, std::array<uint8_t,4> ipInterface){
-    // Convert interface ip to a string pointer, where nullptr means any interface (INADDR_ANY)
+    // convert interface ip to a string pointer, where nullptr means any interface (INADDR_ANY)
     char *ip = nullptr;
     char strIP[16];
     sprintf(&strIP[0], "%u.%u.%u.%u", ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]);
@@ -74,7 +99,7 @@ int32_t UDPSocket::Bind(uint16_t port, std::array<uint8_t,4> ipInterface){
         ip = &strIP[0];
     }
 
-    // Bind the port
+    // bind the port
     struct sockaddr_in addr_this;
     addr_this.sin_addr.s_addr = ip ? inet_addr(ip) : htonl(INADDR_ANY);
     addr_this.sin_family = AF_INET;
@@ -92,7 +117,7 @@ int32_t UDPSocket::BindToDevice(std::string deviceName){
     struct ifreq ifr;
     std::memset(ifr.ifr_name, 0, sizeof(ifr.ifr_name));
     snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", deviceName.c_str());
-    return SetOption(SOL_SOCKET, SO_BINDTODEVICE, (const void*)&ifr, sizeof(ifr));;
+    return SetOption(SOL_SOCKET, SO_BINDTODEVICE, (const void*)&ifr, sizeof(ifr));
     #endif
 }
 
@@ -118,10 +143,11 @@ int UDPSocket::ReuseAddrress(bool reuse){
 }
 
 int UDPSocket::ReusePort(bool reuse){
-    unsigned yes = static_cast<unsigned>(reuse);
     #ifdef _WIN32
-    return SetOption(SOL_SOCKET, SO_REUSEADDR, (const void*)&yes, sizeof(yes));
+    (void) reuse;
+    return 0;
     #else
+    unsigned yes = static_cast<unsigned>(reuse);
     return SetOption(SOL_SOCKET, SO_REUSEPORT, (const void*)&yes, sizeof(yes));
     #endif
 }
@@ -161,36 +187,71 @@ int32_t UDPSocket::ReceiveFrom(Address& source, uint8_t *bytes, int32_t maxSize)
     return static_cast<int32_t>(rx);
 }
 
-int32_t UDPSocket::SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName){
+int32_t UDPSocket::SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::string interfaceName){
     #ifdef _WIN32
-    struct ip_mreq mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName);
+    struct ip_mreq mreq = ConvertToMREQ(ipGroup, interfaceName);
     return SetOption(IPPROTO_IP, IP_MULTICAST_IF, (const void*) &mreq.imr_interface, sizeof(mreq.imr_interface));
     #else
-    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName);
+    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, interfaceName);
     return SetOption(IPPROTO_IP, IP_MULTICAST_IF, (const void*) &mreq, sizeof(mreq));
     #endif
 }
 
-int32_t UDPSocket::JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName){
+int32_t UDPSocket::JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName){
     #ifdef _WIN32
-    struct ip_mreq mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName);
+    struct ip_mreq mreq = ConvertToMREQ(ipGroup, interfaceName);
     #else
-    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName);
+    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, interfaceName);
     #endif
     return SetOption(IPPROTO_IP, IP_ADD_MEMBERSHIP, (const void*) &mreq, sizeof(mreq));
 }
 
-int32_t UDPSocket::LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::array<uint8_t,4> ipInterface, std::string interfaceName){
+int32_t UDPSocket::LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName){
     #ifdef _WIN32
-    struct ip_mreq mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName);
+    struct ip_mreq mreq = ConvertToMREQ(ipGroup, interfaceName);
     #else
-    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, ipInterface, interfaceName);
+    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, interfaceName);
     #endif
     return SetOption(IPPROTO_IP, IP_DROP_MEMBERSHIP, (const void*) &mreq, sizeof(mreq));
 }
 
 int32_t UDPSocket::SetMulticastTTL(uint8_t ttl){
     return SetOption(IPPROTO_IP, IP_MULTICAST_TTL, &ttl, sizeof(ttl));
+}
+
+int32_t UDPSocket::SetMulticastAll(bool multicastAll){
+    #ifdef _WIN32
+    (void) multicastAll;
+    return 0;
+    #else
+    int enable = multicastAll ? 1 : 0;
+    return SetOption(IPPROTO_IP, IP_MULTICAST_ALL, &enable, sizeof(enable));
+    #endif
+}
+
+int32_t UDPSocket::SetMulticastLoop(bool multicastLoop){
+    int enable = multicastLoop ? 1 : 0;
+    return SetOption(IPPROTO_IP, IP_MULTICAST_LOOP, &enable, sizeof(enable));
+}
+
+bool UDPSocket::EnableNonBlockingMode(void){
+    #ifdef _WIN32
+    unsigned long nonBlockingMode = 1;
+    return ioctlsocket(_socket, FIONBIO, &nonBlockingMode) == 0;
+    #else
+    int flags = fcntl(_socket, F_GETFL, 0);
+    return fcntl(_socket, F_SETFL, flags | O_NONBLOCK) != -1;
+    #endif
+}
+
+int32_t UDPSocket::SetSocketPriority(int32_t priority){
+    #ifdef _WIN32
+    (void)priority;
+    return 0;
+    #else
+    int value = static_cast<int>(priority);
+    return SetOption(SOL_SOCKET, SO_PRIORITY, &value, sizeof(value));
+    #endif
 }
 
 std::string UDPSocket::GetLastErrorString(void){
@@ -233,53 +294,41 @@ void UDPSocket::ResetLastError(void){
 }
 
 #ifdef _WIN32
-struct ip_mreq UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::array<uint8_t,4>& ipInterface, const std::string& interfaceName){
-    // Convert group IP to string
+struct ip_mreq UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName){
+    // convert group IP to string
     char strGroup[16];
     sprintf(&strGroup[0], "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
 
-    // Convert interface IP or name to string
+    // convert interface name to string
     char strInterface[16];
+    unsigned long index = 0;
     if(interfaceName.size()){
-        uint8_t index = static_cast<uint8_t>(if_nametoindex(interfaceName.c_str()));
-        sprintf(&strInterface[0], "0.0.0.%u", index);
+        index = win32_if_nametoindex(interfaceName);
     }
-    else{
-        sprintf(&strInterface[0], "%u.%u.%u.%u", ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]);
-    }
+    sprintf(&strInterface[0], "0.0.0.%lu", index);
 
-    // Create structure
+    // create structure
     struct ip_mreq result;
     result.imr_multiaddr.s_addr = inet_addr(strGroup);
     result.imr_interface.s_addr = inet_addr(strInterface);
     return result;
 }
 #else
-struct ip_mreqn UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::array<uint8_t,4>& ipInterface, const std::string& interfaceName){
-    // Convert group IP to string
+struct ip_mreqn UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName){
+    // convert group IP to string
     char strGroup[16];
     sprintf(&strGroup[0], "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
 
-    // Convert interface IP to string
-    char strInterface[16];
-    sprintf(&strInterface[0], "%u.%u.%u.%u", ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]);
-
-    // Pointer to the interface IP string (nullptr indicates default value: INADDR_ANY)
-    char *ip = nullptr;
-    if(ipInterface[0] || ipInterface[1] || ipInterface[2] || ipInterface[3]){
-        ip = &strInterface[0];
-    }
-
-    // If commanded, set interface index based on interface name
+    // set interface index based on interface name
     int index = 0;
     if(interfaceName.size()){
         index = if_nametoindex(interfaceName.c_str());
     }
 
-    // Create structure
+    // create structure
     struct ip_mreqn result;
     result.imr_multiaddr.s_addr = inet_addr(strGroup);
-    result.imr_address.s_addr = ip ? inet_addr(ip) : htonl(INADDR_ANY);
+    result.imr_address.s_addr = htonl(INADDR_ANY);
     result.imr_ifindex = index;
     return result;
 }

@@ -24,7 +24,7 @@ bool PeriodicTimer::Start(double sampletime){
         GENERIC_TARGET_PRINT_ERROR("A sample rate less than 1 millisecond can not be set on windows!\n");
         return false;
     }
-    hTimer = CreateWaitableTimer(NULL, false, NULL); // No SECURITY_ATRIBUTES, no manual reset, no timer name
+    hTimer = CreateWaitableTimer(NULL, false, NULL); // no SECURITY_ATRIBUTES, no manual reset, no timer name
     if(!hTimer){
         GENERIC_TARGET_PRINT_ERROR("Could not create waitable timer!\n");
         return false;

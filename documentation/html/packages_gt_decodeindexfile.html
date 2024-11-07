@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20240818</div>
+<div class="header_version">Version 20241107</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -34,8 +34,6 @@
 <li class="litext">SIMULINK LIBRARY</li>
 <li class="linav"><a href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
 <li class="linav"><a href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
-<li class="linav"><a href="library_gt_interface_multicastudpsend.html">Interface / Multicast UDP Send</a></li>
-<li class="linav"><a href="library_gt_interface_multicastudpreceive.html">Interface / Multicast UDP Receive</a></li>
 <li class="linav"><a href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
 <li class="linav"><a href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
 <li class="linav"><a href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
@@ -97,8 +95,9 @@ Decode an index file from a data recording. An index file is created by the gene
     <tr><td style="font-family: Courier New;">dateOfCompilation</td><td style="font-family: Courier New;">char array</td><td>A character vector indicating the timepoint (local time) when the application has been compiled on the target, e.g. <code>'Jul 21 2023 13:42:00'</code>.</td></tr>
     <tr><td style="font-family: Courier New;">compilerVersion</td><td style="font-family: Courier New;">char array</td><td>A character vector indicating the GNU compiler version that was used to compile the application, e.g. <code>'11.3.0'</code>.</td></tr>
     <tr><td style="font-family: Courier New;">operatingSystem</td><td style="font-family: Courier New;">char array</td><td>A character vector indicating the operating system the target software were running on, e.g. <code>'Linux'</code>.</td></tr>
-    <tr><td style="font-family: Courier New;">operatingSystemInfo</td><td style="font-family: Courier New;">char array</td><td>A character vector providing additional information about the operating system. All values are separated by comma and have the syntax <code>name=[value]</code>, where the <code>name</code>/<code>value</code> pair depends on the operating system.<br><b>Example:</b> <code>'sysname=[Linux],nodename=[user],release=[5.19.0-46-generic],version=[#47~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Wed Jun 21 15:35:31 UTC 2],machine=[x86_64],domainname=[(none)]'</code>.</td></tr>
+    <tr><td style="font-family: Courier New;">operatingSystemInfo</td><td style="font-family: Courier New;">char array</td><td>A character vector providing additional information about the operating system. All values are separated by comma and have the syntax <code>name=[value]</code>, where the <code>name</code>/<code>value</code> pair depends on the operating system.<br><b>Example:</b> <code>'sysname=[Linux],nodename=[debian],release=[6.1.0-26-rt-amd64],version=[#1 SMP PREEMPT_RT Debian 6.1.112-1 (2024-09-30)],machine=[x86_64],domainname=[(none)]'</code>.</td></tr>
     </table>
+
 
 </div>
 </div>

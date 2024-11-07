@@ -61,10 +61,8 @@
     <br>
     <table>
         <tr><th>Block</th><th>No Simulink Support</th><th>With Simulink Support</th></tr>
-        <tr><td>Interface/UDP Send                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
-        <tr><td>Interface/UDP Receive                 </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
-        <tr><td>Interface/Multicast UDP Send          </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
-        <tr><td>Interface/Multicast UDP Receive       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #fb0;">partially <span style="color: #000;"><b>*</b></span></td></tr>
+        <tr><td>Interface/UDP Send                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK<span style="color: #000;"><b>*</b></span></td></tr>
+        <tr><td>Interface/UDP Receive                 </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK<span style="color: #000;"><b>*</b></span></td></tr>
         <tr><td>Interface/Write Scalar Doubles To File</td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
         <tr><td>Interface/Write Bus To File           </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
         <tr><td>Interface/Stop Execution              </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
@@ -79,13 +77,8 @@
         <tr><td>Time/Time To Latest UTC Timestamp     </td><td align="center" style="color: #0b0;">OK</td><td align="center" style="color: #0b0;">OK</td></tr>
     </table>
     <b>*</b>
-    These blocks behave different during simulation with Simulink.
-    When using UDP interface blocks in Simulink models a local port must be specified only once to work as expected!
-    It is not possible to receive and send from one port at the same time.
-    This only works with the deployed code.
-    The reason for that is, that each block runs in its own environment during simulation.
-    Thus a Send and a Receive block do not share the internal network socket and each block generates its own receive thread.
-    For multicast this is less of a problem, since these messages are received via loopback on all associated multicast sockets anyway.
+    These blocks behave different during simulation with Simulink under the windows operating system.
+    Some socket options are not available for windows sockets or may have a different effect than on a linux target.
     </div>
     At the moment only <b>gcc</b> (Linux) and <b>MSYS2/MinGW64</b> (Windows) are supported as compilers to create blocks with Simulink support.
     For compilers that are not yet supported, the Simulink support option can be skipped.
@@ -93,5 +86,4 @@
     <h2>Uninstall</h2>
     If you added the directories of the toolbox to the MATLAB path during installation, simply remove them.
     The <code>install.m</code> script adds three folders to the MATLAB path: <code>library</code>, <code>library/src</code> and <code>packages</code>.
-
 

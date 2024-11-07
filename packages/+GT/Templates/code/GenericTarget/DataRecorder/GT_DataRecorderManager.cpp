@@ -8,6 +8,7 @@ using namespace gt;
 
 DataRecorderManager::DataRecorderManager(){
     created = false;
+    registrationError = false;
 }
 
 DataRecorderManager::~DataRecorderManager(){
@@ -15,25 +16,22 @@ DataRecorderManager::~DataRecorderManager(){
 }
 
 void DataRecorderManager::RegisterScalarDoubles(const uint8_t* idCharacters, uint32_t numIDCharacters, const uint8_t* signalNames, uint32_t numCharacters, uint32_t numSignals, uint32_t numSamplesPerFile){
-    // Get ID, labels (only use printable characters)
+    // get ID, labels (only use printable characters)
     std::string signalLabels = ConvertToPrintableString(signalNames, numCharacters);
     std::string id = ConvertToPrintableString(idCharacters, numIDCharacters);
     if(created){
-        GENERIC_TARGET_PRINT_ERROR("Cannot register data recorder (id=\"%s\") because all data recorders have already been created and started!\n",id.c_str());
+        GENERIC_TARGET_PRINT_WARNING("Cannot register data recorder (id=\"%s\") because all data recorders have already been created and started!\n",id.c_str());
         return;
     }
 
-    // Check if this data recorder is already in the list
+    // check if this data recorder is already in the list
     auto found = dataRecorders.find(id);
     if(found != dataRecorders.end()){
-        // This data recorder (id) was already registered, update parameters
-        GENERIC_TARGET_PRINT_WARNING("Data recorder with ID \"%s\" has already been registered! Parameters are updated!\n",id.c_str());
-        found->second->SetNumSamplesPerFile(numSamplesPerFile);
-        found->second->SetNumSignals(numSignals);
-        found->second->SetLabels(signalLabels);
+        GENERIC_TARGET_PRINT_ERROR("Data recorder with ID \"%s\" has already been registered!\n",id.c_str());
+        registrationError = true;
     }
     else{
-        // This is a new data recorder (id), add it to the list
+        // this is a new data recorder (id), add it to the list
         DataRecorderScalarDoubles* obj = new DataRecorderScalarDoubles();
         obj->SetNumSamplesPerFile(numSamplesPerFile);
         obj->SetNumSignals(numSignals);
@@ -53,29 +51,24 @@ void DataRecorderManager::WriteScalarDoubles(const uint8_t* idCharacters, uint32
 }
 
 void DataRecorderManager::RegisterBus(const uint8_t* idCharacters, uint32_t numIDCharacters, uint32_t numSamplesPerFile, uint32_t numBytesPerSample, const uint8_t* signalNames, uint32_t strlenSignalNames, const uint8_t* dimensions, uint32_t strlenDimensions, const uint8_t* dataTypes, uint32_t strlenDataTypes){
-    // Get ID, labels, dimensions, datatypes (only use printable characters)
+    // get ID, labels, dimensions, datatypes (only use printable characters)
     std::string id = ConvertToPrintableString(idCharacters, numIDCharacters);
     std::string signalLabels = ConvertToPrintableString(signalNames, strlenSignalNames);
     std::string strDimensions = ConvertToPrintableString(dimensions, strlenDimensions);
     std::string strDataTypes = ConvertToPrintableString(dataTypes, strlenDataTypes);
     if(created){
-        GENERIC_TARGET_PRINT_ERROR("Cannot register data recorder (id=\"%s\") because all data recorders have already been created and started!\n",id.c_str());
+        GENERIC_TARGET_PRINT_WARNING("Cannot register data recorder (id=\"%s\") because all data recorders have already been created and started!\n",id.c_str());
         return;
     }
 
-    // Check if this signal object is already in the list
+    // check if this signal object is already in the list
     auto found = dataRecorders.find(id);
     if(found != dataRecorders.end()){
-        // This data recorder (id) was already registered, update parameters
-        GENERIC_TARGET_PRINT_WARNING("Data recorder with ID \"%s\" has already been registered! Parameters are updated!\n",id.c_str());
-        found->second->SetNumSamplesPerFile(numSamplesPerFile);
-        found->second->SetNumBytesPerSample(numBytesPerSample);
-        found->second->SetLabels(signalLabels);
-        found->second->SetDimensions(strDimensions);
-        found->second->SetDataTypes(strDataTypes);
+        GENERIC_TARGET_PRINT_ERROR("Data recorder with ID \"%s\" has already been registered!\n",id.c_str());
+        registrationError = true;
     }
     else{
-        // This is a new data recorder (id), add it to the list
+        // this is a new data recorder (id), add it to the list
         DataRecorderBus* obj = new DataRecorderBus();
         obj->SetNumSamplesPerFile(numSamplesPerFile);
         obj->SetNumBytesPerSample(numBytesPerSample);
@@ -103,7 +96,7 @@ std::string DataRecorderManager::GenerateFileName(std::string id){
 }
 
 bool DataRecorderManager::CreateAllDataRecorders(void){
-    if(!created && !dataRecorders.empty()){
+    if(!created && !registrationError && !dataRecorders.empty()){
         if(!CreateDataRecordingDirectory()){
             DestroyAllDataRecorders();
             return false;
@@ -112,8 +105,9 @@ bool DataRecorderManager::CreateAllDataRecorders(void){
             DestroyAllDataRecorders();
             return false;
         }
+        created = true;
     }
-    return (created = true);
+    return created;
 }
 
 void DataRecorderManager::DestroyAllDataRecorders(void){
@@ -123,19 +117,20 @@ void DataRecorderManager::DestroyAllDataRecorders(void){
     }
     dataRecorders.clear();
     created = false;
+    registrationError = false;
 }
 
 bool DataRecorderManager::WriteIndexFile(std::string filename, int32_t date_year, int32_t date_month, int32_t date_mday, int32_t date_hour, int32_t date_min, int32_t date_sec, int32_t date_msec){
-    // Open index file
+    // open index file
     FILE *file = fopen(filename.c_str(), "wb");
     if(!file)
         return false;
 
-    // Header: "GTIDX" (5 bytes)
+    // header: "GTIDX" (5 bytes)
     const uint8_t header[] = {'G','T', 'I', 'D', 'X'};
     fwrite(&header[0], 1, 5, file);
 
-    // Date
+    // date
     uint8_t bytes[11];
     bytes[0] = static_cast<uint8_t>((date_year >> 24) & 0x000000FF);
     bytes[1] = static_cast<uint8_t>((date_year >> 16) & 0x000000FF);
@@ -150,7 +145,7 @@ bool DataRecorderManager::WriteIndexFile(std::string filename, int32_t date_year
     bytes[10] = static_cast<uint8_t>(date_msec & 0x00FF);
     fwrite(&bytes[0], 1, 11, file);
 
-    // Number of data recorders (4 bytes)
+    // number of data recorders (4 bytes)
     uint32_t num = (uint32_t)dataRecorders.size();
     bytes[0] = static_cast<uint8_t>((num >> 24) & 0x000000FF);
     bytes[1] = static_cast<uint8_t>((num >> 16) & 0x000000FF);
@@ -158,7 +153,7 @@ bool DataRecorderManager::WriteIndexFile(std::string filename, int32_t date_year
     bytes[3] = static_cast<uint8_t>(num & 0x000000FF);
     fwrite(&bytes[0], 1, 4, file);
 
-    // For all data records, write information
+    // for all data records, write information
     for(auto&& p : dataRecorders){
         // ID (string) + 0x00
         fwrite(&p.first[0], 1, p.first.size(), file);
@@ -211,14 +206,14 @@ std::string DataRecorderManager::ConvertToPrintableString(const uint8_t* data, u
 }
 
 bool DataRecorderManager::CreateDataRecordingDirectory(void){
-    // Create directory
+    // create directory
     if(!GenericTarget::fileSystem.MakeDataRecordDirectory()){
         GENERIC_TARGET_PRINT_ERROR("Could not create data recording directory!\n");
         return false;
     }
     GENERIC_TARGET_PRINT("Created data recording directory \"%s\"\n", GenericTarget::fileSystem.GetDataRecordDirectory().string().c_str());
 
-    // Write index file
+    // write index file
     std::string indexFileName = GenericTarget::fileSystem.GetDataRecordIndexFilename();
     TimeInfo upTimeUTC = GenericTarget::targetTime.GetUpTimeUTC();
     GENERIC_TARGET_PRINT("Creating data record index file \"%s\"\n", indexFileName.c_str());
@@ -262,5 +257,9 @@ std::string DataRecorderManager::GetOSInfo(void){
     result += std::string(",szCSDVersion=[") + std::string(osvi.szCSDVersion) + std::string("]");
     #endif
     return result;
+}
+
+bool DataRecorderManager::RegistrationErrorOccurred(void){
+    return registrationError;
 }
 

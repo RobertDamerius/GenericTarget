@@ -14,4 +14,4 @@ Decode raw data file(s) recorded by the generic target application into a struct
 <h2>Output Arguments</h2>
     <h3>data</h3>
     The data structure containing timeseries for all recorded signals.
-    
+

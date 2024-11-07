@@ -23,10 +23,10 @@ DataRecorderScalarDoubles::~DataRecorderScalarDoubles(){
 }
 
 bool DataRecorderScalarDoubles::Start(std::string filename){
-    // Make sure that the data recorder object is stopped
+    // make sure that the data recorder object is stopped
     Stop();
 
-    // Set filename and start data recorder thread
+    // set filename and start data recorder thread
     this->filename = filename;
     threadDataRecorder = std::thread(&DataRecorderScalarDoubles::ThreadDataRecorder, this);
     struct sched_param param;
@@ -39,12 +39,12 @@ bool DataRecorderScalarDoubles::Start(std::string filename){
         #endif
     }
 
-    // Started, return success
+    // started, return success
     return (this->started = true);
 }
 
 void DataRecorderScalarDoubles::Stop(void){
-    // Stop thread
+    // stop thread
     terminate = true;
     this->Notify();
     if(threadDataRecorder.joinable()){
@@ -52,7 +52,7 @@ void DataRecorderScalarDoubles::Stop(void){
     }
     terminate = false;
 
-    // If the data recorder was started, check if there're remaining values in the buffer and write/append them to data files
+    // if the data recorder was started, check if there're remaining values in the buffer and write/append them to data files
     if(this->started){
         this->mtxBuffer.lock();
         WriteBufferToDataFiles(std::ref(this->buffer));
@@ -70,7 +70,7 @@ void DataRecorderScalarDoubles::Stop(void){
 }
 
 void DataRecorderScalarDoubles::Write(double timestamp, double* values, uint32_t numValues){
-    // Just append data to buffer
+    // just append data to buffer
     if(this->numSignals == numValues){
         this->mtxBuffer.lock();
         this->buffer.push_back(timestamp);
@@ -78,23 +78,23 @@ void DataRecorderScalarDoubles::Write(double timestamp, double* values, uint32_t
         this->mtxBuffer.unlock();
     }
 
-    // Notify file recorder thread that new data is available
+    // notify file recorder thread that new data is available
     this->Notify();
 }
 
 bool DataRecorderScalarDoubles::WriteHeader(std::string name){
-    // Open file
+    // open file
     FILE *file = fopen(name.c_str(), "wb");
     if(!file){
         GENERIC_TARGET_PRINT_ERROR("Could not write file \"%s\"!\n",name.c_str());
         return false;
     }
 
-    // Header: "GTDBL" (5 bytes)
+    // header: "GTDBL" (5 bytes)
     const uint8_t header[] = {'G','T', 'D', 'B', 'L'};
     fwrite(&header[0], 1, 5, file);
 
-    // Zero-based offset to SampleData (4 bytes)
+    // zero-based offset to SampleData (4 bytes)
     uint8_t bytes[4];
     uint32_t offset = 15 + uint32_t(this->labels.length());
     bytes[0] = uint8_t((offset >> 24) & 0x000000FF);
@@ -110,7 +110,7 @@ bool DataRecorderScalarDoubles::WriteHeader(std::string name){
     bytes[3] = uint8_t(this->numSignals & 0x000000FF);
     fwrite(&bytes[0], 1, 4, file);
 
-    // Labels + 0x00 (L + 1 bytes)
+    // labels + 0x00 (L + 1 bytes)
     fwrite(&this->labels[0], 1, this->labels.length(), file);
     bytes[0] = 0;
     fwrite(&bytes[0], 1, 1, file);
@@ -123,7 +123,7 @@ bool DataRecorderScalarDoubles::WriteHeader(std::string name){
     uint8_t byte = endian.bytes[0] ? 0x80 : 0x01;
     fwrite(&byte, 1, 1, file);
 
-    // Close file and return success
+    // close file and return success
     fclose(file);
     return true;
 }
@@ -131,7 +131,7 @@ bool DataRecorderScalarDoubles::WriteHeader(std::string name){
 void DataRecorderScalarDoubles::ThreadDataRecorder(void){
     std::vector<double> localBuffer;
     while(!terminate){
-        // Wait for notification
+        // wait for notification
         {
             std::unique_lock<std::mutex> lock(mtxNotify);
             cvNotify.wait(lock, [this](){ return (notified || terminate); });
@@ -141,7 +141,7 @@ void DataRecorderScalarDoubles::ThreadDataRecorder(void){
             break;
         }
 
-        // Copy to local buffer
+        // copy to local buffer
         mtxBuffer.lock();
         if(buffer.size()){
             localBuffer.insert(localBuffer.end(), buffer.begin(), buffer.end());
@@ -149,11 +149,11 @@ void DataRecorderScalarDoubles::ThreadDataRecorder(void){
         }
         mtxBuffer.unlock();
 
-        // Write buffer data to files
+        // write buffer data to files
         WriteBufferToDataFiles(std::ref(localBuffer));
     }
 
-    // If there's data in the local buffer copy it to the beginning of the main buffer
+    // if there's data in the local buffer copy it to the beginning of the main buffer
     if(localBuffer.size()){
         mtxBuffer.lock();
         buffer.insert(buffer.begin(), localBuffer.begin(), localBuffer.end());
@@ -163,12 +163,12 @@ void DataRecorderScalarDoubles::ThreadDataRecorder(void){
 
 void DataRecorderScalarDoubles::WriteBufferToDataFiles(std::vector<double>& values){
     while(values.size()){
-        // The current file name of the active data file
+        // the current file name of the active data file
         std::filesystem::path absolutePath = GenericTarget::fileSystem.GetDataRecordDirectory();
         absolutePath /= (this->filename + std::string("_") + std::to_string(this->currentFileNumber));
         std::string currentFileName = absolutePath.string();
 
-        // Check if new file should be started
+        // check if new file should be started
         if(!this->currentFileStarted){
             if(!WriteHeader(currentFileName)){
                 return;
@@ -178,7 +178,7 @@ void DataRecorderScalarDoubles::WriteBufferToDataFiles(std::vector<double>& valu
             GENERIC_TARGET_PRINT("Created data recording file \"%s\"\n", currentFileName.c_str());
         }
 
-        // We have a started file, write samples
+        // we have a started file, write samples
         size_t numSamplesToWrite = values.size() / (size_t)(1 + this->numSignals);
         if(this->numSamplesPerFile){
             numSamplesToWrite = std::min(numSamplesToWrite, this->numSamplesPerFile);
@@ -196,7 +196,7 @@ void DataRecorderScalarDoubles::WriteBufferToDataFiles(std::vector<double>& valu
         this->numSamplesWritten += numSamplesToWrite;
         values.erase(values.begin(), values.begin() + numValuesToWrite);
 
-        // File has been finished successfully, set markers to indicate that a new file should be started
+        // file has been finished successfully, set markers to indicate that a new file should be started
         if(this->numSamplesPerFile && (this->numSamplesWritten >= this->numSamplesPerFile)){
             this->currentFileStarted = false;
             this->currentFileNumber++;

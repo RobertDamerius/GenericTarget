@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20240818</div>
+<div class="header_version">Version 20241107</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -34,8 +34,6 @@
 <li class="litext">SIMULINK LIBRARY</li>
 <li class="linav"><a href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
 <li class="linav"><a href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
-<li class="linav"><a href="library_gt_interface_multicastudpsend.html">Interface / Multicast UDP Send</a></li>
-<li class="linav"><a href="library_gt_interface_multicastudpreceive.html">Interface / Multicast UDP Receive</a></li>
 <li class="linav"><a href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
 <li class="linav"><a href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
 <li class="linav"><a href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
@@ -89,7 +87,6 @@
     If the base sampletime becomes too small, it can happen that the realtime kernel in combination with the used target computer is no longer able to maintain the given base sampletime.
     On Windows, the lowest possible sampletime is 1 millisecond.
     Keep that in mind if you want to deploy your model to a host running Windows.
-
     <br>
     <br>
     <h3>Build model and deploy to hardware</h3>
@@ -147,6 +144,7 @@ target.Deploy(model);</pre>
     <h3 class="note-orange">Return values</h3>
     All methods that access the target via network call SSH or SCP as system call with appropriate parameters. The methods return the command lines that were executed by the host.
     </div>
+
 
 </div>
 </div>

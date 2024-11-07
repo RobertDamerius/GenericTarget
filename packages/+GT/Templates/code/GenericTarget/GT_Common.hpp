@@ -19,7 +19,6 @@
 #include <algorithm>
 #include <thread>
 #include <mutex>
-#include <shared_mutex>
 #include <condition_variable>
 #include <atomic>
 #include <map>
@@ -57,6 +56,7 @@
 #include <sys/utsname.h>
 #include <net/if.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 #else
 // Other
 #endif
@@ -125,11 +125,9 @@ inline std::string ToPrintableString(std::string s){
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Global Macro Definitions
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#define GENERIC_TARGET_PRIORITY_BASE_RATE_SCHEDULER      (99)
 #define GENERIC_TARGET_DIRECTORY_PROTOCOL                "protocol"
 #define GENERIC_TARGET_DIRECTORY_DATA_RECORD             "data"
 #define GENERIC_TARGET_FILE_NAME_DATA_RECORD_INDEX       "index"
-#define GENERIC_TARGET_UDP_RETRY_TIME_MS                 (1000)
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

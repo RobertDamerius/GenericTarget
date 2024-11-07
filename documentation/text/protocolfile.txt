@@ -3,12 +3,12 @@
     All protocol files are stored in the <code>protocol/</code> directory in the <a href="packages_gt_generictarget.html#targetSoftwareDirectory">software directory</a> of the target application.
     A protocol file contains information about the target software such as warnings and error messages.
     All messages are time stamped.
-    If the application is started with <code>[...] --console</code>, the output is not redirected to the text file.
+    If the application is started with <code>--console</code>, the output is not redirected to a text file.
 
 <h3>Example Protocol File</h3>
     Using the MATLAB class <a href="packages_gt_generictarget.html">GT.GenericTarget</a> the current protocol file is displayed:
     <pre>target.ShowLatestProtocol();    % target is a GT.GenericTarget object</pre>
-    The content of a protocol file can look like this:
+    The content of a protocol file looks like this:
     <br>
     <br>
     <center><object data="../img/TextLog.svg" type="image/svg+xml"></object></center>

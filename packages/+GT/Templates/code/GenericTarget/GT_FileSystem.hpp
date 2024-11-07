@@ -7,6 +7,9 @@
 namespace gt {
 
 
+/**
+ * @brief This class manages file-system related stuff for the generic target application.
+ */
 class FileSystem {
     public:
         /**
@@ -51,7 +54,7 @@ class FileSystem {
         void KeepNLatestProtocolFiles(uint32_t N);
 
     private:
-        std::filesystem::path pathToApplication; // Absolute path to the application (generated during construction).
+        std::filesystem::path pathToApplication;   // Absolute path to the application (generated during construction).
 };
 
 

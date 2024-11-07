@@ -5,8 +5,7 @@ using namespace gt;
 
 TargetTime GenericTarget::targetTime;
 DataRecorderManager GenericTarget::dataRecorderManager;
-UDPUnicastManager GenericTarget::udpUnicastManager;
-UDPMulticastManager GenericTarget::udpMulticastManager;
+UDPServiceManager GenericTarget::udpManager;
 ApplicationArguments GenericTarget::args;
 FileSystem GenericTarget::fileSystem;
 std::atomic<bool> GenericTarget::shouldTerminate = ATOMIC_VAR_INIT(false);
@@ -20,16 +19,16 @@ void GenericTarget::ShouldTerminate(void){
 }
 
 void GenericTarget::Run(int argc, char** argv){
-    // Set handlers for signals from OS and parse arguments
+    // set handlers for signals from OS and parse arguments
     SetSignalHandlers();
     args.Parse(argc, argv);
 
-    // Check if outputs should be redirected to a protocol file
+    // check if outputs should be redirected to a protocol file
     if(!args.console){
         RedirectPrintsToFile();
     }
 
-    // Run the generic target application
+    // run the generic target application
     if(Initialize(argc, argv)){
         MainLoop();
         Terminate();
@@ -41,14 +40,14 @@ bool GenericTarget::Initialize(int argc, char**argv){
     PrintInfo(argc, argv);
     GENERIC_TARGET_PRINT("Initializing application ...\n");
 
-    // Check for the "--stop" argument
+    // check for the "--stop" argument
     if(args.stop){
         GENERIC_TARGET_PRINT("Stopping another possibly ongoing target application (port=%u)\n", SimulinkInterface::portAppSocket);
         StopOtherTargetApplication();
         return false;
     }
 
-    // Initialize
+    // initialize
     if(!InitializeAppSocket()){
         goto init_fail;
     }
@@ -58,9 +57,9 @@ bool GenericTarget::Initialize(int argc, char**argv){
     GENERIC_TARGET_PRINT("Initialization successfully completed\n");
     return true;
 
-    // Something failed and/or application is to be closed
+    // something failed and/or application is to be closed
     init_fail:
-    GENERIC_TARGET_PRINT_ERROR("Initialization failed\n");
+    GENERIC_TARGET_PRINT_ERROR("Initialization failed!\n");
     appSocket.Close();
     return false;
 }
@@ -70,10 +69,8 @@ void GenericTarget::Terminate(void){
     scheduler.Stop();
     GENERIC_TARGET_PRINT("Terminating the simulink model\n");
     SimulinkInterface::Terminate();
-    GENERIC_TARGET_PRINT("Destroying multicast UDP sockets\n");
-    udpMulticastManager.Destroy();
-    GENERIC_TARGET_PRINT("Destroying unicast UDP sockets\n");
-    udpUnicastManager.Destroy();
+    GENERIC_TARGET_PRINT("Destroying UDP sockets\n");
+    udpManager.DestroyAllUDPSockets();
     GENERIC_TARGET_PRINT("Destroying data recorders\n");
     dataRecorderManager.DestroyAllDataRecorders();
     appSocket.Close();
@@ -81,30 +78,30 @@ void GenericTarget::Terminate(void){
 
 void GenericTarget::MainLoop(void){
     GENERIC_TARGET_PRINT("Starting simulink model\n");
-    scheduler.Start();
-
-    // Wait until application socket is closed or a termination message is received
-    Address source;
-    uint8_t u[4];
-    while(!shouldTerminate && appSocket.IsOpen()){
-        appSocket.ResetLastError();
-        int32_t rx = appSocket.ReceiveFrom(source, &u[0], 4);
-        int32_t errorCode = appSocket.GetLastErrorCode();
-        if(rx < 0){
-            #ifdef _WIN32
-            if(WSAEMSGSIZE == errorCode){
-                continue;
+    if(scheduler.Start()){
+        // wait until application socket is closed or a termination message is received
+        Address source;
+        uint8_t u[4];
+        while(!shouldTerminate && appSocket.IsOpen()){
+            appSocket.ResetLastError();
+            int32_t rx = appSocket.ReceiveFrom(source, &u[0], 4);
+            int32_t errorCode = appSocket.GetLastErrorCode();
+            if(rx < 0){
+                #ifdef _WIN32
+                if(WSAEMSGSIZE == errorCode){
+                    continue;
+                }
+                #else
+                (void)errorCode;
+                #endif
+                break;
             }
-            #else
-            (void)errorCode;
-            #endif
-            break;
+            if((source.ip == std::array<uint8_t,4>({127,0,0,1})) && (4 == rx) && (0x47 == u[0]) && (0x54 == u[1]) && (0xDE == u[2]) && (0xAD == u[3])){
+                break;
+            }
         }
-        if((source.ip == std::array<uint8_t,4>({127,0,0,1})) && (4 == rx) && (0x47 == u[0]) && (0x54 == u[1]) && (0xDE == u[2]) && (0xAD == u[3])){
-            break;
-        }
+        GENERIC_TARGET_PRINT("Received termination flag, application will be closed\n");
     }
-    GENERIC_TARGET_PRINT("Received termination flag, application will be closed\n");
 }
 
 void GenericTarget::SetSignalHandlers(void){
@@ -234,11 +231,32 @@ void GenericTarget::PrintNetworkInfo(void){
         GENERIC_TARGET_PRINT_RAW("\n");
         if_freenameindex(if_ni);
     }
+    #elif _WIN32
+    PIP_ADAPTER_INFO pAdapterInfo = 0;
+    PIP_ADAPTER_INFO pAdapter;
+    DWORD dwSize = 0;
+    if(GetAdaptersInfo(pAdapterInfo, &dwSize) == ERROR_BUFFER_OVERFLOW){
+        pAdapterInfo = (PIP_ADAPTER_INFO)malloc(dwSize);
+    }
+    if(GetAdaptersInfo(pAdapterInfo, &dwSize) == NO_ERROR){
+        pAdapter = pAdapterInfo;
+        GENERIC_TARGET_PRINT_RAW("network interfaces:       ");
+        while(pAdapter){
+            std::string name(pAdapter->AdapterName);
+            std::string description(pAdapter->Description);
+            GENERIC_TARGET_PRINT_RAW("[%s (%s)]", name.c_str(), description.c_str());
+            pAdapter = pAdapter->Next;
+        }
+        GENERIC_TARGET_PRINT_RAW("\n");
+    }
+    if(pAdapterInfo){
+        free(pAdapterInfo);
+    }
     #endif
 }
 
 void GenericTarget::StopOtherTargetApplication(void){
-    // Open the application socket with a random port
+    // open the application socket with a random port
     if(!appSocket.Open()){
         GENERIC_TARGET_PRINT_ERROR("Could not open application socket: %s\n", appSocket.GetLastErrorString().c_str());
         return;
@@ -247,7 +265,7 @@ void GenericTarget::StopOtherTargetApplication(void){
         GENERIC_TARGET_PRINT_ERROR("Unable to bind a random port for the application socket: %s\n", appSocket.GetLastErrorString().c_str());
     }
 
-    // Send termination message and close socket
+    // send termination message and close socket
     Address localHost(127, 0, 0, 1, SimulinkInterface::portAppSocket);
     const uint8_t msgTerminate[] = {0x47,0x54,0xDE,0xAD};
     if(sizeof(msgTerminate) != appSocket.SendTo(localHost, (uint8_t*)&msgTerminate[0], sizeof(msgTerminate))){
@@ -257,13 +275,13 @@ void GenericTarget::StopOtherTargetApplication(void){
 }
 
 bool GenericTarget::InitializeAppSocket(void){
-    // Open the application socket
+    // open the application socket
     if(!appSocket.Open()){
         GENERIC_TARGET_PRINT_ERROR("Could not open application socket: %s\n", appSocket.GetLastErrorString().c_str());
         return false;
     }
 
-    // Bind specific port
+    // bind specific port
     if(appSocket.Bind(SimulinkInterface::portAppSocket) < 0){
         GENERIC_TARGET_PRINT_ERROR("Unable to bind port %u for the application socket: %s\n", SimulinkInterface::portAppSocket, appSocket.GetLastErrorString().c_str());
         appSocket.Close();
@@ -275,12 +293,11 @@ bool GenericTarget::InitializeAppSocket(void){
 bool GenericTarget::InitializeModel(void){
     GENERIC_TARGET_PRINT("Initializing simulink model\n");
     SimulinkInterface::Initialize();
-    GENERIC_TARGET_PRINT("Creating unicast UDP sockets\n");
-    if(!udpUnicastManager.Create()){
+    if(udpManager.RegistrationErrorOccurred() || dataRecorderManager.RegistrationErrorOccurred()){
         return false;
     }
-    GENERIC_TARGET_PRINT("Creating multicast UDP sockets\n");
-    if(!udpMulticastManager.Create()){
+    GENERIC_TARGET_PRINT("Creating UDP sockets\n");
+    if(!udpManager.CreateAllUDPSockets()){
         return false;
     }
     GENERIC_TARGET_PRINT("Creating data recorders\n");

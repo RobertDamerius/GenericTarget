@@ -9,8 +9,8 @@ namespace gt {
 
 class ApplicationArguments {
     public:
-        bool stop;         // True if another possibly running generic target application should be stopped.
-        bool console;      // True if prints should be displayed in the console instead of redirecting them to a protocol file.
+        bool stop;      // True if another possibly running generic target application should be stopped.
+        bool console;   // True if prints should be displayed in the console instead of redirecting them to a protocol file.
 
         /**
          * @brief Construct a new application arguments object and set default values.

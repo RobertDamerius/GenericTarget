@@ -110,7 +110,7 @@
     <br>
     <h3>Avoid keyword "DEBUG"</h3>
     If the application is built in DEBUG mode, the C macro <code>DEBUG</code> is set.
-    Therefore, no names should be selected that lead to variable names with <code>DEBUG</code> in the code generation, for example.
+    Therefore, no names should be selected that lead to function or variable names with <code>DEBUG</code> in the code generation.
     <br>
     <h3>Avoid console outputs</h3>
     The console output of the target application is redirected to a text file by default at startup.
@@ -124,6 +124,7 @@
     If the same file names are used, this will result in the corresponding files being overwritten multiple times.
     Therefore, unique file names should be used.
     The function names within the code files must also not be ambiguous.
-    Therefore, appropriate naming is recommended.
-    All C functions of blocks from the toolbox therefore start with the prefix <code>GT_</code>.
+    Appropriate naming is recommended.
     The same applies to additional source files that are added as custom code.
+    All C functions of blocks from the toolbox start with the prefix <code>GT_</code>.
+

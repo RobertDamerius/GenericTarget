@@ -20,17 +20,17 @@ PeriodicTask::~PeriodicTask(){
 }
 
 bool PeriodicTask::Start(void){
-    // Make sure that the task is stopped
+    // make sure that the task is stopped
     Stop();
 
-    // Start thread
+    // start thread
     started = true;
     ticks = 1;
     offsetSamples = 0;
     numTaskOverloads = 0;
     t = std::thread(&PeriodicTask::Thread, this);
 
-    // Set priority
+    // set priority
     struct sched_param param;
     param.sched_priority = SimulinkInterface::priorities[taskID];
     if(0 != pthread_setschedparam(t.native_handle(), SCHED_FIFO, &param)){
@@ -44,7 +44,7 @@ bool PeriodicTask::Start(void){
 }
 
 void PeriodicTask::Stop(void){
-    // Stop the thread if it is running
+    // stop the thread if it is running
     terminate = true;
     if(started){
         std::unique_lock<std::mutex> lock(mtx);
@@ -52,12 +52,12 @@ void PeriodicTask::Stop(void){
         cv.notify_one();
     }
 
-    // Wait until the thread has finished
+    // wait until the thread has finished
     if(started && t.joinable()){
         t.join();
     }
 
-    // Reset attributes (except missed ticks)
+    // reset attributes (except missed ticks)
     ticks = 1;
     offsetSamples = 0;
     jobRunning = false;
@@ -68,16 +68,16 @@ void PeriodicTask::Stop(void){
 }
 
 void PeriodicTask::Notify(void){
-    // Decrement sample offset, only continue if tick counter is less than zero
+    // decrement sample offset, only continue if tick counter is less than zero
     if((--offsetSamples) < 0){
         offsetSamples = 0;
 
-        // Decrement ticks, only signal thread if tick counter is zero (or less)
+        // decrement ticks, only signal thread if tick counter is zero (or less)
         if((--ticks) < 1){
-            // Reset tick counter to specified model sample ticks
+            // reset tick counter to specified model sample ticks
             ticks = SimulinkInterface::sampleTicks[taskID];
 
-            // If a job is still running: task overload, do not notify
+            // if a job is still running: task overload, do not notify
             if(jobRunning){
                 uint64_t n = ++numTaskOverloads;
                 GENERIC_TARGET_PRINT_ERROR("Task overload (task=\"%s\", priority=%d, sampletime=%lf, overloads=%lu)\n", SimulinkInterface::taskNames[taskID], SimulinkInterface::priorities[taskID], SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]), n);
@@ -87,7 +87,7 @@ void PeriodicTask::Notify(void){
                 return;
             }
 
-            // Notify the actual thread
+            // notify the actual thread
             {
                 std::unique_lock<std::mutex> lock(mtx);
                 notified = true;
@@ -99,19 +99,19 @@ void PeriodicTask::Notify(void){
 
 void PeriodicTask::Thread(void){
     for(;;){
-        // Wait for notification
+        // wait for notification
         {
             std::unique_lock<std::mutex> lock(mtx);
             cv.wait(lock, [this](){ return (notified || terminate); });
             notified = false;
         }
 
-        // Check termination flag
+        // check termination flag
         if(terminate){
             break;
         }
 
-        // Model step calculation
+        // model step calculation
         jobRunning = true;
         auto t1 = std::chrono::steady_clock::now();
         SimulinkInterface::Step(taskID);

@@ -77,6 +77,12 @@ class DataRecorderManager {
          */
         void WriteBus(const uint8_t* idCharacters, uint32_t numIDCharacters, double timestamp, uint8_t* bytes, uint32_t numBytesPerSample);
 
+        /**
+         * @brief Check if the data recorder manager accounted an error during any of the Register call.
+         * @return True if registration error occurred, false otherwise.
+         */
+        bool RegistrationErrorOccurred(void);
+
     protected:
         friend GenericTarget;
 
@@ -95,6 +101,7 @@ class DataRecorderManager {
         std::atomic<bool> created;                                         // True if data recorders have been successfully created by @ref CreateAllDataRecorders, false otherwise.
         std::unordered_map<std::string, DataRecorderBase*> dataRecorders;  // List of all created data recorders.
         std::string directoryDataRecord;                                   // Absolute path to the data recording directory. The directory is created by @ref CreateAllDataRecorders.
+        bool registrationError;                                            // True if a registration error occurred.
 
         /**
          * @brief Generate the filename string for a given data file identifier.

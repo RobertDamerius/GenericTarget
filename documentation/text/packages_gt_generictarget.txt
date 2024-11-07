@@ -512,3 +512,4 @@ This class contains the following public member functions to interact with the t
         <li><b>commands</b> The commands that were executed on the host.</li>
         <li><b>cmdout</b> The output that have been returned by the command window.</li>
     </ul>
+

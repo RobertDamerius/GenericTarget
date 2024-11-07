@@ -4,7 +4,7 @@ using namespace gt;
 
 
 FileSystem::FileSystem(){
-    // Get the absolute path to the application
+    // get the absolute path to the application
     #ifdef _WIN32
     char* buffer = new char[65536];
     DWORD len = GetModuleFileNameA(NULL, &buffer[0], 65536);

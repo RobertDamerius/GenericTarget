@@ -15,7 +15,7 @@ static WSADATA _wsadata;
  * @return Always 0.
  */
 int main(int argc, char **argv){
-    // Initialize network sockets on windows
+    // initialize network sockets on windows
     #ifdef _WIN32
     if((WSAStartup(MAKEWORD(2, 2), &_wsadata)) || (LOBYTE(_wsadata.wVersion) != 2) || (HIBYTE(_wsadata.wVersion) != 2)){
         GENERIC_TARGET_PRINT_RAW("ERROR: WSAStartup(2,2) failed! Could not setup network for windows OS!\n");
@@ -26,10 +26,10 @@ int main(int argc, char **argv){
     // set file mode creation mask (all users, groups, etc. are allowed to read/write data that is created by this application)
     umask(0000);
 
-    // Run actual application
+    // run actual application
     gt::GenericTarget::Run(argc, argv);
 
-    // Terminate network sockets on windows
+    // terminate network sockets on windows
     #ifdef _WIN32
     WSACleanup();
     #endif

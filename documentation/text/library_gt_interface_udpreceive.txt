@@ -3,21 +3,30 @@
 <span style="font-family: Courier New">GenericTarget / Interface / UDP Receive</span>
 
 <h3>Description</h3>
-Receive UDP messages at the specified port. The communication is handled via a global internal socket that must be bound to a unique port.
-All UDP blocks access that internal socket via the port, which is specified under the socket tab.
-During simulation via Simulink the port should be globally unique among all UDP blocks, because there's no global internal socket but a
-local one for each block.
+Receive a UDP message at the specified port. By default all messages from the network buffer of the operating system are fetched. However, this option can be disabled in the advanced tab.
+Internally, the target application uses a separate socket for each defined UDP port.
+If the same local port is set in a UDP Send and Receive block, both blocks access the same socket in the background.
+For this reason, the settings in the masks of the corresponding UDP Send and Receive blocks must be identical, otherwise the initialization phase of the target application will fail.
+Values less than 1 can also be selected for the port in the block mask.
+In this case, the actual UDP port is selected randomly by the operating system.
+Nevertheless, all UDP Send and Receive blocks with the same value in the local port must have the identical mask settings.
+If, for example, several UDP blocks have the local port -3, one common socket is used in the background whose current UDP port is randomly assigned by the operating system.
+
+<h2>Input Ports</h2>
+<h3>groupsToJoin</h3>
+Optional input that is enabled if the multicast group source is set to external in the multicast tab. The signal must be an N-by-4 matrix that represent N multicast group addresses to be joined. If an address is not in the valid multicast group address range, then it's ignored.
+<br>
+<b>Data Type:</b> <span style="font-family: Courier New">uint8</span>
 
 
 <h2>Output Ports</h2>
 <h3>bytes</h3>
-An N-by-M matrix containing the messages that have been received, where N indicates the buffer size for a single message and M denotes
-the number of messages in the buffer.
+N-dimensional vector containing the latest message that has been fetched from the network buffer, where N indicates the receive buffer size.
 <br>
 <b>Data Type:</b> <span style="font-family: Courier New">uint8</span>
 
 <h3>length</h3>
-An M-by-1 vector indicating the actual length of the corresponding message. M denotes the number of messages in the buffer.
+The actual length of the corresponding message.
 <br>
 <b>Data Type:</b> <span style="font-family: Courier New">uint32</span>
 
@@ -30,12 +39,10 @@ The bus contains the following values.
 <br>
 <table>
     <tr><th>Parameter Name</th><th>Data Type</th><th>Description</th></tr>
-    <tr><td style="font-family: Courier New;">sourceAddress</td><td style="font-family: Courier New;">uint8</td><td>A 4-by-M matrix denoting the source IPv4 addresses, where M denotes the number of messages in the buffer.</td></tr>
-    <tr><td style="font-family: Courier New;">sourcePort</td><td style="font-family: Courier New;">uint16</td><td>An M-by-1 vector indicating the source ports, where M denotes the number of messages in the buffer.</td></tr>
-    <tr><td style="font-family: Courier New;">timestamp</td><td style="font-family: Courier New;">double</td><td>An M-by-1 vector indicating the timestamp in seconds when the corresponding message has been received by the receiver thread. The time source is selected in the Advanced tab of the block mask.</td></tr>
-    <tr><td style="font-family: Courier New;">numReceivedMessages</td><td style="font-family: Courier New;">uint32</td><td>The number of messages that have been received.</td></tr>
-    <tr><td style="font-family: Courier New;">numDiscardedMessages</td><td style="font-family: Courier New;">uint32</td><td>The number of messages that have been discarded.</td></tr>
-    <tr><td style="font-family: Courier New;">lastErrorCode</td><td style="font-family: Courier New;">int32</td><td>The value indicates the last socket error code from sending a message. 0 means no error. The actual meaning of non-zero values depend on the operating system.</td></tr>
+    <tr><td style="font-family: Courier New;">sourceAddress</td><td style="font-family: Courier New;">uint8</td><td>A 4-dimensional vector denoting the IPv4 source address of the received message.</td></tr>
+    <tr><td style="font-family: Courier New;">sourcePort</td><td style="font-family: Courier New;">uint16</td><td>The source port of the received message.</td></tr>
+    <tr><td style="font-family: Courier New;">result</td><td style="font-family: Courier New;">int32</td><td>The number of bytes that have been received or a negative value in case of errors.</td></tr>
+    <tr><td style="font-family: Courier New;">lastErrorCode</td><td style="font-family: Courier New;">int32</td><td>The last socket error code from receiving a message. 0 means no error. The actual meaning of non-zero values depend on the operating system.</td></tr>
 </table>
 
 
@@ -44,43 +51,40 @@ The following table shows all block parameters.
 <table>
     <tr><th>Parameter Name</th><th>Description</th></tr>
     <tr><td style="font-family: Courier New;">showDetails</td><td>Checkbox for showing the details output port.</td></tr>
-    <tr><td style="font-family: Courier New;">interfacePortRX</td><td>Local port under the "Socket" tab.</td></tr>
-    <tr><td style="font-family: Courier New;">interfaceIP</td><td>Interface under the "Socket" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">localPort</td><td>Local port under the "Socket" tab.</td></tr>
     <tr><td style="font-family: Courier New;">deviceName</td><td>Device name under the "Socket" tab.</td></tr>
-    <tr><td style="font-family: Courier New;">priorityThread</td><td>Receiver thread priority under the "Advanced" tab</td></tr>
-    <tr><td style="font-family: Courier New;">ipFilter</td><td>IP address filtering under the "Advanced" tab</td></tr>
-    <tr><td style="font-family: Courier New;">countAsDiscarded</td><td>Count as discarded checkbox under the "Advanced" tab</td></tr>
-    <tr><td style="font-family: Courier New;">rxBufferSize</td><td>Receive buffer size under the "Buffering" tab</td></tr>
-    <tr><td style="font-family: Courier New;">maxNumMessages</td><td>Maximum number of messages under the "Buffering" tab</td></tr>
-    <tr><td style="font-family: Courier New;">bufferStrategy</td><td>Buffer strategy selector under the "Buffering" tab</td></tr>
+    <tr><td style="font-family: Courier New;">rxBufferSize</td><td>Receive buffer size under the "Socket" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">multicastGroupSource</td><td>Popup parameter under the "Multicast" tab for selecting the source of multicast groups to be joined.</td></tr>
+    <tr><td style="font-family: Courier New;">multicastGroup</td><td>Multicast group field under the "Multicast" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">multicastTTL</td><td>Time-to-live value for outgoing multicast traffic under the "Multicast" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">multicastAll</td><td>Checkbox for enabling the <code>IP_MULTICAST_ALL</code> socket option under the "Multicast" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">multicastLoop</td><td>Checkbox for enabling the <code>IP_MULTICAST_LOOP</code> socket option under the "Multicast" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">socketPriority</td><td>Socket priority under the "Advanced" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">allowBroadcast</td><td>Allow broadcast checkbox under the "Advanced" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">allowZeroLengthMessage</td><td>Allow sending zero-length message checkbox under the "Advanced" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">fetchAll</td><td>Fetch all messages checkbox under the "Advanced" tab.</td></tr>
     <tr><td style="font-family: Courier New;">SampleTime</td><td>Sampletime.</td></tr>
 </table>
 
 <h3>Socket</h3>
 A socket represents the programming interface from the application to the network hardware.
-During the initialization phase of the model, all UDP blocks register with the generic target core, which manages all sockets in a hash table.
-A socket is uniquely identified by its local port.
-This port serves as the key value for the internal hash table.
-If several UDP blocks register with the same port, then these blocks are linked to the same socket.
-All UDP blocks that use the same local port thus always access the same socket.
-All other settings that can be made in a block mask always refer to the socket that belongs to the specified port.
-If, for example, two different interface addresses are specified for the same socket, then the generic target core reports an error and the software terminates.
+During the initialization phase of the model, all UDP sockets are created and all socket options are set.
+However, the binding of the local port as well as the binding to a specific network device is carried out during a step function of a model, as a network interface might not be available during model startup.
+The socket options <code>SO_REUSEPORT</code> and <code>SO_REUSEADDR</code> are set after the socket creation, such that multiple sockets (e.g. multiple blocks) can bind to the same port and device.
 
 <div class="note-green">
 <h3 class="note-green">Note</h3>
-Only one UDP receive block should be used for a socket.
-At the same time several UDP Send blocks can be used for the same socket.
-While the UDP receive block outputs all received messages from the buffer in the executed sample step, a message is sent immediately when the UDP send block is executed.
-If multiple receivers are registered for the same port, then the generic target core reports an error and the software terminates.
+It's possible to use multiple UDP Receive blocks with the same local port in your model.
 </div>
 
 <h3>Port Range</h3>
-The port range [0,1023] is reserved for system ports and should not be used.
+The port range [1,1023] is reserved for system ports and should not be used.
 The range [1024,49151] is defined for user ports.
 The remaining range [49152,65536] is reserved for dynamic ports.
 However, not all operating systems follow this standardization.
 Under certain circumstances, ports in the dynamic ports range may not be able to be used explicitly because the operating system prevents this.
 If a port cannot be bound, then this port is either in use by another program or the operating system prevents its use.
+If you set the local port to a value less than 1 via the block mask, then the generic target tells the operating system to select a random local port for you, which is usually in the range of dynamic ports.
 
 <div class="note-orange">
 <h3 class="note-orange">Application Port</h3>
@@ -88,13 +92,15 @@ Keep in mind that the target application uses its own port (<a href="packages_gt
 This port is set via the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> class and cannot be used again in the model.
 </div>
 
+<h3>Socket Priority</h3>
+The socket priority is only available if the target application runs on a linux operating system. On windows machines, this
+value has no effect.
+This value must be in range [0,6] and sets the protocol-defined priority for all packets to be sent on this socket.
+Linux uses this value to order the networking queues: packets with a higher priority may be processed first depending on the selected device queueing discipline.
+
 <h3>Buffering</h3>
-Each socket has its own thread in which the data is received.
-All received messages are collected in a software buffer.
-The maximum number of messages is set with the <code>maxNumMessages</code> parameter.
-Each message in the buffer has a maximum number of bytes, which is set with the <code>rxBufferSize</code> parameter.
-If the buffer is full and more messages are received, then either the received message or the oldest message is deleted from the buffer, depending on which rule is set with the <code>bufferStrategy</code> parameter.
-In each sampling step in which the receive block is executed, the entire buffer with all messages is read out and made available at the outputs of the block.
-The buffer is then cleared.
-The actual number of received messages is defined by the output <code>numReceivedMessages</code>.
-The <code>numDiscardedMessages</code> output indicates how many messages were discarded, for example because more messages were received than could be stored in the software buffer.
+The execution of a UDP receive block fetches a message from the operating systems receive buffer of the network device.
+The maximum size of a message that can be fetched with the UDP Receive block is set via the <code>rxBufferSize</code> parameter in the block mask.
+By default this block fetches all messages from the buffer and outputs the latest fetched message if any.
+However, if you want to fetch messages from the operating systems receive buffer one by one, then disable the <code>fetchAll</code> checkbox in the block mask.
+

@@ -12,8 +12,8 @@ namespace gt {
  */
 class Address {
     public:
-        std::array<uint8_t,4> ip;  // IPv4 address.
-        uint16_t port;             // Port value.
+        std::array<uint8_t,4> ip;   // IPv4 address.
+        uint16_t port;              // Port value.
 
         /**
          * @brief Create an address object (IP version 4).

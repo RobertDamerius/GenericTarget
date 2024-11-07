@@ -25,10 +25,10 @@ DataRecorderBus::~DataRecorderBus(){
 }
 
 bool DataRecorderBus::Start(std::string filename){
-    // Make sure that the data recorder object is stopped
+    // make sure that the data recorder object is stopped
     Stop();
 
-    // Set filename and start data recorder thread
+    // set filename and start data recorder thread
     this->filename = filename;
     threadDataRecorder = std::thread(&DataRecorderBus::ThreadDataRecorder, this);
     struct sched_param param;
@@ -41,12 +41,12 @@ bool DataRecorderBus::Start(std::string filename){
         #endif
     }
 
-    // Started, return success
+    // started, return success
     return (this->started = true);
 }
 
 void DataRecorderBus::Stop(void){
-    // Stop thread
+    // stop thread
     terminate = true;
     this->Notify();
     if(threadDataRecorder.joinable()){
@@ -54,7 +54,7 @@ void DataRecorderBus::Stop(void){
     }
     terminate = false;
 
-    // If the data recorder was started, check if there're remaining values in the buffer and write/append them to data files
+    // if the data recorder was started, check if there're remaining values in the buffer and write/append them to data files
     if(this->started){
         this->mtxBuffer.lock();
         WriteBufferToDataFiles(std::ref(this->buffer));
@@ -72,7 +72,7 @@ void DataRecorderBus::Stop(void){
 }
 
 void DataRecorderBus::Write(double timestamp, uint8_t* bytes, uint32_t numBytes){
-    // Just append data to buffer
+    // just append data to buffer
     if(this->numBytesPerSample == numBytes){
         union {
             double d;
@@ -85,23 +85,23 @@ void DataRecorderBus::Write(double timestamp, uint8_t* bytes, uint32_t numBytes)
         this->mtxBuffer.unlock();
     }
 
-    // Notify file recorder thread that new data is available
+    // notify file recorder thread that new data is available
     this->Notify();
 }
 
 bool DataRecorderBus::WriteHeader(std::string name){
-    // Open file
+    // open file
     FILE *file = fopen(name.c_str(), "wb");
     if(!file){
         GENERIC_TARGET_PRINT_ERROR("Could not write file \"%s\"!\n",name.c_str());
         return false;
     }
 
-    // Header: "GTBUS" (5 bytes)
+    // header: "GTBUS" (5 bytes)
     const uint8_t header[] = {'G','T', 'B', 'U', 'S'};
     fwrite(&header[0], 1, 5, file);
 
-    // Zero-based offset to SampleData (4 bytes)
+    // zero-based offset to SampleData (4 bytes)
     uint8_t bytes[4];
     uint32_t offset = 17 + uint32_t(this->labels.length() + this->dimensions.length() + this->dataTypes.length());
     bytes[0] = uint8_t((offset >> 24) & 0x000000FF);
@@ -117,17 +117,17 @@ bool DataRecorderBus::WriteHeader(std::string name){
     bytes[3] = uint8_t(this->numBytesPerSample & 0x000000FF);
     fwrite(&bytes[0], 1, 4, file);
 
-    // Labels + 0x00 (L + 1 bytes)
+    // labels + 0x00 (L + 1 bytes)
     fwrite(&this->labels[0], 1, this->labels.length(), file);
     bytes[0] = 0;
     fwrite(&bytes[0], 1, 1, file);
 
-    // Dimensions + 0x00 (D + 1 bytes)
+    // dimensions + 0x00 (D + 1 bytes)
     fwrite(&this->dimensions[0], 1, this->dimensions.length(), file);
     bytes[0] = 0;
     fwrite(&bytes[0], 1, 1, file);
 
-    // Data types + 0x00 (T + 1 bytes)
+    // data types + 0x00 (T + 1 bytes)
     fwrite(&this->dataTypes[0], 1, this->dataTypes.length(), file);
     bytes[0] = 0;
     fwrite(&bytes[0], 1, 1, file);
@@ -140,7 +140,7 @@ bool DataRecorderBus::WriteHeader(std::string name){
     uint8_t byte = endian.bytes[0] ? 0x80 : 0x01;
     fwrite(&byte, 1, 1, file);
 
-    // Close file and return success
+    // close file and return success
     fclose(file);
     return true;
 }
@@ -148,7 +148,7 @@ bool DataRecorderBus::WriteHeader(std::string name){
 void DataRecorderBus::ThreadDataRecorder(void){
     std::vector<uint8_t> localBuffer;
     while(!terminate){
-        // Wait for notification
+        // wait for notification
         {
             std::unique_lock<std::mutex> lock(mtxNotify);
             cvNotify.wait(lock, [this](){ return (notified || terminate); });
@@ -158,7 +158,7 @@ void DataRecorderBus::ThreadDataRecorder(void){
             break;
         }
 
-        // Copy to local buffer
+        // copy to local buffer
         mtxBuffer.lock();
         if(buffer.size()){
             localBuffer.insert(localBuffer.end(), buffer.begin(), buffer.end());
@@ -166,11 +166,11 @@ void DataRecorderBus::ThreadDataRecorder(void){
         }
         mtxBuffer.unlock();
 
-        // Write buffer data to files
+        // write buffer data to files
         WriteBufferToDataFiles(std::ref(localBuffer));
     }
 
-    // If there's data in the local buffer copy it to the beginning of the main buffer
+    // if there's data in the local buffer copy it to the beginning of the main buffer
     if(localBuffer.size()){
         mtxBuffer.lock();
         buffer.insert(buffer.begin(), localBuffer.begin(), localBuffer.end());
@@ -180,12 +180,12 @@ void DataRecorderBus::ThreadDataRecorder(void){
 
 void DataRecorderBus::WriteBufferToDataFiles(std::vector<uint8_t>& bytes){
     while(bytes.size()){
-        // The current file name of the active data file
+        // the current file name of the active data file
         std::filesystem::path absolutePath = GenericTarget::fileSystem.GetDataRecordDirectory();
         absolutePath /= (this->filename + std::string("_") + std::to_string(this->currentFileNumber));
         std::string currentFileName = absolutePath.string();
 
-        // Check if new file should be started
+        // check if new file should be started
         if(!this->currentFileStarted){
             if(!WriteHeader(currentFileName)){
                 return;
@@ -195,7 +195,7 @@ void DataRecorderBus::WriteBufferToDataFiles(std::vector<uint8_t>& bytes){
             GENERIC_TARGET_PRINT("Created data recording file \"%s\"\n", currentFileName.c_str());
         }
 
-        // We have a started file, write samples
+        // we have a started file, write samples
         size_t numSamplesToWrite = bytes.size() / (size_t)(8 + this->numBytesPerSample);
         if(this->numSamplesPerFile){
             numSamplesToWrite = std::min(numSamplesToWrite, this->numSamplesPerFile);
@@ -213,7 +213,7 @@ void DataRecorderBus::WriteBufferToDataFiles(std::vector<uint8_t>& bytes){
         this->numSamplesWritten += numSamplesToWrite;
         bytes.erase(bytes.begin(), bytes.begin() + numBytesToWrite);
 
-        // File has been finished successfully, set markers to indicate that a new file should be started
+        // file has been finished successfully, set markers to indicate that a new file should be started
         if(this->numSamplesPerFile && (this->numSamplesWritten >= this->numSamplesPerFile)){
             this->currentFileStarted = false;
             this->currentFileNumber++;

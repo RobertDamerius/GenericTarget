@@ -3,10 +3,15 @@
 <span style="font-family: Courier New">GenericTarget / Interface / UDP Send</span>
 
 <h3>Description</h3>
-Send a UDP message to a specified destination. The communication is handled via a global internal socket that must be bound to a unique port.
-All UDP blocks access that internal socket via the port, which is specified under the socket tab.
-During simulation via Simulink the port should be globally unique among all UDP blocks, because there's no global internal socket but a
-local one for each block.
+Send a UDP message to a destination address that is specified via the destination input.
+By default a message of zero-length is not sent. However, this option can be enabled in the advanced tab.
+Internally, the target application uses a separate socket for each defined UDP port.
+If the same local port is set in a UDP Send and Receive block, both blocks access the same socket in the background.
+For this reason, the settings in the masks of the corresponding UDP Send and Receive blocks must be identical, otherwise the initialization phase of the target application will fail.
+Values less than 1 can also be selected for the port in the block mask.
+In this case, the actual UDP port is selected randomly by the operating system.
+Nevertheless, all UDP Send and Receive blocks with the same value in the local port must have the identical mask settings.
+If, for example, several UDP blocks have the local port -3, one common socket is used in the background whose current UDP port is randomly assigned by the operating system.
 
 
 <h2>Input Ports</h2>
@@ -26,9 +31,10 @@ A vector containing the message that should be sent.
 <b>Data Type:</b> <span style="font-family: Courier New">uint8</span>
 
 <h3>length</h3>
-The number of bytes that should be sent. The length must not be greater than 65507. If the length is zero, then no UDP message is sent.
+The number of bytes that should be sent. The length must not be greater than 65507.
 <br>
 <b>Data Type:</b> <span style="font-family: Courier New">uint32</span>
+
 
 <h2>Output Ports</h2>
 <h3>details</h3>
@@ -50,39 +56,31 @@ The following table shows all block parameters.
 <table>
     <tr><th>Parameter Name</th><th>Description</th></tr>
     <tr><td style="font-family: Courier New;">showDetails</td><td>Checkbox for showing the details output port.</td></tr>
-    <tr><td style="font-family: Courier New;">interfacePort</td><td>Local port under the "Socket" tab.</td></tr>
-    <tr><td style="font-family: Courier New;">interfaceIP</td><td>Interface under the "Socket" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">localPort</td><td>Local port under the "Socket" tab.</td></tr>
     <tr><td style="font-family: Courier New;">deviceName</td><td>Device name under the "Socket" tab.</td></tr>
-    <tr><td style="font-family: Courier New;">prioritySocket</td><td>Socket priority under the "Advanced" tab</td></tr>
-    <tr><td style="font-family: Courier New;">allowBroadcast</td><td>Allow broadcast checkbox under the "Advanced" tab</td></tr>
+    <tr><td style="font-family: Courier New;">multicastTTL</td><td>Time-to-live value for outgoing multicast traffic under the "Multicast" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">multicastAll</td><td>Checkbox for enabling the <code>IP_MULTICAST_ALL</code> socket option under the "Multicast" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">multicastLoop</td><td>Checkbox for enabling the <code>IP_MULTICAST_LOOP</code> socket option under the "Multicast" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">socketPriority</td><td>Socket priority under the "Advanced" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">allowBroadcast</td><td>Allow broadcast checkbox under the "Advanced" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">allowZeroLengthMessage</td><td>Allow sending zero-length message checkbox under the "Advanced" tab.</td></tr>
     <tr><td style="font-family: Courier New;">SampleTime</td><td>Sampletime.</td></tr>
 </table>
 
 <h3>Socket</h3>
 A socket represents the programming interface from the application to the network hardware.
-During the initialization phase of the model, all UDP blocks register with the generic target core, which manages all sockets in a hash table.
-A socket is uniquely identified by its local port.
-This port serves as the key value for the internal hash table.
-If several UDP blocks register with the same port, then these blocks are linked to the same socket.
-All UDP blocks that use the same local port thus always access the same socket.
-All other settings that can be made in a block mask always refer to the socket that belongs to the specified port.
-If, for example, two different interface addresses are specified for the same socket, then the generic target core reports an error and the software terminates.
-
-<div class="note-green">
-<h3 class="note-green">Note</h3>
-Only one UDP receive block should be used for a socket.
-At the same time several UDP Send blocks can be used for the same socket.
-While the UDP receive block outputs all received messages from the buffer in the executed sample step, a message is sent immediately when the UDP send block is executed.
-If multiple receivers are registered for the same port, then the generic target core reports an error and the software terminates.
-</div>
+During the initialization phase of the model, all UDP sockets are created and all socket options are set.
+However, the binding of the local port as well as the binding to a specific network device is carried out during a step function of a model, as a network interface might not be available during model startup.
+The socket options <code>SO_REUSEPORT</code> and <code>SO_REUSEADDR</code> are set after the socket creation, such that multiple sockets (e.g. multiple blocks) can bind to the same port and device.
 
 <h3>Port Range</h3>
-The port range [0,1023] is reserved for system ports and should not be used.
+The port range [1,1023] is reserved for system ports and should not be used.
 The range [1024,49151] is defined for user ports.
 The remaining range [49152,65536] is reserved for dynamic ports.
 However, not all operating systems follow this standardization.
 Under certain circumstances, ports in the dynamic ports range may not be able to be used explicitly because the operating system prevents this.
 If a port cannot be bound, then this port is either in use by another program or the operating system prevents its use.
+If you set the local port to a value less than 1 via the block mask, then the generic target tells the operating system to select a random local port for you, which is usually in the range of dynamic ports.
 
 <div class="note-orange">
 <h3 class="note-orange">Application Port</h3>
@@ -95,10 +93,18 @@ The socket priority is only available if the target application runs on a linux 
 value has no effect.
 This value must be in range [0,6] and sets the protocol-defined priority for all packets to be sent on this socket.
 Linux uses this value to order the networking queues: packets with a higher priority may be processed first depending on the selected device queueing discipline.
-If different socket priorities are specified for the same socket (same port), then the largest value is selected.
 
 <h3>Allow Broadcast</h3>
 If broadcast is not allowed, then sending to a broadcast destination will result in an error (the result output will be negative).
-To allow broadcast messages to be sent you must explicitly enable it via the checkbox of the blockmask.
-Keep in mind that all parameters according to a socket must be unique, that is, if your model contains several UDP Send blocks related to the same internal socket (same port), all parameters must be identical.
-Otherwise the generic target application will report and error and is not going to start.
+To allow broadcast messages to be sent you must explicitly enable it via the checkbox of the block mask.
+
+<h3>Allow Zero-length Message</h3>
+In general, it is possible to send UDP messages without any payload, thus with zero length.
+However, by default, sending empty payload messages is disabled.
+If you want to allow it, then enable the corresponding checkbox in the block mask.
+
+<h3>Time-to-live (TTL)</h3>
+When sending multicast messages a TTL value is set which corresponds to a hop counter.
+Each time one of these packets passes through a multicast routing device, the TTL setting decrements by 1.
+If it falls below a threshold, the multicast routing device drops the message.
+

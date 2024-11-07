@@ -8,86 +8,23 @@ defs = [];
 
 
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% Driver: UDP Unicast Send
+% Driver: UDP Socket
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionGTDriverUDPUnicastSend';
-def.StartFcnSpec  = 'void GT_DriverUDPUnicastSendInitialize(uint16 p1, uint8 p2[4], int32 p3, uint8 p4, uint8 p5[], uint32 p6)';
-def.TerminateFcnSpec = 'void GT_DriverUDPUnicastSendTerminate()';
-def.OutputFcnSpec = 'void GT_DriverUDPUnicastSendStep(int32 y1[1], int32 y2[1], uint16 p1, uint16 u1[5], uint8 u2[], uint32 u3)';
-def.HeaderFiles   = {'GT_DriverUDPUnicastSend.hpp'};
-def.SourceFiles   = {'GT_DriverUDPUnicastSend.cpp','GT_SimulinkSupport.cpp'};
-def.IncPaths      = {''};
-def.SrcPaths      = {''};
-def.LibPaths      = {''};
-def.HostLibFiles  = {''};
+def.SFunctionName    = 'SFunctionGTDriverUDPSocket';
+def.StartFcnSpec     = 'void GT_DriverUDPSocketInitialize(int32 p1, uint8 p2[], uint32 p3, int32 p4, uint8 p5, uint8 p6, uint8 p7, uint8 p8, uint8 p9)';
+def.TerminateFcnSpec = 'void GT_DriverUDPSocketTerminate(int32 p1)';
+def.OutputFcnSpec    = 'void GT_DriverUDPSocketStep(int32 p1, uint8 p10, int32 p11, uint8 y1[p11], uint32 y2[1], uint8 y3[4], uint16 y4[1], int32 y5[1], int32 y6[1], uint8 u1[4], uint16 u2, uint8 u3[], uint32 u4, uint8 u5[], uint32 u6)';
+def.HeaderFiles      = {'GT_DriverUDPSocket.hpp'};
+def.SourceFiles      = {'GT_DriverUDPSocket.cpp','GT_SimulinkSupport.cpp'};
+def.IncPaths         = {''};
+def.SrcPaths         = {''};
+def.LibPaths         = {''};
+def.HostLibFiles     = {''};
+def.SampleTime       = 'parameterized';
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.Options.supportsMultipleExecInstances = true;
-def.SampleTime = 'parameterized';
-defs = [defs; def];
-
-
-% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% Driver: UDP Unicast Receive
-% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionGTDriverUDPUnicastReceive';
-def.StartFcnSpec  = 'void GT_DriverUDPUnicastReceiveInitialize(uint16 p1, uint8 p2[4], uint32 p3, int32 p4, uint32 p5, uint32 p6, uint8 p7[4], uint8 p8, uint8 p9[], uint32 p10, uint8 p11)';
-def.TerminateFcnSpec = 'void GT_DriverUDPUnicastReceiveTerminate()';
-def.OutputFcnSpec = 'void GT_DriverUDPUnicastReceiveStep(uint16 p1, uint32 p3, uint32 p5, uint16 y1[5*p5], uint8 y2[p3*p5], uint32 y3[p5], double y4[p5], uint32 y5[1], uint32 y6[1], int32 y7[1])';
-def.HeaderFiles   = {'GT_DriverUDPUnicastReceive.hpp'};
-def.SourceFiles   = {'GT_DriverUDPUnicastReceive.cpp','GT_SimulinkSupport.cpp'};
-def.IncPaths      = {''};
-def.SrcPaths      = {''};
-def.LibPaths      = {''};
-def.HostLibFiles  = {''};
-def.Options.language = 'C++';
-def.Options.useTlcWithAccel = false;
-def.Options.supportsMultipleExecInstances = true;
-def.SampleTime = 'parameterized';
-defs = [defs; def];
-
-
-% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% Driver: UDP Multicast Send
-% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionGTDriverUDPMulticastSend';
-def.StartFcnSpec  = 'void GT_DriverUDPMulticastSendInitialize(uint16 p1, uint8 p2[4], uint8 p3[4], uint8 p4[], uint32 p5, int32 p6, uint8 p7, uint8 p8)';
-def.TerminateFcnSpec = 'void GT_DriverUDPMulticastSendTerminate()';
-def.OutputFcnSpec = 'void GT_DriverUDPMulticastSendStep(int32 y1[1], int32 y2[1], uint16 p1, uint16 u1[5], uint8 u2[], uint32 u3)';
-def.HeaderFiles   = {'GT_DriverUDPMulticastSend.hpp'};
-def.SourceFiles   = {'GT_DriverUDPMulticastSend.cpp','GT_SimulinkSupport.cpp'};
-def.IncPaths      = {''};
-def.SrcPaths      = {''};
-def.LibPaths      = {''};
-def.HostLibFiles  = {''};
-def.Options.language = 'C++';
-def.Options.useTlcWithAccel = false;
-def.Options.supportsMultipleExecInstances = true;
-def.SampleTime = 'parameterized';
-defs = [defs; def];
-
-
-% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% Driver: UDP Multicast Receive
-% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionGTDriverUDPMulticastReceive';
-def.StartFcnSpec  = 'void GT_DriverUDPMulticastReceiveInitialize(uint16 p1, uint8 p2[4], uint8 p3[4], uint8 p4[], uint32 p5, uint32 p6, int32 p7, uint32 p8, uint32 p9, uint8 p10[4], uint8 p11, uint8 p12)';
-def.TerminateFcnSpec = 'void GT_DriverUDPMulticastReceiveTerminate()';
-def.OutputFcnSpec = 'void GT_DriverUDPMulticastReceiveStep(uint16 p1, uint32 p6, uint32 p8, uint16 y1[5*p8], uint8 y2[p6*p8], uint32 y3[p8], double y4[p8], uint32 y5[1], uint32 y6[1], int32 y7[1])';
-def.HeaderFiles   = {'GT_DriverUDPMulticastReceive.hpp'};
-def.SourceFiles   = {'GT_DriverUDPMulticastReceive.cpp','GT_SimulinkSupport.cpp'};
-def.IncPaths      = {''};
-def.SrcPaths      = {''};
-def.LibPaths      = {''};
-def.HostLibFiles  = {''};
-def.Options.language = 'C++';
-def.Options.useTlcWithAccel = false;
-def.Options.supportsMultipleExecInstances = true;
-def.SampleTime = 'parameterized';
 defs = [defs; def];
 
 
@@ -95,20 +32,20 @@ defs = [defs; def];
 % Driver: Model Execution Time
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionGTDriverModelExecutionTime';
-def.StartFcnSpec  = 'void GT_DriverModelExecutionTimeInitialize()';
+def.SFunctionName    = 'SFunctionGTDriverModelExecutionTime';
+def.StartFcnSpec     = 'void GT_DriverModelExecutionTimeInitialize()';
 def.TerminateFcnSpec = 'void GT_DriverModelExecutionTimeTerminate()';
-def.OutputFcnSpec = 'void GT_DriverModelExecutionTimeStep(double y1[1])';
-def.HeaderFiles   = {'GT_DriverModelExecutionTime.hpp'};
-def.SourceFiles   = {'GT_DriverModelExecutionTime.cpp','GT_SimulinkSupport.cpp'};
-def.IncPaths      = {''};
-def.SrcPaths      = {''};
-def.LibPaths      = {''};
-def.HostLibFiles  = {''};
+def.OutputFcnSpec    = 'void GT_DriverModelExecutionTimeStep(double y1[1])';
+def.HeaderFiles      = {'GT_DriverModelExecutionTime.hpp'};
+def.SourceFiles      = {'GT_DriverModelExecutionTime.cpp','GT_SimulinkSupport.cpp'};
+def.IncPaths         = {''};
+def.SrcPaths         = {''};
+def.LibPaths         = {''};
+def.HostLibFiles     = {''};
 def.Options.language = 'C++';
+def.SampleTime       = 'parameterized';
 def.Options.useTlcWithAccel = false;
 def.Options.supportsMultipleExecInstances = true;
-def.SampleTime = 'parameterized';
 defs = [defs; def];
 
 
@@ -116,20 +53,20 @@ defs = [defs; def];
 % Driver: Unix Time
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionGTDriverUnixTime';
-def.StartFcnSpec  = 'void GT_DriverUnixTimeInitialize()';
+def.SFunctionName    = 'SFunctionGTDriverUnixTime';
+def.StartFcnSpec     = 'void GT_DriverUnixTimeInitialize()';
 def.TerminateFcnSpec = 'void GT_DriverUnixTimeTerminate()';
-def.OutputFcnSpec = 'void GT_DriverUnixTimeStep(double y1[1])';
-def.HeaderFiles   = {'GT_DriverUnixTime.hpp'};
-def.SourceFiles   = {'GT_DriverUnixTime.cpp','GT_SimulinkSupport.cpp'};
-def.IncPaths      = {''};
-def.SrcPaths      = {''};
-def.LibPaths      = {''};
-def.HostLibFiles  = {''};
+def.OutputFcnSpec    = 'void GT_DriverUnixTimeStep(double y1[1])';
+def.HeaderFiles      = {'GT_DriverUnixTime.hpp'};
+def.SourceFiles      = {'GT_DriverUnixTime.cpp','GT_SimulinkSupport.cpp'};
+def.IncPaths         = {''};
+def.SrcPaths         = {''};
+def.LibPaths         = {''};
+def.HostLibFiles     = {''};
+def.SampleTime       = 'parameterized';
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.Options.supportsMultipleExecInstances = true;
-def.SampleTime = 'parameterized';
 defs = [defs; def];
 
 
@@ -137,20 +74,20 @@ defs = [defs; def];
 % Driver: UTC Timestamp
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionGTDriverUTCTimestamp';
-def.StartFcnSpec  = 'void GT_DriverUTCTimestampInitialize()';
+def.SFunctionName    = 'SFunctionGTDriverUTCTimestamp';
+def.StartFcnSpec     = 'void GT_DriverUTCTimestampInitialize()';
 def.TerminateFcnSpec = 'void GT_DriverUTCTimestampTerminate()';
-def.OutputFcnSpec = 'void GT_DriverUTCTimestampStep(double y1[1])';
-def.HeaderFiles   = {'GT_DriverUTCTimestamp.hpp'};
-def.SourceFiles   = {'GT_DriverUTCTimestamp.cpp','GT_SimulinkSupport.cpp'};
-def.IncPaths      = {''};
-def.SrcPaths      = {''};
-def.LibPaths      = {''};
-def.HostLibFiles  = {''};
+def.OutputFcnSpec    = 'void GT_DriverUTCTimestampStep(double y1[1])';
+def.HeaderFiles      = {'GT_DriverUTCTimestamp.hpp'};
+def.SourceFiles      = {'GT_DriverUTCTimestamp.cpp','GT_SimulinkSupport.cpp'};
+def.IncPaths         = {''};
+def.SrcPaths         = {''};
+def.LibPaths         = {''};
+def.HostLibFiles     = {''};
+def.SampleTime       = 'parameterized';
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.Options.supportsMultipleExecInstances = true;
-def.SampleTime = 'parameterized';
 defs = [defs; def];
 
 
@@ -158,20 +95,20 @@ defs = [defs; def];
 % Driver: UTC Time
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionGTDriverUTCTime';
-def.StartFcnSpec  = 'void GT_DriverUTCTimeInitialize()';
+def.SFunctionName    = 'SFunctionGTDriverUTCTime';
+def.StartFcnSpec     = 'void GT_DriverUTCTimeInitialize()';
 def.TerminateFcnSpec = 'void GT_DriverUTCTimeTerminate()';
-def.OutputFcnSpec = 'void GT_DriverUTCTimeStep(int32 y1[1], int32 y2[1], int32 y3[1], int32 y4[1], int32 y5[1], int32 y6[1], int32 y7[1], int32 y8[1], int32 y9[1], int32 y10[1])';
-def.HeaderFiles   = {'GT_DriverUTCTime.hpp'};
-def.SourceFiles   = {'GT_DriverUTCTime.cpp','GT_SimulinkSupport.cpp'};
-def.IncPaths      = {''};
-def.SrcPaths      = {''};
-def.LibPaths      = {''};
-def.HostLibFiles  = {''};
+def.OutputFcnSpec    = 'void GT_DriverUTCTimeStep(int32 y1[1], int32 y2[1], int32 y3[1], int32 y4[1], int32 y5[1], int32 y6[1], int32 y7[1], int32 y8[1], int32 y9[1], int32 y10[1])';
+def.HeaderFiles      = {'GT_DriverUTCTime.hpp'};
+def.SourceFiles      = {'GT_DriverUTCTime.cpp','GT_SimulinkSupport.cpp'};
+def.IncPaths         = {''};
+def.SrcPaths         = {''};
+def.LibPaths         = {''};
+def.HostLibFiles     = {''};
+def.SampleTime       = 'parameterized';
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.Options.supportsMultipleExecInstances = true;
-def.SampleTime = 'parameterized';
 defs = [defs; def];
 
 
@@ -179,20 +116,20 @@ defs = [defs; def];
 % Driver: Local Time
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionGTDriverLocalTime';
-def.StartFcnSpec  = 'void GT_DriverLocalTimeInitialize()';
+def.SFunctionName    = 'SFunctionGTDriverLocalTime';
+def.StartFcnSpec     = 'void GT_DriverLocalTimeInitialize()';
 def.TerminateFcnSpec = 'void GT_DriverLocalTimeTerminate()';
-def.OutputFcnSpec = 'void GT_DriverLocalTimeStep(int32 y1[1], int32 y2[1], int32 y3[1], int32 y4[1], int32 y5[1], int32 y6[1], int32 y7[1], int32 y8[1], int32 y9[1], int32 y10[1])';
-def.HeaderFiles   = {'GT_DriverLocalTime.hpp'};
-def.SourceFiles   = {'GT_DriverLocalTime.cpp','GT_SimulinkSupport.cpp'};
-def.IncPaths      = {''};
-def.SrcPaths      = {''};
-def.LibPaths      = {''};
-def.HostLibFiles  = {''};
+def.OutputFcnSpec    = 'void GT_DriverLocalTimeStep(int32 y1[1], int32 y2[1], int32 y3[1], int32 y4[1], int32 y5[1], int32 y6[1], int32 y7[1], int32 y8[1], int32 y9[1], int32 y10[1])';
+def.HeaderFiles      = {'GT_DriverLocalTime.hpp'};
+def.SourceFiles      = {'GT_DriverLocalTime.cpp','GT_SimulinkSupport.cpp'};
+def.IncPaths         = {''};
+def.SrcPaths         = {''};
+def.LibPaths         = {''};
+def.HostLibFiles     = {''};
+def.SampleTime       = 'parameterized';
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.Options.supportsMultipleExecInstances = true;
-def.SampleTime = 'parameterized';
 defs = [defs; def];
 
 
@@ -200,20 +137,20 @@ defs = [defs; def];
 % Driver: Data Recorder (Scalar Doubles)
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionGTDriverDataRecorderScalarDoubles';
-def.StartFcnSpec  = 'void GT_DriverDataRecorderScalarDoublesInitialize(uint8 p1[], uint32 p2, uint8 p3[], uint32 p4, uint32 p5, uint32 p6)';
+def.SFunctionName    = 'SFunctionGTDriverDataRecorderScalarDoubles';
+def.StartFcnSpec     = 'void GT_DriverDataRecorderScalarDoublesInitialize(uint8 p1[], uint32 p2, uint8 p3[], uint32 p4, uint32 p5, uint32 p6)';
 def.TerminateFcnSpec = 'void GT_DriverDataRecorderScalarDoublesTerminate()';
-def.OutputFcnSpec = 'void GT_DriverDataRecorderScalarDoublesStep(uint8 p1[], uint32 p2, double u1, double u2[], uint32 p5)';
-def.HeaderFiles   = {'GT_DriverDataRecorderScalarDoubles.hpp'};
-def.SourceFiles   = {'GT_DriverDataRecorderScalarDoubles.cpp','GT_SimulinkSupport.cpp'};
-def.IncPaths      = {''};
-def.SrcPaths      = {''};
-def.LibPaths      = {''};
-def.HostLibFiles  = {''};
+def.OutputFcnSpec    = 'void GT_DriverDataRecorderScalarDoublesStep(uint8 p1[], uint32 p2, double u1, double u2[], uint32 p5)';
+def.HeaderFiles      = {'GT_DriverDataRecorderScalarDoubles.hpp'};
+def.SourceFiles      = {'GT_DriverDataRecorderScalarDoubles.cpp','GT_SimulinkSupport.cpp'};
+def.IncPaths         = {''};
+def.SrcPaths         = {''};
+def.LibPaths         = {''};
+def.HostLibFiles     = {''};
+def.SampleTime       = 'parameterized';
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.Options.supportsMultipleExecInstances = true;
-def.SampleTime = 'parameterized';
 defs = [defs; def];
 
 
@@ -221,20 +158,20 @@ defs = [defs; def];
 % Driver: Data Recorder (Bus)
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionGTDriverDataRecorderBus';
-def.StartFcnSpec  = 'void GT_DriverDataRecorderBusInitialize(uint8 p1[], uint32 p2, uint32 p3, uint32 p4, uint8 p5[], uint32 p6, uint8 p7[], uint32 p8, uint8 p9[], uint32 p10)';
+def.SFunctionName    = 'SFunctionGTDriverDataRecorderBus';
+def.StartFcnSpec     = 'void GT_DriverDataRecorderBusInitialize(uint8 p1[], uint32 p2, uint32 p3, uint32 p4, uint8 p5[], uint32 p6, uint8 p7[], uint32 p8, uint8 p9[], uint32 p10)';
 def.TerminateFcnSpec = 'void GT_DriverDataRecorderBusTerminate()';
-def.OutputFcnSpec = 'void GT_DriverDataRecorderBusStep(uint8 p1[], uint32 p2, double u1, uint8 u2[p4], uint32 p4)';
-def.HeaderFiles   = {'GT_DriverDataRecorderBus.hpp'};
-def.SourceFiles   = {'GT_DriverDataRecorderBus.cpp','GT_SimulinkSupport.cpp'};
-def.IncPaths      = {''};
-def.SrcPaths      = {''};
-def.LibPaths      = {''};
-def.HostLibFiles  = {''};
+def.OutputFcnSpec    = 'void GT_DriverDataRecorderBusStep(uint8 p1[], uint32 p2, double u1, uint8 u2[p4], uint32 p4)';
+def.HeaderFiles      = {'GT_DriverDataRecorderBus.hpp'};
+def.SourceFiles      = {'GT_DriverDataRecorderBus.cpp','GT_SimulinkSupport.cpp'};
+def.IncPaths         = {''};
+def.SrcPaths         = {''};
+def.LibPaths         = {''};
+def.HostLibFiles     = {''};
+def.SampleTime       = 'parameterized';
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.Options.supportsMultipleExecInstances = true;
-def.SampleTime = 'parameterized';
 defs = [defs; def];
 
 
@@ -242,20 +179,20 @@ defs = [defs; def];
 % Driver: Task Execution Time
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionGTDriverTaskExecutionTime';
-def.StartFcnSpec  = 'void GT_DriverTaskExecutionTimeInitialize()';
+def.SFunctionName    = 'SFunctionGTDriverTaskExecutionTime';
+def.StartFcnSpec     = 'void GT_DriverTaskExecutionTimeInitialize()';
 def.TerminateFcnSpec = 'void GT_DriverTaskExecutionTimeTerminate()';
-def.OutputFcnSpec = 'void GT_DriverTaskExecutionTimeStep(double y1[1], uint8 p1[], uint32 p2)';
-def.HeaderFiles   = {'GT_DriverTaskExecutionTime.hpp'};
-def.SourceFiles   = {'GT_DriverTaskExecutionTime.cpp','GT_SimulinkSupport.cpp'};
-def.IncPaths      = {''};
-def.SrcPaths      = {''};
-def.LibPaths      = {''};
-def.HostLibFiles  = {''};
+def.OutputFcnSpec    = 'void GT_DriverTaskExecutionTimeStep(double y1[1], uint8 p1[], uint32 p2)';
+def.HeaderFiles      = {'GT_DriverTaskExecutionTime.hpp'};
+def.SourceFiles      = {'GT_DriverTaskExecutionTime.cpp','GT_SimulinkSupport.cpp'};
+def.IncPaths         = {''};
+def.SrcPaths         = {''};
+def.LibPaths         = {''};
+def.HostLibFiles     = {''};
+def.SampleTime       = 'parameterized';
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.Options.supportsMultipleExecInstances = true;
-def.SampleTime = 'parameterized';
 defs = [defs; def];
 
 
@@ -263,20 +200,20 @@ defs = [defs; def];
 % Driver: Number of task overloads
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionGTDriverNumTaskOverloads';
-def.StartFcnSpec  = 'void GT_DriverNumTaskOverloadsInitialize()';
+def.SFunctionName    = 'SFunctionGTDriverNumTaskOverloads';
+def.StartFcnSpec     = 'void GT_DriverNumTaskOverloadsInitialize()';
 def.TerminateFcnSpec = 'void GT_DriverNumTaskOverloadsTerminate()';
-def.OutputFcnSpec = 'void GT_DriverNumTaskOverloadsStep(uint64 y1[1], uint8 p1[], uint32 p2)';
-def.HeaderFiles   = {'GT_DriverNumTaskOverloads.hpp'};
-def.SourceFiles   = {'GT_DriverNumTaskOverloads.cpp','GT_SimulinkSupport.cpp'};
-def.IncPaths      = {''};
-def.SrcPaths      = {''};
-def.LibPaths      = {''};
-def.HostLibFiles  = {''};
+def.OutputFcnSpec    = 'void GT_DriverNumTaskOverloadsStep(uint64 y1[1], uint8 p1[], uint32 p2)';
+def.HeaderFiles      = {'GT_DriverNumTaskOverloads.hpp'};
+def.SourceFiles      = {'GT_DriverNumTaskOverloads.cpp','GT_SimulinkSupport.cpp'};
+def.IncPaths         = {''};
+def.SrcPaths         = {''};
+def.LibPaths         = {''};
+def.HostLibFiles     = {''};
+def.SampleTime       = 'parameterized';
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.Options.supportsMultipleExecInstances = true;
-def.SampleTime = 'parameterized';
 defs = [defs; def];
 
 
@@ -284,20 +221,20 @@ defs = [defs; def];
 % Driver: Number of CPU overloads
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionGTDriverNumCPUOverloads';
-def.StartFcnSpec  = 'void GT_DriverNumCPUOverloadsInitialize()';
+def.SFunctionName    = 'SFunctionGTDriverNumCPUOverloads';
+def.StartFcnSpec     = 'void GT_DriverNumCPUOverloadsInitialize()';
 def.TerminateFcnSpec = 'void GT_DriverNumCPUOverloadsTerminate()';
-def.OutputFcnSpec = 'void GT_DriverNumCPUOverloadsStep(uint64 y1[1], uint64 y2[1])';
-def.HeaderFiles   = {'GT_DriverNumCPUOverloads.hpp'};
-def.SourceFiles   = {'GT_DriverNumCPUOverloads.cpp','GT_SimulinkSupport.cpp'};
-def.IncPaths      = {''};
-def.SrcPaths      = {''};
-def.LibPaths      = {''};
-def.HostLibFiles  = {''};
+def.OutputFcnSpec    = 'void GT_DriverNumCPUOverloadsStep(uint64 y1[1], uint64 y2[1])';
+def.HeaderFiles      = {'GT_DriverNumCPUOverloads.hpp'};
+def.SourceFiles      = {'GT_DriverNumCPUOverloads.cpp','GT_SimulinkSupport.cpp'};
+def.IncPaths         = {''};
+def.SrcPaths         = {''};
+def.LibPaths         = {''};
+def.HostLibFiles     = {''};
+def.SampleTime       = 'parameterized';
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.Options.supportsMultipleExecInstances = true;
-def.SampleTime = 'parameterized';
 defs = [defs; def];
 
 
@@ -305,20 +242,20 @@ defs = [defs; def];
 % Driver: Stop Execution
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
-def.SFunctionName = 'SFunctionGTDriverStopExecution';
-def.StartFcnSpec  = 'void GT_DriverStopExecutionInitialize()';
+def.SFunctionName    = 'SFunctionGTDriverStopExecution';
+def.StartFcnSpec     = 'void GT_DriverStopExecutionInitialize()';
 def.TerminateFcnSpec = 'void GT_DriverStopExecutionTerminate()';
-def.OutputFcnSpec = 'void GT_DriverStopExecutionStep(uint8 u1)';
-def.HeaderFiles   = {'GT_DriverStopExecution.hpp'};
-def.SourceFiles   = {'GT_DriverStopExecution.cpp','GT_SimulinkSupport.cpp'};
-def.IncPaths      = {''};
-def.SrcPaths      = {''};
-def.LibPaths      = {''};
-def.HostLibFiles  = {''};
+def.OutputFcnSpec    = 'void GT_DriverStopExecutionStep(uint8 u1)';
+def.HeaderFiles      = {'GT_DriverStopExecution.hpp'};
+def.SourceFiles      = {'GT_DriverStopExecution.cpp','GT_SimulinkSupport.cpp'};
+def.IncPaths         = {''};
+def.SrcPaths         = {''};
+def.LibPaths         = {''};
+def.HostLibFiles     = {''};
+def.SampleTime       = 'parameterized';
 def.Options.language = 'C++';
 def.Options.useTlcWithAccel = false;
 def.Options.supportsMultipleExecInstances = true;
-def.SampleTime = 'parameterized';
 defs = [defs; def];
 
 
@@ -356,10 +293,8 @@ if(useSimulinkSupport)
     fprintf('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n S I M U L I N K   S U P P O R T\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
     fprintf('\tBLOCK                                    SUPPORTED\n');
     fprintf('\t---------------------------------------------------\n');
-    fprintf('\tInterface/UDP Send                       partially (*)\n');
-    fprintf('\tInterface/UDP Receive                    partially (*)\n');
-    fprintf('\tInterface/Multicast UDP Send             partially (*)\n');
-    fprintf('\tInterface/Multicast UDP Receive          partially (*)\n');
+    fprintf('\tInterface/UDP Send                       yes(*)\n');
+    fprintf('\tInterface/UDP Receive                    yes(*)\n');
     fprintf('\tInterface/Write Scalar Doubles To File   no\n');
     fprintf('\tInterface/Write Bus To File              no\n');
     fprintf('\tInterface/Stop Execution                 no\n');
@@ -372,7 +307,7 @@ if(useSimulinkSupport)
     fprintf('\tTime/CPU Overloads                       no\n');
     fprintf('\tTime/UTC Timestamp                       yes\n');
     fprintf('\tTime/Time To Latest UTC Timestamp        yes\n');
-    fprintf('\t---------------------------------------------------\n(*) UDP interface blocks are only supported for unique local ports (multicast usually works as expected)!\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n');
+    fprintf('\t---------------------------------------------------\n(*) Some socket options are not available or may behave different under windows!\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n');
 end
 
 % Clean up

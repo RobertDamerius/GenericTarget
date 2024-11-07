@@ -200,9 +200,9 @@
     <h3>Isolating CPU cores</h3>
     The target application can be pinned to specific CPU cores.
     Via the GRUB bootloader menu, CPU cores can be isolated with the <code>isolcpus</code> option, which are then not occupied by operating system processes.
-    These cores are then free.
     In this way, it is possible to restrict the operating system to certain cores and have the target application run on those isolated cores.
     For example, on an 8 cores CPU, you can leave core 0 and 1 to the OS and isolate core 2 to 7 by modifying the GRUB command line option as follows:
     <pre>GRUB_CMDLINE_LINUX_DEFAULT="isolcpus=2-7"</pre>
     If you make changes to the bootloader menu, don't forget to run <code>sudo update-grub</code>.
     Reboot the target.
+
