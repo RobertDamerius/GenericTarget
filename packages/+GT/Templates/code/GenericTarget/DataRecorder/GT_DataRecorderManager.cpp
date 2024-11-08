@@ -96,7 +96,7 @@ std::string DataRecorderManager::GenerateFileName(std::string id){
 }
 
 bool DataRecorderManager::CreateAllDataRecorders(void){
-    if(!created && !registrationError && !dataRecorders.empty()){
+    if(!created && !dataRecorders.empty()){
         if(!CreateDataRecordingDirectory()){
             DestroyAllDataRecorders();
             return false;
@@ -105,9 +105,9 @@ bool DataRecorderManager::CreateAllDataRecorders(void){
             DestroyAllDataRecorders();
             return false;
         }
-        created = true;
     }
-    return created;
+    created = true;
+    return created && !registrationError;
 }
 
 void DataRecorderManager::DestroyAllDataRecorders(void){
