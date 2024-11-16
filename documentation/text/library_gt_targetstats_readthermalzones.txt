@@ -1,0 +1,28 @@
+<h1>Read Thermal Zones</h1>
+<h3>Library</h3>
+<span style="font-family: Courier New">GenericTarget / Target Stats / Read Thermal Zones</span>
+
+
+<h3>Description</h3>
+Read all temperature values from "/sys/class/thermal/thermal_zone[i]/temp" with [i] being the index of the thermal zone.
+The maximum number of thermal zones to read from is specified via the mask parameter.
+The output dimension is equal to that number.
+If a thermal zone does not exist, NaN is returned for the corresponding index.
+
+
+<h2>Output Ports</h2>
+<h3>temperatures</h3>
+N-dimensional vector of temperatures for N thermal zones in degree Celsius.
+If a thermal zone is not available or contains no temperature information, NaN is returned for the corresponding thermal zone.
+<br>
+<b>Data Type:</b> <span style="font-family: Courier New">double</span>
+
+
+<h2>Block Parameters</h2>
+The following table shows all block parameters.
+<table>
+    <tr><th>Parameter Name</th><th>Description</th></tr>
+    <tr><td style="font-family: Courier New;">maxNumThermalZones</td><td>The maximum number of thermal zones to read. This value sets the output port dimension.</td></tr>
+    <tr><td style="font-family: Courier New;">SampleTime</td><td>Sampletime.</td></tr>
+</table>
+

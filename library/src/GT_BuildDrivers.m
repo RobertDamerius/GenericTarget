@@ -260,6 +260,27 @@ defs = [defs; def];
 
 
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Driver: Read Thermal Zones
+% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def = legacy_code('initialize');
+def.SFunctionName    = 'SFunctionGTDriverReadThermalZones';
+def.StartFcnSpec     = 'void GT_DriverReadThermalZonesInitialize()';
+def.TerminateFcnSpec = 'void GT_DriverReadThermalZonesTerminate()';
+def.OutputFcnSpec    = 'void GT_DriverReadThermalZonesStep(uint32 p1, double y1[p1])';
+def.HeaderFiles      = {'GT_DriverReadThermalZones.hpp'};
+def.SourceFiles      = {'GT_DriverReadThermalZones.cpp'};
+def.IncPaths         = {''};
+def.SrcPaths         = {''};
+def.LibPaths         = {''};
+def.HostLibFiles     = {''};
+def.SampleTime       = 'parameterized';
+def.Options.language = 'C++';
+def.Options.useTlcWithAccel = false;
+def.Options.supportsMultipleExecInstances = true;
+defs = [defs; def];
+
+
+% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % Compile and generate all required files
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % Generate SFunctions
@@ -298,6 +319,7 @@ if(useSimulinkSupport)
     fprintf('\tInterface/Write Scalar Doubles To File   no\n');
     fprintf('\tInterface/Write Bus To File              no\n');
     fprintf('\tInterface/Stop Execution                 no\n');
+    fprintf('\tTarget Stats/Read Thermal Zones          yes(**)\n');
     fprintf('\tTime/Model Execution Time                yes\n');
     fprintf('\tTime/UNIX Time                           yes\n');
     fprintf('\tTime/UTC Time                            yes\n');
@@ -307,7 +329,7 @@ if(useSimulinkSupport)
     fprintf('\tTime/CPU Overloads                       no\n');
     fprintf('\tTime/UTC Timestamp                       yes\n');
     fprintf('\tTime/Time To Latest UTC Timestamp        yes\n');
-    fprintf('\t---------------------------------------------------\n(*) Some socket options are not available or may behave different under windows!\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n');
+    fprintf('\t---------------------------------------------------\n(*) Some socket options are not available or may behave different under windows!\n(**) Only for linux!\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n');
 end
 
 % Clean up

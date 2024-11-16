@@ -66,6 +66,7 @@
         <tr><td>Interface/Write Scalar Doubles To File</td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
         <tr><td>Interface/Write Bus To File           </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
         <tr><td>Interface/Stop Execution              </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
+        <tr><td>Target Stats/Read Thermal Zones       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK<span style="color: #000;"><b>**</b></span></td></tr>
         <tr><td>Time/Model Execution Time             </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
         <tr><td>Time/UNIX Time                        </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
         <tr><td>Time/UTC Time                         </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
@@ -79,6 +80,9 @@
     <b>*</b>
     These blocks behave different during simulation with Simulink under the windows operating system.
     Some socket options are not available for windows sockets or may have a different effect than on a linux target.
+    <br>
+    <b>**</b>
+    During simulation, these blocks only work under the linux operatin system.
     </div>
     At the moment only <b>gcc</b> (Linux) and <b>MSYS2/MinGW64</b> (Windows) are supported as compilers to create blocks with Simulink support.
     For compilers that are not yet supported, the Simulink support option can be skipped.
