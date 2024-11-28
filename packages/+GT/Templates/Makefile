@@ -99,8 +99,8 @@ SHARED_OBJECTS = $(call rwildcard,$(DIRECTORY_SOURCE),*.so)
 DIRECTORY_ALL := $(dir $(call rwildcard,$(DIRECTORY_SOURCE),.))
 
 # Add header directories and library directories to related paths
-INCLUDE_PATHS += -I/usr/local/include $(addprefix -I,$(DIRECTORY_ALL))
-LIBRARY_PATHS += -L/usr/local/lib $(addprefix -L,$(DIRECTORY_ALL))
+INCLUDE_PATHS = -I/usr/local/include $TARGET_MAKEFILE_INCLUDE_PATHS$ $(addprefix -I,$(DIRECTORY_ALL))
+LIBRARY_PATHS = -L/usr/local/lib $TARGET_MAKEFILE_LIBRARY_PATHS$ $(addprefix -L,$(DIRECTORY_ALL))
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -36,6 +36,8 @@ Detailed information is given afterwards.
 <tr><td style="font-family: Courier New;"><a href="#CC_FLAGS">additionalCompilerFlags.CC_FLAGS</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional flags to be set when compiling C source files.</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#CPP_FLAGS">additionalCompilerFlags.CPP_FLAGS</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional flags to be set when compiling C++ source files.</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#LD_FLAGS">additionalCompilerFlags.LD_FLAGS</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional flags to be set when linking the application.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#INCLUDE_PATHS">additionalCompilerFlags.INCLUDE_PATHS</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional include paths to be set when compiling source files.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#LIBRARY_PATHS">additionalCompilerFlags.LIBRARY_PATHS</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional library paths to be set when linking the application.</td></tr>
 </table>
 
 <br><br>
@@ -192,6 +194,22 @@ This flag specifies additional linker flags to be used when the target applicati
 All flags are given as
 <pre>-Wall -Wextra -Wno-format-security -mtune=native $TARGET_MAKEFILE_LD_FLAGS$</pre>
 where the expression <code>$TARGET_MAKEFILE_LD_FLAGS$</code> is replaced by the additional linker flags.
+
+<br><br>
+<a name="INCLUDE_PATHS"></a>
+<h3>additionalCompilerFlags.INCLUDE_PATHS</h3>
+This value specifies additional include paths to be set when compiling source files.
+All include paths are given as
+<pre>-I/usr/local/include $TARGET_MAKEFILE_INCLUDE_PATHS$</pre>
+where the expression <code>$TARGET_MAKEFILE_INCLUDE_PATHS$</code> is replaced by the additional paths.
+
+<br><br>
+<a name="LIBRARY_PATHS"></a>
+<h3>additionalCompilerFlags.LIBRARY_PATHS</h3>
+This value specifies additional library paths to be set when the target application is linked.
+All library paths are given as
+<pre>-L/usr/local/lib $TARGET_MAKEFILE_LIBRARY_PATHS$</pre>
+where the expression <code>$TARGET_MAKEFILE_LIBRARY_PATHS$</code> is replaced by the additional paths.
 
 <br><br>
 <a name="objectfunctions"></a>

@@ -77,6 +77,8 @@ classdef GenericTarget < handle
             this.additionalCompilerFlags.CC_FLAGS = cell.empty();
             this.additionalCompilerFlags.CPP_FLAGS = cell.empty();
             this.additionalCompilerFlags.LD_FLAGS = cell.empty();
+            this.additionalCompilerFlags.INCLUDE_PATHS = cell.empty();
+            this.additionalCompilerFlags.LIBRARY_PATHS = cell.empty();
         end
         function commands = Deploy(this, modelName)
             %GT.GenericTarget.Deploy Deploy the target application. The code for the simulink model will be generated. In addition a simulink
@@ -520,6 +522,8 @@ classdef GenericTarget < handle
             strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_CC_FLAGS$', strjoin(this.additionalCompilerFlags.CC_FLAGS));
             strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_CPP_FLAGS$', strjoin(this.additionalCompilerFlags.CPP_FLAGS));
             strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_LD_FLAGS$', strjoin(this.additionalCompilerFlags.LD_FLAGS));
+            strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_INCLUDE_PATHS$', strjoin(this.additionalCompilerFlags.INCLUDE_PATHS));
+            strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_LIBRARY_PATHS$', strjoin(this.additionalCompilerFlags.LIBRARY_PATHS));
 
             % Write Makefile to release folder
             fidMakefile = fopen(dstMakefile,'w');
@@ -878,6 +882,10 @@ classdef GenericTarget < handle
             this.additionalCompilerFlags.CPP_FLAGS = unique(this.additionalCompilerFlags.CPP_FLAGS);
             assert(iscellstr(this.additionalCompilerFlags.LD_FLAGS), 'Property "additionalCompilerFlags.LD_FLAGS" must be a cell array of strings!');
             this.additionalCompilerFlags.LD_FLAGS = unique(this.additionalCompilerFlags.LD_FLAGS);
+            assert(iscellstr(this.additionalCompilerFlags.INCLUDE_PATHS), 'Property "additionalCompilerFlags.INCLUDE_PATHS" must be a cell array of strings!');
+            this.additionalCompilerFlags.INCLUDE_PATHS = unique(this.additionalCompilerFlags.INCLUDE_PATHS);
+            assert(iscellstr(this.additionalCompilerFlags.LIBRARY_PATHS), 'Property "additionalCompilerFlags.LIBRARY_PATHS" must be a cell array of strings!');
+            this.additionalCompilerFlags.LIBRARY_PATHS = unique(this.additionalCompilerFlags.LIBRARY_PATHS);
         end
         function cmdout = RunCommand(this, cmd)
             [~,cmdout] = system(cmd,'-echo');
