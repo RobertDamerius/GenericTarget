@@ -255,25 +255,28 @@ class UDPSocket {
          * @brief Set the network interface to be used for sending multicast traffic.
          * @param[in] ipGroup IPv4 address of the group to be joined.
          * @param[in] interfaceName Name of the related interface.
+         * @param[in] multicastInterfaceAddress The IP address of the interface to be used for multicast messages.
          * @return Result of the internal setsockopt() function call.
          */
-        int32_t SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::string interfaceName);
+        int32_t SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::string interfaceName, std::array<uint8_t,4> multicastInterfaceAddress);
 
         /**
          * @brief Join a multicast group at a specific network interface.
          * @param[in] ipGroup IPv4 address of the group to be joined.
          * @param[in] interfaceName Name of the related interface.
+         * @param[in] multicastInterfaceAddress The IP address of the interface to be used for multicast messages.
          * @return Result of the internal setsockopt() function call.
          */
-        int32_t JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName);
+        int32_t JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName, std::array<uint8_t,4> multicastInterfaceAddress);
 
         /**
          * @brief Leave a multicast group on a given network interface.
          * @param[in] ipGroup IPv4 address of the group to be left.
          * @param[in] interfaceName Name of the related interface.
+         * @param[in] multicastInterfaceAddress The IP address of the interface to be used for multicast messages.
          * @return Result of the internal setsockopt() function call.
          */
-        int32_t LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName);
+        int32_t LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName, std::array<uint8_t,4> multicastInterfaceAddress);
 
         /**
          * @brief Set time-to-live multicast messages.
@@ -340,12 +343,13 @@ class UDPSocket {
          * @brief Convert the given group and interface specification to an ip_mreq structure, depending on the operating system.
          * @param[in] ipGroup IPv4 group address.
          * @param[in] interfaceName Name of the interface.
+         * @param[in] multicastInterfaceAddress The IP address of the interface to be used for multicast messages.
          * @return ip_mreq structure under windows and ip_mreqn under linux.
          */
         #ifdef _WIN32
-        struct ip_mreq ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName);
+        struct ip_mreq ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName, std::array<uint8_t,4> multicastInterfaceAddress);
         #else
-        struct ip_mreqn ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName);
+        struct ip_mreqn ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName, std::array<uint8_t,4> multicastInterfaceAddress);
         #endif
 };
 
@@ -355,14 +359,15 @@ class UDPSocket {
  */
 class UDPServiceConfiguration {
     public:
-        int32_t port;                           // The port to be bound to the UDP socket. Values less than 1 indicate a dynamic port. This value is also used as a unique key.
-        std::string deviceName;                 // The device name to which the socket should be bound, if this string is non-empty.
-        int32_t socketPriority;                 // The socket priority in range [0 (lowest), 6 (highest)] to be set for the UDP socket.
-        bool allowBroadcast;                    // True if broadcast messages are allowed to be sent, false otherwise.
-        bool allowZeroLengthMessage;            // True if zero-length messages should be allowed, false otherwise.
-        bool multicastAll;                      // True if IP_MULTICAST_ALL option should be set, false otherwise.
-        bool multicastLoop;                     // True if IP_MULTICAST_LOOP option should be set, false otherwise.
-        uint8_t multicastTTL;                   // Time-to-live for multicast messages.
+        int32_t port;                                      // The port to be bound to the UDP socket. Values less than 1 indicate a dynamic port. This value is also used as a unique key.
+        std::string deviceName;                            // The device name to which the socket should be bound, if this string is non-empty.
+        int32_t socketPriority;                            // The socket priority in range [0 (lowest), 6 (highest)] to be set for the UDP socket.
+        bool allowBroadcast;                               // True if broadcast messages are allowed to be sent, false otherwise.
+        bool allowZeroLengthMessage;                       // True if zero-length messages should be allowed, false otherwise.
+        bool multicastAll;                                 // True if IP_MULTICAST_ALL option should be set, false otherwise.
+        bool multicastLoop;                                // True if IP_MULTICAST_LOOP option should be set, false otherwise.
+        uint8_t multicastTTL;                              // Time-to-live for multicast messages.
+        std::array<uint8_t,4> multicastInterfaceAddress;   // The IP address of the interface to be used for multicast messages.
 
         /**
          * @brief Construct a new UDP service configuration object and set default values.
@@ -458,7 +463,7 @@ class UDPService {
         bool configurationAssigned;                                 // True if configuration has been assigned via @ref UpdateConfiguration, false otherwise.
         int32_t latestErrorCode;                                    // Stores the latest socket error code.
         UDPSocket udpSocket;                                        // Internal socket object for UDP operation.
-        UDPServiceConfiguration conf;                               // Configuration that has been set by @ref Initialize.
+        UDPServiceConfiguration conf;                               // Configuration that has been set by @ref AssignConfiguration.
         std::vector<std::array<uint8_t,4>> currentlyJoinedGroups;   // List of successfully joined multicast groups.
         std::mutex mtxSocket;                                       // Protect the @ref udpSocket.
 

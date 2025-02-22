@@ -15,8 +15,9 @@
  * @param[in] multicastAll 1 if IP_MULTICAST_ALL option should be set, 0 otherwise.
  * @param[in] multicastLoop 1 if IP_MULTICAST_LOOP option should be set, 0 otherwise.
  * @param[in] multicastTTL Time-to-live for multicast messages.
+ * @param[in] multicastInterfaceAddress The IP address of the interface to be used for multicast messages.
  */
-extern void GT_DriverUDPSocketInitialize(int32_t port, uint8_t* deviceName, uint32_t deviceNameLength, int32_t socketPriority, uint8_t allowBroadcast, uint8_t allowZeroLengthMessage, uint8_t multicastAll, uint8_t multicastLoop, uint8_t multicastTTL);
+extern void GT_DriverUDPSocketInitialize(int32_t port, uint8_t* deviceName, uint32_t deviceNameLength, int32_t socketPriority, uint8_t allowBroadcast, uint8_t allowZeroLengthMessage, uint8_t multicastAll, uint8_t multicastLoop, uint8_t multicastTTL, uint8_t* multicastInterfaceAddress);
 
 /**
  * @brief Terminate the driver.

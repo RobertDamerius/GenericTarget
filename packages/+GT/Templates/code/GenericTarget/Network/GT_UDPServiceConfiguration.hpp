@@ -12,14 +12,15 @@ namespace gt {
  */
 class UDPServiceConfiguration {
     public:
-        int32_t port;                           // The port to be bound to the UDP socket. Values less than 1 indicate a dynamic port. This value is also used as a unique key.
-        std::string deviceName;                 // The device name to which the socket should be bound, if this string is non-empty.
-        int32_t socketPriority;                 // The socket priority in range [0 (lowest), 6 (highest)] to be set for the UDP socket.
-        bool allowBroadcast;                    // True if broadcast messages are allowed to be sent, false otherwise.
-        bool allowZeroLengthMessage;            // True if zero-length messages should be allowed, false otherwise.
-        bool multicastAll;                      // True if IP_MULTICAST_ALL option should be set, false otherwise.
-        bool multicastLoop;                     // True if IP_MULTICAST_LOOP option should be set, false otherwise.
-        uint8_t multicastTTL;                   // Time-to-live for multicast messages.
+        int32_t port;                                      // The port to be bound to the UDP socket. Values less than 1 indicate a dynamic port. This value is also used as a unique key.
+        std::string deviceName;                            // The device name to which the socket should be bound, if this string is non-empty.
+        int32_t socketPriority;                            // The socket priority in range [0 (lowest), 6 (highest)] to be set for the UDP socket.
+        bool allowBroadcast;                               // True if broadcast messages are allowed to be sent, false otherwise.
+        bool allowZeroLengthMessage;                       // True if zero-length messages should be allowed, false otherwise.
+        bool multicastAll;                                 // True if IP_MULTICAST_ALL option should be set, false otherwise.
+        bool multicastLoop;                                // True if IP_MULTICAST_LOOP option should be set, false otherwise.
+        uint8_t multicastTTL;                              // Time-to-live for multicast messages.
+        std::array<uint8_t,4> multicastInterfaceAddress;   // The IP address of the interface to be used for multicast messages.
 
         /**
          * @brief Construct a new UDP service configuration object and set default values.

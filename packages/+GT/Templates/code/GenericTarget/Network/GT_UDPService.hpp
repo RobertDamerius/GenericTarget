@@ -78,7 +78,7 @@ class UDPService {
         bool configurationAssigned;                                 // True if configuration has been assigned via @ref UpdateConfiguration, false otherwise.
         int32_t latestErrorCode;                                    // Stores the latest socket error code.
         UDPSocket udpSocket;                                        // Internal socket object for UDP operation.
-        UDPServiceConfiguration conf;                               // Configuration that has been set by @ref Initialize.
+        UDPServiceConfiguration conf;                               // Configuration that has been set by @ref AssignConfiguration.
         std::vector<std::array<uint8_t,4>> currentlyJoinedGroups;   // List of successfully joined multicast groups.
         std::mutex mtxSocket;                                       // Protect the @ref udpSocket.
 

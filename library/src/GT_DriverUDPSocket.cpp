@@ -9,7 +9,7 @@
 #endif
 
 
-void GT_DriverUDPSocketInitialize(int32_t port, uint8_t* deviceName, uint32_t deviceNameLength, int32_t socketPriority, uint8_t allowBroadcast, uint8_t allowZeroLengthMessage, uint8_t multicastAll, uint8_t multicastLoop, uint8_t multicastTTL){
+void GT_DriverUDPSocketInitialize(int32_t port, uint8_t* deviceName, uint32_t deviceNameLength, int32_t socketPriority, uint8_t allowBroadcast, uint8_t allowZeroLengthMessage, uint8_t multicastAll, uint8_t multicastLoop, uint8_t multicastTTL, uint8_t* multicastInterfaceAddress){
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
         gt::UDPServiceConfiguration conf;
         conf.port = port;
@@ -26,6 +26,10 @@ void GT_DriverUDPSocketInitialize(int32_t port, uint8_t* deviceName, uint32_t de
         conf.multicastAll = static_cast<bool>(multicastAll);
         conf.multicastLoop = static_cast<bool>(multicastLoop);
         conf.multicastTTL = multicastTTL;
+        conf.multicastInterfaceAddress[0] = multicastInterfaceAddress[0];
+        conf.multicastInterfaceAddress[1] = multicastInterfaceAddress[1];
+        conf.multicastInterfaceAddress[2] = multicastInterfaceAddress[2];
+        conf.multicastInterfaceAddress[3] = multicastInterfaceAddress[3];
         gt::GenericTarget::udpManager.Register(port, conf);
     #elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
         gt_simulink_support::GenericTarget::InitializeNetworkOnWindows();
@@ -44,6 +48,10 @@ void GT_DriverUDPSocketInitialize(int32_t port, uint8_t* deviceName, uint32_t de
         conf.multicastAll = static_cast<bool>(multicastAll);
         conf.multicastLoop = static_cast<bool>(multicastLoop);
         conf.multicastTTL = multicastTTL;
+        conf.multicastInterfaceAddress[0] = multicastInterfaceAddress[0];
+        conf.multicastInterfaceAddress[1] = multicastInterfaceAddress[1];
+        conf.multicastInterfaceAddress[2] = multicastInterfaceAddress[2];
+        conf.multicastInterfaceAddress[3] = multicastInterfaceAddress[3];
         udpManager.Register(port, conf);
         requireCreate = true;
         gt_simulink_support::GenericTarget::ResetStartTimepoint();
@@ -57,6 +65,7 @@ void GT_DriverUDPSocketInitialize(int32_t port, uint8_t* deviceName, uint32_t de
         (void)multicastAll;
         (void)multicastLoop;
         (void)multicastTTL;
+        (void)multicastInterfaceAddress;
     #endif
 }
 

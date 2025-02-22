@@ -47,6 +47,7 @@ The directory structure of this repository is as follows.
 | 2024-05-24      | Added support for periodic partitions and sample offset. Added stop execution block. Task name is now used for task execution time and task overload blocks.                                                       |
 | 2024-06-08      | Model step functions are not executed in a delayed manner after a task overload but are called at their next possible time slot.                                                                                   |
 | 2024-11-07      | Redesign of UDP interface. Use of non-blocking message receiving directly in model without a separate receive thread. Improved simulink support for UDP blocks. Multicast groups can be joined or left at runtime. |
+| 2025-02-22      | Added interface address for multicast traffic.                                                                                                                                                                     |
 
 ## Getting Started
 Look at the HTML-based documentation by opening the ``readme.html`` file with a browser. There you will find a more

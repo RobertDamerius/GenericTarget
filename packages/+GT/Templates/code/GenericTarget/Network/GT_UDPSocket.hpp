@@ -126,25 +126,28 @@ class UDPSocket {
          * @brief Set the network interface to be used for sending multicast traffic.
          * @param[in] ipGroup IPv4 address of the group to be joined.
          * @param[in] interfaceName Name of the related interface.
+         * @param[in] multicastInterfaceAddress The IP address of the interface to be used for multicast messages.
          * @return Result of the internal setsockopt() function call.
          */
-        int32_t SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::string interfaceName);
+        int32_t SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::string interfaceName, std::array<uint8_t,4> multicastInterfaceAddress);
 
         /**
          * @brief Join a multicast group at a specific network interface.
          * @param[in] ipGroup IPv4 address of the group to be joined.
          * @param[in] interfaceName Name of the related interface.
+         * @param[in] multicastInterfaceAddress The IP address of the interface to be used for multicast messages.
          * @return Result of the internal setsockopt() function call.
          */
-        int32_t JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName);
+        int32_t JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName, std::array<uint8_t,4> multicastInterfaceAddress);
 
         /**
          * @brief Leave a multicast group on a given network interface.
          * @param[in] ipGroup IPv4 address of the group to be left.
          * @param[in] interfaceName Name of the related interface.
+         * @param[in] multicastInterfaceAddress The IP address of the interface to be used for multicast messages.
          * @return Result of the internal setsockopt() function call.
          */
-        int32_t LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName);
+        int32_t LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName, std::array<uint8_t,4> multicastInterfaceAddress);
 
         /**
          * @brief Set time-to-live multicast messages.
@@ -211,12 +214,13 @@ class UDPSocket {
          * @brief Convert the given group and interface specification to an ip_mreq structure, depending on the operating system.
          * @param[in] ipGroup IPv4 group address.
          * @param[in] interfaceName Name of the interface.
+         * @param[in] multicastInterfaceAddress The IP address of the interface to be used for multicast messages.
          * @return ip_mreq structure under windows and ip_mreqn under linux.
          */
         #ifdef _WIN32
-        struct ip_mreq ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName);
+        struct ip_mreq ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName, std::array<uint8_t,4> multicastInterfaceAddress);
         #else
-        struct ip_mreqn ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName);
+        struct ip_mreqn ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName, std::array<uint8_t,4> multicastInterfaceAddress);
         #endif
 };
 

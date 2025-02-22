@@ -57,6 +57,7 @@ The following table shows all block parameters.
     <tr><td style="font-family: Courier New;">multicastGroupSource</td><td>Popup parameter under the "Multicast" tab for selecting the source of multicast groups to be joined.</td></tr>
     <tr><td style="font-family: Courier New;">multicastGroup</td><td>Multicast group field under the "Multicast" tab.</td></tr>
     <tr><td style="font-family: Courier New;">multicastTTL</td><td>Time-to-live value for outgoing multicast traffic under the "Multicast" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">multicastInterfaceAddress</td><td>IP address of the interface to be used for multicast traffic under the "Multicast" tab.</td></tr>
     <tr><td style="font-family: Courier New;">multicastAll</td><td>Checkbox for enabling the <code>IP_MULTICAST_ALL</code> socket option under the "Multicast" tab.</td></tr>
     <tr><td style="font-family: Courier New;">multicastLoop</td><td>Checkbox for enabling the <code>IP_MULTICAST_LOOP</code> socket option under the "Multicast" tab.</td></tr>
     <tr><td style="font-family: Courier New;">socketPriority</td><td>Socket priority under the "Advanced" tab.</td></tr>

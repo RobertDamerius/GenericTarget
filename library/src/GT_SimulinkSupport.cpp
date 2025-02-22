@@ -328,30 +328,30 @@ int32_t UDPSocket::ReceiveFrom(Address& source, uint8_t *bytes, int32_t maxSize)
     return static_cast<int32_t>(rx);
 }
 
-int32_t UDPSocket::SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::string interfaceName){
+int32_t UDPSocket::SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::string interfaceName, std::array<uint8_t,4> multicastInterfaceAddress){
     #ifdef _WIN32
-    struct ip_mreq mreq = ConvertToMREQ(ipGroup, interfaceName);
+    struct ip_mreq mreq = ConvertToMREQ(ipGroup, interfaceName, multicastInterfaceAddress);
     return SetOption(IPPROTO_IP, IP_MULTICAST_IF, (const void*) &mreq.imr_interface, sizeof(mreq.imr_interface));
     #else
-    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, interfaceName);
+    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, interfaceName, multicastInterfaceAddress);
     return SetOption(IPPROTO_IP, IP_MULTICAST_IF, (const void*) &mreq, sizeof(mreq));
     #endif
 }
 
-int32_t UDPSocket::JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName){
+int32_t UDPSocket::JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName, std::array<uint8_t,4> multicastInterfaceAddress){
     #ifdef _WIN32
-    struct ip_mreq mreq = ConvertToMREQ(ipGroup, interfaceName);
+    struct ip_mreq mreq = ConvertToMREQ(ipGroup, interfaceName, multicastInterfaceAddress);
     #else
-    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, interfaceName);
+    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, interfaceName, multicastInterfaceAddress);
     #endif
     return SetOption(IPPROTO_IP, IP_ADD_MEMBERSHIP, (const void*) &mreq, sizeof(mreq));
 }
 
-int32_t UDPSocket::LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName){
+int32_t UDPSocket::LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName, std::array<uint8_t,4> multicastInterfaceAddress){
     #ifdef _WIN32
-    struct ip_mreq mreq = ConvertToMREQ(ipGroup, interfaceName);
+    struct ip_mreq mreq = ConvertToMREQ(ipGroup, interfaceName, multicastInterfaceAddress);
     #else
-    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, interfaceName);
+    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, interfaceName, multicastInterfaceAddress);
     #endif
     return SetOption(IPPROTO_IP, IP_DROP_MEMBERSHIP, (const void*) &mreq, sizeof(mreq));
 }
@@ -435,18 +435,20 @@ void UDPSocket::ResetLastError(void){
 }
 
 #ifdef _WIN32
-struct ip_mreq UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName){
+struct ip_mreq UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName, std::array<uint8_t,4> multicastInterfaceAddress){
     // convert group IP to string
     char strGroup[16];
     sprintf(&strGroup[0], "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
 
-    // convert interface name to string
+    // convert interface name to string (first try to convert to index)
     char strInterface[16];
-    unsigned long index = 0;
-    if(interfaceName.size()){
-        index = win32_if_nametoindex(interfaceName);
+    unsigned long index = win32_if_nametoindex(interfaceName);
+    if(index){
+        sprintf(&strInterface[0], "0.0.0.%lu", index);
     }
-    sprintf(&strInterface[0], "0.0.0.%lu", index);
+    else{
+        sprintf(&strInterface[0], "%u.%u.%u.%u", multicastInterfaceAddress[0], multicastInterfaceAddress[1], multicastInterfaceAddress[2], multicastInterfaceAddress[3]);
+    }
 
     // create structure
     struct ip_mreq result;
@@ -455,10 +457,14 @@ struct ip_mreq UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, co
     return result;
 }
 #else
-struct ip_mreqn UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName){
+struct ip_mreqn UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName, std::array<uint8_t,4> multicastInterfaceAddress){
     // convert group IP to string
     char strGroup[16];
     sprintf(&strGroup[0], "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
+
+    // convert interface IP to string
+    char strInterface[16];
+    sprintf(&strInterface[0], "%u.%u.%u.%u", multicastInterfaceAddress[0], multicastInterfaceAddress[1], multicastInterfaceAddress[2], multicastInterfaceAddress[3]);
 
     // set interface index based on interface name
     int index = 0;
@@ -469,7 +475,7 @@ struct ip_mreqn UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, c
     // create structure
     struct ip_mreqn result;
     result.imr_multiaddr.s_addr = inet_addr(strGroup);
-    result.imr_address.s_addr = htonl(INADDR_ANY);
+    result.imr_address.s_addr = inet_addr(strInterface);
     result.imr_ifindex = index;
     return result;
 }
@@ -488,6 +494,7 @@ void UDPServiceConfiguration::Reset(void){
     multicastAll = true;
     multicastLoop = true;
     multicastTTL = 1;
+    multicastInterfaceAddress.fill(0);
 }
 
 std::string UDPServiceConfiguration::ToString(void){
@@ -500,6 +507,7 @@ std::string UDPServiceConfiguration::ToString(void){
     text << ", multicastAll=" << (multicastAll ? "1" : "0");
     text << ", multicastLoop=" << (multicastLoop ? "1" : "0");
     text << ", multicastTTL=" << static_cast<int32_t>(multicastTTL);
+    text << ", multicastInterfaceAddress=" << static_cast<int32_t>(multicastInterfaceAddress[0]) << "." << static_cast<int32_t>(multicastInterfaceAddress[1]) << "." << static_cast<int32_t>(multicastInterfaceAddress[2]) << "." << static_cast<int32_t>(multicastInterfaceAddress[3]);
     return text.str();
 }
 
@@ -511,7 +519,8 @@ bool UDPServiceConfiguration::operator==(const UDPServiceConfiguration& rhs) con
            (allowZeroLengthMessage == rhs.allowZeroLengthMessage) &&
            (multicastAll == rhs.multicastAll) &&
            (multicastLoop == rhs.multicastLoop) &&
-           (multicastTTL == rhs.multicastTTL);
+           (multicastTTL == rhs.multicastTTL) &&
+           (multicastInterfaceAddress == rhs.multicastInterfaceAddress);
 }
 
 UDPService::UDPService(){
@@ -645,7 +654,7 @@ void UDPService::Destroy(void){
     const std::lock_guard<std::mutex> lock(mtxSocket);
     if(udpSocket.IsOpen()){
         for(auto&& groupIP : currentlyJoinedGroups){
-            (void) udpSocket.LeaveMulticastGroup(groupIP, conf.deviceName);
+            (void) udpSocket.LeaveMulticastGroup(groupIP, conf.deviceName, conf.multicastInterfaceAddress);
         }
         udpSocket.Close();
         GENERIC_TARGET_PRINT("Destroyed UDP socket (%s)\n", conf.ToString().c_str());
@@ -736,7 +745,7 @@ void UDPService::UpdateMulticastGroups(std::vector<std::array<uint8_t,4>> multic
         }
         if(!keepJoined){
             const std::lock_guard<std::mutex> lock(mtxSocket);
-            keepJoined = (udpSocket.LeaveMulticastGroup(currentlyJoinedGroup, conf.deviceName) < 0);
+            keepJoined = (udpSocket.LeaveMulticastGroup(currentlyJoinedGroup, conf.deviceName, conf.multicastInterfaceAddress) < 0);
         }
         if(keepJoined){
             joinedGroups.push_back(currentlyJoinedGroup);
@@ -755,9 +764,9 @@ void UDPService::UpdateMulticastGroups(std::vector<std::array<uint8_t,4>> multic
         if(!alreadyJoined){
             const std::lock_guard<std::mutex> lock(mtxSocket);
             #ifdef _WIN32
-            (void) udpSocket.SetMulticastInterface(desiredJoinedGroup, conf.deviceName);
+            (void) udpSocket.SetMulticastInterface(desiredJoinedGroup, conf.deviceName, conf.multicastInterfaceAddress);
             #endif
-            alreadyJoined = (udpSocket.JoinMulticastGroup(desiredJoinedGroup, conf.deviceName) >= 0);
+            alreadyJoined = (udpSocket.JoinMulticastGroup(desiredJoinedGroup, conf.deviceName, conf.multicastInterfaceAddress) >= 0);
         }
         if(alreadyJoined){
             joinedGroups.push_back(desiredJoinedGroup);

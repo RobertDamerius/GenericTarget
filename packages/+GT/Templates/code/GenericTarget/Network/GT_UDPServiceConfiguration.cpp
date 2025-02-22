@@ -15,6 +15,7 @@ void UDPServiceConfiguration::Reset(void){
     multicastAll = true;
     multicastLoop = true;
     multicastTTL = 1;
+    multicastInterfaceAddress.fill(0);
 }
 
 std::string UDPServiceConfiguration::ToString(void){
@@ -27,6 +28,7 @@ std::string UDPServiceConfiguration::ToString(void){
     text << ", multicastAll=" << (multicastAll ? "1" : "0");
     text << ", multicastLoop=" << (multicastLoop ? "1" : "0");
     text << ", multicastTTL=" << static_cast<int32_t>(multicastTTL);
+    text << ", multicastInterfaceAddress=" << static_cast<int32_t>(multicastInterfaceAddress[0]) << "." << static_cast<int32_t>(multicastInterfaceAddress[1]) << "." << static_cast<int32_t>(multicastInterfaceAddress[2]) << "." << static_cast<int32_t>(multicastInterfaceAddress[3]);
     return text.str();
 }
 
@@ -38,6 +40,7 @@ bool UDPServiceConfiguration::operator==(const UDPServiceConfiguration& rhs) con
            (allowZeroLengthMessage == rhs.allowZeroLengthMessage) &&
            (multicastAll == rhs.multicastAll) &&
            (multicastLoop == rhs.multicastLoop) &&
-           (multicastTTL == rhs.multicastTTL);
+           (multicastTTL == rhs.multicastTTL) &&
+           (multicastInterfaceAddress == rhs.multicastInterfaceAddress);
 }
 

@@ -4,14 +4,14 @@
 %%   Simulink Coder TLC Code Generation file for SFunctionGTDriverUDPSocket
 %% 
 %% Simulink version      : 24.1 (R2024a) 19-Nov-2023
-%% TLC file generated on : 16-Nov-2024 18:15:56
+%% TLC file generated on : 22-Feb-2025 11:16:33
 
 /%
      %%%-MATLAB_Construction_Commands_Start
      def = legacy_code('initialize');
      def.SFunctionName = 'SFunctionGTDriverUDPSocket';
-     def.OutputFcnSpec = 'void GT_DriverUDPSocketStep(int32 p1, uint8 p10, int32 p11, uint8 y1[p11], uint32 y2[1], uint8 y3[4], uint16 y4[1], int32 y5[1], int32 y6[1], uint8 u1[4], uint16 u2, uint8 u3[], uint32 u4, uint8 u5[], uint32 u6)';
-     def.StartFcnSpec = 'void GT_DriverUDPSocketInitialize(int32 p1, uint8 p2[], uint32 p3, int32 p4, uint8 p5, uint8 p6, uint8 p7, uint8 p8, uint8 p9)';
+     def.OutputFcnSpec = 'void GT_DriverUDPSocketStep(int32 p1, uint8 p11, int32 p12, uint8 y1[p12], uint32 y2[1], uint8 y3[4], uint16 y4[1], int32 y5[1], int32 y6[1], uint8 u1[4], uint16 u2, uint8 u3[], uint32 u4, uint8 u5[], uint32 u6)';
+     def.StartFcnSpec = 'void GT_DriverUDPSocketInitialize(int32 p1, uint8 p2[], uint32 p3, int32 p4, uint8 p5, uint8 p6, uint8 p7, uint8 p8, uint8 p9, uint8 p10[4])';
      def.TerminateFcnSpec = 'void GT_DriverUDPSocketTerminate(int32 p1)';
      def.HeaderFiles = {'GT_DriverUDPSocket.hpp'};
      def.SourceFiles = {'GT_DriverUDPSocket.cpp', 'GT_SimulinkSupport.cpp'};
@@ -110,8 +110,8 @@
         %<LibEmitPlatformTypeIncludes()>
         #endif
         
-        extern void SFunctionGTDriverUDPSocket_wrapper_Start_%<sfunInstanceName>(const %<int32Type> p1, const %<uint8Type>* p2, const %<uint32Type> p3, const %<int32Type> p4, const %<uint8Type> p5, const %<uint8Type> p6, const %<uint8Type> p7, const %<uint8Type> p8, const %<uint8Type> p9);
-        extern void SFunctionGTDriverUDPSocket_wrapper_Output_%<sfunInstanceName>(const %<int32Type> p1, const %<uint8Type> p10, const %<int32Type> p11,  %<uint8Type>* y1,  %<uint32Type>* y2,  %<uint8Type>* y3,  %<uint16Type>* y4,  %<int32Type>* y5,  %<int32Type>* y6, const %<uint8Type>* u1, const %<uint16Type> u2, const %<uint8Type>* u3, const %<uint32Type> u4, const %<uint8Type>* u5, const %<uint32Type> u6);
+        extern void SFunctionGTDriverUDPSocket_wrapper_Start_%<sfunInstanceName>(const %<int32Type> p1, const %<uint8Type>* p2, const %<uint32Type> p3, const %<int32Type> p4, const %<uint8Type> p5, const %<uint8Type> p6, const %<uint8Type> p7, const %<uint8Type> p8, const %<uint8Type> p9, const %<uint8Type>* p10);
+        extern void SFunctionGTDriverUDPSocket_wrapper_Output_%<sfunInstanceName>(const %<int32Type> p1, const %<uint8Type> p11, const %<int32Type> p12,  %<uint8Type>* y1,  %<uint32Type>* y2,  %<uint8Type>* y3,  %<uint16Type>* y4,  %<int32Type>* y5,  %<int32Type>* y6, const %<uint8Type>* u1, const %<uint16Type> u2, const %<uint8Type>* u3, const %<uint32Type> u4, const %<uint8Type>* u5, const %<uint32Type> u6);
         extern void SFunctionGTDriverUDPSocket_wrapper_Terminate_%<sfunInstanceName>(const %<int32Type> p1);
         
         #endif
@@ -134,8 +134,8 @@
         %if IsModelReferenceSimTarget() && !::GenCPP
         extern "C" {
         %endif
-        void SFunctionGTDriverUDPSocket_wrapper_Start_%<sfunInstanceName>(const %<int32Type> p1, const %<uint8Type>* p2, const %<uint32Type> p3, const %<int32Type> p4, const %<uint8Type> p5, const %<uint8Type> p6, const %<uint8Type> p7, const %<uint8Type> p8, const %<uint8Type> p9) {
-            GT_DriverUDPSocketInitialize((%<int32Type>)(p1), (%<uint8Type>*)(p2), (%<uint32Type>)(p3), (%<int32Type>)(p4), (%<uint8Type>)(p5), (%<uint8Type>)(p6), (%<uint8Type>)(p7), (%<uint8Type>)(p8), (%<uint8Type>)(p9));
+        void SFunctionGTDriverUDPSocket_wrapper_Start_%<sfunInstanceName>(const %<int32Type> p1, const %<uint8Type>* p2, const %<uint32Type> p3, const %<int32Type> p4, const %<uint8Type> p5, const %<uint8Type> p6, const %<uint8Type> p7, const %<uint8Type> p8, const %<uint8Type> p9, const %<uint8Type>* p10) {
+            GT_DriverUDPSocketInitialize((%<int32Type>)(p1), (%<uint8Type>*)(p2), (%<uint32Type>)(p3), (%<int32Type>)(p4), (%<uint8Type>)(p5), (%<uint8Type>)(p6), (%<uint8Type>)(p7), (%<uint8Type>)(p8), (%<uint8Type>)(p9), (%<uint8Type>*)(p10));
         }
         %if IsModelReferenceSimTarget() && !::GenCPP
         }
@@ -144,8 +144,8 @@
         %if IsModelReferenceSimTarget() && !::GenCPP
         extern "C" {
         %endif
-        void SFunctionGTDriverUDPSocket_wrapper_Output_%<sfunInstanceName>(const %<int32Type> p1, const %<uint8Type> p10, const %<int32Type> p11,  %<uint8Type>* y1,  %<uint32Type>* y2,  %<uint8Type>* y3,  %<uint16Type>* y4,  %<int32Type>* y5,  %<int32Type>* y6, const %<uint8Type>* u1, const %<uint16Type> u2, const %<uint8Type>* u3, const %<uint32Type> u4, const %<uint8Type>* u5, const %<uint32Type> u6) {
-            GT_DriverUDPSocketStep((%<int32Type>)(p1), (%<uint8Type>)(p10), (%<int32Type>)(p11), y1, y2, y3, y4, y5, y6, (%<uint8Type>*)(u1), (%<uint16Type>)(u2), (%<uint8Type>*)(u3), (%<uint32Type>)(u4), (%<uint8Type>*)(u5), (%<uint32Type>)(u6));
+        void SFunctionGTDriverUDPSocket_wrapper_Output_%<sfunInstanceName>(const %<int32Type> p1, const %<uint8Type> p11, const %<int32Type> p12,  %<uint8Type>* y1,  %<uint32Type>* y2,  %<uint8Type>* y3,  %<uint16Type>* y4,  %<int32Type>* y5,  %<int32Type>* y6, const %<uint8Type>* u1, const %<uint16Type> u2, const %<uint8Type>* u3, const %<uint32Type> u4, const %<uint8Type>* u5, const %<uint32Type> u6) {
+            GT_DriverUDPSocketStep((%<int32Type>)(p1), (%<uint8Type>)(p11), (%<int32Type>)(p12), y1, y2, y3, y4, y5, y6, (%<uint8Type>*)(u1), (%<uint16Type>)(u2), (%<uint8Type>*)(u3), (%<uint32Type>)(u4), (%<uint8Type>*)(u5), (%<uint32Type>)(u6));
         }
         %if IsModelReferenceSimTarget() && !::GenCPP
         }
@@ -187,11 +187,12 @@
         %assign p7_val = LibBlockParameter(p7, "", "", 0)
         %assign p8_val = LibBlockParameter(p8, "", "", 0)
         %assign p9_val = LibBlockParameter(p9, "", "", 0)
+        %assign p10_ptr = LibBlockParameterBaseAddr(p10)
         %% 
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
         {
             %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", LibBlockIdentifier(block))
-            SFunctionGTDriverUDPSocket_wrapper_Start_%<sfunInstanceName>(%<p1_val>, %<p2_ptr>, %<p3_val>, %<p4_val>, %<p5_val>, %<p6_val>, %<p7_val>, %<p8_val>, %<p9_val>);
+            SFunctionGTDriverUDPSocket_wrapper_Start_%<sfunInstanceName>(%<p1_val>, %<p2_ptr>, %<p3_val>, %<p4_val>, %<p5_val>, %<p6_val>, %<p7_val>, %<p8_val>, %<p9_val>, %<p10_ptr>);
         
         }
     %else
@@ -204,8 +205,9 @@
         %assign p7_val = LibBlockParameter(p7, "", "", 0)
         %assign p8_val = LibBlockParameter(p8, "", "", 0)
         %assign p9_val = LibBlockParameter(p9, "", "", 0)
+        %assign p10_ptr = LibBlockParameterBaseAddr(p10)
         %% 
-        GT_DriverUDPSocketInitialize(%<p1_val>, (%<uint8Type>*)%<p2_ptr>, %<p3_val>, %<p4_val>, %<p5_val>, %<p6_val>, %<p7_val>, %<p8_val>, %<p9_val>);
+        GT_DriverUDPSocketInitialize(%<p1_val>, (%<uint8Type>*)%<p2_ptr>, %<p3_val>, %<p4_val>, %<p5_val>, %<p6_val>, %<p7_val>, %<p8_val>, %<p9_val>, (%<uint8Type>*)%<p10_ptr>);
     %endif
 %endfunction
 
@@ -214,8 +216,8 @@
     %assign uint8Type = LibGetDataTypeNameFromId(::CompiledModel.tSS_UINT8)
     %if IsModelReferenceSimTarget() || CodeFormat=="S-Function" || ::isRAccel
         %assign p1_val = LibBlockParameter(p1, "", "", 0)
-        %assign p10_val = LibBlockParameter(p10, "", "", 0)
         %assign p11_val = LibBlockParameter(p11, "", "", 0)
+        %assign p12_val = LibBlockParameter(p12, "", "", 0)
         %assign y1_ptr = LibBlockOutputSignalAddr(0, "", "", 0)
         %assign y2_ptr = LibBlockOutputSignalAddr(1, "", "", 0)
         %assign y3_ptr = LibBlockOutputSignalAddr(2, "", "", 0)
@@ -232,13 +234,13 @@
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
         {
             %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", LibBlockIdentifier(block))
-            SFunctionGTDriverUDPSocket_wrapper_Output_%<sfunInstanceName>(%<p1_val>, %<p10_val>, %<p11_val>, %<y1_ptr>, %<y2_ptr>, %<y3_ptr>, %<y4_ptr>, %<y5_ptr>, %<y6_ptr>, %<u1_ptr>, %<u2_val>, %<u3_ptr>, %<u4_val>, %<u5_ptr>, %<u6_val>);
+            SFunctionGTDriverUDPSocket_wrapper_Output_%<sfunInstanceName>(%<p1_val>, %<p11_val>, %<p12_val>, %<y1_ptr>, %<y2_ptr>, %<y3_ptr>, %<y4_ptr>, %<y5_ptr>, %<y6_ptr>, %<u1_ptr>, %<u2_val>, %<u3_ptr>, %<u4_val>, %<u5_ptr>, %<u6_val>);
         
         }
     %else
         %assign p1_val = LibBlockParameter(p1, "", "", 0)
-        %assign p10_val = LibBlockParameter(p10, "", "", 0)
         %assign p11_val = LibBlockParameter(p11, "", "", 0)
+        %assign p12_val = LibBlockParameter(p12, "", "", 0)
         %assign y1_ptr = LibBlockOutputSignalAddr(0, "", "", 0)
         %assign y2_ptr = LibBlockOutputSignalAddr(1, "", "", 0)
         %assign y3_ptr = LibBlockOutputSignalAddr(2, "", "", 0)
@@ -252,7 +254,7 @@
         %assign u5_ptr = LibBlockInputSignalAddr(4, "", "", 0)
         %assign u6_val = LibBlockInputSignal(5, "", "", 0)
         %% 
-        GT_DriverUDPSocketStep(%<p1_val>, %<p10_val>, %<p11_val>, %<y1_ptr>, %<y2_ptr>, %<y3_ptr>, %<y4_ptr>, %<y5_ptr>, %<y6_ptr>, (%<uint8Type>*)%<u1_ptr>, %<u2_val>, (%<uint8Type>*)%<u3_ptr>, %<u4_val>, (%<uint8Type>*)%<u5_ptr>, %<u6_val>);
+        GT_DriverUDPSocketStep(%<p1_val>, %<p11_val>, %<p12_val>, %<y1_ptr>, %<y2_ptr>, %<y3_ptr>, %<y4_ptr>, %<y5_ptr>, %<y6_ptr>, (%<uint8Type>*)%<u1_ptr>, %<u2_val>, (%<uint8Type>*)%<u3_ptr>, %<u4_val>, (%<uint8Type>*)%<u5_ptr>, %<u6_val>);
     %endif
 %endfunction
 

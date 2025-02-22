@@ -1,6 +1,6 @@
 cd(extractBefore(mfilename('fullpath'),strlength(mfilename('fullpath')) - strlength(mfilename) + 1));
 fprintf('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n B U I L D   S I M U L I N K - I N T E R F A C E\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
-str = input('Simulink blocks will only implement their functionality on the target and thus have no effect during simulation using Simulink.\nHowever, for some blocks a Simulink support are available, that is, their functionality will also work in Simulink.\n\nCompile with Simulink support? [y]:  ','s');
+str = input('Simulink blocks will only implement their functionality on the target and thus have no effect during simulation using Simulink.\nHowever, for some blocks a Simulink support are available, that is, their functionality will also work in Simulink.\n\nCompile with Simulink support? [y/n]:  ','s');
 useSimulinkSupport = strcmp('y',str);
 if(useSimulinkSupport), fprintf('Simulink Support: ON\n\n');
 else, fprintf('Simulink Support: OFF\n\n'); end
@@ -12,9 +12,9 @@ defs = [];
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def = legacy_code('initialize');
 def.SFunctionName    = 'SFunctionGTDriverUDPSocket';
-def.StartFcnSpec     = 'void GT_DriverUDPSocketInitialize(int32 p1, uint8 p2[], uint32 p3, int32 p4, uint8 p5, uint8 p6, uint8 p7, uint8 p8, uint8 p9)';
+def.StartFcnSpec     = 'void GT_DriverUDPSocketInitialize(int32 p1, uint8 p2[], uint32 p3, int32 p4, uint8 p5, uint8 p6, uint8 p7, uint8 p8, uint8 p9, uint8 p10[4])';
 def.TerminateFcnSpec = 'void GT_DriverUDPSocketTerminate(int32 p1)';
-def.OutputFcnSpec    = 'void GT_DriverUDPSocketStep(int32 p1, uint8 p10, int32 p11, uint8 y1[p11], uint32 y2[1], uint8 y3[4], uint16 y4[1], int32 y5[1], int32 y6[1], uint8 u1[4], uint16 u2, uint8 u3[], uint32 u4, uint8 u5[], uint32 u6)';
+def.OutputFcnSpec    = 'void GT_DriverUDPSocketStep(int32 p1, uint8 p11, int32 p12, uint8 y1[p12], uint32 y2[1], uint8 y3[4], uint16 y4[1], int32 y5[1], int32 y6[1], uint8 u1[4], uint16 u2, uint8 u3[], uint32 u4, uint8 u5[], uint32 u6)';
 def.HeaderFiles      = {'GT_DriverUDPSocket.hpp'};
 def.SourceFiles      = {'GT_DriverUDPSocket.cpp','GT_SimulinkSupport.cpp'};
 def.IncPaths         = {''};

@@ -138,7 +138,7 @@ void UDPService::Destroy(void){
     const std::lock_guard<std::mutex> lock(mtxSocket);
     if(udpSocket.IsOpen()){
         for(auto&& groupIP : currentlyJoinedGroups){
-            (void) udpSocket.LeaveMulticastGroup(groupIP, conf.deviceName);
+            (void) udpSocket.LeaveMulticastGroup(groupIP, conf.deviceName, conf.multicastInterfaceAddress);
         }
         udpSocket.Close();
         GENERIC_TARGET_PRINT("Destroyed UDP socket (%s)\n", conf.ToString().c_str());
@@ -229,7 +229,7 @@ void UDPService::UpdateMulticastGroups(std::vector<std::array<uint8_t,4>> multic
         }
         if(!keepJoined){
             const std::lock_guard<std::mutex> lock(mtxSocket);
-            keepJoined = (udpSocket.LeaveMulticastGroup(currentlyJoinedGroup, conf.deviceName) < 0);
+            keepJoined = (udpSocket.LeaveMulticastGroup(currentlyJoinedGroup, conf.deviceName, conf.multicastInterfaceAddress) < 0);
         }
         if(keepJoined){
             joinedGroups.push_back(currentlyJoinedGroup);
@@ -248,9 +248,9 @@ void UDPService::UpdateMulticastGroups(std::vector<std::array<uint8_t,4>> multic
         if(!alreadyJoined){
             const std::lock_guard<std::mutex> lock(mtxSocket);
             #ifdef _WIN32
-            (void) udpSocket.SetMulticastInterface(desiredJoinedGroup, conf.deviceName);
+            (void) udpSocket.SetMulticastInterface(desiredJoinedGroup, conf.deviceName, conf.multicastInterfaceAddress);
             #endif
-            alreadyJoined = (udpSocket.JoinMulticastGroup(desiredJoinedGroup, conf.deviceName) >= 0);
+            alreadyJoined = (udpSocket.JoinMulticastGroup(desiredJoinedGroup, conf.deviceName, conf.multicastInterfaceAddress) >= 0);
         }
         if(alreadyJoined){
             joinedGroups.push_back(desiredJoinedGroup);
