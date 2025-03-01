@@ -41,6 +41,7 @@ layoutNavBar = [
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Time / Time To Latest UTC Timestamp', 'library_gt_time_timetolatestutctimestamp.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.none);
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.text, 'EXAMPLES');
+    SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Suggested procedure for UDP reception', 'example_udpreceiveloop.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Deploy Multiple Models', 'example_deploymultiplemodels.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Debugging with Visual Studio Code', 'example_debugging.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.none);

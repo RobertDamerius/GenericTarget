@@ -1,0 +1,14 @@
+<h1>Suggested procedure for UDP reception</h1>
+    With the UDP Receive block, all messages are fetched from the operating system's receive buffer and the last message is output.
+    As it cannot be guaranteed that the last message in the buffer corresponds to the expected message, it makes sense to evaluate all messages from the buffer.
+    To do this, the UDP Receive block must be placed in a While Iterator subsystem and the "fetch all messages from the network buffer" option must be disabled in the block mask of the Receive block.
+    <br>
+    <br>
+    An example of the content of a While Iterator subsystem can be found in the Simulink library under <code>GenericTarget/Examples/UDP Receive Loop</code>.
+    This example provides a template for a receive loop.
+    The gray area must be replaced by a block that unpacks the actual message.
+    <br>
+    <br>
+    <center><object width="95%" data="../img/UDPReceiveLoop.svg" type="image/svg+xml"></object></center><br><br>
+    <br>
+    <br>
