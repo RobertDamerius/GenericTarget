@@ -3,34 +3,32 @@
 <span style="font-family: Courier New">GenericTarget / Interface / Write Bus To File</span>
 
 <h3>Description</h3>
-Write a complete bus object to a file. During simulation this block has no effect. Internally a digital
+Write a complete bus signal to a file. During simulation this block has no effect. Internally a digital
 clock is used as timestamp. The number of samples to be written into a single file can be specified.
 A sample indicates a data vector of all signals in the bus and the timestamp for one sample time point.
 
 
 <h2>Input Ports</h2>
 <h3>bus</h3>
-A bus signal whose data type is defined as a bus object.
-The bus may only consist of nested buses and build-in data types, such as <code>boolean, logical, uint8, int8, uint16, int16, uint32, int32, single, uint64, int64, double</code>.
+Connect a bus signal to this input port.
+The bus may only consist of nested buses and build-in data types and data types that are supported by simulink byte pack blocks, such as <code>boolean, uint8, int8, uint16, int16, uint32, int32, single, double</code>.
 
 
 <h2>Block Parameters</h2>
 The following table shows all block parameters.
 <table>
     <tr><th>Parameter Name</th><th>Description</th></tr>
-    <tr><td style="font-family: Courier New;">dataType</td><td>Selector of the bus data type.</td></tr>
     <tr><td style="font-family: Courier New;">strID</td><td>Unique ID for this data recording.</td></tr>
     <tr><td style="font-family: Courier New;">numSamplesPerFile</td><td>The maximum number of samples per data recording file.</td></tr>
     <tr><td style="font-family: Courier New;">SampleTime</td><td>Sampletime.</td></tr>
 </table>
 
 
-<h3>Bus Object</h3>
-The bus data type of the bus at the input port must be specified in the block mask.
-After the Simulink model has been saved, the Update button in the block mask must be clicked.
-This will read out the entire structure of the bus, including the data types and signal dimensions as well as signal names.
-From this information this block will be adjusted internally, selecting all signals from the bus and serializing them.
-With a click on Apply or OK the process is completed. For large bus objects the process may take some time.
+<h3>Bus Signal</h3>
+When the update button in the block mask is clicked, the input bus signal is analyzed.
+The Simulink model is compiled once to determine the data types and dimensions of the signals, so the model must be error-free.
+The bus structure, including signal names, data types, and dimensions, is then reconstructed.
+The block uses this information to adjust internally by selecting and serializing all the signals from the bus.
 
 <div class="note-green">
 <h3 class="note-green">Note</h3>

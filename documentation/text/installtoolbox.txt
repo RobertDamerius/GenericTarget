@@ -82,7 +82,7 @@
     Some socket options are not available for windows sockets or may have a different effect than on a linux target.
     <br>
     <b>**</b>
-    During simulation, these blocks only work under the linux operatin system.
+    During simulation, these blocks only work under the linux operating system.
     </div>
     At the moment only <b>gcc</b> (Linux) and <b>MSYS2/MinGW64</b> (Windows) are supported as compilers to create blocks with Simulink support.
     For compilers that are not yet supported, the Simulink support option can be skipped.
