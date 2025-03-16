@@ -9,8 +9,8 @@ Get the current UTC timestamp from the system clock.
 
 <h2>Output Ports</h2>
 <h3>timestampUTC</h3>
-UTC second of the day in seconds in range [0,86400) (on some systems [0,86401) or [0,86402) to allow leap seconds). This time is
-calculated via the <a href="library_gt_time_utctime.html">UTC Time</a>.
+UTC second of the day in seconds in range [0,86400) (on some systems [0,86401) or [0,86402) to allow leap seconds).
+This time is calculated via the <a href="library_gt_time_utctime.html">UTC Time</a>.
 <br>
 <b>Data Type:</b> <span style="font-family: Courier New">double</span>
 

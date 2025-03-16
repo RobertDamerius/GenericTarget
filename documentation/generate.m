@@ -39,6 +39,7 @@ layoutNavBar = [
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Time / CPU Overloads', 'library_gt_time_cpuoverloads.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Time / UTC Timestamp', 'library_gt_time_utctimestamp.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Time / Time To Latest UTC Timestamp', 'library_gt_time_timetolatestutctimestamp.html');
+    SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Time / UTC Timestamp Moved On', 'library_gt_time_utctimestampmovedon.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.none);
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.text, 'EXAMPLES');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Suggested procedure for UDP reception', 'example_udpreceiveloop.html');
