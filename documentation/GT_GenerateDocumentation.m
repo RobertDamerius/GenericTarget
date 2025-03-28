@@ -24,6 +24,7 @@ layoutNavBar = [
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'GT.GenericTarget (class)', 'packages_gt_generictarget.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'GT.GetTemplate', 'packages_gt_gettemplate.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'GT.GetVersion', 'packages_gt_getversion.html');
+    SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'GT.OpenDocumentation', 'packages_gt_opendocumentation.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.none);
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.text, 'SIMULINK LIBRARY');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Interface / UDP Send', 'library_gt_interface_udpsend.html');

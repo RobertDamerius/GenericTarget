@@ -1,0 +1,15 @@
+<h1>GT.OpenDocumentation</h1>
+Open the HTML-based documentation of the Generic Target toolbox.
+
+<h2>Syntax</h2>
+<pre>GT.OpenDocumentation()</pre>
+
+<h2>Description</h2>
+<code>GT.OpenDocumentation()</code> opens the HTML-based documentation at the index page.
+<br><hr>
+<code>GT.OpenDocumentation(page)</code> opens a specific page of the HTML-based documentation.
+
+<h2>Input Arguments</h2>
+    <h3>page</h3>
+    The page to be opened. The default value is 'index.html'.
+

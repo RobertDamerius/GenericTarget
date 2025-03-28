@@ -29,3 +29,6 @@ end
 
 fprintf('\nInstallation completed\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
 
+% show documentation
+GT.OpenDocumentation();
+
