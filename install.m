@@ -21,7 +21,7 @@ end
 % build driver blocks
 str = input('\nRebuild Simulink driver blocks? [y]: ','s');
 if(strcmp('y',str))
-    savepath;
+    GT.BuildDrivers();
     fprintf('Simulink driver blocks rebuilt\n');
 else
     fprintf('Simulink driver blocks not rebuilt\n');
