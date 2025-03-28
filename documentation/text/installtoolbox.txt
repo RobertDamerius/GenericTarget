@@ -6,7 +6,7 @@
     <div class="note-green">
     <h3 class="note-green">Option 1: Add to MATLAB path</h3>
     Run the installation script <code>install.m</code>.
-    The script simply adds the necessary directory paths to the MATLAB path.
+    The script adds the necessary directory paths to the MATLAB path and rebuilds library blocks.
     </div>
 
     <div class="note-green">
@@ -32,7 +32,7 @@
         <tr><td><b>documentation</b></td><td>
             Contains this HTML-based documentation.</td></tr>
         <tr><td><b>library</b></td><td>
-            Contains the Simulink library "GenericTarget".</td></tr>
+            Contains the Simulink library "GenericTarget" as well as S-functions and mex binaries for driver blocks.</td></tr>
         <tr><td><b>packages</b></td><td>
             Contains the MATLAB package "GT".</td></tr>
         <tr><td><b>resources</b></td><td>
@@ -45,16 +45,18 @@
             Open this file with a browser to show the HTML-based documentation.</td></tr>
     </table>
 
-    <h2>Rebuild Library Blocks (optional)</h2>
-    The toolbox is shipped with prebuild library blocks for Windows and Linux.
-    If you want to rebuild the library blocks, run the <code>GT_BuildDrivers.m</code> script from the <code>library/src/</code> subdirectory to generate the necessary mex and tlc files for the Simulink library blocks.
+    <h2>Rebuild Library Blocks (recommended)</h2>
+    The toolbox is shipped with prebuild library blocks for Windows and Ubuntu.
+    It's recommended to build the Simulink driver blocks for your specific platform.
+    Run <code>GT.BuildDrivers()</code> from the MATLAB command window to generate all necessary driver files.
     The prerequisite is that a C/C++ compiler is set in MATLAB (<a href="http://de.mathworks.com/help/matlab/matlab_external/choose-c-or-c-compilers.html" target="_blank">mex -setup</a>).
 
     <a name="simulinksupport"></a>
     <div class="note-green">
     <h3 class="note-green">Simulink Support</h3>
-    If the option "Simulink support" is set during the building of the library library blocks, most of them will also be usable for simulation in Simulink.
-    If the "Simulink support" option is disabled, most blocks have no effect during simulation and serve only as code placeholders for the application on the target PC.
+    If <code>GT.BuildDrivers()</code> is called, most of the library blocks will also be usable for simulation in Simulink.
+    However, if <code>GT.BuildDrivers(false)</code> is called, then the Simulink support option is disabled.
+    In this case, most blocks have no effect during simulation and serve only as code placeholders for the application on the target PC.
     On the target, all blocks have their intended functionality.
     The following table shows all blocks that can be used during a simulation in Simulink.
     <br>
@@ -85,9 +87,9 @@
     During simulation, these blocks only work under the linux operating system.
     </div>
     At the moment only <b>gcc</b> (Linux) and <b>MSYS2/MinGW64</b> (Windows) are supported as compilers to create blocks with Simulink support.
-    For compilers that are not yet supported, the Simulink support option can be skipped.
+    For compilers that are not yet supported, the Simulink support option can be skipped by running <code>GT.BuildDrivers(false)</code>.
 
     <h2>Uninstall</h2>
     If you added the directories of the toolbox to the MATLAB path during installation, simply remove them.
-    The <code>install.m</code> script adds three folders to the MATLAB path: <code>library</code>, <code>library/src</code> and <code>packages</code>.
+    The <code>install.m</code> script adds three folders to the MATLAB path: <code>library</code>, <code>library/drivers</code> and <code>packages</code>.
 

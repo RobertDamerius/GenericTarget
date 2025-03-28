@@ -1,0 +1,20 @@
+<h1>GT.BuildDrivers</h1>
+Build or rebuild the driver blocks for the Generic Target toolbox.
+Simulink blocks will only implement their functionality on the target and thus have no effect during simulation using Simulink.
+However, for some blocks a Simulink support is available, that is, their functionality will also work in Simulink.
+This MATLAB function generates all S-functions and compiles the corresponding mex binaries for the Simulink library.
+
+
+<h2>Syntax</h2>
+<pre>GT.BuildDrivers()
+GT.BuildDrivers(false)</pre>
+
+<h2>Description</h2>
+<code>GT.BuildDrivers()</code> builds the simulink driver blocks with simulink support enabled.
+<br><hr>
+<code>GT.BuildDrivers(false)</code> builds the simulink driver blocks with simulink support disabled.
+
+<h2>Input Arguments</h2>
+    <h3>useSimulinkSupport</h3>
+    True if driver blocks should be build with simulink support, false otherwise. The default value is true.
+

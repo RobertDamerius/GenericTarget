@@ -1,0 +1,13 @@
+<h1>GT.GetVersion</h1>
+Get the current version of the Generic Target toolbox.
+
+<h2>Syntax</h2>
+<pre>v = GT.GetVersion()</pre>
+
+<h2>Description</h2>
+<code>v = GT.GetVersion()</code> returns the current version of the Generic Target toolbox.
+
+<h2>Output Arguments</h2>
+    <h3>v</h3>
+    The current version of type uint32.
+
