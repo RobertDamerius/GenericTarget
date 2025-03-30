@@ -100,7 +100,7 @@
             </td><tr>
         <tr><td style="border:none;"><img src="../img/TemplateModel.svg"></td><td style="border:none;"></td><td valign="top" style="border:none;">
             <h4>Template Model</h4>
-            The MATLAB package includes a template for a Simulink model.
+            A Simulink template model is generated using the MATLAB package.
             Based on this model, the software for the generic target application can be developed.
             This template is pre-configured with all necessary settings, which are required for automatic code deployment.
             </td><tr>
@@ -113,7 +113,7 @@
     <br>
 
 <h2>How It Works</h2>
-    A Simulink model should be created based on the Simulink template model that is shipped with the toolbox.
+    A Simulink model should be created based on the Simulink template model.
     In principle, all standard blocks from which generic C/C++ code is generated can be used.
     Special interface blocks such as UDP Receive or Target Scope from the Simulink Realtime Toolbox cannot be used.
     A separate Simulink library with driver blocks comes with the Generic Target Toolbox.
@@ -147,11 +147,11 @@
     Therefore, the following points should be considered for the development of a target application.
     <br>
     <h3>Use the Simulink template model</h3>
-    The MATLAB command <a href="packages_gt_gettemplate.html">GT.GetTemplate</a> copies a Simulink model as a template into the current working directory.
+    The MATLAB command <a href="packages_gt_gettemplate.html">GT.GetTemplate</a> generates a Simulink model into the current working directory.
     In this template, all necessary settings are set so that the code generation generates the code in such a way that it can subsequently be used correctly in the automated deployment process.
     If settings are changed that affect code generation, the entire deployment process may stop working.
     Different sample rates are processed in parallel on the target PC in different threads.
-    Therefore, the option Allow tasks to execute concurrently on target must be activated in the Simulink settings (Fixed-step solver).
+    Therefore, the option Allow tasks to execute concurrently on target must be activated in the Simulink settings, for example (Fixed-step solver).
     <br>
     <h3>Rate-transition block</h3>
     Different samplerates in the model are connected by rate transition blocks.
