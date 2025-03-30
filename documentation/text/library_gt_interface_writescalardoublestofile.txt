@@ -35,7 +35,7 @@ An ID may only occur once in the model.
 The initialization of a target application fails, if the ID is not unique.
 
 <h3>Data Recorder</h3>
-In the generic target core a separate thread takes over the actual writing of the data into the recording file.
+In the Generic Target Core a separate thread takes over the actual writing of the data into the recording file.
 For each ID a separate thread is created.
 All data recording threads have the same priority, which is defined by the parameter <a href="packages_gt_generictarget.html#priorityDataRecorder">priorityDataRecorder</a> of the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> class.
 Via the block mask, the parameter <code>numSamplesPerFile</code> is used to specify how many samples are to be written to a file before a new file is created.

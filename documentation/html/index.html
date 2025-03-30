@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20250312</div>
+<div class="header_version">Version 25020312</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -107,7 +107,7 @@
         <tr><td style="border:none;"><img src="../img/GenericTargetCore.svg"></td><td style="border:none;"></td><td valign="top" style="border:none;">
             <h4>Generic Target Core</h4>
             The toolbox contains build tools and the source code for the core of the realtime application to be deployed to the target computer.
-            The source code of the generic target core is compiled on the target computer together with the generated code of the Simulink model.
+            The source code of the Generic Target Core is compiled on the target computer together with the generated code of the Simulink model.
             </td><tr>
     </table>
     <br>
@@ -122,16 +122,16 @@
     The generated code essentially contains a class with the methods <code>initialize()</code>, <code>step()</code>, and <code>terminate()</code>.
     Besides the generated code, the <code>codeInfo.mat</code> file is generated, which contains additional information like sample rates, thread priorities, function names and so on.
     Based on this information, the source code for a Simulink interface class is generated.
-    The programming interface from the generic target core to this Simulink interface class is always the same.
+    The programming interface from the Generic Target Core to this Simulink interface class is always the same.
     The necessary additional information (e.g. thread priorities) from the code generation is also integrated into the Simulink interface class.
     <br>
     <br>
     <center><object width="95%" data="../img/Overview.svg" type="image/svg+xml"></object></center>
     <br>
-    The generated model code as well as the source code for the generic target core are transfered to the target computer via SCP during deployment.
+    The generated model code as well as the source code for the Generic Target Core are transfered to the target computer via SCP during deployment.
     All sources are then compiled on the target computer.
     Therefore commands are send to the target via SSH.
-    The generic target core is responsible for calling the functions of the generated model code.
+    The Generic Target Core is responsible for calling the functions of the generated model code.
     When running the generic target application, the <code>initialize()</code> method is executed once at the beginning.
     Afterwards the <code>step()</code> method is executed with the appropriate sampling rate.
     When the application is terminated, the <code>terminate()</code> method is called.

@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20250312</div>
+<div class="header_version">Version 25020312</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -98,7 +98,7 @@
         <tr><th width="200px">Directory/File</th><th>Description</th></tr>
         <tr><td>.vscode</td><td>This directory contains metadata for VSCode and allows for <a href="example_debugging.html">debugging</a> the application with VSCode, just in case.</td></tr>
         <tr><td>build</td><td>This directory is created during the compilation process. During compilation, object files and dependency files are first created from the source file, which are then linked together to the application. The dependency files ensure that when a source or header file is changed, only those source files are recompiled that depend on the changed files.</td></tr>
-        <tr><td>code</td><td>This directory contains the source code of the application including the generic target core, the generated code from Simulink as well as optional custom code.</td></tr>
+        <tr><td>code</td><td>This directory contains the source code of the application including the Generic Target Core, the generated code from Simulink as well as optional custom code.</td></tr>
         <tr><td>data</td><td>This directory is created by the application to store <a href="datarecording.html">data recording files</a>, if data recording is to be used, i.e. if there're Write To File blocks in the model.</td></tr>
         <tr><td>protocol</td><td>This directory is created by the application to store <a href="protocolfile.html">protocol files</a>.</td></tr>
         <tr><td>GenericTarget</td><td>This is the executable. The name can be changed via the property <a href="packages_gt_generictarget.html#targetProductName">targetProductName</a>.</tr>

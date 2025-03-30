@@ -2,15 +2,16 @@
 
 # Generic Target
 
-The Generic Target Toolbox can be used to run MATLAB/Simulink models (**>= R2024a**) on a target computer.
-The target computer can be any computer that has at least one network interface and has a Linux operating system with
-the PREEMPT_RT realtime patch installed. All Simulink blocks that allow code generation can be used. For low-level hardware
-interfaces like network interfaces, the Generic Target Toolbox comes with its own blocks.
+The Generic Target Toolbox is used to deploy and run MATLAB/Simulink models (**>= R2024a**) on a target computer.
+The target computer can be any computer that has at least one network interface and has a Linux operating system with the PREEMPT_RT realtime patch installed.
+All Simulink blocks that allow code generation can be used.
+For low-level hardware interfaces like network interfaces, the Generic Target Toolbox comes with its own blocks.
 
 The directory structure of this repository is as follows.
 
 | File / Directory   | Description                                                                                                    |
 | :----------------- | :------------------------------------------------------------------------------------------------------------- |
+| core               | contains source code and template files for the Generic Target Core                                            |
 | documentation      | contains the documentation that has been created with [SimpleDoc](https://github.com/RobertDamerius/SimpleDoc) |
 | library            | contains the MATLAB/Simulink library "GenericTarget" (**>= R2024a**)                                           |
 | packages           | contains the MATLAB package "GT"                                                                               |

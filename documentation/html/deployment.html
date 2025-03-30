@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20250312</div>
+<div class="header_version">Version 25020312</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -116,7 +116,7 @@
 
     <h3>1. Copy Generic Target Core</h3>
     A temporary code generation folder is created that is going to contain the generated application software.
-    At the beginning the generic target core is copied into this temporary release folder.
+    At the beginning the Generic Target Core is copied into this temporary release folder.
     The Makefile for compiling is updated according to the properties of the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> class.
 
     <h3>2. slbuild</h3>
@@ -130,7 +130,7 @@
     <h3>4. Remove main() Entry Functions</h3>
     All files containing a <code>main()</code> function are removed.
     The strings <code>"int_T main("</code> and <code>"int main("</code> are searched for.
-    The generic target core has its own <code>main()</code> function.
+    The Generic Target Core has its own <code>main()</code> function.
     <br>
     <br>
     <span style="color: #f00;">
@@ -145,7 +145,7 @@
     </div>
 
     <h3>5. Replace RTW Headers</h3>
-    All header files named <code>rtw_windows.h</code> and <code>rtw_linux.h</code> are replaced by header files of the same name, which are located in the <code>packages/+GT/Templates/</code>
+    All header files named <code>rtw_windows.h</code> and <code>rtw_linux.h</code> are replaced by header files, which are located in the <code>core/</code>
     directory of the toolbox. In these header files the usage of semaphores and mutexes is defined.
     A semaphore or mutex is used to ensure data integrity during parallel read or write accesses to resources by different threads.
     The generated code often includes <code>rtw_windows.h</code>, even if the code is generated for a Linux target.
@@ -166,7 +166,7 @@
     <h3>7. Generate Interface Code</h3>
     Based on the information in the <code>codeInfo.mat</code> file, the Simulink interface class is created.
     Additional properties set via the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> class are also integrated into the Simulink interface class.
-    A template of the Simulink interface class is located in the <code>packages/+GT/Templates/</code> directory of the toolbox.
+    A template of the Simulink interface class is located in the <code>core/</code> directory of the toolbox.
     Special entries marked by $ characters are replaced by corresponding values during the code generation of this Simulink interface class.
 
     <h3>8. Add Custom Code</h3>

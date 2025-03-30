@@ -8,7 +8,7 @@
     If data is to be recorded, then this data is first written to a buffer.
     A separate thread then takes care of writing the data to files.
     Each data recorder object has a unique ID.
-    Internally the generic target core software manages a hash table that contains are data recorder objects together with their unique ID as key value.
+    Internally the Generic Target Core software manages a hash table that contains are data recorder objects together with their unique ID as key value.
 
     <h3>Initialization</h3>
     During initialization the target application creates a new data directory with a name denoting the current UTC time.

@@ -481,8 +481,8 @@ classdef GenericTarget < handle
         end
     end
     methods(Access=private)
-        function directory = GetTemplateDirectory(this)
-            directory = fullfile(extractBefore(mfilename('fullpath'),strlength(mfilename('fullpath')) - strlength(mfilename) + 1), 'Templates');
+        function directory = GetCoreDirectory(this)
+            directory = fullfile(extractBefore(mfilename('fullpath'),strlength(mfilename('fullpath')) - strlength(mfilename) + 1), '..', '..', 'core');
         end
         function tasksetOption = GetTasksetOption(this)
             tasksetOption = '';
@@ -492,10 +492,14 @@ classdef GenericTarget < handle
         end
         function CopyFrameworkToReleaseFolder(this,releaseFolder)
             % Copy folders
-            templateDirectory = this.GetTemplateDirectory();
-            fprintf('[GENERIC TARGET] Copying framework from "%s" to release folder "%s"\n',templateDirectory,releaseFolder);
-            assert(copyfile(fullfile(templateDirectory,'code'), fullfile(releaseFolder,'code'), 'f'), 'Could not copy template files!');
-            assert(copyfile(fullfile(templateDirectory,'.vscode'), fullfile(releaseFolder,'.vscode'), 'f'), 'Could not copy template files!');
+            coreDirectory = this.GetCoreDirectory();
+            fprintf('[GENERIC TARGET] Copying framework from "%s" to release folder "%s"\n', coreDirectory, releaseFolder);
+            srcDirectoryCode = fullfile(coreDirectory,'code');
+            srcFileVSCode = fullfile(coreDirectory,'.vscode');
+            assert(exist(srcDirectoryCode, 'dir'), ['Missing files in Generic Target toolbox: ', srcDirectoryCode]);
+            assert(exist(srcFileVSCode, 'file'), ['Missing file in Generic Target toolbox: ', srcDirectoryCode]);
+            assert(copyfile(srcDirectoryCode, fullfile(releaseFolder,'code'), 'f'), 'Could not copy Generic Target core files!');
+            assert(copyfile(srcFileVSCode, fullfile(releaseFolder,'.vscode'), 'f'), 'Could not copy Generic Target core files!');
 
             % Generate files
             this.GenerateMakefile(releaseFolder);
@@ -504,7 +508,7 @@ classdef GenericTarget < handle
         end
         function GenerateMakefile(this,releaseFolder)
             % Read the template Makefile
-            srcMakefile = fullfile(this.GetTemplateDirectory(),'Makefile');
+            srcMakefile = fullfile(this.GetCoreDirectory(),'Makefile');
             dstMakefile = fullfile(releaseFolder,'Makefile');
             fprintf('[GENERIC TARGET] Generating Makefile "%s"\n',dstMakefile);
             strMakefile = fileread(srcMakefile);
@@ -535,7 +539,7 @@ classdef GenericTarget < handle
         end
         function GenerateReadme(this,releaseFolder)
             % Read the template readme file
-            srcReadme = fullfile(this.GetTemplateDirectory(),'README.md');
+            srcReadme = fullfile(this.GetCoreDirectory(),'README.md');
             dstReadme = fullfile(releaseFolder,'README.md');
             fprintf('[GENERIC TARGET] Generating readme file "%s"\n',dstReadme);
             strReadme = fileread(srcReadme);
@@ -553,7 +557,7 @@ classdef GenericTarget < handle
         end
         function OverwriteVSLaunchFile(this,releaseFolder)
             % Read the launch file
-            srcLaunch = fullfile(this.GetTemplateDirectory(),'.vscode','launch.json');
+            srcLaunch = fullfile(this.GetCoreDirectory(),'.vscode','launch.json');
             dstLaunch = fullfile(releaseFolder,'.vscode','launch.json');
             strLaunch = fileread(srcLaunch);
 
@@ -601,7 +605,7 @@ classdef GenericTarget < handle
 
                 % Check for rtw_windows.h or rtw_linux.h: replace those
                 if(strcmp('rtw_windows.h',listings(i).name) || strcmp('rtw_linux.h',listings(i).name))
-                    templateFile = fullfile(this.GetTemplateDirectory(), listings(i).name);
+                    templateFile = fullfile(this.GetCoreDirectory(), ['gt_template_', listings(i).name]);
                     fprintf('    Replacing file "%s"\n',currentFile);
                     delete(currentFile);
                     [~,~] = copyfile(templateFile,currentFile,'f');
@@ -753,8 +757,8 @@ classdef GenericTarget < handle
             strNumberOfOldProtocolFiles = sprintf('%d',this.numberOfOldProtocolFiles);
 
             % Read template interface files and replace macros in both header and source template code
-            strHeader = fileread(fullfile(this.GetTemplateDirectory(),'TemplateInterface.hpp'));
-            strSource = fileread(fullfile(this.GetTemplateDirectory(),'TemplateInterface.cpp'));
+            strHeader = fileread(fullfile(this.GetCoreDirectory(),'gt_template_simulink_interface.hpp'));
+            strSource = fileread(fullfile(this.GetCoreDirectory(),'gt_template_simulink_interface.cpp'));
             strHeader = strrep(strHeader, '$NAME_OF_MODEL$', strNameOfModel);
             strSource = strrep(strSource, '$NAME_OF_MODEL$', strNameOfModel);
             strHeader = strrep(strHeader, '$NAME_OF_CLASS$', strNameOfClass);
