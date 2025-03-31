@@ -12,7 +12,7 @@ Any computer can serve as a target system as long as it runs a Linux operating s
 - **Cross-Platform**: While focused on Linux, it's possible to deploy a target application to different platforms with minor adjustments.
 - **Multi-Threading**: Automatically schedules tasks with multiple sampling rates, running them in parallel with appropriate thread priorities.
 - **UDP Communication**: Offers direct socket access beyond Simulink UDP blocks, allowing retrieval of sender addresses, dynamic multicast joining, socket error handling, and more.
-- **Timing**: Provides real-time access to system time in multiple formats, including local time, UTC, and UNIX timestamp.
+- **Timing**: Provides real-time access to system time in multiple formats, including local time, UTC and UNIX timestamp.
 - **Reliable Data Recording**: Continuously saves data to minimize loss in case of a system failure.
 - **System Monitoring**: Allows monitoring of thermal zones and real-time related properties like CPU and task overloads and task execution times.
 - **System Monitoring**: Provides access to thermal zones, CPU and task overloads and task execution time for performance analysis.

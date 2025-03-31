@@ -60,7 +60,7 @@ function info = DecodeIndexFile(filename)
             if(~byte)
                 break;
             end
-            strID = [strID, char(byte)];
+            strID = append(strID, char(byte));
         end
         info.listOfIDs{i} = strID;
     end

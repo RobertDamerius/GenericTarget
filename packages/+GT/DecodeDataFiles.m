@@ -23,7 +23,7 @@ function data = DecodeDataFiles(dataFileNames)
     end
 
     % Decode/check all headers and make sure that all headers are equal
-    if(1 == numel(dataFileNames)), fprintf('[GENERIC TARGET] Decoding %d data file: reading binary data',numel(dataFileNames));
+    if(isscalar(dataFileNames)), fprintf('[GENERIC TARGET] Decoding %d data file: reading binary data',numel(dataFileNames));
     else, fprintf('[GENERIC TARGET] Decoding %d data files: reading binary data',numel(dataFileNames)); end
     tic();
     header = struct.empty();
@@ -116,23 +116,12 @@ function data = DecodeDataFiles(dataFileNames)
             fprintf('\b\b\b\b\b\b%03d %%]',progress);
         end
 
-        % Get strings for dimension creation and dimension assignment
-        strDim = strrep(regexprep(num2str(dim),' +',' '),' ',',');
-        strDimAssign = repmat(':,',[1 numel(dim)]);
-
-        % Create empty data vector (either scalar or multi-dimensional)
-        if(1 == numel(dim)) % scalar signal
-            eval(['dataVals = ',type,'(zeros(',num2str(numberOfSamples),',1));']);
-        else % multidimensional signal
-            eval(['dataVals = ',type,'(zeros(',strDim,',',num2str(numberOfSamples),'));']);
-        end
-
         % Decode this signal from all samples
         sizeOfSignal = GetSizeOfSignal(dim,type);
         byteIndices = offsetSignalData + cumsum(repmat([stride; zeros(sizeOfSignal-1,1)],[numberOfSamples 1])) - stride + repmat(((1:sizeOfSignal)' - 1),[numberOfSamples 1]);
         valuesCasted = typecast(bytes(byteIndices), type);
         if(numel(dim) > 1) % multi-dimensional signal
-            eval(['dataVals(',strDimAssign,':) = reshape(valuesCasted, [dim, numberOfSamples]);']);
+            dataVals = reshape(valuesCasted, [dim, numberOfSamples]);
         else % scalar signal
             dataVals = valuesCasted;
         end
@@ -145,8 +134,7 @@ function data = DecodeDataFiles(dataFileNames)
 
         % Put timeVec,dataVals into time series struct
         layerNames = split(name,'.');
-        ts = timeseries(dataVals,timeVec,'Name',layerNames{end}); % this automatically sorts the data according to the time
-        eval(['data.',name,' = ts;']);
+        data.(name) = timeseries(dataVals,timeVec,'Name',layerNames{end}); % this automatically sorts the data according to the time
     end
     fprintf('\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bOK (finished after %f seconds)\n',toc());
 end
@@ -255,7 +243,7 @@ function [success, signalNames, dimensions, dataTypes] = ConvertHeader(header)
     strDimensions = split(strDimensions,',');
     dimensions = cellfun(@str2num,strDimensions,'UniformOutput',false);
     for i = 1:numel(dimensions)
-        if(1 == numel(dimensions{i}))
+        if(isscalar(dimensions{i}))
             if(dimensions{i} > 1)
                 dimensions{i} = [dimensions{i},1];
             end

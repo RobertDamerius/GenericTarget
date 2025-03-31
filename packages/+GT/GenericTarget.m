@@ -481,7 +481,7 @@ classdef GenericTarget < handle
         end
     end
     methods(Access=private)
-        function directory = GetCoreDirectory(this)
+        function directory = GetCoreDirectory(~)
             directory = fullfile(extractBefore(mfilename('fullpath'),strlength(mfilename('fullpath')) - strlength(mfilename) + 1), '..', '..', 'core');
         end
         function tasksetOption = GetTasksetOption(this)
@@ -572,7 +572,7 @@ classdef GenericTarget < handle
             fwrite(fidLaunch, uint8(strLaunch));
             fclose(fidLaunch);
         end
-        function modelCodeFolder = BuildModelToReleaseFolder(this, modelName, codeGenFolder, releaseFolder)
+        function modelCodeFolder = BuildModelToReleaseFolder(~, modelName, codeGenFolder, releaseFolder)
             % Run code generation (model must be configured to pack the generated code into the PackNGo archive)
             fprintf('[GENERIC TARGET] Building model code ...\n');
             slbuild(modelName);
@@ -664,10 +664,10 @@ classdef GenericTarget < handle
         end
         function [strHeader, strSource] = GenerateInterfaceCode(this, modelName, codeInfo)
             % Get the model name, both for function names and information
-            strNameOfModel = '';
+            strNameOfModel = char.empty();
             for i = 1:numel(modelName)
                 if((uint8(modelName(i)) >= uint8(20)) && (uint8(modelName(i)) <= uint8(126)))
-                    strNameOfModel = [strNameOfModel,modelName(i)];
+                    strNameOfModel = append(strNameOfModel, modelName(i));
                 end
             end
 
@@ -677,8 +677,8 @@ classdef GenericTarget < handle
 
             % Get initialize and terminate function prototypes
             assert(isempty(codeInfo.UpdateFunctions), 'GT.GenericTarget.GenerateInterfaceCode(): Code generation information contains update functions! However, no update functions are supported!');
-            assert(1 == numel(codeInfo.InitializeFunctions), 'GT.GenericTarget.GenerateInterfaceCode(): Code generation information contains several initialization functions! However, only one initialization function is supported!');
-            assert(1 == numel(codeInfo.TerminateFunctions), 'GT.GenericTarget.GenerateInterfaceCode(): Code generation information contains several termination functions! However, only one termination function is supported!');
+            assert(isscalar(codeInfo.InitializeFunctions), 'GT.GenericTarget.GenerateInterfaceCode(): Code generation information contains several initialization functions! However, only one initialization function is supported!');
+            assert(isscalar(codeInfo.TerminateFunctions), 'GT.GenericTarget.GenerateInterfaceCode(): Code generation information contains several termination functions! However, only one termination function is supported!');
             strModelInitialize = codeInfo.InitializeFunctions.Prototype.Name;
             strModelTerminate = codeInfo.TerminateFunctions.Prototype.Name;
 
@@ -731,8 +731,8 @@ classdef GenericTarget < handle
                 strArraySampleTicks = strcat(strArraySampleTicks, sprintf(',%d',sampleTicks(n)));
                 strArrayOffsetTicks = strcat(strArrayOffsetTicks, sprintf(',%d',offsetTicks(n)));
                 strArrayPriorities = strcat(strArrayPriorities, sprintf(',%d',priorities(n)));
-                strStepSwitch = [strStepSwitch, sprintf('\n        case %d: model.%s(); break;',uint32(n-1),stepPrototypes(n))];
-                strArrayTaskNames = [strArrayTaskNames, sprintf(', "%s"',taskNames(n))];
+                strStepSwitch = append(strStepSwitch, sprintf('\n        case %d: model.%s(); break;',uint32(n-1),stepPrototypes(n)));
+                strArrayTaskNames = append(strArrayTaskNames, sprintf(', "%s"',taskNames(n)));
             end
 
             % Get priority for data recording thread
@@ -794,7 +794,7 @@ classdef GenericTarget < handle
             strHeader = strrep(strHeader, '$NUMBER_OF_OLD_PROTOCOL_FILES$', strNumberOfOldProtocolFiles);
             strSource = strrep(strSource, '$NUMBER_OF_OLD_PROTOCOL_FILES$', strNumberOfOldProtocolFiles);
         end
-        function CompressReleaseFolder(this, releaseFolder, zipFileName)
+        function CompressReleaseFolder(~, releaseFolder, zipFileName)
             % Get all listings from the release folder
             L = dir(releaseFolder);
             L = L(~ismember({L.name},{'.','..'}));
@@ -891,7 +891,7 @@ classdef GenericTarget < handle
             assert(iscellstr(this.additionalCompilerFlags.LIBRARY_PATHS), 'Property "additionalCompilerFlags.LIBRARY_PATHS" must be a cell array of strings!');
             this.additionalCompilerFlags.LIBRARY_PATHS = unique(this.additionalCompilerFlags.LIBRARY_PATHS);
         end
-        function cmdout = RunCommand(this, cmd)
+        function cmdout = RunCommand(~, cmd)
             [~,cmdout] = system(cmd,'-echo');
         end
     end
