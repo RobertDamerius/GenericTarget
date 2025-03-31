@@ -2,56 +2,73 @@
 
 # Generic Target
 
-The Generic Target Toolbox is used to deploy and run MATLAB/Simulink models (**>= R2024a**) on a target computer.
-The target computer can be any computer that has at least one network interface and has a Linux operating system with the PREEMPT_RT realtime patch installed.
-All Simulink blocks that allow code generation can be used.
-For low-level hardware interfaces like network interfaces, the Generic Target Toolbox comes with its own blocks.
-
-The directory structure of this repository is as follows.
-
-| File / Directory   | Description                                                                                                    |
-| :----------------- | :------------------------------------------------------------------------------------------------------------- |
-| core               | contains source code and template files for the Generic Target Core                                            |
-| documentation      | contains the documentation that has been created with [SimpleDoc](https://github.com/RobertDamerius/SimpleDoc) |
-| library            | contains the MATLAB/Simulink library "GenericTarget" (**>= R2024a**)                                           |
-| packages           | contains the MATLAB package "GT"                                                                               |
-| resources          | contains project definition files for the MATLAB/Simulink project                                              |
-| GenericTarget.prj  | Simulink project file                                                                                          |
-| install.m          | MATLAB script to add the Generic Target Toolbox to the MATLAB path                                             |
-| LICENSE            | license information                                                                                            |
-| readme.html        | forwards to the documentation                                                                                  |
-| README.md          | this file                                                                                                      |
+The **GenericTarget** project is designed to facilitate the deployment of MATLAB/Simulink models to linux-based real-time systems.
+For applications that rely solely on network interfaces, it provides a library and tools to build hardware-agnostic real-time applications with MATLAB/Simulink.
+Any computer can serve as a target system as long as it runs a Linux operating system with the **PREEMPT_RT** patch.
 
 
-> **Note**<br>
-> The toolbox is currently in the stage of development and testing.
+## Features
+- **Hardware Agnostic**: The target applications runs entirely in the userspace, making it available to all platforms that are supported by Linux.
+- **Cross-Platform**: While focused on Linux, it's possible to deploy a target application to different platforms with minor adjustments.
+- **Multi-Threading**: Automatically schedules tasks with multiple sampling rates, running them in parallel with appropriate thread priorities.
+- **UDP Communication**: Offers direct socket access beyond Simulink UDP blocks, allowing retrieval of sender addresses, dynamic multicast joining, socket error handling, and more.
+- **Timing**: Provides real-time access to system time in multiple formats, including local time, UTC, and UNIX timestamp.
+- **Reliable Data Recording**: Continuously saves data to minimize loss in case of a system failure.
+- **System Monitoring**: Allows monitoring of thermal zones and real-time related properties like CPU and task overloads and task execution times.
+- **System Monitoring**: Provides access to thermal zones, CPU and task overloads and task execution time for performance analysis.
 
-### Major Changes
-| Date / Version  | Description                                                                                                                                                                                                        |
-| :-------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2021-01-26      | Initial release                                                                                                                                                                                                    |
-| 2021-02-08      | File logging has been updated. Bus signals can now be recorded directly (scalar doubles only).                                                                                                                     |
-| 2021-03-19      | File logging has been extended to complete bus objects with multi-dimensional signals of common data types.                                                                                                        |
-| 2021-05-31      | Custom code directories can now be included during code generation.                                                                                                                                                |
-| 2022-05-18      | Updated interface code generation to support newer MATLAB versions.                                                                                                                                                |
-| 2022-10-10      | Model and simulation time are renamed to hardware and software time, respectively.                                                                                                                                 |
-| 2022-10-11      | CPU overload is replaced by task overload. Missed ticks of the base timer are interpreted as CPU overloads.                                                                                                        |
-| 2023-02-28      | Lowest valid thread priority is set to 1.                                                                                                                                                                          |
-| 2023-03-23      | Default port of application socket is set to 44000.                                                                                                                                                                |
-| 2023-05-24      | Added automatic network initialization, added protocol files, added backtrace for DEBUG mode, updated timing blocks, added prebuild driver blocks for Windows and Linux.                                           |
-| 2023-05-26      | Renamed target execution time to model execution time. Updated directory names.                                                                                                                                    |
-| 2023-07-26      | Updated deployment procedure and target directory structure. Data recordings can be named. Additional compiler flags can be set. Target can be started on specific CPU cores.                                      |
-| 2023-10-04      | Added support for UDP broadcast. Network interface names can now be used to specify multicast interfaces.                                                                                                          |
-| 2023-11-21      | Enabled option supportsMultipleExecInstances for simulink blocks. Added prefixes to prevent name collision with user code.                                                                                         |
-| 2024-03-19      | Added option to bind network devices for UDP unicast. Updated the block interface for UDP unicast and multicast blocks. Updated library to MATLAB R2023b.                                                          |
-| 2024-05-20      | Time source of timestamps for UDP receive blocks can be selected via the block mask.                                                                                                                               |
-| 2024-05-24      | Added support for periodic partitions and sample offset. Added stop execution block. Task name is now used for task execution time and task overload blocks.                                                       |
-| 2024-06-08      | Model step functions are not executed in a delayed manner after a task overload but are called at their next possible time slot.                                                                                   |
-| 2024-11-07      | Redesign of UDP interface. Use of non-blocking message receiving directly in model without a separate receive thread. Improved simulink support for UDP blocks. Multicast groups can be joined or left at runtime. |
-| 2025-02-22      | Added interface address for multicast traffic.                                                                                                                                                                     |
-| 2025-03-12      | Write Bus To File block do not require bus object definition but scan the input signal of the block.                                                                                                               |
+
+## Download and Installation
+Clone or download this repository to your local machine.
+Run `install.m` in MATLAB to add the toolbox to MATLAB's path.
+For optimal compatibility with your host system, it is recommended to **rebuild all driver blocks** during the installation.
+
+You can always rebuild driver blocks by running:
+
+```
+GT.BuildDrivers()
+```
+
+For alternative installation methods using Simulink projects, refer to the documentation.
+
 
 ## Getting Started
-Look at the HTML-based documentation by opening the ``readme.html`` file with a browser. There you will find a more
-detailed description of the Generic Target Toolbox as well as instructions on how to prepare the target computer and create
-your first realtime application.
+Open [readme.html](readme.html) in a web browser to access the HTML documentation.  
+It provides a detailed overview of the **Generic Target Toolbox**, including setup instructions for the target computer and a guide to creating your first real-time application. 
+
+
+## Documentation
+A comprehensive HTML-based documentation for offline use is available within this repository, including:
+
+- Detailed setup instructions
+- Configuration examples for real-time applications
+- Best practices for optimizing performance
+
+To access the documentation, open the [readme.html](readme.html) file with a browser.
+Once you installed the Generic Target Toolbox in MATLAB, you can also open the documentation by running the following command in the MATLAB command window:
+
+```
+GT.OpenDocumentation()
+```
+
+
+## Repository Structure
+The structure of this repository is as follows.
+
+| File / Directory   | Description                                                          |
+| :----------------- | :------------------------------------------------------------------- |
+| core               | contains source code and template files for the Generic Target Core  |
+| documentation      | contains the HTML-based documentation                                |
+| library            | contains the MATLAB/Simulink library "GenericTarget" (**>= R2024a**) |
+| packages           | contains the MATLAB package "GT"                                     |
+| resources          | contains project definition files for the MATLAB/Simulink project    |
+| GenericTarget.prj  | Simulink project file                                                |
+| install.m          | MATLAB script to add the Generic Target Toolbox to the MATLAB path   |
+| LICENSE            | license information                                                  |
+| readme.html        | forwards to the documentation                                        |
+| README.md          | this file                                                            |
+
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+

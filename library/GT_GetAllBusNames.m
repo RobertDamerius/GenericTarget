@@ -1,4 +1,6 @@
 function nameString = GT_GetAllBusNames(inputSignals,preString)
+    % NOTE: This is a callback helper function for the Generic Target Simulink library.
+
     if(nargin < 2)
         preString = char.empty();
     end

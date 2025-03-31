@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 25020312</div>
+<div class="header_version">Version 20250331</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -53,7 +53,7 @@
 <li class="linav"><a href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
 <li class="linone"></li>
 <li class="litext">EXAMPLES</li>
-<li class="linav"><a href="example_udpreceiveloop.html">Suggested procedure for UDP reception</a></li>
+<li class="linav"><a href="example_udpreceiveloop.html">Suggested Procedure for UDP Reception</a></li>
 <li class="linav"><a href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
 <li class="linav"><a href="example_debugging.html">Debugging with Visual Studio Code</a></li>
 <li class="linone"></li>
@@ -75,17 +75,17 @@
 
 
 <h3>Description</h3>
-Get the number of <a href="timingscheduling.html#cpuoverload">CPU overloads</a> and lost ticks. During simulation this block has no effect.
+Get the total number of <a href="timingscheduling.html#cpuoverload">CPU overloads</a> and lost ticks since the model has been started. During simulation this block has no effect.
 
 
 <h2>Output Ports</h2>
 <h3>numCPUOverloads</h3>
-The number of CPU overloads that have been occurred. This value is incremented by one, if the timer interrupt event (with the base sampletime of the model) has been lost.
+The total number of CPU overloads that have been occurred. This value is incremented by one, if the timer interrupt event for the base rate scheduler (with the base sampletime of the model) has been lost.
 <br>
 <b>Data Type:</b> <span style="font-family: Courier New">uint64</span>
 
 <h3>numLostTicks</h3>
-The number of lost ticks from the timer. This value is incremented by the number of lost timer interrupt events.
+The total number of lost ticks from the timer. This value is incremented by the number of lost timer interrupt events.
 <br>
 <b>Data Type:</b> <span style="font-family: Courier New">uint64</span>
 
@@ -96,6 +96,8 @@ The following table shows all block parameters.
     <tr><th>Parameter Name</th><th>Description</th></tr>
     <tr><td style="font-family: Courier New;">SampleTime</td><td>Sampletime.</td></tr>
 </table>
+
+<br><br><br><br>
 
 
 </div>

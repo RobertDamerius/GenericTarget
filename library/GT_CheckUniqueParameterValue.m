@@ -1,4 +1,6 @@
 function GT_CheckUniqueParameterValue(system, block, parameterName)
+    % NOTE: This is a callback helper function for the Generic Target Simulink library.
+
     objects = find_system(system,'Type','Block');
     numObjects = numel(objects);
     thisParameter = get_param(block,parameterName);

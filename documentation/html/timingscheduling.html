@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 25020312</div>
+<div class="header_version">Version 20250331</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -53,7 +53,7 @@
 <li class="linav"><a href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
 <li class="linone"></li>
 <li class="litext">EXAMPLES</li>
-<li class="linav"><a href="example_udpreceiveloop.html">Suggested procedure for UDP reception</a></li>
+<li class="linav"><a href="example_udpreceiveloop.html">Suggested Procedure for UDP Reception</a></li>
 <li class="linav"><a href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
 <li class="linav"><a href="example_debugging.html">Debugging with Visual Studio Code</a></li>
 <li class="linone"></li>
@@ -95,7 +95,7 @@ The following figure shows an example with three worker threads. The events of t
 stopwatch. The master thread runs with the highest priority and receives the timer events. Due to the operating system,
 a small latency (in the range of microseconds) elapses before the master thread receives control from the operating
 system and can react to the timer event. This latency is not constant.
-The generic target application uses a FIFO strategy for scheduling.
+The Generic Target application uses a FIFO strategy for scheduling.
 If there are several tasks to do, they are processed one after the other.
 The following figure shows an example for the case that all worker threads can work at the same time.
 <br>
@@ -121,7 +121,7 @@ number of lost ticks is incremented by the number of tick events that have been 
 The master thread triggers the worker thread. If the worker thread is still working, it misses the event from the master thread and a
 lost wakeup occurs. The event from the master thread is lost and the worker thread loses a time step.
 The worker thread is only triggered again synchronously with a subsequent event from the master thread if it is not running.
-This, if several lost wakeups occur during a step calculation, a corresponding number of step calls are missing.
+Thus, if several lost wakeups occur during a step calculation, a corresponding number of step calls are missing.
 The master thread detects all lost wakeups and thus recognizes task overloads.
 <br>
 <br>
@@ -134,7 +134,7 @@ How many threads actually run in parallel in reality depends on the CPU cores us
 In principle, the number of threads that can be executed simultaneously in parallel corresponds to the number of CPU cores.
 This does not mean that with a 4-core CPU, the model may have a maximum of four different sampletimes.
 Only the number of threads working in parallel is limited to four.
-The generic target application uses a FIFO strategy for scheduling.
+The Generic Target application uses a FIFO strategy for scheduling.
 If there are several tasks to do, they are processed one after the other.
 
 <h2>Thread Overview</h2>
@@ -151,7 +151,7 @@ Then this thread distributes the event to all worker threads of the model.
 <br>
 <br>
 The <b>main thread</b> executes the <a href="application.html#flowchart">main entry function</a> of the application.
-The initialization and termination phases of the generic target application run in this thread.
+The initialization and termination phases of the Generic Target application run in this thread.
 In the actual <a href="application.html#mainloop">main loop</a> this thread receives messages via the application socket and waits for a termination message.
 
 <br>
@@ -161,6 +161,8 @@ For each sample rate or periodic partition, one additional worker thread is adde
 The maximum priority is set via the property <a href="packages_gt_generictarget.html#upperThreadPriority">upperThreadPriority</a>.
 One additional thread is added for each Write To File block.
 The priority is specified via the property <a href="packages_gt_generictarget.html#priorityDataRecorder">priorityDataRecorder</a>.
+
+<br><br><br><br>
 
 
 </div>

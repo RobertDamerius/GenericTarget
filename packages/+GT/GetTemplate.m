@@ -101,11 +101,11 @@ function AddModelContent(modelName, strSampletime)
     blockWriteToFile = add_block('GenericTarget/Interface/Write Scalar Doubles To File', nameWriteToFile);
 
     % set block parameters
-    set_param(blockModelExecutionTime, 'Position', [0 4 205 46], 'SampleTime', strSampletime);
-    set_param(blockDigitalClock, 'Position', [0 69 205 111], 'SampleTime', strSampletime);
+    set_param(blockModelExecutionTime, 'Position', [80 -6 205 56], 'SampleTime', strSampletime);
+    set_param(blockDigitalClock, 'Position', [80 78 205 102], 'SampleTime', strSampletime);
     set_param(blockSum, 'Position', [255 15 275 35], 'Inputs', '|+-');
     set_param(blockBusCreator, 'Position', [355 6 360 44], 'Inputs','1');
-    set_param(blockWriteToFile, 'Position', [425 -9 605 59]); % do not update mask parameters as no bus is connected to the input right now
+    set_param(blockWriteToFile, 'Position', [430 -6 640 56]); % do not update mask parameters as no bus is connected to the input right now
 
     % add lines
     add_line(modelName, get_param(blockModelExecutionTime, 'PortHandles').Outport(1), get_param(blockSum, 'PortHandles').Inport(1), 'autorouting', 'smart');

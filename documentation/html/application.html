@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 25020312</div>
+<div class="header_version">Version 20250331</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -53,7 +53,7 @@
 <li class="linav"><a href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
 <li class="linone"></li>
 <li class="litext">EXAMPLES</li>
-<li class="linav"><a href="example_udpreceiveloop.html">Suggested procedure for UDP reception</a></li>
+<li class="linav"><a href="example_udpreceiveloop.html">Suggested Procedure for UDP Reception</a></li>
 <li class="linav"><a href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
 <li class="linav"><a href="example_debugging.html">Debugging with Visual Studio Code</a></li>
 <li class="linone"></li>
@@ -70,7 +70,7 @@
 </div>
 <div class="content">
 <h1>Generic Target Application Overview</h1>
-    The generic target application is an executable file.
+    The Generic Target application is an executable file.
     Under linux this file has no extension, under Windows the extension is <code>.exe</code>.
     The name of the executable can be set with the property <a href="packages_gt_generictarget.html#targetProductName">targetProductName</a>.
     The directory to which the application is deployed on the target is set via the property <a href="packages_gt_generictarget.html#targetSoftwareDirectory">targetSoftwareDirectory</a>.
@@ -96,7 +96,7 @@
     <br>
     <table>
         <tr><th width="200px">Directory/File</th><th>Description</th></tr>
-        <tr><td>.vscode</td><td>This directory contains metadata for VSCode and allows for <a href="example_debugging.html">debugging</a> the application with VSCode, just in case.</td></tr>
+        <tr><td>.vscode</td><td>This directory contains metadata for VSCode and allows for <a href="example_debugging.html">debugging</a> the application with VSCode.</td></tr>
         <tr><td>build</td><td>This directory is created during the compilation process. During compilation, object files and dependency files are first created from the source file, which are then linked together to the application. The dependency files ensure that when a source or header file is changed, only those source files are recompiled that depend on the changed files.</td></tr>
         <tr><td>code</td><td>This directory contains the source code of the application including the Generic Target Core, the generated code from Simulink as well as optional custom code.</td></tr>
         <tr><td>data</td><td>This directory is created by the application to store <a href="datarecording.html">data recording files</a>, if data recording is to be used, i.e. if there're Write To File blocks in the model.</td></tr>
@@ -151,20 +151,20 @@
     If the argument <code>--stop</code> is in the list of passed arguments, the termination flag is set.
 
     <h3>3. Open AppSocket (UDP Socket)</h3>
-    The generic target application internally uses an own UDP socket.
+    The Generic Target application internally uses an own UDP socket.
     This UDP socket is called AppSocket.
     The port of the AppSocket cannot be used for communication via UDP within the Simulink model.
     The port value is set via the property <a href="packages_gt_generictarget.html#portAppSocket">portAppSocket</a>.
 
     <h3>4. Bind Port for AppSocket</h3>
     At this point the port for the application socket is bound.
-    If this operation is unsuccessful, the port is already being used by another application (e.g. an already running generic target application).
+    If this operation is unsuccessful, the port is already being used by another application (e.g. an already running Generic Target application).
 
     <h3>5. If (arg == "--stop")</h3>
     If the termination flag is not set, the application is terminated.
-    This ensures that a generic target application is not executed multiple times at the same time.
+    This ensures that a Generic Target application is not executed multiple times at the same time.
     If the termination flag is set, a termination message is sent to the AppSocket port.
-    An already running generic target application receives this termination message and terminates itself.
+    An already running Generic Target application receives this termination message and terminates itself.
 
     <h3>6. Send UDP Termination Message</h3>
     At this point a UDP termination message is sent. The destination is the localhost, i.e. <code>127.0.0.1</code>.
@@ -211,7 +211,7 @@
     <h3 class="note-green">Note</h3>
     The termination message can also be sent from another application on the target PC.
     It is also possible to use a UDP Send block in the Simulink model that sends a termination message to the application socket.
-    In this way, the generic target application can be terminated by the model software.
+    In this way, the Generic Target application can be terminated by the model software.
     </div>
 
     <h3>4. Message is Termination Message</h3>
@@ -244,7 +244,9 @@
     Created data recording objects are destroyed at this point. Values that are still unwritten are written to the data files.
 
     <h3>4. Close AppSocket</h3>
-    The application socket is closed and the generic target application is terminated.
+    The application socket is closed and the Generic Target application is terminated.
+
+<br><br><br><br>
 
 
 </div>

@@ -1,5 +1,5 @@
 function info = DecodeIndexFile(filename)
-    %GT.DecodeIndexFile Decode index file created by the generic target application.
+    %GT.DecodeIndexFile Decode index file created by the Generic Target application.
     % 
     % PARAMETERS
     % filename ... The name of the index file to be decoded.

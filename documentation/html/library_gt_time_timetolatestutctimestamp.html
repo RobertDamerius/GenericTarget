@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 25020312</div>
+<div class="header_version">Version 20250331</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -53,7 +53,7 @@
 <li class="linav"><a href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
 <li class="linone"></li>
 <li class="litext">EXAMPLES</li>
-<li class="linav"><a href="example_udpreceiveloop.html">Suggested procedure for UDP reception</a></li>
+<li class="linav"><a href="example_udpreceiveloop.html">Suggested Procedure for UDP Reception</a></li>
 <li class="linav"><a href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
 <li class="linav"><a href="example_debugging.html">Debugging with Visual Studio Code</a></li>
 <li class="linone"></li>
@@ -75,7 +75,7 @@
 
 
 <h3>Description</h3>
-This block calculates the time difference (seconds) to the latest UTC timestamp. The block only uses standard Simulink blocks.
+This block calculates the time difference (seconds) to the latest UTC timestamp taking into account the wrap range of the UTC timestamp.
 The basic behaviour is as follows:
 <br>
 <b>output = current - latest</b>
@@ -97,6 +97,8 @@ The latest <a href="library_gt_time_utctimestamp.html">UTC Timestamp</a> in seco
 A time difference in seconds representing the time from the current timestamp to the latest timestamp. The range is [-43200, 43200).
 <br>
 <b>Data Type:</b> <span style="font-family: Courier New">double</span>
+
+<br><br><br><br>
 
 
 </div>

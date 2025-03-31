@@ -7,3 +7,5 @@ Create a pre-configured template Simulink model and save it to the current worki
 <h2>Description</h2>
 <code>GT.GetTemplate()</code> creates or overwrites the Simulink template model "GenericTargetTemplate.slx" in the current working directory.
 
+<br><br><br><br>
+

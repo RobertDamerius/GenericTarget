@@ -9,7 +9,7 @@ If the output should be printed to the console instead of being redirected into 
 sudo ./$TARGET_README_PRODUCT_NAME$ --console
 ```
 
-If the application is to be started without waiting for termination, the following command can be executed.
+If the application is to be started without waiting for termination in a console window, execute the following command:
 ```
 sudo nohup ./$TARGET_README_PRODUCT_NAME$ &
 ```

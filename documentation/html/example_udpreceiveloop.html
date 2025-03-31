@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 25020312</div>
+<div class="header_version">Version 20250331</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -53,7 +53,7 @@
 <li class="linav"><a href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
 <li class="linone"></li>
 <li class="litext">EXAMPLES</li>
-<li class="linav_active"><a href="example_udpreceiveloop.html">Suggested procedure for UDP reception</a></li>
+<li class="linav_active"><a href="example_udpreceiveloop.html">Suggested Procedure for UDP Reception</a></li>
 <li class="linav"><a href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
 <li class="linav"><a href="example_debugging.html">Debugging with Visual Studio Code</a></li>
 <li class="linone"></li>
@@ -69,20 +69,25 @@
 
 </div>
 <div class="content">
-<h1>Suggested procedure for UDP reception</h1>
-    With the UDP Receive block, all messages are fetched from the operating system's receive buffer and the last message is output.
-    As it cannot be guaranteed that the last message in the buffer corresponds to the expected message, it makes sense to evaluate all messages from the buffer.
-    To do this, the UDP Receive block must be placed in a While Iterator subsystem and the "fetch all messages from the network buffer" option must be disabled in the block mask of the Receive block.
-    <br>
-    <br>
-    An example of the content of a While Iterator subsystem can be found in the Simulink library under <code>GenericTarget/Examples/UDP Receive Loop</code>.
+<h1>Suggested Procedure for UDP Reception</h1>
+    In the <b>UDP Receive</b> block, all messages are fetched from the operating system’s receive buffer, and only the last message is output.
+    Since it cannot be guaranteed that the last message corresponds to the expected message, it is advisable to evaluate all messages in the buffer.
+    To achieve this, place the <b>UDP Receive</b> block inside a <b>While Iterator</b> subsystem, and disable the "fetch all messages from the network buffer" option in the block mask of the Receive block.
+
+    <p>
+    An example of a <b>While Iterator</b> subsystem can be found in the Simulink library under <code>GenericTarget/Examples/UDP Receive Loop</code>.
     This example provides a template for a receive loop.
-    The gray area must be replaced by a block that unpacks the actual message.
+    The gray area in the template should be replaced with a block that unpacks the actual message.
+    </p>
+
     <br>
     <br>
-    <center><object width="95%" data="../img/UDPReceiveLoop.svg" type="image/svg+xml"></object></center><br><br>
+    <center><object width="95%" data="../img/UDPReceiveLoop.svg" type="image/svg+xml"></object></center>
     <br>
     <br>
+
+<br><br><br><br>
+
 
 </div>
 </div>

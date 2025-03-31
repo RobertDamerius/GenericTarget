@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 25020312</div>
+<div class="header_version">Version 20250331</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -53,7 +53,7 @@
 <li class="linav"><a href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
 <li class="linone"></li>
 <li class="litext">EXAMPLES</li>
-<li class="linav"><a href="example_udpreceiveloop.html">Suggested procedure for UDP reception</a></li>
+<li class="linav"><a href="example_udpreceiveloop.html">Suggested Procedure for UDP Reception</a></li>
 <li class="linav"><a href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
 <li class="linav"><a href="example_debugging.html">Debugging with Visual Studio Code</a></li>
 <li class="linone"></li>
@@ -78,7 +78,7 @@
     Besides the generated code, the <code>codeInfo.mat</code> file is created during the model code generation.
     This file contains additional information such as sampletimes, thread priorities, and function names.
     Based on this information and the properties of the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> class object, the interface code is generated.
-    The programming interface from the actual generic target software to this interface is always the same.
+    The programming interface from the actual Generic Target software to this interface is always the same.
     All sources are copied to the target via SCP and are compiled on the target computer afterwards.
     <br>
     <br>
@@ -174,7 +174,7 @@
     All files and folders are copied without checking their content.
 
     <h3>9. Compress to MODELNAME.zip</h3>
-    The temporary release folder now contains the whole application source code that must be compiled to create the generic target realtime application.
+    The temporary release folder now contains the whole application source code that must be compiled to create the Generic Target realtime application.
     From the template folder a zip archive (MODELNAME.zip) is generated at this point.
 
     <div class="note-orange">
@@ -189,12 +189,14 @@
     The archive MODELNAME.zip is moved to the home/user directory on the target computer.
 
     <h3>11. SSH: Unzip</h3>
-    The <code>code/</code> and <code>build/</code> <a href="application.html#directory">directory</a> of the generic target application are deleted first.
+    The <code>code/</code> and <code>build/</code> <a href="application.html#directory">directory</a> of the Generic Target application are deleted first.
     The uploaded archive is then unpacked.
 
     <h3>12. SSH: Build Application</h3>
     The make tool is used to compile the software.
     It uses 8 jobs (8 source code files are compiled in parallel).
+
+<br><br><br><br>
 
 
 </div>

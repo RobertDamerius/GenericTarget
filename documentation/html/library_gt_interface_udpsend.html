@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 25020312</div>
+<div class="header_version">Version 20250331</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -53,7 +53,7 @@
 <li class="linav"><a href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
 <li class="linone"></li>
 <li class="litext">EXAMPLES</li>
-<li class="linav"><a href="example_udpreceiveloop.html">Suggested procedure for UDP reception</a></li>
+<li class="linav"><a href="example_udpreceiveloop.html">Suggested Procedure for UDP Reception</a></li>
 <li class="linav"><a href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
 <li class="linav"><a href="example_debugging.html">Debugging with Visual Studio Code</a></li>
 <li class="linone"></li>
@@ -139,46 +139,49 @@ The following table shows all block parameters.
     <tr><td style="font-family: Courier New;">SampleTime</td><td>Sampletime.</td></tr>
 </table>
 
+
+<h2>Further Notes</h2>
 <h3>Socket</h3>
-A socket represents the programming interface from the application to the network hardware.
-During the initialization phase of the model, all UDP sockets are created and all socket options are set.
-However, the binding of the local port as well as the binding to a specific network device is carried out during a step function of a model, as a network interface might not be available during model startup.
-The socket options <code>SO_REUSEPORT</code> and <code>SO_REUSEADDR</code> are set after the socket creation, such that multiple sockets (e.g. multiple blocks) can bind to the same port and device.
+A socket serves as the interface between an application and network hardware.
+During model initialization, all UDP sockets are created, and socket options are configured.
+However, binding to a local port and a specific network device occurs within a model's step function, ensuring compatibility even if the network interface is unavailable at startup.
+The socket options <code>SO_REUSEPORT</code> and <code>SO_REUSEADDR</code> are enabled after socket creation, allowing multiple sockets (e.g., multiple blocks) to bind to the same port and device.
 
 <h3>Port Range</h3>
-The port range [1,1023] is reserved for system ports and should not be used.
-The range [1024,49151] is defined for user ports.
-The remaining range [49152,65536] is reserved for dynamic ports.
-However, not all operating systems follow this standardization.
-Under certain circumstances, ports in the dynamic ports range may not be able to be used explicitly because the operating system prevents this.
-If a port cannot be bound, then this port is either in use by another program or the operating system prevents its use.
-If you set the local port to a value less than 1 via the block mask, then the generic target tells the operating system to select a random local port for you, which is usually in the range of dynamic ports.
+Port numbers are categorized as follows:
+<ul>
+    <li><b>System Ports (1–1023):</b> Reserved for system processes and should not be used.</li>
+    <li><b>User Ports (1024–49151):</b> Available for general use.</li>
+    <li><b>Dynamic Ports (49152–65536):</b> Typically assigned dynamically, but availability may vary depending on the operating system.</li>
+</ul>
+In some cases, ports in the dynamic range may be restricted by the operating system.
+If a port cannot be bound, it may already be in use or blocked by system policies.
+Setting the local port to a value below 1 in the block mask allows the Generic Target to request a random local port, usually within the dynamic range.
 
 <div class="note-orange">
 <h3 class="note-orange">Application Port</h3>
-Keep in mind that the target application uses its own port (<a href="packages_gt_generictarget.html#portAppSocket">portAppSocket</a>) to prevent the target from being started multiple times.
-This port is set via the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> class and cannot be used again in the model.
+The target application reserves a dedicated port (<a href="packages_gt_generictarget.html#portAppSocket">portAppSocket</a>) to prevent multiple instances from running simultaneously. This port is set via the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> class and cannot be reused within the model.
 </div>
 
 <h3>Socket Priority</h3>
-The socket priority is only available if the target application runs on a linux operating system. On windows machines, this
-value has no effect.
-This value must be in range [0,6] and sets the protocol-defined priority for all packets to be sent on this socket.
-Linux uses this value to order the networking queues: packets with a higher priority may be processed first depending on the selected device queueing discipline.
+Socket priority is applicable only when running on a Linux operating system; it has no effect on Windows.
+This value must be between <b>0 and 6</b> and determines the protocol-defined priority for outgoing packets.
+Linux uses this setting to manage networking queues, ensuring that higher-priority packets are processed first based on the selected queuing discipline.
 
 <h3>Allow Broadcast</h3>
-If broadcast is not allowed, then sending to a broadcast destination will result in an error (the result output will be negative).
-To allow broadcast messages to be sent you must explicitly enable it via the checkbox of the block mask.
+If broadcasting is disabled, attempting to send a broadcast message will result in an error (a negative result output).
+To enable broadcast transmission, select the corresponding checkbox in the block mask.
 
-<h3>Allow Zero-length Message</h3>
-In general, it is possible to send UDP messages without any payload, thus with zero length.
-However, by default, sending empty payload messages is disabled.
-If you want to allow it, then enable the corresponding checkbox in the block mask.
+<h3>Allow Zero-length Messages</h3>
+By default, UDP messages with an empty payload (zero-length) are not allowed.
+If you need to send such messages, enable the corresponding checkbox in the block mask.
 
-<h3>Time-to-live (TTL)</h3>
-When sending multicast messages a TTL value is set which corresponds to a hop counter.
-Each time one of these packets passes through a multicast routing device, the TTL setting decrements by 1.
-If it falls below a threshold, the multicast routing device drops the message.
+<h3>Time-to-Live (TTL)</h3>
+When sending multicast messages, the <b>TTL (Time-to-Live)</b> value functions as a hop counter.
+Each time a packet passes through a multicast routing device, its TTL value decreases by 1.
+If it reaches zero, the routing device discards the message.
+
+<br><br><br><br>
 
 
 </div>

@@ -4,6 +4,6 @@ function v = GetVersion()
     % RETURN
     % v ... The current version of type uint32.
 
-    v = uint32(20250312);
+    v = uint32(20250331);
 end
 

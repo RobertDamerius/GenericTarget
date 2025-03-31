@@ -127,7 +127,7 @@
             <td style="font-family: Courier New;">V</td>
             <td style="font-family: Courier New;">version</td>
             <td style="font-family: Courier New;">V x char</td>
-            <td>String indicating the version of the generic target framework.</td>
+            <td>String indicating the version of the Generic Target framework.</td>
         </tr>
         <tr>
             <td style="font-family: Courier New;">20+N+V</td>
@@ -426,4 +426,6 @@
     </table>
     <br>
     <br>
+
+<br><br><br><br>
 

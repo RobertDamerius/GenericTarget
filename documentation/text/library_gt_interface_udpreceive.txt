@@ -14,7 +14,7 @@ If, for example, several UDP blocks have the local port -3, one common socket is
 
 <h2>Input Ports</h2>
 <h3>groupsToJoin</h3>
-Optional input that is enabled if the multicast group source is set to external in the multicast tab. The signal must be an N-by-4 matrix that represent N multicast group addresses to be joined. If an address is not in the valid multicast group address range, then it's ignored.
+Optional input that is enabled if the multicast group source is set to external in the multicast tab. The signal must be an N-by-4 matrix that represent N multicast group addresses to be joined. Addresses not being inside the valid multicast group address range are ignored.
 <br>
 <b>Data Type:</b> <span style="font-family: Courier New">uint8</span>
 
@@ -67,11 +67,13 @@ The following table shows all block parameters.
     <tr><td style="font-family: Courier New;">SampleTime</td><td>Sampletime.</td></tr>
 </table>
 
+
+<h2>Further Notes</h2>
 <h3>Socket</h3>
-A socket represents the programming interface from the application to the network hardware.
-During the initialization phase of the model, all UDP sockets are created and all socket options are set.
-However, the binding of the local port as well as the binding to a specific network device is carried out during a step function of a model, as a network interface might not be available during model startup.
-The socket options <code>SO_REUSEPORT</code> and <code>SO_REUSEADDR</code> are set after the socket creation, such that multiple sockets (e.g. multiple blocks) can bind to the same port and device.
+A socket serves as the interface between an application and network hardware.
+During model initialization, all UDP sockets are created, and socket options are configured.
+However, binding to a local port and a specific network device occurs within a model's step function, ensuring compatibility even if the network interface is unavailable at startup.
+The socket options <code>SO_REUSEPORT</code> and <code>SO_REUSEADDR</code> are enabled after socket creation, allowing multiple sockets (e.g., multiple blocks) to bind to the same port and device.
 
 <div class="note-green">
 <h3 class="note-green">Note</h3>
@@ -79,29 +81,39 @@ It's possible to use multiple UDP Receive blocks with the same local port in you
 </div>
 
 <h3>Port Range</h3>
-The port range [1,1023] is reserved for system ports and should not be used.
-The range [1024,49151] is defined for user ports.
-The remaining range [49152,65536] is reserved for dynamic ports.
-However, not all operating systems follow this standardization.
-Under certain circumstances, ports in the dynamic ports range may not be able to be used explicitly because the operating system prevents this.
-If a port cannot be bound, then this port is either in use by another program or the operating system prevents its use.
-If you set the local port to a value less than 1 via the block mask, then the generic target tells the operating system to select a random local port for you, which is usually in the range of dynamic ports.
+Port numbers are categorized as follows:
+<ul>
+    <li><b>System Ports (1–1023):</b> Reserved for system processes and should not be used.</li>
+    <li><b>User Ports (1024–49151):</b> Available for general use.</li>
+    <li><b>Dynamic Ports (49152–65536):</b> Typically assigned dynamically, but availability may vary depending on the operating system.</li>
+</ul>
+In some cases, ports in the dynamic range may be restricted by the operating system.
+If a port cannot be bound, it may already be in use or blocked by system policies.
+Setting the local port to a value below 1 in the block mask allows the Generic Target to request a random local port, usually within the dynamic range.
 
 <div class="note-orange">
 <h3 class="note-orange">Application Port</h3>
-Keep in mind that the target application uses its own port (<a href="packages_gt_generictarget.html#portAppSocket">portAppSocket</a>) to prevent the target from being started multiple times.
-This port is set via the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> class and cannot be used again in the model.
+The target application reserves a dedicated port (<a href="packages_gt_generictarget.html#portAppSocket">portAppSocket</a>) to prevent multiple instances from running simultaneously. This port is set via the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> class and cannot be reused within the model.
 </div>
-
-<h3>Socket Priority</h3>
-The socket priority is only available if the target application runs on a linux operating system. On windows machines, this
-value has no effect.
-This value must be in range [0,6] and sets the protocol-defined priority for all packets to be sent on this socket.
-Linux uses this value to order the networking queues: packets with a higher priority may be processed first depending on the selected device queueing discipline.
 
 <h3>Buffering</h3>
 The execution of a UDP receive block fetches a message from the operating systems receive buffer of the network device.
 The maximum size of a message that can be fetched with the UDP Receive block is set via the <code>rxBufferSize</code> parameter in the block mask.
 By default this block fetches all messages from the buffer and outputs the latest fetched message if any.
 However, if you want to fetch messages from the operating systems receive buffer one by one, then disable the <code>fetchAll</code> checkbox in the block mask.
+
+<h3>Buffering</h3>  
+When a UDP Receive block executes, it retrieves a message from the operating system's receive buffer of the network device.  
+The <b>maximum message size</b> that can be fetched is defined by the <code>rxBufferSize</code> parameter in the block mask.
+By default, the block retrieves all available messages from the buffer and outputs the most recent one.  
+If you prefer to process messages one at a time, disable the <code>fetchAll</code> checkbox in the block mask.  
+
+<h3>Multicast Interface Address</h3>
+When joining or leaving a multicast group, you can specify a multicast interface address to determine which network interface should be used for multicast communication.
+If no specific interface is set (e.g., <code>[0,0,0,0]</code>), the system will automatically choose an appropriate interface.
+To ensure correct behavior in systems with multiple network interfaces, specify the desired interface address in the block mask.
+If a <code>deviceName</code> is provided in the socket tab of the block mask, it will be used as the multicast interface address.
+If the device name is not specified or cannot be found, the kernel will default to the interface defined by the block mask parameter <code>multicastInterfaceAddress</code>.
+
+<br><br><br><br>
 

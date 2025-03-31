@@ -1,4 +1,6 @@
 function GT_WriteBusToFileInitFcn(block)
+    % NOTE: This is a callback helper function for the Generic Target Simulink library.
+
     % internal block names
     blockNameBusSelector = strcat(block,'/BusSelector');
     blockNameBytePack = strcat(block,'/BytePack');

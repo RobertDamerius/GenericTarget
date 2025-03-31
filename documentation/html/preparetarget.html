@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 25020312</div>
+<div class="header_version">Version 20250331</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -53,7 +53,7 @@
 <li class="linav"><a href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
 <li class="linone"></li>
 <li class="litext">EXAMPLES</li>
-<li class="linav"><a href="example_udpreceiveloop.html">Suggested procedure for UDP reception</a></li>
+<li class="linav"><a href="example_udpreceiveloop.html">Suggested Procedure for UDP Reception</a></li>
 <li class="linav"><a href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
 <li class="linav"><a href="example_debugging.html">Debugging with Visual Studio Code</a></li>
 <li class="linone"></li>
@@ -70,13 +70,11 @@
 </div>
 <div class="content">
 <h1>Prepare Target Computer</h1>
-    First the target computer must be prepared.
-    For this purpose a linux-based operating system must be installed and configured on the target computer.
-    Basically, any Linux distribution can be selected.
-    Since all Linux distributions differ slightly from each other, no detailed instructions can be given here.
-    Some packages may therefore already be installed, others still have to be installed.
-    The next step is to generate SSH keys so that a host is able to login to the target without entering a password.
-    The following steps must be performed.
+    Before using the Generic Target Toolbox, the target computer must be set up with a <b>Linux-based operating system</b>.
+    While any Linux distribution can be used, setup steps may vary depending on the chosen distribution.
+    As a result, detailed installation instructions are not provided here - some required packages may already be installed, while others may need to be added manually.
+    Next, <b>SSH key authentication</b> must be configured to allow passwordless login from the host computer to the target.
+    The following steps outline this process.
     <br>
     <ul>
         <li><a href="#step1">Step 1: Install Linux OS</a></li>
@@ -85,19 +83,22 @@
         <li><a href="#step4">Step 4: Optional Hardware Tuning and Advanced Options</a></li>
     </ul>
 
-    <a name="step1"></a>
-    <h2>Step 1: Install Linux OS</h2>
-    It is recommended to use Debian, as this distribution is widely used and maintained and at the same time the realtime patch can be installed very easily via a single command.
-    However, any other Linux distribution can also be used.
-    Download a linux distribution of your choice and follow the instructions.
-    Usually you need to create a bootable USB stick and boot from it.
-    If available, the option to only do a minimal installation should be selected - without office applications and games.
-    Furthermore, you can enable the SSH server during installation for most linux distributions.
-    The Generic Target does not require a desktop environment.
-    It is up to the user whether a graphical user interface should be available on the target computer or not.
 
-    <a name="step2"></a>
-    <h2>Step 2: Configure Linux</h2>
+<a name="step1"></a>
+<h2>Step 1: Install Linux OS</h2>
+    <p>It is recommended to use <b>Debian</b>, as it is widely maintained and allows for easy installation of the real-time patch with a single command. However, any other Linux distribution can also be used.</p>
+    <p>To set up the target computer:</p>
+    <ol>
+        <li><b>Download</b> a Linux distribution of your choice.</li>
+        <li><b>Create a bootable USB stick</b> and boot from it.</li>
+        <li><b>Follow the installation instructions</b>, selecting the minimal installation option if available (excluding office applications and games).</li>
+        <li><b>Enable the SSH server</b> during installation if the option is provided.</li>
+    </ol>
+    <p>A desktop environment is <b>not required</b> for the Generic Target Toolbox. Whether to install a graphical user interface on the target computer is up to the user.</p>
+
+
+<a name="step2"></a>
+<h2>Step 2: Configure Linux</h2>
     At the beginning you can adjust basic settings.
     For example, the energy saving setting should be adjusted so that the computer does not automatically switch to standby mode.
     If your linux distribution does not come with <code>sudo</code>, then you have to install it. <code>sudo</code> is required to run
@@ -170,21 +171,22 @@
         It is recommended to install network tools (for ping tests):
         <pre>sudo apt install net-tools</pre>
 
-    <a name="step3"></a>
-    <h2>Step 3: Generate SSH Key for Autologin</h2>
+
+<a name="step3"></a>
+<h2>Step 3: Generate SSH Key for Autologin</h2>
     <div class="note-orange">
     <h3 class="note-orange">Note</h3>
     On Linux this step is <b>recommended</b>. However, on Windows this step is <b>required</b> to allow ssh/scp commands to be executed from the
     MATLAB console.
     </div>
 
-    While creating, starting and stopping an application on the target computer with the Generic Target Toolbox, commands are executed via SSH.
-    The connection from the user PC to the target computer via SSH must be constantly authorized and confirmed with a password.
-    Alternatively, keys can be generated and exchanged once.
-    Those keys are then used to establish an SSH connection from one computer to another without the need to enter a password.
-    SSH keys are stored in the home directory under <code>~/.ssh/</code>.
-    This folder can be easily deleted to "forget" all previous SSH connections.
-    The following commands are all executed on a user PC, i.e. the client that wants to connect to an SSH server on another computer, e.g. the target computer.
+    When creating, starting, or stopping an application on the target computer using the <b>Generic Target Toolbox</b>, commands are executed via <b>SSH</b>.
+    By default, SSH connections require continuous authorization and password confirmation.
+    To simplify this process, <b>SSH keys</b> can be generated and exchanged once, allowing for passwordless authentication between the user PC and the target computer.
+    These keys are stored in the <code>~/.ssh/</code> directory within the user's home folder.
+    If needed, this folder can be deleted to remove all previously stored SSH connections.
+
+    <p>The following commands should be executed on the <b>user PC</b> (client), which connects to an <b>SSH server</b> running on another computer, such as the target computer.</p>
 
     <div class="note-green">
     <h3 class="note-green">Linux</h3>
@@ -249,33 +251,36 @@
         to logout. For testing, make an SSH connection from the host PC to the target computer with the command <code>ssh UserName@RemoteServer</code>.
     </div>
 
-    <a name="step4"></a>
-    <h2>Step 4: Optional Hardware Tuning and Advanced Options</h2>
-    Now, some optional settings can be made to the BIOS and operating system to improve the performance and get the lowest possible worst-case latency.
-    Here are some pointers to help guide you.
-    In the BIOS, you may modify the following:
-    <ul>
-        <li>enable turbo boost if your system supports it</li>
-        <li>disable CPU "C states" (CPU sleep states and CPU frequency scaling)</li>
-        <li>disable Hyper-Threading to avoid virtual CPU cores</li>
-    </ul>
-    <h3>Update GRUB bootloader menu</h3>
-    The GRUB menu may be updated to, e.g. reduce the timeout for the bootloader.
-    On some operating systems this timeout is quite large, e.g. 10 seconds, to allow the user to read and select a boot option.
-    To modify the bootload menu, e.g. with the nano editor, run
-    <pre>sudo nano /etc/default/grub</pre>
-    Once changes are made, update the bootloader via
-    <pre>sudo update-grub</pre>
-    The actual bootoptions that can be made may depend on the GRUB version and on the operating system.
 
-    <h3>Isolating CPU cores</h3>
+<a name="step4"></a>
+<h2>Step 4: Optional Hardware Tuning and Advanced Options</h2>
+    Now, some optional settings can be made to the BIOS and operating system to improve performance and achieve the lowest possible worst-case latency.
+    Here are some pointers to help guide you:
+    <p>In the BIOS, you may modify the following:</p>
+    <ul>
+        <li><b>Enable turbo boost</b> if your system supports it.</li>
+        <li><b>Disable CPU "C states"</b> (CPU sleep states and CPU frequency scaling).</li>
+        <li><b>Disable Hyper-Threading</b> to avoid virtual CPU cores.</li>
+    </ul>
+
+    <h3>Update GRUB Bootloader Menu</h3>
+    The GRUB menu may be updated to reduce the bootloader timeout.
+    On some operating systems, this timeout can be quite large (e.g., 10 seconds) to allow the user to read and select a boot option.
+    To modify the bootloader menu, open it with the <b>nano</b> editor by running:
+    <pre>sudo nano /etc/default/grub</pre>
+    Once changes are made, update the bootloader with:
+    <pre>sudo update-grub</pre>
+    The actual boot options you can modify may depend on the GRUB version and the operating system.
+
+    <h3>Isolating CPU Cores</h3>
     The target application can be pinned to specific CPU cores.
-    Via the GRUB bootloader menu, CPU cores can be isolated with the <code>isolcpus</code> option, which are then not occupied by operating system processes.
-    In this way, it is possible to restrict the operating system to certain cores and have the target application run on those isolated cores.
-    For example, on an 8 cores CPU, you can leave core 0 and 1 to the OS and isolate core 2 to 7 by modifying the GRUB command line option as follows:
+    Via the GRUB bootloader menu, CPU cores can be isolated using the <code>isolcpus</code> option, preventing them from being used by operating system processes.
+    This allows you to restrict the operating system to certain cores and dedicate others to the target application.
+    For example, on an 8-core CPU, you can leave cores 0 and 1 to the OS and isolate cores 2 to 7 by modifying the GRUB command line option as follows:
     <pre>GRUB_CMDLINE_LINUX_DEFAULT="isolcpus=2-7"</pre>
-    If you make changes to the bootloader menu, don't forget to run <code>sudo update-grub</code>.
-    Reboot the target.
+    If you make changes to the bootloader menu, don't forget to run <code>sudo update-grub</code> and then reboot the target.
+
+<br><br><br><br>
 
 
 </div>

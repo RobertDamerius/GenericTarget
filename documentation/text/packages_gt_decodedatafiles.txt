@@ -1,5 +1,5 @@
 <h1>GT.DecodeDataFiles</h1>
-Decode raw data file(s) recorded by the generic target application into a structure of timeseries. Data files are created by the generic target application, if at least one Write To File block is present in the model.
+Decode raw data file(s) recorded by the Generic Target application into a structure of timeseries. Data files are created by the Generic Target application, if at least one Write To File block is present in the model.
 
 <h2>Syntax</h2>
 <pre>data = GT.DecodeDataFiles(dataFileNames)</pre>
@@ -9,9 +9,11 @@ Decode raw data file(s) recorded by the generic target application into a struct
 
 <h2>Input Arguments</h2>
     <h3>dataFileNames</h3>
-    A cell array of strings indicating the raw data files that contains the data recorded by the generic target application for one ID, e.g. <code>{'myData_0','myData_1'}</code>.
+    A cell array of strings indicating the raw data files that contains the data recorded by the Generic Target application for one ID, e.g. <code>{'myData_0','myData_1'}</code>.
 
 <h2>Output Arguments</h2>
     <h3>data</h3>
     The data structure containing timeseries for all recorded signals.
+
+<br><br><br><br>
 

@@ -1,8 +1,8 @@
 function data = DecodeDataFiles(dataFileNames)
-    %GT.DecodeDataFiles Decode raw data file(s) recorded by the generic target application into a structure of timeseries.
+    %GT.DecodeDataFiles Decode raw data file(s) recorded by the Generic Target application into a structure of timeseries.
     % 
     % PARAMETERS
-    % dataFileNames ... A cell array of strings indicating the raw data files that contains the data recorded by the generic target application for one ID, e.g. 'id0_0' or {'id0_0','id0_1'}.
+    % dataFileNames ... A cell array of strings indicating the raw data files that contains the data recorded by the Generic Target application for one ID, e.g. 'myData_0' or {'myData_0','myData_1'}.
     % 
     % RETURN
     % data ... The data structure containing timeseries for all recorded signals.

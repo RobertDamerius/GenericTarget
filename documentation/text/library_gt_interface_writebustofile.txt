@@ -48,3 +48,5 @@ All data recording threads have the same priority, which is defined by the param
 Via the block mask, the parameter <code>numSamplesPerFile</code> is used to specify how many samples are to be written to a file before a new file is created.
 A sample contains a timestamp, which corresponds to the simulation time (digital clock), as well as all values of the bus at this sampling step.
 
+<br><br><br><br>
+

@@ -1,4 +1,6 @@
 function GT_WriteScalarDoublesToFileInitFcn(block)
+    % NOTE: This is a callback helper function for the Generic Target Simulink library.
+
     % Read all input names from bus selector
     busSelector = [block '/BusSelector'];
     inputSignals = get_param(busSelector, 'InputSignals');

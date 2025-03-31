@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 25020312</div>
+<div class="header_version">Version 20250331</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -53,7 +53,7 @@
 <li class="linav"><a href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
 <li class="linone"></li>
 <li class="litext">EXAMPLES</li>
-<li class="linav"><a href="example_udpreceiveloop.html">Suggested procedure for UDP reception</a></li>
+<li class="linav"><a href="example_udpreceiveloop.html">Suggested Procedure for UDP Reception</a></li>
 <li class="linav"><a href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
 <li class="linav"><a href="example_debugging.html">Debugging with Visual Studio Code</a></li>
 <li class="linone"></li>
@@ -73,22 +73,22 @@
     <br>
 
 <h1>Generic Target</h1>
-    The <b>Generic Target Toolbox</b> can be used to run MATLAB/Simulink models on a target computer in realtime.
-    The common Simulink realtime libraries that are available can only be used in combination with a specific hardware to realize realtime applications.
-    Thus, the implementation of an application is often limited to certain hardware.
-    Although the supported hardware often has serial interfaces and/or digital inputs and outputs, AD/DA converters, CAN bus, etc., it may be limited from a computing power point of view.
-    Often only network interfaces are used anyway.
-    For applications where network interfaces alone are sufficient, the Generic Target Toolbox can be used to realize hardware-independent realtime applications with MATLAB/Simulink.
-    In principle, any computer can be used as target computer as long as a Linux operating system is used with the PREEMPT_RT patch.
-    Using a Linux operating system also has the advantage that additional software libraries can be easily integrated.
+    The <b>Generic Target Toolbox</b> allows you to run MATLAB/Simulink models on a target computer in real time.
+    Traditional Simulink real-time libraries typically require specific hardware, limiting flexibility in application development.
+    Many supported hardware platforms include serial interfaces, digital I/O, AD/DA converters, and CAN bus, but they may be constrained in computing power.
+    In many cases, only network interfaces are needed.
+    For applications that rely solely on network interfaces, the Generic Target Toolbox enables hardware-agnostic real-time execution of MATLAB/Simulink models.
+    Any computer can serve as a target system as long as it runs a Linux operating system with the <b>PREEMPT_RT</b> patch.
+    Additionally, using Linux simplifies the integration of extra software libraries.
     The toolbox includes the following components:
     <br>
     <br>
-    <table style="border:none;">
+    <center>
+    <table style="border:none;" width="90%">
         <tr><td style="border:none;"><img src="../img/MATLABPackage.svg"></td><td width="10px" style="border:none;"></td><td valign="top" style="border:none;">
             <h4>MATLAB Package</h4>
             The MATLAB package (<b>GT</b>) includes the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> class.
-            This class is used to generate source code for the generic target application based on a Simulink model and deploy it to the target.
+            This class is used to generate source code for the Generic Target application based on a Simulink model and deploy it to the target.
             In addition, this class is also used to start and stop the application or download recorded data.
             Furthermore, the (<b>GT</b>) MATLAB package contains functions to read recorded data.
             </td><tr>
@@ -101,7 +101,7 @@
         <tr><td style="border:none;"><img src="../img/TemplateModel.svg"></td><td style="border:none;"></td><td valign="top" style="border:none;">
             <h4>Template Model</h4>
             A Simulink template model is generated using the MATLAB package.
-            Based on this model, the software for the generic target application can be developed.
+            Based on this model, the software for the Generic Target application can be developed.
             This template is pre-configured with all necessary settings, which are required for automatic code deployment.
             </td><tr>
         <tr><td style="border:none;"><img src="../img/GenericTargetCore.svg"></td><td style="border:none;"></td><td valign="top" style="border:none;">
@@ -110,35 +110,32 @@
             The source code of the Generic Target Core is compiled on the target computer together with the generated code of the Simulink model.
             </td><tr>
     </table>
+    </center>
     <br>
 
 <h2>How It Works</h2>
-    A Simulink model should be created based on the Simulink template model.
-    In principle, all standard blocks from which generic C/C++ code is generated can be used.
-    Special interface blocks such as UDP Receive or Target Scope from the Simulink Realtime Toolbox cannot be used.
-    A separate Simulink library with driver blocks comes with the Generic Target Toolbox.
-    You can use the MATLAB class <a href="packages_gt_generictarget.html">GT.GenericTarget</a> to deploy the Simulink model to the target computer.
-    During deployment generic C/C++ code is generated from the Simulink model.
-    The generated code essentially contains a class with the methods <code>initialize()</code>, <code>step()</code>, and <code>terminate()</code>.
-    Besides the generated code, the <code>codeInfo.mat</code> file is generated, which contains additional information like sample rates, thread priorities, function names and so on.
-    Based on this information, the source code for a Simulink interface class is generated.
-    The programming interface from the Generic Target Core to this Simulink interface class is always the same.
-    The necessary additional information (e.g. thread priorities) from the code generation is also integrated into the Simulink interface class.
+    A Simulink model should be created using the provided Simulink template.
+    In general, all standard blocks that generate generic C/C++ code can be used.
+    However, special interface blocks like UDP Receive or Target Scope from the Simulink Real-Time Toolbox are not supported.
+    The Generic Target Toolbox includes a dedicated Simulink library with driver blocks.
+    To deploy a Simulink model to a target computer, use the MATLAB class <a href="packages_gt_generictarget.html">GT.GenericTarget</a>.
+    During deployment, Simulink generates generic C/C++ code, which primarily consists of a class with the following methods:
+    <ul>
+        <li><code>initialize()</code> - executed once at startup</li>
+        <li><code>step()</code> - executed periodically at the defined sampling rate</li>
+        <li><code>terminate()</code> - executed when the application stops</li>
+    </ul>
+    Additionally, the <code>codeInfo.mat</code> file is generated, containing metadata such as sample rates, thread priorities, and function names.
+    This information is used to generate a Simulink interface class, which follows a standardized programming interface for integration with the Generic Target Core.
     <br>
     <br>
     <center><object width="95%" data="../img/Overview.svg" type="image/svg+xml"></object></center>
     <br>
-    The generated model code as well as the source code for the Generic Target Core are transfered to the target computer via SCP during deployment.
-    All sources are then compiled on the target computer.
-    Therefore commands are send to the target via SSH.
-    The Generic Target Core is responsible for calling the functions of the generated model code.
-    When running the generic target application, the <code>initialize()</code> method is executed once at the beginning.
-    Afterwards the <code>step()</code> method is executed with the appropriate sampling rate.
-    When the application is terminated, the <code>terminate()</code> method is called.
-    If several different sampling rates exist in the model, several <code>step()</code> methods are generated.
-    These are called <code>step0()</code>, <code>step1()</code>, <code>step2()</code>, and so on.
-    All those <code>step()</code> methods are then executed in parallel in separate threads with corresponding priorities.
-    The lower the sample rate, the higher the priority.
+    During deployment, both the generated model code and the Generic Target Core source code are transferred to the target computer via SCP.
+    The target computer then compiles all sources, with deployment commands sent via SSH.
+    The Generic Target Core manages execution of the <code>initialize()</code>, <code>step()</code>, <code>terminate()</code> functions.
+    If the model includes multiple sampling rates, multiple <code>step()</code> methods are generated (e.g., <code>step0()</code>, <code>step1()</code>, <code>step2()</code>).
+    These are executed in parallel within separate threads, prioritized based on sampling rates - the lower the rate, the higher the priority.
 
 
 <h2>Notes For Software Development</h2>
@@ -146,19 +143,22 @@
     Some points seem trivial, others do not seem immediately obvious and can cause problems during code generation and/or compilation on the target.
     Therefore, the following points should be considered for the development of a target application.
     <br>
-    <h3>Use the Simulink template model</h3>
+
+    <div class="note-green"><h3 class="note-green">Note 1: Use the Simulink template model</h3>
     The MATLAB command <a href="packages_gt_gettemplate.html">GT.GetTemplate</a> generates a Simulink model into the current working directory.
     In this template, all necessary settings are set so that the code generation generates the code in such a way that it can subsequently be used correctly in the automated deployment process.
     If settings are changed that affect code generation, the entire deployment process may stop working.
     Different sample rates are processed in parallel on the target PC in different threads.
     Therefore, the option Allow tasks to execute concurrently on target must be activated in the Simulink settings, for example (Fixed-step solver).
-    <br>
-    <h3>Rate-transition block</h3>
+    </div>
+
+    <div class="note-green"><h3 class="note-green">Note 2: Rate-transition block</h3>
     Different samplerates in the model are connected by rate transition blocks.
     On the target computer the threads are executed in concurrence to each other.
     To ensure data integrity, the option <b>Ensure data integrity during data transfer</b> must be enabled in the rate-transition block mask.
-    <br>
-    <h3>Fixed application port</h3>
+    </div>
+
+    <div class="note-green"><h3 class="note-green">Note 3: Fixed application port</h3>
     When the Generic Target application is started, a defined UDP port is bound.
     This port has several functions.
     The application can be terminated with a certain message from the localhost.
@@ -166,29 +166,34 @@
     This helps to avoid running the same application multiple times.
     The port itself can be set before code generation using the <a href="packages_gt_generictarget.html#portAppSocket">portAppSocket</a> attribute in the MATLAB class <a href="packages_gt_generictarget.html">GT.GenericTarget</a>.
     Within the Simulink model, the port should no longer be used as a local port, as it would never be successfully bound.
-    <br>
-    <h3>Multiple applications</h3>
+    </div>
+
+    <div class="note-green"><h3 class="note-green">Note 4: Multiple applications</h3>
     If several applications are to run on the same target computer, the application port must be different for each application.
     At the same time, a different software directory must be used, otherwise the software directory of one application will be overwritten when another application is used.
     Both parameters can be set with the <a href="packages_gt_generictarget.html#portAppSocket">portAppSocket</a> and <code>targetSoftwareDirectory</code> attributes in the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> MATLAB class.
-    <br>
-    <h3>Avoid keyword "main"</h3>
+    </div>
+
+    <div class="note-green"><h3 class="note-green">Note 5: Avoid keyword "main"</h3>
     During the deployment process, all code generation files are checked for the <code>int_T main(</code> and <code>int main(</code> expressions.
     Files that contain these expressions are removed.
-    This is necessary because the generic target framework has its own main entry function.
+    This is necessary because the Generic Target framework has its own main entry function.
     Since it is not distinguished whether the expressions are in a comment, there is thus the danger that also unintentionally files are removed, which contain these expressions e.g. only in comments or strings.
     Therefore, avoid the use of the keywork main when developing a software.
-    <br>
-    <h3>Avoid keyword "DEBUG"</h3>
+    </div>
+
+    <div class="note-green"><h3 class="note-green">Note 6: Avoid keyword "DEBUG"</h3>
     If the application is built in DEBUG mode, the C macro <code>DEBUG</code> is set.
     Therefore, no names should be selected that lead to function or variable names with <code>DEBUG</code> in the code generation.
-    <br>
-    <h3>Avoid console outputs</h3>
+    </div>
+
+    <div class="note-green"><h3 class="note-green">Note 7: Avoid console outputs</h3>
     The console output of the target application is redirected to a text file by default at startup.
     Therefore, many console outputs can result in a large text file.
     Also, the output can come from multiple threads at the same time, so multiple console outputs get mixed up.
-    <br>
-    <h3>Legacy Code Tool and custom code: use globally unique file names</h3>
+    </div>
+
+    <div class="note-green"><h3 class="note-green">Note 8: Legacy Code Tool and custom code: use globally unique file names</h3>
     The legacy code tool can be used to generate a Simulink block directly from a given C/C++ code.
     Most of the blocks in the Generic Target library have been generated using the legacy code tool.
     When generating code for a Simulink model, all code files belonging to blocks generated with the Legacy Code Tool are copied into a single directory.
@@ -198,6 +203,9 @@
     Appropriate naming is recommended.
     The same applies to additional source files that are added as custom code.
     All C functions of blocks from the toolbox start with the prefix <code>GT_</code>.
+    </div>
+
+<br><br><br><br>
 
 
 </div>

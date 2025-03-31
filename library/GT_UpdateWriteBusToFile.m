@@ -1,4 +1,6 @@
 function GT_UpdateWriteBusToFile(block)
+    % NOTE: This is a callback helper function for the Generic Target Simulink library.
+
     % get model name and block names of bus selector and byte pack block
     modelName = bdroot(block);
     blockNameBusSelector = [block,'/BusSelector'];

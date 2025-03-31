@@ -17,7 +17,7 @@
 
 
     <h3>Section 1</h3>
-    This area displays application information, such as the generic target version, the name of the deployed Simulink model, when it was compiled, when it was started, and so on.
+    This area displays application information, such as the Generic Target version, the name of the deployed Simulink model, when it was compiled, when it was started, and so on.
     Some detailed information about the target model, such as priorities, sampletimes, etc., are also shown.
 
 
@@ -44,4 +44,6 @@
 
     <h3>Section 6</h3>
     The termination phase of the application.
+
+<br><br><br><br>
 

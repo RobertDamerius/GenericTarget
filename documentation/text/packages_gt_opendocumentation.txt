@@ -13,3 +13,5 @@ Open the HTML-based documentation of the Generic Target toolbox.
     <h3>page</h3>
     The page to be opened. The default value is 'index.html'.
 
+<br><br><br><br>
+

@@ -1,6 +1,6 @@
 classdef GenericTarget < handle
     %GT.GenericTarget Generate code from a simulink model and build and deploy the model
-    % on a generic target running a linux OS with the PREEMPT_RT patch.
+    % on a Generic Target running a linux OS with the PREEMPT_RT patch.
     % 
     % EXAMPLE: Generate a template simulink model
     % GT.GetTemplate();
@@ -39,7 +39,7 @@ classdef GenericTarget < handle
     end
     methods
         function this = GenericTarget(targetUsername, targetIPAddress)
-            %GT.GenericTarget.GenericTarget Create a generic target object.
+            %GT.GenericTarget.GenericTarget Create a Generic Target object.
             %
             % PARAMETERS
             % targetUsername  ... The user name of the target PC required to login on target via SSH/SCP.
@@ -144,7 +144,7 @@ classdef GenericTarget < handle
             commands = {cmdSSH1, cmdSCP, cmdSSH2};
         end
         function DeployToHost(this, modelName, directory)
-            %GT.GenericTarget.DeployToHost Deploy the target application to a directory on the host machine. The whole generic target framework including the generated
+            %GT.GenericTarget.DeployToHost Deploy the target application to a directory on the host machine. The whole Generic Target framework including the generated
             % code is going to be replaced in the specified directory. The software is not compiled after this deployment.
             % 
             % PARAMETERS
