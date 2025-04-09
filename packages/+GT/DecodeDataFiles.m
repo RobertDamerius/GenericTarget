@@ -134,7 +134,8 @@ function data = DecodeDataFiles(dataFileNames)
 
         % Put timeVec,dataVals into time series struct
         layerNames = split(name,'.');
-        data.(name) = timeseries(dataVals,timeVec,'Name',layerNames{end}); % this automatically sorts the data according to the time
+        ts = timeseries(dataVals,timeVec,'Name',layerNames{end}); % this automatically sorts the data according to the time
+        eval(['data.',name,' = ts;']); % eval required to allow nested structures
     end
     fprintf('\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bOK (finished after %f seconds)\n',toc());
 end
