@@ -14,7 +14,6 @@ Any computer can serve as a target system as long as it runs a Linux operating s
 - **UDP Communication**: Offers direct socket access beyond Simulink UDP blocks, allowing retrieval of sender addresses, dynamic multicast joining, socket error handling, and more.
 - **Timing**: Provides real-time access to system time in multiple formats, including local time, UTC and UNIX timestamp.
 - **Reliable Data Recording**: Continuously saves data to minimize loss in case of a system failure.
-- **System Monitoring**: Allows monitoring of thermal zones and real-time related properties like CPU and task overloads and task execution times.
 - **System Monitoring**: Provides access to thermal zones, CPU and task overloads and task execution time for performance analysis.
 
 
