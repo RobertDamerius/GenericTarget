@@ -9,7 +9,7 @@ Get the current version of the Generic Target toolbox.
 
 <h2>Output Arguments</h2>
     <h3>v</h3>
-    The current version of type uint32.
+    A 1-by-3 vector representing the current version of type uint32. The format is [major, minor, patch].
 
 <br><br><br><br>
 

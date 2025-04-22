@@ -14,6 +14,19 @@
     Add the project file <code>GenericTarget.prj</code> as a reference project to your existing Simulink project.
     </div>
 
+    <div class="note-red">
+    <h3 class="note-red">Troubleshooting (Linux)</h3>
+    On Linux-based host systems, MATLAB includes its own GCC runtime libraries to ensure compatibility when your distribution lacks them.
+    However, when building Generic Target (GT) driver blocks, the system's <code>libstdc++</code> library is used—typically available by default.
+    This can lead to a <b>GLIBCXX conflict error</b> when running Simulink models, due to a mismatch between MATLAB’s bundled <code>libstdc++</code> and the system version.
+    <br><br>
+    <b>Solution</b><br>
+    Navigate to MATLAB’s installation directory:  
+    <pre>MATLAB/sys/os/glnxa64/</pre>
+    Rename or delete all files that start with <code>libstdc++</code>.
+    After that, <b>restart MATLAB</b> to apply the changes.
+    </div>
+
     The directory of the <b>Generic Target Toolbox</b> is structured as follows:
     <ul class="dir">
         <li>core</li>

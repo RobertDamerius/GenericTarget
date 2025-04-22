@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 20250331</div>
+<div class="header_version">Version 1.0.0</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -167,6 +167,13 @@ The target application reserves a dedicated port (<a href="packages_gt_genericta
 Socket priority is applicable only when running on a Linux operating system; it has no effect on Windows.
 This value must be between <b>0 and 6</b> and determines the protocol-defined priority for outgoing packets.
 Linux uses this setting to manage networking queues, ensuring that higher-priority packets are processed first based on the selected queuing discipline.
+
+<h3>Multicast Interface Address</h3>
+When joining or leaving a multicast group, you can specify a multicast interface address to determine which network interface should be used for multicast communication.
+If no specific interface is set (e.g., <code>[0,0,0,0]</code>), the system will automatically choose an appropriate interface.
+To ensure correct behavior in systems with multiple network interfaces, specify the desired interface address in the block mask.
+If a <code>deviceName</code> is provided in the socket tab of the block mask, it will be used as the multicast interface address.
+If the device name is not specified or cannot be found, the kernel will default to the interface defined by the block mask parameter <code>multicastInterfaceAddress</code>.
 
 <h3>Allow Broadcast</h3>
 If broadcasting is disabled, attempting to send a broadcast message will result in an error (a negative result output).

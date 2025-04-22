@@ -97,16 +97,10 @@ The target application reserves a dedicated port (<a href="packages_gt_genericta
 </div>
 
 <h3>Buffering</h3>
-The execution of a UDP receive block fetches a message from the operating systems receive buffer of the network device.
-The maximum size of a message that can be fetched with the UDP Receive block is set via the <code>rxBufferSize</code> parameter in the block mask.
-By default this block fetches all messages from the buffer and outputs the latest fetched message if any.
-However, if you want to fetch messages from the operating systems receive buffer one by one, then disable the <code>fetchAll</code> checkbox in the block mask.
-
-<h3>Buffering</h3>  
-When a UDP Receive block executes, it retrieves a message from the operating system's receive buffer of the network device.  
+When a UDP Receive block executes, it retrieves a message from the operating system's receive buffer of the network device.
 The <b>maximum message size</b> that can be fetched is defined by the <code>rxBufferSize</code> parameter in the block mask.
-By default, the block retrieves all available messages from the buffer and outputs the most recent one.  
-If you prefer to process messages one at a time, disable the <code>fetchAll</code> checkbox in the block mask.  
+By default, the block retrieves all available messages from the buffer and outputs the most recent one.
+If you prefer to process messages one at a time, disable the <code>fetchAll</code> checkbox in the block mask.
 
 <h3>Multicast Interface Address</h3>
 When joining or leaving a multicast group, you can specify a multicast interface address to determine which network interface should be used for multicast communication.
