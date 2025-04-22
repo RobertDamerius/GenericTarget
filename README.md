@@ -18,7 +18,7 @@ Any computer can serve as a target system as long as it runs a Linux operating s
 
 
 ## Download and Installation
-Clone or download this repository to your local machine.
+Download the [latest release](https://github.com/RobertDamerius/GenericTarget/releases/latest).
 Run `install.m` in MATLAB to add the toolbox to MATLAB's path.
 For optimal compatibility with your host system, it is recommended to **rebuild all driver blocks** during the installation.
 
@@ -32,8 +32,8 @@ For alternative installation methods using Simulink projects, refer to the docum
 
 
 ## Getting Started
-Open [readme.html](readme.html) in a web browser to access the HTML documentation.  
-It provides a detailed overview of the **Generic Target Toolbox**, including setup instructions for the target computer and a guide to creating your first real-time application. 
+Open [readme.html](readme.html) in a web browser to access the HTML documentation.
+It provides a detailed overview of the **Generic Target Toolbox**, including setup instructions for the target computer and a guide to creating your first real-time application.
 
 
 ## Documentation
