@@ -4,13 +4,13 @@
 %%   Simulink Coder TLC Code Generation file for SFunctionGTDriverDataRecorderBus
 %% 
 %% Simulink version      : 24.1 (R2024a) 19-Nov-2023
-%% TLC file generated on : 28-Mar-2025 15:03:17
+%% TLC file generated on : 20-Jun-2025 18:58:27
 
 /%
      %%%-MATLAB_Construction_Commands_Start
      def = legacy_code('initialize');
      def.SFunctionName = 'SFunctionGTDriverDataRecorderBus';
-     def.OutputFcnSpec = 'void GT_DriverDataRecorderBusStep(uint8 p1[], uint32 p2, double u1, uint8 u2[p4], uint32 p4)';
+     def.OutputFcnSpec = 'void GT_DriverDataRecorderBusStep(uint8 p1[], uint32 p2, double u1, uint8 u2[], uint32 p4)';
      def.StartFcnSpec = 'void GT_DriverDataRecorderBusInitialize(uint8 p1[], uint32 p2, uint32 p3, uint32 p4, uint8 p5[], uint32 p6, uint8 p7[], uint32 p8, uint8 p9[], uint32 p10)';
      def.TerminateFcnSpec = 'void GT_DriverDataRecorderBusTerminate()';
      def.HeaderFiles = {'GT_DriverDataRecorderBus.hpp'};

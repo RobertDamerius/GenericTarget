@@ -189,7 +189,7 @@ function BuildDrivers(varargin)
     def.SFunctionName    = 'SFunctionGTDriverDataRecorderBus';
     def.StartFcnSpec     = 'void GT_DriverDataRecorderBusInitialize(uint8 p1[], uint32 p2, uint32 p3, uint32 p4, uint8 p5[], uint32 p6, uint8 p7[], uint32 p8, uint8 p9[], uint32 p10)';
     def.TerminateFcnSpec = 'void GT_DriverDataRecorderBusTerminate()';
-    def.OutputFcnSpec    = 'void GT_DriverDataRecorderBusStep(uint8 p1[], uint32 p2, double u1, uint8 u2[p4], uint32 p4)';
+    def.OutputFcnSpec    = 'void GT_DriverDataRecorderBusStep(uint8 p1[], uint32 p2, double u1, uint8 u2[], uint32 p4)';
     def.HeaderFiles      = {'GT_DriverDataRecorderBus.hpp'};
     def.SourceFiles      = {'GT_DriverDataRecorderBus.cpp','GT_SimulinkSupport.cpp'};
     def.IncPaths         = {''};

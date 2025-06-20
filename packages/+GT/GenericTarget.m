@@ -225,7 +225,7 @@ classdef GenericTarget < handle
             if(numel(this.customCode))
                 customCodeFolder = fullfile(releaseFolder,'code','CustomCode');
                 fprintf('[GENERIC TARGET] Adding custom code to "%s"\n', customCodeFolder);
-                assert(mkdir(customCodeFolder), 'Could not make release folder!');
+                assert(mkdir(customCodeFolder), 'Could not make custom code folder!');
                 for i = 1:numel(this.customCode)
                     [~, name, ext] = fileparts(this.customCode{i});
                     [~,~] = copyfile(this.customCode{i}, fullfile(customCodeFolder,[name ext]),'f');
