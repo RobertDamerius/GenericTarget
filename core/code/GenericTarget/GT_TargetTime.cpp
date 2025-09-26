@@ -7,7 +7,7 @@ TargetTime::TargetTime(){
 
     // convert to string
     char buffer[64];
-    sprintf(buffer, "%u%02u%02u_%02u%02u%02u%03u", 1900 + upTime.year, 1 + upTime.month, upTime.mday, upTime.hour, upTime.minute, upTime.second, upTime.nanoseconds / 1000000);
+    snprintf(buffer, sizeof(buffer), "%u%02u%02u_%02u%02u%02u%03u", 1900 + upTime.year, 1 + upTime.month, upTime.mday, upTime.hour, upTime.minute, upTime.second, upTime.nanoseconds / 1000000);
     strUpTime = std::string(buffer);
 }
 

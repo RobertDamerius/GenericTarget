@@ -94,7 +94,7 @@ int32_t UDPSocket::Bind(uint16_t port, std::array<uint8_t,4> ipInterface){
     // convert interface ip to a string pointer, where nullptr means any interface (INADDR_ANY)
     char *ip = nullptr;
     char strIP[16];
-    sprintf(&strIP[0], "%u.%u.%u.%u", ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]);
+    snprintf(&strIP[0], sizeof(strIP), "%u.%u.%u.%u", ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]);
     if(ipInterface[0] || ipInterface[1] || ipInterface[2] || ipInterface[3]){
         ip = &strIP[0];
     }
@@ -297,16 +297,16 @@ void UDPSocket::ResetLastError(void){
 struct ip_mreq UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName, std::array<uint8_t,4> multicastInterfaceAddress){
     // convert group IP to string
     char strGroup[16];
-    sprintf(&strGroup[0], "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
+    snprintf(&strGroup[0], sizeof(strGroup), "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
 
     // convert interface name to string (first try to convert to index)
     char strInterface[16];
     unsigned long index = win32_if_nametoindex(interfaceName);
     if(index){
-        sprintf(&strInterface[0], "0.0.0.%lu", index);
+        snprintf(&strInterface[0], sizeof(strInterface), "0.0.0.%lu", index);
     }
     else{
-        sprintf(&strInterface[0], "%u.%u.%u.%u", multicastInterfaceAddress[0], multicastInterfaceAddress[1], multicastInterfaceAddress[2], multicastInterfaceAddress[3]);
+        snprintf(&strInterface[0], sizeof(strInterface), "%u.%u.%u.%u", multicastInterfaceAddress[0], multicastInterfaceAddress[1], multicastInterfaceAddress[2], multicastInterfaceAddress[3]);
     }
 
     // create structure
@@ -319,11 +319,11 @@ struct ip_mreq UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, co
 struct ip_mreqn UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName, std::array<uint8_t,4> multicastInterfaceAddress){
     // convert group IP to string
     char strGroup[16];
-    sprintf(&strGroup[0], "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
+    snprintf(&strGroup[0], sizeof(strGroup), "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
 
     // convert interface IP to string
     char strInterface[16];
-    sprintf(&strInterface[0], "%u.%u.%u.%u", multicastInterfaceAddress[0], multicastInterfaceAddress[1], multicastInterfaceAddress[2], multicastInterfaceAddress[3]);
+    snprintf(&strInterface[0], sizeof(strInterface), "%u.%u.%u.%u", multicastInterfaceAddress[0], multicastInterfaceAddress[1], multicastInterfaceAddress[2], multicastInterfaceAddress[3]);
 
     // set interface index based on interface name
     int index = 0;

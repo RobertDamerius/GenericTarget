@@ -169,7 +169,7 @@ class UDPSocket {
          * @param[in] multicastLoop True if IP_MULTICAST_LOOP socket option should be set, false otherwise.
          * @return Result of the internal setsockopt() function call.
          */
-        int32_t SetMulticastLoop(bool multicastAll);
+        int32_t SetMulticastLoop(bool multicastLoop);
 
         /**
          * @brief Enable non-blocking mode for the socket.
