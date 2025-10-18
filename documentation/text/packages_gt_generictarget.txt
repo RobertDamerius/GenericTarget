@@ -141,6 +141,7 @@ This way, if there are too many protocol files, the oldest one will be deleted w
 This flag is used to specify whether the target application should be compiled in debug mode.
 In this mode all optimizations are switched off.
 At the same time the symbol <code>DEBUG</code> is defined and the compiler flag <code>-ggdb</code> is added.
+The application no longer requires root privileges and will not terminate if thread priorities cannot be set.
 If the <code>DEBUG</code> mode is switched off, the optimization <code>-O3</code> is set and symbol names which would be necessary for debugging are not included in the application.
 
 <br><br>
