@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/$TARGET_LAUNCH_PRODUCT_NAME$",
-            "args": [],
+            "args": ["--console"],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
             "environment": [],

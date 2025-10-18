@@ -143,7 +143,7 @@ void GenericTarget::TerminateHandler(void){
     for(int i = 0; (i < size) && (messages != nullptr); ++i){
         GENERIC_TARGET_PRINT_RAW("[%d]: %s\n", i, messages[i]);
     }
-    GENERIC_TARGET_PRINT_RAW("\nIf DEBUG mode was enabled for the exectuable, convert a printed address to a corresponding code line by executing the command \"addr2line -e ./GenericTarget +0xABCDEF\" in the binary directory of the application, where 0xABCDEF is the printed address.\n");
+    GENERIC_TARGET_PRINT_RAW("\nIf DEBUG mode was enabled for the exectuable, convert a printed address to a corresponding code line by executing the command \"addr2line -e ./PRODUCT_NAME +0xABCDEF\" in the binary directory of the application, where 0xABCDEF is the printed address and PRODUCT_NAME is the name of the executable (default: GenericTarget).\n");
     free(messages);
     #endif
     std::abort();

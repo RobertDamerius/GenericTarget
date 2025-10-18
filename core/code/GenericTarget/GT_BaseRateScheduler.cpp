@@ -92,7 +92,7 @@ bool BaseRateScheduler::StartMasterThread(void){
     param.sched_priority = priorityMax;
     if(0 != pthread_setschedparam(masterThread.native_handle(), SCHED_FIFO, &param)){
         GENERIC_TARGET_PRINT_ERROR("Could not set maximum thread priority %d for base rate scheduler (sampletime=%lf)\n", priorityMax, SimulinkInterface::baseSampleTime);
-        #ifndef _WIN32
+        #if !defined(DEBUG) && !defined(_WIN32)
         StopMasterThread();
         return false;
         #endif

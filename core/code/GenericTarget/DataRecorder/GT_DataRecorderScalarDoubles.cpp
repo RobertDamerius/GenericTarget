@@ -33,7 +33,7 @@ bool DataRecorderScalarDoubles::Start(std::string filename){
     param.sched_priority = SimulinkInterface::priorityDataRecorder;
     if(0 != pthread_setschedparam(threadDataRecorder.native_handle(), SCHED_FIFO, &param)){
         GENERIC_TARGET_PRINT_ERROR("Could not set thread priority %d for data recorder thread!\n", SimulinkInterface::priorityDataRecorder);
-        #ifndef _WIN32
+        #if !defined(DEBUG) && !defined(_WIN32)
         Stop();
         return false;
         #endif
