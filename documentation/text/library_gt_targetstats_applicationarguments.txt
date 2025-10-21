@@ -1,0 +1,39 @@
+<h1>Application Arguments</h1>
+<h3>Library</h3>
+<span style="font-family: Courier New">GenericTarget / Target Stats / Application Arguments</span>
+
+
+<h3>Description</h3>
+Get all arguments that have been passed to the application.
+The first argument is the executable name.
+The maximum number of characters as well as the maximum number of arguments that can be stored in the output are configured via the block mask.
+
+
+<h2>Output Ports</h2>
+<h3>args</h3>
+N-by-M matrix, where N and M indicate the maximum number of characters per argument and the maximum number of arguments, respectively. 
+<br>
+<b>Data Type:</b> <span style="font-family: Courier New">uint8</span>
+
+<h3>numCharacters</h3>
+M-dimensional vector, where each element indicates the actual number of characters that represent the argument in the M-th column of the args output matrix. 
+<br>
+<b>Data Type:</b> <span style="font-family: Courier New">uint32</span>
+
+<h3>numArguments</h3>
+Scalar value indicating the actual number of arguments present in the args output matrix.
+<br>
+<b>Data Type:</b> <span style="font-family: Courier New">uint32</span>
+
+
+<h2>Block Parameters</h2>
+The following table shows all block parameters.
+<table>
+    <tr><th>Parameter Name</th><th>Description</th></tr>
+    <tr><td style="font-family: Courier New;">maxNumCharsPerArgument</td><td>The maximum number of characters per argument.</td></tr>
+    <tr><td style="font-family: Courier New;">maxNumArguments</td><td>Maximum number of arguments.</td></tr>
+    <tr><td style="font-family: Courier New;">SampleTime</td><td>Sampletime.</td></tr>
+</table>
+
+<br><br><br><br>
+

@@ -35,6 +35,28 @@ function BuildDrivers(varargin)
     else, fprintf('Simulink Support: OFF\n\n'); end
     defs = [];
 
+
+    % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    % Driver: Application Arguments
+    % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def = legacy_code('initialize');
+    def.SFunctionName    = 'SFunctionGTDriverApplicationArguments';
+    def.StartFcnSpec     = 'void GT_DriverApplicationArgumentsInitialize()';
+    def.TerminateFcnSpec = 'void GT_DriverApplicationArgumentsTerminate()';
+    def.OutputFcnSpec    = 'void GT_DriverApplicationArgumentsStep(uint8 y1[p1*p2], uint32 y2[p2], uint32 y3[1], uint32 p1, uint32 p2)';
+    def.HeaderFiles      = {'GT_DriverApplicationArguments.hpp'};
+    def.SourceFiles      = {'GT_DriverApplicationArguments.cpp','GT_SimulinkSupport.cpp'};
+    def.IncPaths         = {''};
+    def.SrcPaths         = {''};
+    def.LibPaths         = {''};
+    def.HostLibFiles     = {''};
+    def.SampleTime       = 'parameterized';
+    def.Options.language = 'C++';
+    def.Options.useTlcWithAccel = false;
+    def.Options.supportsMultipleExecInstances = true;
+    defs = [defs; def];
+
+
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % Driver: UDP Socket
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -348,6 +370,7 @@ function BuildDrivers(varargin)
         fprintf('\tInterface/Write Bus To File              no\n');
         fprintf('\tInterface/Stop Execution                 no\n');
         fprintf('\tTarget Stats/Read Thermal Zones          yes(**)\n');
+        fprintf('\tTarget Stats/Application Arguments       no\n');
         fprintf('\tTime/Model Execution Time                yes\n');
         fprintf('\tTime/UNIX Time                           yes\n');
         fprintf('\tTime/UTC Time                            yes\n');

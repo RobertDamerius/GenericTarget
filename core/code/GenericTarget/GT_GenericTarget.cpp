@@ -6,7 +6,7 @@ using namespace gt;
 TargetTime GenericTarget::targetTime;
 DataRecorderManager GenericTarget::dataRecorderManager;
 UDPServiceManager GenericTarget::udpManager;
-ApplicationArguments GenericTarget::args;
+ApplicationArguments GenericTarget::applicationArguments;
 FileSystem GenericTarget::fileSystem;
 std::atomic<bool> GenericTarget::shouldTerminate = ATOMIC_VAR_INIT(false);
 UDPSocket GenericTarget::appSocket;
@@ -21,27 +21,27 @@ void GenericTarget::ShouldTerminate(void){
 void GenericTarget::Run(int argc, char** argv){
     // set handlers for signals from OS and parse arguments
     SetSignalHandlers();
-    args.Parse(argc, argv);
+    applicationArguments.Parse(argc, argv);
 
     // check if outputs should be redirected to a protocol file
-    if(!args.console){
+    if(!applicationArguments.console){
         RedirectPrintsToFile();
     }
 
     // run the generic target application
-    if(Initialize(argc, argv)){
+    if(Initialize()){
         MainLoop();
         Terminate();
     }
     GENERIC_TARGET_PRINT("Application terminated\n");
 }
 
-bool GenericTarget::Initialize(int argc, char**argv){
-    PrintInfo(argc, argv);
+bool GenericTarget::Initialize(void){
+    PrintInfo();
     GENERIC_TARGET_PRINT("Initializing application ...\n");
 
     // check for the "--stop" argument
-    if(args.stop){
+    if(applicationArguments.stop){
         GENERIC_TARGET_PRINT("Stopping another possibly ongoing target application (port=%u)\n", SimulinkInterface::portAppSocket);
         StopOtherTargetApplication();
         return false;
@@ -161,7 +161,7 @@ void GenericTarget::RedirectPrintsToFile(void){
     }
 }
 
-void GenericTarget::PrintInfo(int argc, char**argv){
+void GenericTarget::PrintInfo(void){
     TimeInfo upTime = targetTime.GetUpTimeUTC();
     int priorityMax = sched_get_priority_max(SCHED_FIFO);
     int priorityMin = sched_get_priority_min(SCHED_FIFO);
@@ -175,7 +175,7 @@ void GenericTarget::PrintInfo(int argc, char**argv){
     GENERIC_TARGET_PRINT_RAW("Compiler Version:         %s\n", gt::strCompilerVersion.c_str());
     GENERIC_TARGET_PRINT_RAW("Built (local):            %s\n", strBuilt.c_str());
     GENERIC_TARGET_PRINT_RAW("Date (UTC):               %04u-%02u-%02u %02u:%02u:%02u.%03u\n", 1900 + upTime.year, 1 + upTime.month, upTime.mday, upTime.hour, upTime.minute, upTime.second, upTime.nanoseconds / 1000000);
-    GENERIC_TARGET_PRINT_RAW("Arguments:               "); for(int i = 1; i < argc; i++){ GENERIC_TARGET_PRINT_RAW(" [%s]", argv[i]); } GENERIC_TARGET_PRINT_RAW("\n");
+    GENERIC_TARGET_PRINT_RAW("Arguments:               "); for(size_t i = 0; i < applicationArguments.args.size(); i++){ GENERIC_TARGET_PRINT_RAW(" [%s]", applicationArguments.args[i].c_str()); } GENERIC_TARGET_PRINT_RAW("\n");
     GENERIC_TARGET_PRINT_RAW("Maximum thread priority:  %d\n",priorityMax);
     GENERIC_TARGET_PRINT_RAW("Minimum thread priority:  %d\n",priorityMin);
     GENERIC_TARGET_PRINT_RAW("\n");

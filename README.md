@@ -18,7 +18,7 @@ Any computer can serve as a target system as long as it runs a Linux operating s
 
 
 ## Download and Installation
-Download the [latest release](https://github.com/RobertDamerius/GenericTarget/releases/latest).
+Clone this repository or download the [latest release](https://github.com/RobertDamerius/GenericTarget/releases/latest).
 Run `install.m` in MATLAB to add the toolbox to MATLAB's path.
 For optimal compatibility with your host system, it is recommended to **rebuild all driver blocks** during the installation.
 
@@ -58,7 +58,7 @@ The structure of this repository is as follows.
 | :----------------- | :------------------------------------------------------------------- |
 | core               | contains source code and template files for the Generic Target Core  |
 | documentation      | contains the HTML-based documentation                                |
-| library            | contains the MATLAB/Simulink library "GenericTarget" (**>= R2024a**) |
+| library            | contains the MATLAB/Simulink library "GenericTarget" (**>= R2025a**) |
 | packages           | contains the MATLAB package "GT"                                     |
 | resources          | contains project definition files for the MATLAB/Simulink project    |
 | GenericTarget.prj  | Simulink project file                                                |

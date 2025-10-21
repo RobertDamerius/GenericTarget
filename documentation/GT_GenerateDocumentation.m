@@ -32,6 +32,7 @@ layoutNavBar = [
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Interface / Write Scalar Doubles To File', 'library_gt_interface_writescalardoublestofile.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Interface / Write Bus To File', 'library_gt_interface_writebustofile.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Interface / Stop Execution', 'library_gt_interface_stopexecution.html');
+    SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Target Stats / Application Arguments', 'library_gt_targetstats_applicationarguments.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Target Stats / Read Thermal Zones', 'library_gt_targetstats_readthermalzones.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Time / Model Execution Time', 'library_gt_time_modelexecutiontime.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Time / UNIX Time', 'library_gt_time_unixtime.html');

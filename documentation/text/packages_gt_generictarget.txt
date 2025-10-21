@@ -23,6 +23,7 @@ Detailed information is given afterwards.
 <tr><td style="font-family: Courier New;"><a href="#targetSoftwareDirectory">targetSoftwareDirectory</a></td><td style="font-family: Courier New;">char array</td><td style="font-family: Courier New;">'~/GenericTarget/'</td><td>Directory for software on target. Must begin with <code>'~/'</code> and end with <code>'/'</code></td></tr>
 <tr><td style="font-family: Courier New;"><a href="#targetProductName">targetProductName</a></td><td style="font-family: Courier New;">char array</td><td style="font-family: Courier New;">'GenericTarget'</td><td>Name of the executable.</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#targetBitmaskCPUCores">targetBitmaskCPUCores</a></td><td style="font-family: Courier New;">char array</td><td style="font-family: Courier New;">''</td><td>A hexadecimal string indicating to which CPU cores the process should be pinned to. If this string is empty, all cores are used.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#applicationArguments">applicationArguments</a></td><td style="font-family: Courier New;">char array</td><td style="font-family: Courier New;">''</td><td>A string representing additional arguments passed to the application during a Start call.</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#upperThreadPriority">upperThreadPriority</a></td><td style="font-family: Courier New;">uint32</td><td style="font-family: Courier New;">89</td><td>Upper task priority in range [1 (lowest), 99 (highest)].</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#priorityDataRecorder">priorityDataRecorder</a></td><td style="font-family: Courier New;">uint32</td><td style="font-family: Courier New;">30</td><td>Priority for the data recording threads in range [1 (lowest), 99 (highest)].</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#terminateAtTaskOverload">terminateAtTaskOverload</a></td><td style="font-family: Courier New;">logical</td><td style="font-family: Courier New;">true</td><td>True if application should terminate at task overload, false otherwise.</td></tr>
@@ -97,6 +98,12 @@ For this purpose a bitmask can be set as hexadecimal string with this parameter.
 The application is executed on all those cores that are set to 1 by the bitmask.
 With a bitmask of <code>'0x0f'</code> the CPU cores 0-3 are used, for example.
 If this parameter is left empty, all CPU cores are used.
+
+<br><br>
+<a name="applicationArguments"></a>
+<h3>applicationArguments</h3>
+If required, additional arguments can be passed to the target application.
+During a Start call these arguments are added to the command string.
 
 <br><br>
 <a name="upperThreadPriority"></a>

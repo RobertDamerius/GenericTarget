@@ -13,9 +13,11 @@ void ApplicationArguments::Parse(int argc, char** argv){
     console = false;
     bool help = false;
 
-    // scan all arguments, ignore unknown arguments
-    for(int i = 1; i < argc; ++i){
+    // store all arguments, set flags for known ones
+    args.clear();
+    for(int i = 0; i < argc; ++i){
         std::string arg(argv[i]);
+        args.push_back(arg);
         stop |= (0 == arg.compare("--stop"));
         console |= (0 == arg.compare("--console"));
         help |= (0 == arg.compare("--help"));

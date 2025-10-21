@@ -24,11 +24,11 @@ namespace gt {
  */
 class GenericTarget {
     public:
-        static ApplicationArguments args;                 // Arguments passed to the application. They are parsed when calling @ref Run.
-        static FileSystem fileSystem;                     // The file system manager for the application.
-        static TargetTime targetTime;                     // The target time containing the up time.
-        static DataRecorderManager dataRecorderManager;   // Manager for data recordings.
-        static UDPServiceManager udpManager;              // Manager for UDP communication.
+        static ApplicationArguments applicationArguments;   // Arguments passed to the application. They are parsed when calling @ref Run.
+        static FileSystem fileSystem;                       // The file system manager for the application.
+        static TargetTime targetTime;                       // The target time containing the up time.
+        static DataRecorderManager dataRecorderManager;     // Manager for data recordings.
+        static UDPServiceManager udpManager;                // Manager for UDP communication.
 
         /**
          * @brief Get the model execution time (steady clock), that is, the elapsed time to the start of the master clock.
@@ -87,11 +87,9 @@ class GenericTarget {
 
         /**
          * @brief Initialize the generic target application.
-         * @param[in] argc Number of arguments passed to the application.
-         * @param[in] argv Array of arguments passed to the application.
          * @return True if success, false if application should close.
          */
-        static bool Initialize(int argc, char**argv);
+        static bool Initialize(void);
 
         /**
          * @brief Terminate the generic target application.
@@ -129,10 +127,8 @@ class GenericTarget {
 
         /**
          * @brief Print initial information to the console output.
-         * @param[in] argc Number of arguments passed to the application.
-         * @param[in] argv Array of arguments passed to the application.
          */
-        static void PrintInfo(int argc, char**argv);
+        static void PrintInfo(void);
 
         /**
          * @brief Print additional operating system information.

@@ -29,6 +29,7 @@ classdef GenericTarget < handle
         targetSoftwareDirectory;   % Directory for software on target (default: "~/GenericTarget/"). MUST BEGIN WITH '~/' AND END WITH '/'!
         targetProductName;         % Name of the executable (default: "GenericTarget").
         targetBitmaskCPUCores;     % A hexadecimal string indicating to which CPU cores the process should be pinned to. If this string is empty, all cores are used.
+        applicationArguments;      % A string representing additional arguments passed to the application during a Start call.
         upperThreadPriority;       % Upper task priority in range [1 (lowest), 99 (highest)] (default: 89).
         priorityDataRecorder;      % Priority for the data recording threads in range [1 (lowest), 99 (highest)] (default: 30).
         terminateAtTaskOverload;   % True if application should terminate at task overload, false otherwise (default: true).
@@ -64,6 +65,7 @@ classdef GenericTarget < handle
             this.targetSoftwareDirectory = '~/GenericTarget/';
             this.targetProductName = 'GenericTarget';
             this.targetBitmaskCPUCores = '';
+            this.applicationArguments = '';
             this.upperThreadPriority = uint32(89);
             this.priorityDataRecorder = uint32(30);
             this.terminateAtTaskOverload = true;
@@ -244,8 +246,12 @@ classdef GenericTarget < handle
             % RETURN
             % commands ... The commands that were executed on the host.
             this.CheckProperties();
+            args = '';
+            if(~isempty(this.applicationArguments))
+                args = [' ', this.applicationArguments];
+            end
             fprintf('[GENERIC TARGET] Starting target software on %s at %s\n', this.targetUsername, this.targetIPAddress);
-            cmdSSH = this.RunCommandOnTarget(['sudo nohup ' this.GetTasksetOption() this.targetSoftwareDirectory this.targetProductName ' &> ' this.targetSoftwareDirectory 'out.txt &']);
+            cmdSSH = this.RunCommandOnTarget(['sudo nohup ' this.GetTasksetOption() this.targetSoftwareDirectory this.targetProductName args ' &> ' this.targetSoftwareDirectory 'out.txt &']);
             commands = {cmdSSH};
         end
         function commands = Stop(this)
@@ -844,6 +850,9 @@ classdef GenericTarget < handle
                 i = isstrprop(this.targetBitmaskCPUCores(3:end),'xdigit');
                 assert(numel(i) && (sum(i) == numel(i)), 'Property "targetBitmaskCPUCores" must be either an empty string or a hexadecimal string, e.g. "0xFF"!');
             end
+
+            % applicationArguments
+            assert(ischar(this.applicationArguments), 'Property "applicationArguments" must be a string!');
 
             % upperThreadPriority
             assert(isscalar(this.upperThreadPriority), 'Property "upperThreadPriority" must be scalar!');
