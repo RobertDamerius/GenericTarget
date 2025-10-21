@@ -56,7 +56,7 @@ function ConfigureModel(modelName, strSampletime)
     SetParam(modelName, 'StateflowObjectComments', 'on');
     SetParam(modelName, 'TargetHWDeviceType', 'Intel->x86-64 (Linux 64)');
     SetParam(modelName, 'TargetLang', 'C++');
-    SetParam(modelName, 'TargetLangStandard', 'C++11 (ISO)');
+    SetParam(modelName, 'TargetLangStandard', 'C++20 (ISO)');
     % SetParam(modelName, 'UseOperatorNewForModelRefRegistration', 'off');
     SetParam(modelName, 'UseSimReservedNames', 'on');
     % SetParam(modelName, 'ZeroExternalMemoryAtStartup', 'off');
