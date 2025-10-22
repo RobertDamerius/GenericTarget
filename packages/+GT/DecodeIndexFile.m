@@ -6,30 +6,30 @@ function info = DecodeIndexFile(filename)
     % 
     % RETURN
     % info ... Structure that contains information about the data recording.
-
-    % Check input and set default output
-    assert(ischar(filename), 'GT.DecodeIndexFile(): Input "filename" must be a string!');
+    arguments
+        filename {mustBeTextScalar, GT.mustBeChar}
+    end
     info = struct();
 
-    % Open index file
-    [fp,errmsg] = fopen(filename,'r');
+    % open index file
+    [fp, errmsg] = fopen(filename, 'r');
     if(fp < 0)
-        error('Could not open index file "%s": %s',filename,errmsg);
+        error('Could not open index file "%s": %s', filename, errmsg);
     end
-    fprintf('[GENERIC TARGET] Decoding index file "%s" ...',filename);
+    fprintf('[GENERIC TARGET] Decoding index file "%s" ...', filename);
 
-    % Header should be: 'G' (71), 'T' (84), 'I' (73), 'D' (68), 'X' (88)
+    % header should be: 'G' (71), 'T' (84), 'I' (73), 'D' (68), 'X' (88)
     bytesHeader = uint8(fread(fp, 5));
     if((5 ~= numel(bytesHeader)) || (uint8(71) ~= bytesHeader(1)) || (uint8(84) ~= bytesHeader(2)) || (uint8(73) ~= bytesHeader(3)) || (uint8(68) ~= bytesHeader(4)) || (uint8(88) ~= bytesHeader(5)))
         fclose(fp);
-        error('Invalid header of file: "%s"',filename);
+        error('Invalid header of file: "%s"', filename);
     end
 
-    % Decode date
+    % decode date
     bytesDate = uint8(fread(fp, 11));
     if(11 ~= numel(bytesDate))
         fclose(fp);
-        error('Invalid header of file: "%s"',filename);
+        error('Invalid header of file: "%s"', filename);
     end
     info.dateUTC.year = uint32(bitor(bitor(bitshift(uint32(bytesDate(1)),24),bitshift(uint32(bytesDate(2)),16)),bitor(bitshift(uint32(bytesDate(3)),8),uint32(bytesDate(4)))));
     info.dateUTC.month = bytesDate(5);
@@ -39,7 +39,7 @@ function info = DecodeIndexFile(filename)
     info.dateUTC.second = bytesDate(9);
     info.dateUTC.millisecond = uint16(bitor(bitshift(uint16(bytesDate(10)),8),uint16(bytesDate(11))));
 
-    % Number of IDs
+    % number of IDs
     bytesNumIDs = uint8(fread(fp, 4));
     if(4 ~= numel(bytesNumIDs))
         fclose(fp);
@@ -47,7 +47,7 @@ function info = DecodeIndexFile(filename)
     end
     numIDs = uint32(bitor(bitor(bitshift(uint32(bytesNumIDs(1)),24),bitshift(uint32(bytesNumIDs(2)),16)),bitor(bitshift(uint32(bytesNumIDs(3)),8),uint32(bytesNumIDs(4)))));
 
-    % All IDs (zero-terminated string per ID)
+    % all IDs (zero-terminated string per ID)
     info.listOfIDs = cell.empty();
     for i = uint32(1):numIDs
         strID = char.empty();
@@ -55,7 +55,7 @@ function info = DecodeIndexFile(filename)
             byte = uint8(fread(fp, 1));
             if(1 ~= numel(byte))
                 fclose(fp);
-                error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!',numel(byte),filename);
+                error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!', numel(byte), filename);
             end
             if(~byte)
                 break;
@@ -65,13 +65,13 @@ function info = DecodeIndexFile(filename)
         info.listOfIDs{i} = strID;
     end
 
-    % Version (zero-terminated string)
+    % version (zero-terminated string)
     info.version = char.empty();
     while(true)
         byte = uint8(fread(fp, 1));
         if(1 ~= numel(byte))
             fclose(fp);
-            error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!',numel(byte),filename);
+            error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!', numel(byte), filename);
         end
         if(~byte)
             break;
@@ -79,13 +79,13 @@ function info = DecodeIndexFile(filename)
         info.version = [info.version, char(byte)];
     end
 
-    % Model name (zero-terminated string)
+    % model name (zero-terminated string)
     info.modelName = char.empty();
     while(true)
         byte = uint8(fread(fp, 1));
         if(1 ~= numel(byte))
             fclose(fp);
-            error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!',numel(byte),filename);
+            error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!', numel(byte), filename);
         end
         if(~byte)
             break;
@@ -99,7 +99,7 @@ function info = DecodeIndexFile(filename)
         byte = uint8(fread(fp, 1));
         if(1 ~= numel(byte))
             fclose(fp);
-            error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!',numel(byte),filename);
+            error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!', numel(byte), filename);
         end
         if(~byte)
             break;
@@ -113,7 +113,7 @@ function info = DecodeIndexFile(filename)
         byte = uint8(fread(fp, 1));
         if(1 ~= numel(byte))
             fclose(fp);
-            error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!',numel(byte),filename);
+            error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!', numel(byte), filename);
         end
         if(~byte)
             break;
@@ -127,7 +127,7 @@ function info = DecodeIndexFile(filename)
         byte = uint8(fread(fp, 1));
         if(1 ~= numel(byte))
             fclose(fp);
-            error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!',numel(byte),filename);
+            error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!', numel(byte), filename);
         end
         if(~byte)
             break;
@@ -141,7 +141,7 @@ function info = DecodeIndexFile(filename)
         byte = uint8(fread(fp, 1));
         if(1 ~= numel(byte))
             fclose(fp);
-            error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!',numel(byte),filename);
+            error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!', numel(byte), filename);
         end
         if(~byte)
             break;

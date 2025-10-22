@@ -1,4 +1,4 @@
-function BuildDrivers(varargin)
+function BuildDrivers(useSimulinkSupport)
     %GT.BuildDrivers Build or rebuild the driver blocks for the Generic Target toolbox. Simulink blocks will only implement their
     % functionality on the target and thus have no effect during simulation using Simulink. However, for some blocks a Simulink
     % support is available, that is, their functionality will also work in Simulink.
@@ -8,37 +8,35 @@ function BuildDrivers(varargin)
     % 
     % DETAILS
     % This MATLAB function generates all S-functions and compiles the corresponding mex binaries for the Simulink library.
-
-    fprintf('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n B U I L D   S I M U L I N K - D R I V E R S\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
-
-    % handle arguments
-    useSimulinkSupport = true;
-    if(nargin > 0)
-        useSimulinkSupport = varargin{1};
-        assert(islogical(useSimulinkSupport) && isscalar(useSimulinkSupport), 'Input must be logical scalar!');
+    arguments
+        useSimulinkSupport (1,1) logical = true
     end
 
-    % ask for simulink support option
-    if(isempty(useSimulinkSupport))
-        str = input('Simulink blocks will only implement their functionality on the target and thus have no effect during simulation using Simulink.\nHowever, for some blocks a Simulink support are available, that is, their functionality will also work in Simulink.\n\nCompile with Simulink support? [y/n]:  ','s');
-        useSimulinkSupport = strcmp('y',str);
-    end
+    % print banner
+    fprintf('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
+    fprintf('    ______                     _         ______                      __\n');
+    fprintf('   / ____/__  ____  ___  _____(_)____   /_  __/___ __________ ____  / /_\n');
+    fprintf('  / / __/ _ \\/ __ \\/ _ \\/ ___/ / ___/    / / / __ `/ ___/ __ `/ _ \\/ __/\n');
+    fprintf(' / /_/ /  __/ / / /  __/ /  / / /__     / / / /_/ / /  / /_/ /  __/ /_\n');
+    fprintf(' \\____/\\___/_/ /_/\\___/_/  /_/\\___/    /_/  \\__,_/_/   \\__, /\\___/\\__/\n');
+    fprintf('                                                      /____/\n\n');
+    fprintf(' %s\n', char(strjoin(string(GT.GetVersion()),'.')));
+    fprintf('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n');
 
     % navigate to drivers source directory
     currentWorkingDirectory = pwd();
-    thisDirectory = extractBefore(mfilename('fullpath'),strlength(mfilename('fullpath')) - strlength(mfilename) + 1);
-    driverDirectory = fullfile(thisDirectory,'..','..','library','drivers');
+    thisDirectory = extractBefore(mfilename('fullpath'), strlength(mfilename('fullpath')) - strlength(mfilename) + 1);
+    driverDirectory = fullfile(thisDirectory, '..', '..', 'library', 'drivers');
     cd(driverDirectory);
-
-    % print support option
-    if(useSimulinkSupport), fprintf('Simulink Support: ON\n\n');
-    else, fprintf('Simulink Support: OFF\n\n'); end
+    if(useSimulinkSupport), fprintf('simulink support: ON\n');
+    else, fprintf('simulink support: OFF\n'); end
     defs = [];
 
 
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % Driver: Application Arguments
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    fprintf('define driver: ApplicationArguments\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverApplicationArguments';
     def.StartFcnSpec     = 'void GT_DriverApplicationArgumentsInitialize()';
@@ -60,6 +58,7 @@ function BuildDrivers(varargin)
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % Driver: UDP Socket
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    fprintf('define driver: UDPSocket\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverUDPSocket';
     def.StartFcnSpec     = 'void GT_DriverUDPSocketInitialize(int32 p1, uint8 p2[], uint32 p3, int32 p4, uint8 p5, uint8 p6, uint8 p7, uint8 p8, uint8 p9, uint8 p10[4])';
@@ -81,6 +80,7 @@ function BuildDrivers(varargin)
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % Driver: Model Execution Time
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    fprintf('define driver: ModelExecutionTime\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverModelExecutionTime';
     def.StartFcnSpec     = 'void GT_DriverModelExecutionTimeInitialize()';
@@ -102,6 +102,7 @@ function BuildDrivers(varargin)
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % Driver: Unix Time
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    fprintf('define driver: UnixTime\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverUnixTime';
     def.StartFcnSpec     = 'void GT_DriverUnixTimeInitialize()';
@@ -123,6 +124,7 @@ function BuildDrivers(varargin)
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % Driver: UTC Timestamp
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    fprintf('define driver: UTCTimestamp\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverUTCTimestamp';
     def.StartFcnSpec     = 'void GT_DriverUTCTimestampInitialize()';
@@ -144,6 +146,7 @@ function BuildDrivers(varargin)
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % Driver: UTC Time
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    fprintf('define driver: UTCTime\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverUTCTime';
     def.StartFcnSpec     = 'void GT_DriverUTCTimeInitialize()';
@@ -165,6 +168,7 @@ function BuildDrivers(varargin)
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % Driver: Local Time
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    fprintf('define driver: LocalTime\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverLocalTime';
     def.StartFcnSpec     = 'void GT_DriverLocalTimeInitialize()';
@@ -186,6 +190,7 @@ function BuildDrivers(varargin)
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % Driver: Data Recorder (Scalar Doubles)
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    fprintf('define driver: DataRecorderScalarDoubles\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverDataRecorderScalarDoubles';
     def.StartFcnSpec     = 'void GT_DriverDataRecorderScalarDoublesInitialize(uint8 p1[], uint32 p2, uint8 p3[], uint32 p4, uint32 p5, uint32 p6)';
@@ -207,6 +212,7 @@ function BuildDrivers(varargin)
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % Driver: Data Recorder (Bus)
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    fprintf('define driver: DataRecorderBus\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverDataRecorderBus';
     def.StartFcnSpec     = 'void GT_DriverDataRecorderBusInitialize(uint8 p1[], uint32 p2, uint32 p3, uint32 p4, uint8 p5[], uint32 p6, uint8 p7[], uint32 p8, uint8 p9[], uint32 p10)';
@@ -228,6 +234,7 @@ function BuildDrivers(varargin)
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % Driver: Task Execution Time
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    fprintf('define driver: TaskExecutionTime\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverTaskExecutionTime';
     def.StartFcnSpec     = 'void GT_DriverTaskExecutionTimeInitialize()';
@@ -249,6 +256,7 @@ function BuildDrivers(varargin)
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % Driver: Number of task overloads
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    fprintf('define driver: NumTaskOverloads\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverNumTaskOverloads';
     def.StartFcnSpec     = 'void GT_DriverNumTaskOverloadsInitialize()';
@@ -270,6 +278,7 @@ function BuildDrivers(varargin)
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % Driver: Number of CPU overloads
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    fprintf('define driver: NumCPUOverloads\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverNumCPUOverloads';
     def.StartFcnSpec     = 'void GT_DriverNumCPUOverloadsInitialize()';
@@ -291,6 +300,7 @@ function BuildDrivers(varargin)
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % Driver: Stop Execution
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    fprintf('define driver: StopExecution\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverStopExecution';
     def.StartFcnSpec     = 'void GT_DriverStopExecutionInitialize()';
@@ -312,6 +322,7 @@ function BuildDrivers(varargin)
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % Driver: Read Thermal Zones
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    fprintf('define driver: ReadThermalZones\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverReadThermalZones';
     def.StartFcnSpec     = 'void GT_DriverReadThermalZonesInitialize()';
@@ -334,54 +345,63 @@ function BuildDrivers(varargin)
     % Compile and generate all required files
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % generate S-functions
+    fprintf('generate S-functions: ');
     legacy_code('sfcn_cmex_generate', defs);
+    fprintf('done\n');
 
     % compile
     if(useSimulinkSupport)
-        cflags    = '-Wall -Wextra -DGENERIC_TARGET_SIMULINK_SUPPORT';
-        cxxflags  = '-Wall -Wextra -DGENERIC_TARGET_SIMULINK_SUPPORT -std=c++20';
-        ldflags   = '-Wall -Wextra -DGENERIC_TARGET_SIMULINK_SUPPORT -std=c++20';
-        libraries = {'-L/usr/lib','-L/usr/local/lib','-lstdc++','-lpthread'};
+        cflags    = '-DGENERIC_TARGET_SIMULINK_SUPPORT';
+        cxxflags  = '-DGENERIC_TARGET_SIMULINK_SUPPORT -std=c++20';
+        ldflags   = '-DGENERIC_TARGET_SIMULINK_SUPPORT -std=c++20';
+        libraries = {'-L/usr/lib', '-L/usr/local/lib', '-lstdc++', '-lpthread'};
         if(ispc)
-            libraries = [libraries, {'-lws2_32','-lIphlpapi'}];
+            libraries = [libraries, {'-lws2_32', '-lIphlpapi'}];
         end
-        legacy_code('compile', defs, [{['CFLAGS=$CFLAGS ',cflags],['CXXFLAGS=$CXXFLAGS ',cxxflags],['LINKFLAGS=$LINKFLAGS ',ldflags]},libraries]);
+        legacy_code('compile', defs, [{['CFLAGS=$CFLAGS ', cflags],['CXXFLAGS=$CXXFLAGS ', cxxflags],['LINKFLAGS=$LINKFLAGS ', ldflags]}, libraries]);
     else
         legacy_code('compile', defs);
     end
 
     % generate TLC
+    fprintf('\ngenerate TLC: ');
     legacy_code('sfcn_tlc_generate', defs);
+    fprintf('done\n');
 
     % generate RTWMAKECFG
+    fprintf('generate rtwmakecfg: ');
     legacy_code('rtwmakecfg_generate', defs);
+    fprintf('done\n');
 
     % generate Simulink blocks (not required, all blocks are already in the library)
     % legacy_code('slblock_generate', defs);
 
-    % print information on supported host implementations
+    % print footer
+    fprintf('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
+    fprintf(' GENERIC TARGET DRIVER BUILD COMPLETED\n');
+    fprintf('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
     if(useSimulinkSupport)
-        fprintf('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n S I M U L I N K   S U P P O R T\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
-        fprintf('\tBLOCK                                    SUPPORTED\n');
-        fprintf('\t---------------------------------------------------\n');
-        fprintf('\tInterface/UDP Send                       yes(*)\n');
-        fprintf('\tInterface/UDP Receive                    yes(*)\n');
-        fprintf('\tInterface/Write Scalar Doubles To File   no\n');
-        fprintf('\tInterface/Write Bus To File              no\n');
-        fprintf('\tInterface/Stop Execution                 no\n');
-        fprintf('\tTarget Stats/Read Thermal Zones          yes(**)\n');
-        fprintf('\tTarget Stats/Application Arguments       no\n');
-        fprintf('\tTime/Model Execution Time                yes\n');
-        fprintf('\tTime/UNIX Time                           yes\n');
-        fprintf('\tTime/UTC Time                            yes\n');
-        fprintf('\tTime/Local Time                          yes\n');
-        fprintf('\tTime/Task Execution Time                 no\n');
-        fprintf('\tTime/Task Overloads                      no\n');
-        fprintf('\tTime/CPU Overloads                       no\n');
-        fprintf('\tTime/UTC Timestamp                       yes\n');
-        fprintf('\tTime/Time To Latest UTC Timestamp        yes\n');
-        fprintf('\t---------------------------------------------------\n(*) Some socket options are not available or may behave different under windows!\n(**) Only for linux!\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n');
+        fprintf('        BLOCK                                    SIMULINK SUPPORT\n');
+        fprintf('        --------------------------------------------------------------------------\n');
+        fprintf('        Interface/UDP Send                       yes(*)\n');
+        fprintf('        Interface/UDP Receive                    yes(*)\n');
+        fprintf('        Interface/Write Scalar Doubles To File   no\n');
+        fprintf('        Interface/Write Bus To File              no\n');
+        fprintf('        Interface/Stop Execution                 no\n');
+        fprintf('        Target Stats/Read Thermal Zones          yes(**)\n');
+        fprintf('        Target Stats/Application Arguments       no\n');
+        fprintf('        Time/Model Execution Time                yes\n');
+        fprintf('        Time/UNIX Time                           yes\n');
+        fprintf('        Time/UTC Time                            yes\n');
+        fprintf('        Time/Local Time                          yes\n');
+        fprintf('        Time/Task Execution Time                 no\n');
+        fprintf('        Time/Task Overloads                      no\n');
+        fprintf('        Time/CPU Overloads                       no\n');
+        fprintf('        Time/UTC Timestamp                       yes\n');
+        fprintf('        Time/Time To Latest UTC Timestamp        yes\n');
+        fprintf('        --------------------------------------------------------------------------\n(*) Some socket options are not available or may behave different under windows!\n(**) Only for linux!\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
     end
+    fprintf('\n');
 
     % navigate back to current working directory
     cd(currentWorkingDirectory);

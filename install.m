@@ -2,16 +2,16 @@ fprintf('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 % add directories to MATLAB path
 fprintf('Adding directories to MATLAB path\n');
-thisDirectory = extractBefore(mfilename('fullpath'),strlength(mfilename('fullpath')) - strlength(mfilename) + 1);
-directories = {fullfile(thisDirectory,'library'), fullfile(thisDirectory,'library','drivers'), fullfile(thisDirectory,'packages')};
+thisDirectory = extractBefore(mfilename('fullpath'), strlength(mfilename('fullpath')) - strlength(mfilename) + 1);
+directories = {fullfile(thisDirectory, 'library'), fullfile(thisDirectory, 'library', 'drivers'), fullfile(thisDirectory, 'packages')};
 for i = 1:numel(directories)
-    fprintf('    "%s"\n',directories{i});
+    fprintf('    "%s"\n', directories{i});
     addpath(directories{i});
 end
 
 % save path
-str = input('\nSave path? [y]: ','s');
-if(strcmp('y',str))
+str = input('\nSave path? [y]: ', 's');
+if(strcmp('y', str))
     savepath;
     fprintf('Path saved\n');
 else
@@ -19,8 +19,8 @@ else
 end
 
 % build driver blocks
-str = input('\nRebuild Simulink driver blocks? [y]: ','s');
-if(strcmp('y',str))
+str = input('\nRebuild Simulink driver blocks? [y]: ', 's');
+if(strcmp('y', str))
     GT.BuildDrivers();
     fprintf('Simulink driver blocks rebuilt\n');
 else

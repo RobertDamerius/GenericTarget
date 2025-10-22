@@ -30,9 +30,15 @@
 <li class="linav"><a href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a></li>
 <li class="linav"><a href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
 <li class="linav_active"><a href="packages_gt_generictarget.html">GT.GenericTarget (class)</a></li>
+<li class="linav"><a href="packages_gt_compilerflags.html">GT.CompilerFlags (class)</a></li>
 <li class="linav"><a href="packages_gt_gettemplate.html">GT.GetTemplate</a></li>
 <li class="linav"><a href="packages_gt_getversion.html">GT.GetVersion</a></li>
 <li class="linav"><a href="packages_gt_opendocumentation.html">GT.OpenDocumentation</a></li>
+<li class="linav"><a href="packages_gt_mustbecellstr.html">GT.mustBeCellStr</a></li>
+<li class="linav"><a href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
+<li class="linav"><a href="packages_gt_mustbehexstring.html">GT.mustBeHexString</a></li>
+<li class="linav"><a href="packages_gt_mustbeunique.html">GT.mustBeUnique</a></li>
+<li class="linav"><a href="packages_gt_mustendwith.html">GT.mustEndWith</a></li>
 <li class="linone"></li>
 <li class="litext">SIMULINK LIBRARY</li>
 <li class="linav"><a href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
@@ -102,15 +108,7 @@ Detailed information is given afterwards.
 <tr><td style="font-family: Courier New;"><a href="#terminateAtCPUOverload">terminateAtCPUOverload</a></td><td style="font-family: Courier New;">logical</td><td style="font-family: Courier New;">true</td><td>True if application should terminate at CPU overload, false otherwise.</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#customCode">customCode</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Cell-array of files or directories containing custom code to be uploaded along with the generated code.</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#numberOfOldProtocolFiles">numberOfOldProtocolFiles</a></td><td style="font-family: Courier New;">uint32</td><td style="font-family: Courier New;">100</td><td>The number of old protocol files to keep when redirecting the output to protocol text files.</td></tr>
-<tr><td style="font-family: Courier New;"><a href="#DEBUG_MODE">additionalCompilerFlags.DEBUG_MODE</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">0</td><td>True if DEBUG mode is to be enabled when compiling the target software, false otherwise.</td></tr>
-<tr><td style="font-family: Courier New;"><a href="#LIBS_WIN">additionalCompilerFlags.LIBS_WIN</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional libraries to link against when compiling on windows plattforms.</td></tr>
-<tr><td style="font-family: Courier New;"><a href="#LIBS_UNIX">additionalCompilerFlags.LIBS_UNIX</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional libraries to link against when compiling on unix plattforms.</td></tr>
-<tr><td style="font-family: Courier New;"><a href="#CC_SYMBOLS">additionalCompilerFlags.CC_SYMBOLS</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional symbols to be set when compiling.</td></tr>
-<tr><td style="font-family: Courier New;"><a href="#CC_FLAGS">additionalCompilerFlags.CC_FLAGS</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional flags to be set when compiling C source files.</td></tr>
-<tr><td style="font-family: Courier New;"><a href="#CPP_FLAGS">additionalCompilerFlags.CPP_FLAGS</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional flags to be set when compiling C++ source files.</td></tr>
-<tr><td style="font-family: Courier New;"><a href="#LD_FLAGS">additionalCompilerFlags.LD_FLAGS</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional flags to be set when linking the application.</td></tr>
-<tr><td style="font-family: Courier New;"><a href="#INCLUDE_PATHS">additionalCompilerFlags.INCLUDE_PATHS</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional include paths to be set when compiling source files.</td></tr>
-<tr><td style="font-family: Courier New;"><a href="#LIBRARY_PATHS">additionalCompilerFlags.LIBRARY_PATHS</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional library paths to be set when linking the application.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#additionalCompilerFlags">additionalCompilerFlags</a></td><td style="font-family: Courier New;"><a href="packages_gt_compilerflags.html">GT.CompilerFlags</a></td><td style="font-family: Courier New;">GT.CompilerFlags()</td><td>A structure containing additional compiler flags to be set for Makefile generation.</td></tr>
 </table>
 
 <br><br>
@@ -213,83 +211,6 @@ This source code is then compiled on the target together with the actual Generic
 By default, when the target application is executed, it writes console output to a protocol file.
 This parameter can be used to specify how many old protocol files to keep.
 This way, if there are too many protocol files, the oldest one will be deleted when the target application is started.
-
-<br><br>
-<a name="DEBUG_MODE"></a>
-<h3>additionalCompilerFlags.DEBUG_MODE</h3>
-This flag is used to specify whether the target application should be compiled in debug mode.
-In this mode all optimizations are switched off.
-At the same time the symbol <code>DEBUG</code> is defined and the compiler flag <code>-ggdb</code> is added.
-The application no longer requires root privileges and will not terminate if thread priorities cannot be set.
-If the <code>DEBUG</code> mode is switched off, the optimization <code>-O3</code> is set and symbol names which would be necessary for debugging are not included in the application.
-
-<br><br>
-<a name="LIBS_WIN"></a>
-<h3>additionalCompilerFlags.LIBS_WIN</h3>
-This flag specifies additional libraries to be used when linking a Windows application.
-The list of libraries for compiling a Windows application is defined as
-<pre>-lstdc++ -lstdc++fs -lpthread -lwinmm -lgdi32 -lws2_32 -lwsock32 -lIphlpapi $TARGET_MAKEFILE_LIBS_WIN$</pre>
-where the expression <code>$TARGET_MAKEFILE_LIBS_WIN$</code> is replaced by the additional libraries.
-
-<br><br>
-<a name="LIBS_UNIX"></a>
-<h3>additionalCompilerFlags.LIBS_UNIX</h3>
-This flag specifies additional libraries to be used when linking a linux application.
-The list of libraries for compiling a linux application is defined as
-<pre>-lstdc++ -lstdc++fs -lpthread -latomic $TARGET_MAKEFILE_LIBS_UNIX$</pre>
-where the expression <code>$TARGET_MAKEFILE_LIBS_UNIX$</code> is replaced by the additional libraries.
-
-<br><br>
-<a name="CC_SYMBOLS"></a>
-<h3>additionalCompilerFlags.CC_SYMBOLS</h3>
-This flag specifies additional symbols to be defined when compiling the target application.
-All flags are given as
-<pre>-DGENERIC_TARGET_IMPLEMENTATION $TARGET_MAKEFILE_CC_SYMBOLS$</pre>
-where the expression <code>$TARGET_MAKEFILE_CC_SYMBOLS$</code> is replaced by the additional symbols.
-<div class="note-green">
-<h3 class="note-green">C/C++ Macros</h3>
-The <code>GENERIC_TARGET_IMPLEMENTATION</code> macro can be used to define areas in the C/C++ code which are only enabled when compiling with the option <code>-DGENERIC_TARGET_IMPLEMENTATION</code>.
-</div>
-
-<br><br>
-<a name="CC_FLAGS"></a>
-<h3>additionalCompilerFlags.CC_FLAGS</h3>
-This flag specifies additional compiler flags to be used when compiling C source files.
-All flags are given as
-<pre>-Wall -Wextra -Wno-format-security -mtune=native $TARGET_MAKEFILE_CC_FLAGS$</pre>
-where the expression <code>$TARGET_MAKEFILE_CC_FLAGS$</code> is replaced by the additional flags.
-
-<br><br>
-<a name="CPP_FLAGS"></a>
-<h3>additionalCompilerFlags.CPP_FLAGS</h3>
-This flag specifies additional compiler flags to be used when compiling C++ source files.
-All flags are given as
-<pre>-std=c++20 -Wall -Wextra -Wno-format-security -mtune=native $TARGET_MAKEFILE_CPP_FLAGS$</pre>
-where the expression <code>$TARGET_MAKEFILE_CPP_FLAGS$</code> is replaced by the additional flags.
-
-<br><br>
-<a name="LD_FLAGS"></a>
-<h3>additionalCompilerFlags.LD_FLAGS</h3>
-This flag specifies additional linker flags to be used when the target application is linked.
-All flags are given as
-<pre>-Wall -Wextra -Wno-format-security -mtune=native $TARGET_MAKEFILE_LD_FLAGS$</pre>
-where the expression <code>$TARGET_MAKEFILE_LD_FLAGS$</code> is replaced by the additional linker flags.
-
-<br><br>
-<a name="INCLUDE_PATHS"></a>
-<h3>additionalCompilerFlags.INCLUDE_PATHS</h3>
-This value specifies additional include paths to be set when compiling source files.
-All include paths are given as
-<pre>-I/usr/local/include $TARGET_MAKEFILE_INCLUDE_PATHS$</pre>
-where the expression <code>$TARGET_MAKEFILE_INCLUDE_PATHS$</code> is replaced by the additional paths.
-
-<br><br>
-<a name="LIBRARY_PATHS"></a>
-<h3>additionalCompilerFlags.LIBRARY_PATHS</h3>
-This value specifies additional library paths to be set when the target application is linked.
-All library paths are given as
-<pre>-L/usr/local/lib $TARGET_MAKEFILE_LIBRARY_PATHS$</pre>
-where the expression <code>$TARGET_MAKEFILE_LIBRARY_PATHS$</code> is replaced by the additional paths.
 
 <br><br>
 <a name="objectfunctions"></a>

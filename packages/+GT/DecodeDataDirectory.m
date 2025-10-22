@@ -8,25 +8,22 @@ function [data,info] = DecodeDataDirectory(directory)
     % RETURN
     % data ... The data structure containing timeseries for all recorded signals.
     % info ... Structure that contains information about the data recording.
-
-    % Default working directory and fallback output
-    if(1 ~= nargin)
-        directory = pwd;
+    arguments
+        directory {mustBeTextScalar, GT.mustBeChar} = pwd
     end
-    assert(ischar(directory), 'GT.DecodeDataDirectory(): Input "directory" must be a string!');
     data = struct();
 
-    % Decode index file
-    filenameIndex = fullfile(directory,'index');
+    % decode index file
+    filenameIndex = fullfile(directory, 'index');
     info = GT.DecodeIndexFile(filenameIndex);
 
-    % Decode all data files
+    % decode all data files
     for i = uint32(1):numel(info.listOfIDs)
-        % Prefix string for current ID
+        % prefix string for current ID
         idName = info.listOfIDs{i};
 
-        % Find all file names starting with ID name
-        listing = dir(fullfile(directory,[idName,'_*']));
+        % find all file names starting with ID name
+        listing = dir(fullfile(directory, [idName, '_*']));
         dataFileNames = cell.empty();
         k = 0;
         for j = 1:numel(listing)
@@ -35,23 +32,23 @@ function [data,info] = DecodeDataDirectory(directory)
                 continue;
             end
 
-            % Find the last underscore '_' in the name
-            idxUnderscore = strfind(listing(j).name,'_');
+            % find the last underscore '_' in the name
+            idxUnderscore = strfind(listing(j).name, '_');
             if(isempty(idxUnderscore))
                 continue; % actually cannot happen
             end
             idxLastUnderscore = idxUnderscore(end);
 
-            % Make sure that only digits appear after the last underscore
-            sNum = listing(j).name((idxLastUnderscore + 1): end);
-            maskDigits = isstrprop(sNum,'digit');
+            % make sure that only digits appear after the last underscore
+            sNum = listing(j).name((idxLastUnderscore + 1):end);
+            maskDigits = isstrprop(sNum, 'digit');
             if(sum(maskDigits) == numel(maskDigits))
                 k = k + 1;
                 dataFileNames{k} = filename;
             end
         end
 
-        % Decode all filenames
+        % decode all filenames
         if(~isempty(dataFileNames))
             data.(idName) = GT.DecodeDataFiles(dataFileNames);
         end

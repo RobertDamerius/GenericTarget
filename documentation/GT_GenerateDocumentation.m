@@ -22,9 +22,15 @@ layoutNavBar = [
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'GT.DecodeDataFiles', 'packages_gt_decodedatafiles.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'GT.DecodeIndexFile', 'packages_gt_decodeindexfile.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'GT.GenericTarget (class)', 'packages_gt_generictarget.html');
+    SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'GT.CompilerFlags (class)', 'packages_gt_compilerflags.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'GT.GetTemplate', 'packages_gt_gettemplate.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'GT.GetVersion', 'packages_gt_getversion.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'GT.OpenDocumentation', 'packages_gt_opendocumentation.html');
+    SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'GT.mustBeCellStr', 'packages_gt_mustbecellstr.html');
+    SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'GT.mustBeChar', 'packages_gt_mustbechar.html');
+    SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'GT.mustBeHexString', 'packages_gt_mustbehexstring.html');
+    SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'GT.mustBeUnique', 'packages_gt_mustbeunique.html');
+    SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'GT.mustEndWith', 'packages_gt_mustendwith.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.none);
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.text, 'SIMULINK LIBRARY');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Interface / UDP Send', 'library_gt_interface_udpsend.html');

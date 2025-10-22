@@ -1,0 +1,12 @@
+<h1>GT.mustEndWith</h1>
+Argument validation function to check whether the argument ends with a specific pattern.
+If the condition is not met, an assertion fails.
+
+<h2>Syntax</h2>
+<pre>GT.mustEndWith(x, s)</pre>
+
+<h2>Description</h2>
+<code>GT.mustEndWith(x, s)</code> checks if the string <code>x</code> ends with <code>s</code>.
+
+<br><br><br><br>
+

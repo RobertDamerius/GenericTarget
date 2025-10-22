@@ -1,0 +1,12 @@
+<h1>GT.mustBeChar</h1>
+Argument validation function to check whether the argument is a character array.
+If the condition is not met, an assertion fails.
+
+<h2>Syntax</h2>
+<pre>GT.mustBeChar(x)</pre>
+
+<h2>Description</h2>
+<code>GT.mustBeChar(x)</code> checks if the condition is met for the input <code>x</code>.
+
+<br><br><br><br>
+
