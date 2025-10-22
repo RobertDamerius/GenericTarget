@@ -91,7 +91,7 @@ classdef GenericTarget < handle
             cmdSSH2 = this.RunCommandOnTarget(['sudo rm -r -f ' this.targetSoftwareDirectory '.vscode ' this.targetSoftwareDirectory 'code ' this.targetSoftwareDirectory 'build ' this.targetSoftwareDirectory 'Makefile ' this.targetSoftwareDirectory 'README.md ; unzip -qq -o ' targetZipFile ' -d ' this.targetSoftwareDirectory ' ; sudo rm ' targetZipFile ' ; cd ' this.targetSoftwareDirectory ' && make clean && make -j8']);
             t = toc(tStart);
             fprintf('\n[GENERIC TARGET] Code deployment completed after %f seconds\n', t);
-            commands = {cmdSSH1, cmdSCP, cmdSSH2};
+            commands = [cmdSSH1(:); {cmdSCP}; cmdSSH2(:)];
         end
         function DeployToHost(this, modelName, directory)
             %GT.GenericTarget.DeployToHost Deploy the target application to a directory on the host machine. The whole Generic Target framework including the generated
@@ -185,8 +185,7 @@ classdef GenericTarget < handle
                 args = [' ', this.applicationArguments];
             end
             fprintf('[GENERIC TARGET] Starting target software on %s at %s\n', this.targetUsername, this.targetIPAddress);
-            cmdSSH = this.RunCommandOnTarget(['sudo nohup ' this.GetTasksetOption() this.targetSoftwareDirectory this.targetProductName args ' &> ' this.targetSoftwareDirectory 'out.txt &']);
-            commands = {cmdSSH};
+            commands = this.RunCommandOnTarget(['sudo nohup ' this.GetTasksetOption() this.targetSoftwareDirectory this.targetProductName args ' &> ' this.targetSoftwareDirectory 'out.txt &']);
         end
         function commands = Stop(this)
             %GT.GenericTarget.Stop Stop the target application. An SSH connection will be established to stop the application.
@@ -195,8 +194,7 @@ classdef GenericTarget < handle
             % RETURN
             % commands ... The commands that were executed on the host.
             fprintf('[GENERIC TARGET] Stopping target software on %s at %s\n', this.targetUsername, this.targetIPAddress);
-            cmdSSH = this.RunCommandOnTarget(['sudo ' this.targetSoftwareDirectory this.targetProductName ' --console --stop']);
-            commands = {cmdSSH};
+            commands = this.RunCommandOnTarget(['sudo ' this.targetSoftwareDirectory this.targetProductName ' --console --stop']);
         end
         function commands = Reboot(this)
             %GT.GenericTarget.Reboot Reboot the target computer. An SSH connection will be established to run a reboot command.
@@ -204,8 +202,7 @@ classdef GenericTarget < handle
             % RETURN
             % commands ... The commands that were executed on the host.
             fprintf('[GENERIC TARGET] Rebooting target %s at %s\n', this.targetUsername, this.targetIPAddress);
-            cmdSSH = this.RunCommandOnTarget('sudo reboot');
-            commands = {cmdSSH};
+            commands = this.RunCommandOnTarget('sudo reboot');
         end
         function commands = Shutdown(this)
             %GT.GenericTarget.Shutdown Shutdown the target computer. An SSH connection will be established to run a shutdown command.
@@ -213,8 +210,7 @@ classdef GenericTarget < handle
             % RETURN
             % commands ... The commands that were executed on the host.
             fprintf('[GENERIC TARGET] Shutting down target %s at %s\n', this.targetUsername, this.targetIPAddress);
-            cmdSSH = this.RunCommandOnTarget('sudo shutdown -h now');
-            commands = {cmdSSH};
+            commands = this.RunCommandOnTarget('sudo shutdown -h now');
         end
         function commands = ShowPID(this)
             %GT.GenericTarget.ShowPID Show the process ID for all processes on the target that are named according to targetProductName.
@@ -223,8 +219,7 @@ classdef GenericTarget < handle
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            cmdSSH = this.RunCommandOnTarget(['pidof ' this.targetProductName]);
-            commands = {cmdSSH};
+            commands = this.RunCommandOnTarget(['pidof ' this.targetProductName]);
         end
         function commands = ShowIsolatedCPUCores(this)
             %GT.GenericTarget.ShowIsolatedCPUs Show the isolated CPUs for the target. If no CPU cores are isolated the printed console output
@@ -232,8 +227,7 @@ classdef GenericTarget < handle
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            cmdSSH = this.RunCommandOnTarget('cat /sys/devices/system/cpu/isolated');
-            commands = {cmdSSH};
+            commands = this.RunCommandOnTarget('cat /sys/devices/system/cpu/isolated');
         end
         function commands = ShowLatestProtocol(this)
             %GT.GenericTarget.ShowLatestProtocol Show the latest protocol file from the target.
@@ -246,11 +240,11 @@ classdef GenericTarget < handle
             [~,f,e] = fileparts(protocolFileOnTarget);
             if(strcmp(f, '*') || ~strcmp(e, '.txt'))
                 fprintf('ERROR: Could not find a protocol file on the target!\n');
-                commands = {cmd1};
+                commands = cmd1;
                 return;
             end
             cmd2 = this.RunCommandOnTarget(['cat ' protocolFileOnTarget]);
-            commands = {cmd1; cmd2};
+            commands = [cmd1(:); cmd2(:)];
         end
         function commands = DownloadAllProtocols(this, hostDirectory)
             %GT.GenericTarget.DownloadAllProtocols Download all protocol files from the target. The downloaded text will be written to the specified hostDirectory.
@@ -281,8 +275,7 @@ classdef GenericTarget < handle
             % commands ... The commands that were executed on the host.
             targetProtocolDirectory = this.GetTargetProtocolDirectoryName();
             fprintf('[GENERIC TARGET] Stopping target application and deleting all protocol files (%s) from target %s at %s\n', targetProtocolDirectory, this.targetUsername, this.targetIPAddress);
-            cmdSSH = this.RunCommandOnTarget(['sudo ' this.targetSoftwareDirectory this.targetProductName ' --console --stop ; sudo rm -r -f ' targetProtocolDirectory]);
-            commands = {cmdSSH};
+            commands = this.RunCommandOnTarget(['sudo ' this.targetSoftwareDirectory this.targetProductName ' --console --stop ; sudo rm -r -f ' targetProtocolDirectory]);
         end
         function commands = DownloadDataDirectory(this, hostDirectory, targetDataDirectory)
             %GT.GenericTarget.DownloadDataDirectory Download recorded data from the target. The downloaded data will be written to the specified hostDirectory.
@@ -309,7 +302,7 @@ classdef GenericTarget < handle
             dataFolder = this.GetTargetDataDirectoryName();
 
             % check if user specified data directory
-            cmdSSH = char.empty();
+            cmdSSH = cell.empty();
             if(isempty(targetDataDirectory))
                 fprintf('[GENERIC TARGET] Listing available data directories on target %s at %s\n', this.targetUsername, this.targetIPAddress);
                 cmdSSH = this.RunCommandOnTarget(['cd ' dataFolder ' && ls']);
@@ -324,7 +317,7 @@ classdef GenericTarget < handle
             if(isempty(cmdSSH))
                 commands = {cmdSCP};
             else
-                commands = {cmdSSH; cmdSCP};
+                commands = [cmdSSH; {cmdSCP}];
             end
             fprintf('[GENERIC TARGET] Download completed\n');
         end
@@ -363,8 +356,7 @@ classdef GenericTarget < handle
             % commands ... The commands that were executed on the host.
             dataFolder = this.GetTargetDataDirectoryName();
             fprintf('[GENERIC TARGET] Stopping target application and deleting all data files (%s) from target %s at %s\n', dataFolder, this.targetUsername, this.targetIPAddress);
-            cmdSSH = this.RunCommandOnTarget(['sudo ' this.targetSoftwareDirectory this.targetProductName ' --console --stop ; sudo rm -r -f ' dataFolder]);
-            commands = {cmdSSH};
+            commands = this.RunCommandOnTarget(['sudo ' this.targetSoftwareDirectory this.targetProductName ' --console --stop ; sudo rm -r -f ' dataFolder]);
         end
         function dataDirectory = GetTargetDataDirectoryName(this)
             %GT.GenericTarget.GetTargetDataDirectoryName Get the absolute name of the data directory on the target.
@@ -380,7 +372,7 @@ classdef GenericTarget < handle
             % protocolDirectory ... Absolute protocol directory name on the target (ends with a separator '/').
             protocolDirectory = [this.targetSoftwareDirectory, 'protocol/'];
         end
-        function [commands,cmdout] = RunCommandOnTarget(this, cmd)
+        function [commands, cmdout] = RunCommandOnTarget(this, cmd)
             %GT.GenericTarget.RunCommandOnTarget Run a command to the target computer. The command is executed via SSH.
             % 
             % PARAMETERS
