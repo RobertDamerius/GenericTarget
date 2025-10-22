@@ -1,4 +1,4 @@
-    <center><object width="25%" data="../img/gt.svg" type="image/svg+xml"></object></center>
+    <center><object data="../img/icon.svg" type="image/svg+xml"></object></center>
     <br>
 
 <h1>Generic Target</h1>
