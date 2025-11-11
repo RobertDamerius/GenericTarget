@@ -151,8 +151,11 @@
         With the command
         <pre>ssh-keygen</pre>
         a key is generated. Then you can specify a file name in which the key should be stored.
-        With <code>RETURN</code> a default file name is used. Then you can specify a passphrase from which the key will be generated.
-        With <code>RETURN</code> an empty passphrase is used. You can use the same key for several target computers.
+        With <code>RETURN</code> a default file name is used.
+        Then you can specify a passphrase from which the key will be generated.
+        With <code>RETURN</code> an empty passphrase is used.
+        It's recommended to not set a passphrase as it would interrupt the automated deployment process.
+        You can use the same key for several target computers.
         Thus, when setting up more targets, you can start with step 3.
 
         <h3>3. Copy Public Key to Target</h3>

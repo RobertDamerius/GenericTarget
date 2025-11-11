@@ -34,15 +34,37 @@ void UDPServiceManager::Register(int32_t id, UDPServiceConfiguration conf){
 }
 
 bool UDPServiceManager::CreateAllUDPSockets(void){
+    // create all services
     bool success = true;
     for(auto&& s : services){
         success &= s.second->Create();
     }
     created = true;
+
+    // start management thread
+    if(services.size() && success){
+        managementThread = std::thread(&UDPServiceManager::ManagementThread, this);
+        struct sched_param param;
+        param.sched_priority = 21;
+        if(0 != pthread_setschedparam(managementThread.native_handle(), SCHED_FIFO, &param)){
+            GENERIC_TARGET_PRINT_WARNING("Could not set thread priority 21 for UDP service management thread!\n");
+        }
+    }
+
     return success && !registrationError;
 }
 
 void UDPServiceManager::DestroyAllUDPSockets(void){
+    // stop management thread
+    terminate = true;
+    event.NotifyOne(0);
+    if(managementThread.joinable()){
+        managementThread.join();
+    }
+    terminate = false;
+    event.Clear();
+
+    // destroy all services
     for(auto&& s : services){
         s.second->Destroy();
         delete s.second;
@@ -72,5 +94,20 @@ std::tuple<Address, int32_t, int32_t> UDPServiceManager::ReceiveFrom(int32_t id,
 
 bool UDPServiceManager::RegistrationErrorOccurred(void){
     return registrationError;
+}
+
+void UDPServiceManager::ManagementThread(void){
+    constexpr uint32_t timeoutMs = 1000;
+    while(!terminate){
+        bool allBound = true;
+        for(auto&& s : services){
+            allBound &= s.second->AttemptToBind();
+        }
+        if(allBound){
+            GENERIC_TARGET_PRINT("All UDP sockets are ready for operation\n");
+            break;
+        }
+        (void) event.WaitFor(timeoutMs);
+    }
 }
 

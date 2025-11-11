@@ -8,9 +8,10 @@ using namespace gt;
 
 
 UDPService::UDPService(){
-    postInitCompleted = false;
     configurationAssigned = false;
     latestErrorCode = 0;
+    attemptToBindStatus = 0;
+    isBound = false;
 }
 
 UDPService::~UDPService(){
@@ -31,106 +32,109 @@ bool UDPService::AssignConfiguration(UDPServiceConfiguration configuration){
 }
 
 bool UDPService::Create(void){
-    const std::lock_guard<std::mutex> lock(mtxSocket);
-    if(udpSocket.IsOpen()){
-        GENERIC_TARGET_PRINT_ERROR("The UDP socket is already open!\n");
-        return false;
-    }
-    if(!configurationAssigned){
-        GENERIC_TARGET_PRINT_ERROR("The configuration for this UDP socket has not been set!\n");
-        return false;
-    }
+    {
+        const std::lock_guard<std::mutex> lock(mtxSocket);
+        if(udpSocket.IsOpen()){
+            GENERIC_TARGET_PRINT_ERROR("The UDP socket is already open!\n");
+            return false;
+        }
+        if(!configurationAssigned){
+            GENERIC_TARGET_PRINT_ERROR("The configuration for this UDP socket has not been set!\n");
+            return false;
+        }
 
-    // create socket
-    udpSocket.ResetLastError();
-    if(!udpSocket.Open()){
-        auto [errorCode, errorString] = udpSocket.GetLastError();
-        latestErrorCode = errorCode;
-        GENERIC_TARGET_PRINT_ERROR("Could not create UDP socket (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
-        return false;
-    }
+        // create socket
+        udpSocket.ResetLastError();
+        if(!udpSocket.Open()){
+            auto [errorCode, errorString] = udpSocket.GetLastError();
+            latestErrorCode = errorCode;
+            GENERIC_TARGET_PRINT_ERROR("Could not create UDP socket (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
+            return false;
+        }
 
-    // socket priority
-    udpSocket.ResetLastError();
-    if(udpSocket.SetSocketPriority(conf.socketPriority) < 0){
-        auto [errorCode, errorString] = udpSocket.GetLastError();
-        latestErrorCode = errorCode;
-        GENERIC_TARGET_PRINT_ERROR("Could not set SO_PRIORITY option for UDP socket (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
-        udpSocket.Close();
-        return false;
-    }
+        // socket priority
+        udpSocket.ResetLastError();
+        if(udpSocket.SetSocketPriority(conf.socketPriority) < 0){
+            auto [errorCode, errorString] = udpSocket.GetLastError();
+            latestErrorCode = errorCode;
+            GENERIC_TARGET_PRINT_ERROR("Could not set SO_PRIORITY option for UDP socket (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
+            udpSocket.Close();
+            return false;
+        }
 
-    // reuse port
-    udpSocket.ResetLastError();
-    if(udpSocket.ReusePort(true) < 0){
-        auto [errorCode, errorString] = udpSocket.GetLastError();
-        latestErrorCode = errorCode;
-        GENERIC_TARGET_PRINT_ERROR("Could not set SO_REUSEPORT option for UDP socket (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
-        udpSocket.Close();
-        return false;
-    }
+        // reuse port
+        udpSocket.ResetLastError();
+        if(udpSocket.ReusePort(true) < 0){
+            auto [errorCode, errorString] = udpSocket.GetLastError();
+            latestErrorCode = errorCode;
+            GENERIC_TARGET_PRINT_ERROR("Could not set SO_REUSEPORT option for UDP socket (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
+            udpSocket.Close();
+            return false;
+        }
 
-    // reuse address
-    udpSocket.ResetLastError();
-    if(udpSocket.ReuseAddrress(true) < 0){
-        auto [errorCode, errorString] = udpSocket.GetLastError();
-        latestErrorCode = errorCode;
-        GENERIC_TARGET_PRINT_ERROR("Could not set SO_REUSEADDR option for UDP socket (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
-        udpSocket.Close();
-        return false;
-    }
+        // reuse address
+        udpSocket.ResetLastError();
+        if(udpSocket.ReuseAddrress(true) < 0){
+            auto [errorCode, errorString] = udpSocket.GetLastError();
+            latestErrorCode = errorCode;
+            GENERIC_TARGET_PRINT_ERROR("Could not set SO_REUSEADDR option for UDP socket (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
+            udpSocket.Close();
+            return false;
+        }
 
-    // allow broadcast
-    udpSocket.ResetLastError();
-    if(udpSocket.AllowBroadcast(conf.allowBroadcast) < 0){
-        auto [errorCode, errorString] = udpSocket.GetLastError();
-        latestErrorCode = errorCode;
-        GENERIC_TARGET_PRINT_ERROR("Could not set SO_BROADCAST option for UDP socket (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
-        udpSocket.Close();
-        return false;
-    }
+        // allow broadcast
+        udpSocket.ResetLastError();
+        if(udpSocket.AllowBroadcast(conf.allowBroadcast) < 0){
+            auto [errorCode, errorString] = udpSocket.GetLastError();
+            latestErrorCode = errorCode;
+            GENERIC_TARGET_PRINT_ERROR("Could not set SO_BROADCAST option for UDP socket (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
+            udpSocket.Close();
+            return false;
+        }
 
-    // multicast all
-    udpSocket.ResetLastError();
-    if(udpSocket.SetMulticastAll(conf.multicastAll) < 0){
-        auto [errorCode, errorString] = udpSocket.GetLastError();
-        latestErrorCode = errorCode;
-        GENERIC_TARGET_PRINT_ERROR("Could not set IP_MULTICAST_ALL option for UDP socket (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
-        udpSocket.Close();
-        return false;
-    }
+        // multicast all
+        udpSocket.ResetLastError();
+        if(udpSocket.SetMulticastAll(conf.multicastAll) < 0){
+            auto [errorCode, errorString] = udpSocket.GetLastError();
+            latestErrorCode = errorCode;
+            GENERIC_TARGET_PRINT_ERROR("Could not set IP_MULTICAST_ALL option for UDP socket (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
+            udpSocket.Close();
+            return false;
+        }
 
-    // multicast loop
-    udpSocket.ResetLastError();
-    if(udpSocket.SetMulticastLoop(conf.multicastLoop) < 0){
-        auto [errorCode, errorString] = udpSocket.GetLastError();
-        latestErrorCode = errorCode;
-        GENERIC_TARGET_PRINT_ERROR("Could not set IP_MULTICAST_LOOP option for UDP socket (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
-        udpSocket.Close();
-        return false;
-    }
+        // multicast loop
+        udpSocket.ResetLastError();
+        if(udpSocket.SetMulticastLoop(conf.multicastLoop) < 0){
+            auto [errorCode, errorString] = udpSocket.GetLastError();
+            latestErrorCode = errorCode;
+            GENERIC_TARGET_PRINT_ERROR("Could not set IP_MULTICAST_LOOP option for UDP socket (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
+            udpSocket.Close();
+            return false;
+        }
 
-    // multicast TTL
-    udpSocket.ResetLastError();
-    if(udpSocket.SetMulticastTTL(conf.multicastTTL) < 0){
-        auto [errorCode, errorString] = udpSocket.GetLastError();
-        latestErrorCode = errorCode;
-        GENERIC_TARGET_PRINT_ERROR("Could not set IP_MULTICAST_TTL option for UDP socket (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
-        udpSocket.Close();
-        return false;
-    }
+        // multicast TTL
+        udpSocket.ResetLastError();
+        if(udpSocket.SetMulticastTTL(conf.multicastTTL) < 0){
+            auto [errorCode, errorString] = udpSocket.GetLastError();
+            latestErrorCode = errorCode;
+            GENERIC_TARGET_PRINT_ERROR("Could not set IP_MULTICAST_TTL option for UDP socket (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
+            udpSocket.Close();
+            return false;
+        }
 
-    // non-blocking mode
-    udpSocket.ResetLastError();
-    if(!udpSocket.EnableNonBlockingMode()){
-        auto [errorCode, errorString] = udpSocket.GetLastError();
-        latestErrorCode = errorCode;
-        GENERIC_TARGET_PRINT_ERROR("Could not enable non-blocking mode for UDP socket (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
-        udpSocket.Close();
-        return false;
-    }
+        // non-blocking mode
+        udpSocket.ResetLastError();
+        if(!udpSocket.EnableNonBlockingMode()){
+            auto [errorCode, errorString] = udpSocket.GetLastError();
+            latestErrorCode = errorCode;
+            GENERIC_TARGET_PRINT_ERROR("Could not enable non-blocking mode for UDP socket (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
+            udpSocket.Close();
+            return false;
+        }
 
-    GENERIC_TARGET_PRINT("Created UDP socket (%s)\n", conf.ToString().c_str());
+        GENERIC_TARGET_PRINT("Created UDP socket (%s)\n", conf.ToString().c_str());
+    }
+    (void) AttemptToBind();
     return true;
 }
 
@@ -144,15 +148,16 @@ void UDPService::Destroy(void){
         GENERIC_TARGET_PRINT("Destroyed UDP socket (%s)\n", conf.ToString().c_str());
     }
     currentlyJoinedGroups.clear();
-    postInitCompleted = false;
     configurationAssigned = false;
     latestErrorCode = 0;
+    isBound = false;
+    attemptToBindStatus = 0;
     conf.Reset();
 }
 
 std::tuple<int32_t, int32_t> UDPService::SendTo(Address destination, uint8_t *bytes, int32_t size){
     int32_t tx = -1;
-    if(PostInitialization()){
+    if(isBound){
         tx = 0;
         bool enableTransmission = (size > 0) || ((0 == size) && conf.allowZeroLengthMessage);
         if(enableTransmission){
@@ -162,13 +167,14 @@ std::tuple<int32_t, int32_t> UDPService::SendTo(Address destination, uint8_t *by
             latestErrorCode = udpSocket.GetLastErrorCode();
         }
     }
-    return std::make_tuple(tx, latestErrorCode);
+    int32_t code = latestErrorCode;
+    return std::make_tuple(tx, code);
 }
 
 std::tuple<Address, int32_t, int32_t> UDPService::ReceiveFrom(uint8_t *bytes, int32_t maxSize, std::vector<std::array<uint8_t,4>> multicastGroups){
     Address source;
     int32_t rx = -1;
-    if(PostInitialization()){
+    if(isBound){
         UpdateMulticastGroups(multicastGroups);
         mtxSocket.lock();
         udpSocket.ResetLastError();
@@ -176,40 +182,48 @@ std::tuple<Address, int32_t, int32_t> UDPService::ReceiveFrom(uint8_t *bytes, in
         latestErrorCode = udpSocket.GetLastErrorCode();
         mtxSocket.unlock();
     }
-    return std::make_tuple(source, rx, latestErrorCode);
+    int32_t code = latestErrorCode;
+    return std::make_tuple(source, rx, code);
 }
 
-bool UDPService::PostInitialization(void){
-    if(!postInitCompleted){
+bool UDPService::AttemptToBind(void){
+    if(!isBound){
         const std::lock_guard<std::mutex> lock(mtxSocket);
 
         // bind port
-        uint16_t port = static_cast<uint16_t>(std::clamp(conf.port, 0, 65535));
-        udpSocket.ResetLastError();
-        if(udpSocket.Bind(port) < 0){
-            auto [errorCode, errorString] = udpSocket.GetLastError();
-            if(errorCode != latestErrorCode){
-                GENERIC_TARGET_PRINT_WARNING("Could not bind port for UDP socket (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
+        if(attemptToBindStatus < 1){
+            uint16_t port = static_cast<uint16_t>(std::clamp(conf.port, 0, 65535));
+            udpSocket.ResetLastError();
+            if(udpSocket.Bind(port) < 0){
+                auto [errorCode, errorString] = udpSocket.GetLastError();
+                if(errorCode != latestErrorCode){
+                    GENERIC_TARGET_PRINT_ERROR("Could not bind port for UDP socket (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
+                }
+                latestErrorCode = errorCode;
+                return false;
             }
-            latestErrorCode = errorCode;
-            return false;
+            attemptToBindStatus = 1;
         }
 
         // bind to device
-        udpSocket.ResetLastError();
-        if(udpSocket.BindToDevice(conf.deviceName) < 0){
-            auto [errorCode, errorString] = udpSocket.GetLastError();
-            if(errorCode != latestErrorCode){
-                GENERIC_TARGET_PRINT_WARNING("Could not bind UDP socket to a device (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
+        if(attemptToBindStatus < 2){
+            udpSocket.ResetLastError();
+            if(udpSocket.BindToDevice(conf.deviceName) < 0){
+                auto [errorCode, errorString] = udpSocket.GetLastError();
+                if(errorCode != latestErrorCode){
+                    GENERIC_TARGET_PRINT_ERROR("Could not bind UDP socket to a device (%s)! %s\n", conf.ToString().c_str(), errorString.c_str());
+                }
+                latestErrorCode = errorCode;
+                return false;
             }
-            latestErrorCode = errorCode;
-            return false;
+            attemptToBindStatus = 2;
         }
 
         // success
-        postInitCompleted = true;
+        isBound = true;
+        GENERIC_TARGET_PRINT("UDP socket ready (%s)\n", conf.ToString().c_str());
     }
-    return postInitCompleted;
+    return true;
 }
 
 void UDPService::UpdateMulticastGroups(std::vector<std::array<uint8_t,4>> multicastGroups){

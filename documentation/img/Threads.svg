@@ -2,8 +2,8 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generiert durch Microsoft Visio, SVG Export Threads.svg Threads -->
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
-		xmlns:v="http://schemas.microsoft.com/visio/2003/SVGExtensions/" width="8.0917in" height="4.84367in"
-		viewBox="0 0 582.602 348.744" xml:space="preserve" color-interpolation-filters="sRGB" class="st10">
+		xmlns:v="http://schemas.microsoft.com/visio/2003/SVGExtensions/" width="12.2151in" height="4.85408in"
+		viewBox="0 0 879.49 349.494" xml:space="preserve" color-interpolation-filters="sRGB" class="st10">
 	<v:documentProperties v:langID="1031" v:metric="true" v:viewMarkup="false">
 		<v:userDefs>
 			<v:ud v:nameU="msvNoAutoConnect" v:val="VT0(1):26"/>
@@ -31,88 +31,100 @@
 				v:shadowOffsetY="-8.50394"/>
 		<g id="shape22-1" v:mID="22" v:groupContext="shape" transform="translate(0.750017,-248.782)">
 			<title>Tabelle.22</title>
-			<rect x="0" y="249.532" width="581.102" height="99.2126" rx="11.3386" ry="11.3386" class="st1"/>
+			<rect x="0" y="250.282" width="581.102" height="99.2126" rx="11.3386" ry="11.3386" class="st1"/>
 		</g>
 		<g id="shape20-3" v:mID="20" v:groupContext="shape" transform="translate(298.388,-0.75)">
 			<title>Tabelle.20</title>
-			<rect x="0" y="114.886" width="283.465" height="233.858" rx="11.3386" ry="11.3386" class="st2"/>
+			<rect x="0" y="115.636" width="283.465" height="233.858" rx="11.3386" ry="11.3386" class="st2"/>
 		</g>
 		<g id="shape19-5" v:mID="19" v:groupContext="shape" transform="translate(0.75,-0.750031)">
 			<title>Tabelle.19</title>
-			<rect x="0" y="114.886" width="283.465" height="233.858" rx="11.3386" ry="11.3386" class="st3"/>
+			<rect x="0" y="115.636" width="283.465" height="233.858" rx="11.3386" ry="11.3386" class="st3"/>
 		</g>
 		<g id="shape3-7" v:mID="3" v:groupContext="shape" transform="translate(22.0099,-277.128)">
 			<title>Tabelle.3</title>
 			<desc>BaseRateScheduler priority: maxPriority (usually 99)</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="120.472" cy="327.484" width="240.95" height="42.5197"/>
-			<rect x="0" y="306.224" width="240.945" height="42.5197" class="st4"/>
-			<text x="64.68" y="323.88" class="st5" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>BaseRateScheduler<v:newlineChar/><tspan
+			<v:textRect cx="120.472" cy="328.234" width="240.95" height="42.5197"/>
+			<rect x="0" y="306.974" width="240.945" height="42.5197" class="st4"/>
+			<text x="64.68" y="324.63" class="st5" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>BaseRateScheduler<v:newlineChar/><tspan
 						x="33.69" dy="1.2em" class="st6">priority: maxPriority (usually 99)</tspan></text>		</g>
 		<g id="shape5-11" v:mID="5" v:groupContext="shape" transform="translate(22.0099,-170.829)">
 			<title>Tabelle.5</title>
 			<desc>Model Thread 1 priority: upperThreadPriority</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="120.472" cy="327.484" width="240.95" height="42.5197"/>
-			<rect x="0" y="306.224" width="240.945" height="42.5197" class="st4"/>
-			<text x="79.15" y="323.88" class="st5" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Model Thread 1<v:newlineChar/><tspan
+			<v:textRect cx="120.472" cy="328.234" width="240.95" height="42.5197"/>
+			<rect x="0" y="306.974" width="240.945" height="42.5197" class="st4"/>
+			<text x="79.15" y="324.63" class="st5" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Model Thread 1<v:newlineChar/><tspan
 						x="43.59" dy="1.2em" class="st6">priority: upperThreadPriority</tspan></text>		</g>
 		<g id="shape6-15" v:mID="6" v:groupContext="shape" transform="translate(22.0099,-121.222)">
 			<title>Tabelle.6</title>
 			<desc>Model Thread 2 priority: upperThreadPriority - 1</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="120.472" cy="327.484" width="240.95" height="42.5197"/>
-			<rect x="0" y="306.224" width="240.945" height="42.5197" class="st4"/>
-			<text x="77.76" y="323.88" class="st5" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Model Thread 2<v:newlineChar/><tspan
+			<v:textRect cx="120.472" cy="328.234" width="240.95" height="42.5197"/>
+			<rect x="0" y="306.974" width="240.945" height="42.5197" class="st4"/>
+			<text x="77.76" y="324.63" class="st5" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Model Thread 2<v:newlineChar/><tspan
 						x="36.28" dy="1.2em" class="st6">priority: upperThreadPriority </tspan><tspan class="st6">-</tspan><tspan
 						class="st6"> </tspan><tspan class="st6">1</tspan></text>		</g>
 		<g id="shape7-22" v:mID="7" v:groupContext="shape" transform="translate(22.0099,-22.0098)">
 			<title>Tabelle.7</title>
 			<desc>Model Thread n priority: upperThreadPriority – n + 1</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="120.472" cy="327.484" width="240.95" height="42.5197"/>
-			<rect x="0" y="306.224" width="240.945" height="42.5197" class="st4"/>
-			<text x="77.52" y="323.88" class="st5" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Model Thread n<v:newlineChar/><tspan
+			<v:textRect cx="120.472" cy="328.234" width="240.95" height="42.5197"/>
+			<rect x="0" y="306.974" width="240.945" height="42.5197" class="st4"/>
+			<text x="77.52" y="324.63" class="st5" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Model Thread n<v:newlineChar/><tspan
 						x="25.64" dy="1.2em" class="st6">priority: upperThreadPriority </tspan><tspan class="st6">–</tspan><tspan
 						class="st6"> </tspan><tspan class="st6">n + 1</tspan></text>		</g>
 		<g id="shape11-29" v:mID="11" v:groupContext="shape" transform="translate(319.648,-170.829)">
 			<title>Tabelle.11</title>
 			<desc>Data Recorder ID1 priority: priorityDataRecorder</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="120.472" cy="327.484" width="240.95" height="42.5197"/>
-			<rect x="0" y="306.224" width="240.945" height="42.5197" class="st7"/>
-			<text x="70.86" y="323.88" class="st5" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Data Recorder ID1<v:newlineChar/><tspan
+			<v:textRect cx="120.472" cy="328.234" width="240.95" height="42.5197"/>
+			<rect x="0" y="306.974" width="240.945" height="42.5197" class="st7"/>
+			<text x="70.86" y="324.63" class="st5" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Data Recorder ID1<v:newlineChar/><tspan
 						x="39.72" dy="1.2em" class="st6">priority:  priorityDataRecorder</tspan></text>		</g>
 		<g id="shape12-33" v:mID="12" v:groupContext="shape" transform="translate(319.648,-121.222)">
 			<title>Tabelle.12</title>
 			<desc>Data Recorder ID2 priority: priorityDataRecorder</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="120.472" cy="327.484" width="240.95" height="42.5197"/>
-			<rect x="0" y="306.224" width="240.945" height="42.5197" class="st7"/>
-			<text x="69.47" y="323.88" class="st5" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Data Recorder ID2<v:newlineChar/><tspan
+			<v:textRect cx="120.472" cy="328.234" width="240.95" height="42.5197"/>
+			<rect x="0" y="306.974" width="240.945" height="42.5197" class="st7"/>
+			<text x="69.47" y="324.63" class="st5" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Data Recorder ID2<v:newlineChar/><tspan
 						x="39.72" dy="1.2em" class="st6">priority:  priorityDataRecorder</tspan></text>		</g>
 		<g id="shape13-37" v:mID="13" v:groupContext="shape" transform="translate(319.648,-22.0098)">
 			<title>Tabelle.13</title>
 			<desc>Data Recorder IDn priority: priorityDataRecorder</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="120.472" cy="327.484" width="240.95" height="42.5197"/>
-			<rect x="0" y="306.224" width="240.945" height="42.5197" class="st7"/>
-			<text x="69.23" y="323.88" class="st5" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Data Recorder IDn<v:newlineChar/><tspan
+			<v:textRect cx="120.472" cy="328.234" width="240.95" height="42.5197"/>
+			<rect x="0" y="306.974" width="240.945" height="42.5197" class="st7"/>
+			<text x="69.23" y="324.63" class="st5" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Data Recorder IDn<v:newlineChar/><tspan
 						x="39.72" dy="1.2em" class="st6">priority:  priorityDataRecorder</tspan></text>		</g>
-		<g id="shape18-41" v:mID="18" v:groupContext="shape" transform="translate(491.226,234.608) rotate(90)">
+		<g id="shape18-41" v:mID="18" v:groupContext="shape" transform="translate(491.976,235.358) rotate(90)">
 			<title>Tabelle.18</title>
-			<path d="M0 348.74 L42.52 348.74" class="st8"/>
+			<path d="M0 349.49 L42.52 349.49" class="st8"/>
 		</g>
-		<g id="shape21-44" v:mID="21" v:groupContext="shape" transform="translate(788.864,234.608) rotate(90)">
+		<g id="shape21-44" v:mID="21" v:groupContext="shape" transform="translate(789.614,235.358) rotate(90)">
 			<title>Tabelle.21</title>
-			<path d="M0 348.74 L42.52 348.74" class="st8"/>
+			<path d="M0 349.49 L42.52 349.49" class="st8"/>
 		</g>
 		<g id="shape23-47" v:mID="23" v:groupContext="shape" transform="translate(319.648,-277.128)">
 			<title>Tabelle.23</title>
 			<desc>Main</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
-			<v:textRect cx="120.472" cy="327.484" width="240.95" height="42.5197"/>
-			<rect x="0" y="306.224" width="240.945" height="42.5197" class="st9"/>
-			<text x="106.87" y="323.88" class="st5" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Main<v:newlineChar/></text>		</g>
+			<v:textRect cx="120.472" cy="328.234" width="240.95" height="42.5197"/>
+			<rect x="0" y="306.974" width="240.945" height="42.5197" class="st9"/>
+			<text x="106.87" y="324.63" class="st5" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Main<v:newlineChar/></text>		</g>
+		<g id="shape24-50" v:mID="24" v:groupContext="shape" transform="translate(595.276,-249.532)">
+			<title>Tabelle.24</title>
+			<rect x="0" y="250.282" width="283.465" height="99.2126" rx="11.3386" ry="11.3386" class="st1"/>
+		</g>
+		<g id="shape25-52" v:mID="25" v:groupContext="shape" transform="translate(617.203,-277.878)">
+			<title>Tabelle.25</title>
+			<desc>UDP Service Manager priority: 21</desc>
+			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
+			<v:textRect cx="120.472" cy="328.234" width="240.95" height="42.5197"/>
+			<rect x="0" y="306.974" width="240.945" height="42.5197" class="st9"/>
+			<text x="60.09" y="324.63" class="st5" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>UDP Service Manager<v:newlineChar/><tspan
+						x="93.11" dy="1.2em" class="st6">priority: 21</tspan></text>		</g>
 	</g>
 </svg>

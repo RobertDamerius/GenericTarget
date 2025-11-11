@@ -185,7 +185,12 @@
     All initialization callbacks of the model are called at this point.
     If an error occurs during initialization, the application logs this in the <a href="protocolfile.html">protocol file</a> and the application is to be terminated.
 
-    <h3>9. DataRecorderManager::Create()</h3>
+    <h3>9. Create UDP sockets</h3>
+    All UDP sockets that have been registered in the previous step are now created.
+    If an error occurs, the application logs this in the <a href="protocolfile.html">protocol file</a> and the application is to be terminated.
+    A separate network management thread is started that periodically (1 second) tries to bind a port and a network device to a socket if not already done.
+
+    <h3>10. Create data recorders</h3>
     The DataRecorderManager creates a new directory in which the recorded data is stored.
     The name of the created folder corresponds to the UTC time of the target computer.
     If the DataRecorderManager could not create a new folder, the application is closed.
@@ -221,7 +226,7 @@
     In this way, the Generic Target application can be terminated by the model software.
     </div>
 
-    <h3>4. Message is Termination Message</h3>
+    <h3>4. Received Termination Message</h3>
     If the received message is a termination message, the main loop is interrupted.
     Otherwise, the system further waits for a UDP message or a signal from the operating system.
     A termination message consists of four bytes:
@@ -247,10 +252,13 @@
     At this point the terminattion function of the Simulink model is called.
     All termination callback functions of driver blocks are also called.
 
-    <h3>3. DataRecorderManager::Destroy()</h3>
+    <h3>3. Destroy UDP sockets</h3>
+    Created UDP sockets are destroyed at this point. All joined multicast groups will be left.
+
+    <h3>4. Destroy data recorders</h3>
     Created data recording objects are destroyed at this point. Values that are still unwritten are written to the data files.
 
-    <h3>4. Close AppSocket</h3>
+    <h3>5. Close AppSocket</h3>
     The application socket is closed and the Generic Target application is terminated.
 
 <br><br><br><br>

@@ -105,6 +105,72 @@ class GenericTarget {
 
 
 /**
+ * @brief The event class can be used to wait within a thread for an event that is notified by another thread.
+ */
+class Event {
+    public:
+        /**
+         * @brief Create a new event object.
+         */
+        Event():_flag(-1){}
+
+        /**
+         * @brief Notify one thread waiting for this event.
+         * @param[in] flag User-specific value that should be forwarded to the waiting thread. Note that -1 is used as default value and therefore to indicate timeout when calling @ref WaitFor.
+         */
+        inline void NotifyOne(int flag){
+            std::unique_lock<std::mutex> lock(mtx);
+            notified = true;
+            _flag = flag;
+            cv.notify_one();
+            std::this_thread::yield();
+        }
+
+        /**
+         * @brief Wait for a notification event. A thread calling this function waits until @ref NotifyOne is called.
+         * @return The user-specific value that has been set during the @ref NotifyOne call.
+         */
+        inline int Wait(void){
+            std::unique_lock<std::mutex> lock(mtx);
+            cv.wait(lock, [this](){ return this->notified; });
+            notified = false;
+            int ret = _flag;
+            _flag = -1;
+            return ret;
+        }
+
+        /**
+         * @brief Wait for a notification event or for a timeout. A thread calling this function waits until @ref NotifyOne is called or the wait timed out.
+         * @param[in] timeoutMs Timeout in milliseconds.
+         * @return The user-specific value that has been set during the @ref NotifyOne call or -1 in case of timeout.
+         */
+        inline int WaitFor(uint32_t timeoutMs){
+            std::unique_lock<std::mutex> lock(mtx);
+            cv.wait_for(lock, std::chrono::milliseconds(timeoutMs), [this](){ return this->notified; });
+            notified = false;
+            int ret = _flag;
+            _flag = -1;
+            return ret;
+        }
+
+        /**
+         * @brief Clear a notified event.
+         */
+        inline void Clear(void){
+            std::unique_lock<std::mutex> lock(mtx);
+            notified = false;
+            _flag = -1;
+        }
+
+    private:
+        int _flag;                    // User-specific value set during notification. The default value is -1.
+        std::mutex mtx;               // The mutex used for event notification.
+        std::condition_variable cv;   // The condition variable used for event notification.
+        bool notified;                // A boolean flag to prevent spurious wakeups.
+};
+
+
+/**
  * @brief This class represents a network address including an IPv4 address and a port.
  */
 class Address {
@@ -421,6 +487,7 @@ class UDPService {
         /**
          * @brief Create the service using the internally stored configuration.
          * @return True if success, false otherwise.
+         * @details Calls @ref AttempToBind without the result affecting the return value.
          */
         bool Create(void);
 
@@ -437,8 +504,7 @@ class UDPService {
          * @return A tuple containing the following values:
          * <0> Number of bytes that have been sent. If an error occurred, the return value is < 0.
          * <1> The last socket error code.
-         * @details Performs the post-initialization via @ref PostInitialization and then sends the
-         * message if that post-initialization was successful.
+         * @details Keeps returning -1 and the latest error code if @ref AttempToBind has not been completed successfully.
          */
         std::tuple<int32_t,int32_t> SendTo(Address destination, uint8_t* bytes, int32_t size);
 
@@ -453,27 +519,28 @@ class UDPService {
          * <0> Source address.
          * <1> Number of bytes that have been received. If an error occurred, the return value is < 0.
          * <2> The last socket error code.
-         * @details Performs the post-initialization via @ref PostInitialization and then sends the
-         * message if that post-initialization was successful.
+         * @details Keeps returning -1 and the latest error code if @ref AttempToBind has not been completed successfully.
          */
         std::tuple<Address, int32_t, int32_t> ReceiveFrom(uint8_t *bytes, int32_t maxSize, std::vector<std::array<uint8_t,4>> multicastGroups = {});
 
+        /**
+         * @brief Attempt to bind the port and device name to the socket using the internally stored configuration..
+         * @return True if the socket is ready and has been completely initialized, false otherwise.
+         * @details This function tries to bind the port and the network device name to the @ref udpSocket.
+         * It sets the @ref isBound flag to true if it succeeds.
+         * If it has been completed once, then this functions always returns true.
+         */
+        bool AttemptToBind(void);
+
     private:
-        bool postInitCompleted;                                     // True if post-initialization of socket has been completed, false otherwise.
         bool configurationAssigned;                                 // True if configuration has been assigned via @ref UpdateConfiguration, false otherwise.
-        int32_t latestErrorCode;                                    // Stores the latest socket error code.
+        std::atomic<int32_t> latestErrorCode;                       // Stores the latest socket error code.
         UDPSocket udpSocket;                                        // Internal socket object for UDP operation.
         UDPServiceConfiguration conf;                               // Configuration that has been set by @ref AssignConfiguration.
         std::vector<std::array<uint8_t,4>> currentlyJoinedGroups;   // List of successfully joined multicast groups.
         std::mutex mtxSocket;                                       // Protect the @ref udpSocket.
-
-        /**
-         * @brief Do a post-initialization for the socket before actually performing socket operations like send or receive.
-         * @return True if the socket is ready and has been completely initialized, false otherwise.
-         * @details This function tries to bind the port and the network device name to the @ref udpSocket.
-         * If this post-initialization has been completed once, then this functions always returns true.
-         */
-        bool PostInitialization(void);
+        std::atomic<bool> isBound;                                  // True if port and interface are bound and socket is ready for operation, false otherwise.
+        int32_t attemptToBindStatus;                                // Status code for attempting to bind port and device name. 0: not bound, 1: port bound, 2: port and device name bound.
 
         /**
          * @brief Update the multicast groups that have been joined.
@@ -576,6 +643,15 @@ class UDPServiceManager {
         bool created;                                       // True if UDP sockets have been created, false otherwise.
         bool registrationError;                             // True if a registration error occurred.
         std::unordered_map<int32_t,UDPService*> services;   // Internal database of UDP services.
+        std::thread managementThread;                       // Thread that manages all @ref services.
+        std::atomic<bool> terminate;                        // Flag for thread termination.
+        gt_simulink_support::Event event;                   // Event to notify the management thread.
+
+        /**
+         * @brief The management thread function.
+         * @details This thread attemps to bind port and device name to sockets as long as not completed.
+         */
+        void ManagementThread(void);
 };
 
 

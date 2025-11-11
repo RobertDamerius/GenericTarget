@@ -4,6 +4,7 @@
 #include <GenericTarget/GT_Common.hpp>
 #include <GenericTarget/Network/GT_UDPService.hpp>
 #include <GenericTarget/Network/GT_UDPServiceConfiguration.hpp>
+#include <GenericTarget/GT_Event.hpp>
 
 
 namespace gt {
@@ -92,6 +93,15 @@ class UDPServiceManager {
         bool created;                                       // True if UDP sockets have been created, false otherwise.
         bool registrationError;                             // True if a registration error occurred.
         std::unordered_map<int32_t,UDPService*> services;   // Internal database of UDP services.
+        std::thread managementThread;                       // Thread that manages all @ref services.
+        std::atomic<bool> terminate;                        // Flag for thread termination.
+        gt::Event event;                                    // Event to notify the management thread.
+
+        /**
+         * @brief The management thread function.
+         * @details This thread attemps to bind port and device name to sockets as long as not completed.
+         */
+        void ManagementThread(void);
 };
 
 

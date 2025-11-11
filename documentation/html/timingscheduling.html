@@ -147,6 +147,7 @@ If there are several tasks to do, they are processed one after the other.
 <h2>Thread Overview</h2>
 There are two threads that are always present.
 These are the the BaseRateScheduler and the main thread.
+The UDP Service Manager thread is available, if UDP transmission blocks are used.
 <br>
 <br>
 <center><object data="../img/Threads.svg" type="image/svg+xml"><img src="../img/Threads.svg"></object></center>
@@ -160,6 +161,12 @@ Then this thread distributes the event to all worker threads of the model.
 The <b>main thread</b> executes the <a href="application.html#flowchart">main entry function</a> of the application.
 The initialization and termination phases of the Generic Target application run in this thread.
 In the actual <a href="application.html#mainloop">main loop</a> this thread receives messages via the application socket and waits for a termination message.
+<br>
+<br>
+The <b>UDP service manager thread</b> has a fixed priority of 21.
+It is responsible for binding the ports and device names for all sockets.
+As long as the network interface is not available, it attempts to bind the port and device name every second.
+Once all ports have been bound, this thread is terminated.
 
 <br>
 <br>
