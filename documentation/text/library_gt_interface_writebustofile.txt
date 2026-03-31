@@ -12,6 +12,7 @@ A sample indicates a data vector of all signals in the bus and the timestamp for
 <h3>bus</h3>
 Connect a bus signal to this input port.
 The bus may only consist of nested buses and build-in data types and data types that are supported by simulink byte pack blocks, such as <code>boolean, uint8, int8, uint16, int16, uint32, int32, single, double</code>.
+All bus and signal names must be valid variable names.
 
 
 <h2>Block Parameters</h2>

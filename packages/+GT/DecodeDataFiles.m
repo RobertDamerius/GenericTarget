@@ -134,8 +134,9 @@ function data = DecodeDataFiles(dataFileNames)
 
         % Put timeVec,dataVals into time series struct
         layerNames = split(name, '.');
+        layerNames = matlab.lang.makeValidName(layerNames); % ensure valid layer names
         ts = timeseries(dataVals, timeVec, 'Name', layerNames{end}); % this automatically sorts the data according to the time
-        eval(['data.', name, ' = ts;']); % eval required to allow nested structures
+        eval(['data.', strjoin(layerNames, '.'), ' = ts;']); % eval required to allow nested structures
     end
     fprintf('\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bOK (finished after %f seconds)\n', toc());
 end
