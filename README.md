@@ -58,7 +58,7 @@ The structure of this repository is as follows.
 | :----------------- | :------------------------------------------------------------------- |
 | core               | contains source code and template files for the Generic Target Core  |
 | documentation      | contains the HTML-based documentation                                |
-| library            | contains the MATLAB/Simulink library "GenericTarget" (**>= R2025a**) |
+| library            | contains the MATLAB/Simulink library "GenericTarget" (**>= R2025b**) |
 | packages           | contains the MATLAB package "GT"                                     |
 | resources          | contains project definition files for the MATLAB/Simulink project    |
 | GenericTarget.prj  | Simulink project file                                                |
