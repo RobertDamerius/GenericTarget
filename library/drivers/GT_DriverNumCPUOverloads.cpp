@@ -1,16 +1,10 @@
-#include "GT_DriverNumCPUOverloads.hpp"
+#include <GT_DriverNumCPUOverloads.hpp>
 #if defined(GENERIC_TARGET_IMPLEMENTATION)
-    #include <GenericTarget/GT_GenericTarget.hpp>
-#elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
-    #include "GT_SimulinkSupport.hpp"
+#include <GenericTarget/GT_GenericTarget.hpp>
 #endif
 
 
-void GT_DriverNumCPUOverloadsInitialize(void){
-    #if defined(GENERIC_TARGET_SIMULINK_SUPPORT)
-    gt_simulink_support::GenericTarget::ResetStartTimepoint();
-    #endif
-}
+void GT_DriverNumCPUOverloadsInitialize(void){}
 
 void GT_DriverNumCPUOverloadsTerminate(void){}
 

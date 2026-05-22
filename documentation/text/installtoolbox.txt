@@ -70,30 +70,29 @@
     <a name="simulinksupport"></a>
     <div class="note-green">
     <h3 class="note-green">Simulink Support</h3>
-    If <code>GT.BuildDrivers()</code> is called, most of the library blocks will also be usable for simulation in Simulink.
-    However, if <code>GT.BuildDrivers(false)</code> is called, then the Simulink support option is disabled.
-    In this case, most blocks have no effect during simulation and serve only as code placeholders for the application on the target PC.
-    On the target, all blocks have their intended functionality.
-    The following table shows all blocks that can be used during a simulation in Simulink.
+    Run <code>GT.BuildDrivers()</code> to compile all driver blocks.
+    Most of the blocks also work during a simulation.
+    The following table gives an overview.
     <br>
     <br>
     <table>
-        <tr><th>Block</th><th>No Simulink Support</th><th>With Simulink Support</th></tr>
-        <tr><td>Interface/UDP Send                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK<span style="color: #000;"><b>*</b></span></td></tr>
-        <tr><td>Interface/UDP Receive                 </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK<span style="color: #000;"><b>*</b></span></td></tr>
-        <tr><td>Interface/Write Scalar Doubles To File</td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
-        <tr><td>Interface/Write Bus To File           </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
-        <tr><td>Interface/Stop Execution              </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
-        <tr><td>Target Stats/Read Thermal Zones       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK<span style="color: #000;"><b>**</b></span></td></tr>
-        <tr><td>Time/Model Execution Time             </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
-        <tr><td>Time/UNIX Time                        </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
-        <tr><td>Time/UTC Time                         </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
-        <tr><td>Time/Local Time                       </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
-        <tr><td>Time/Task Execution Time              </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
-        <tr><td>Time/Task Overloads                   </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
-        <tr><td>Time/CPU Overloads                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #f00;">X </td></tr>
-        <tr><td>Time/UTC Timestamp                    </td><td align="center" style="color: #f00;">X </td><td align="center" style="color: #0b0;">OK</td></tr>
-        <tr><td>Time/Time To Latest UTC Timestamp     </td><td align="center" style="color: #0b0;">OK</td><td align="center" style="color: #0b0;">OK</td></tr>
+        <tr><th>Block</th><th>Simulink Support</th></tr>
+        <tr><td>Interface/UDP Send                    </td><td align="center" style="color: #0b0;">OK<span style="color: #000;"><b>*</b></span></td></tr>
+        <tr><td>Interface/UDP Receive                 </td><td align="center" style="color: #0b0;">OK<span style="color: #000;"><b>*</b></span></td></tr>
+        <tr><td>Interface/Write Scalar Doubles To File</td><td align="center" style="color: #0b0;">OK</td></tr>
+        <tr><td>Interface/Write Bus To File           </td><td align="center" style="color: #0b0;">OK</td></tr>
+        <tr><td>Interface/Stop Execution              </td><td align="center" style="color: #f00;">X </td></tr>
+        <tr><td>Target Stats/Application Arguments    </td><td align="center" style="color: #f00;">X </td></tr>
+        <tr><td>Target Stats/Read Thermal Zones       </td><td align="center" style="color: #0b0;">OK<span style="color: #000;"><b>**</b></span></td></tr>
+        <tr><td>Time/Model Execution Time             </td><td align="center" style="color: #0b0;">OK</td></tr>
+        <tr><td>Time/UNIX Time                        </td><td align="center" style="color: #0b0;">OK</td></tr>
+        <tr><td>Time/UTC Time                         </td><td align="center" style="color: #0b0;">OK</td></tr>
+        <tr><td>Time/Local Time                       </td><td align="center" style="color: #0b0;">OK</td></tr>
+        <tr><td>Time/Task Execution Time              </td><td align="center" style="color: #f00;">X </td></tr>
+        <tr><td>Time/Task Overloads                   </td><td align="center" style="color: #f00;">X </td></tr>
+        <tr><td>Time/CPU Overloads                    </td><td align="center" style="color: #f00;">X </td></tr>
+        <tr><td>Time/UTC Timestamp                    </td><td align="center" style="color: #0b0;">OK</td></tr>
+        <tr><td>Time/Time To Latest UTC Timestamp     </td><td align="center" style="color: #0b0;">OK</td></tr>
     </table>
     <b>*</b>
     These blocks behave different during simulation with Simulink under the windows operating system.
@@ -102,8 +101,7 @@
     <b>**</b>
     During simulation, these blocks only work under the linux operating system.
     </div>
-    At the moment only <b>gcc</b> (Linux) and <b>MSYS2/MinGW64</b> (Windows) are supported as compilers to create blocks with Simulink support.
-    For compilers that are not yet supported, the Simulink support option can be skipped by running <code>GT.BuildDrivers(false)</code>.
+    At the moment only <b>gcc</b> (Linux) and <b>MSYS2/MinGW64</b> (Windows) have been tested to compile the driver blocks.
 
 <h2>Uninstall</h2>
     If you added the directories of the toolbox to the MATLAB path during installation, simply remove them.

@@ -1,9 +1,6 @@
 #pragma once
 
 
-#include <cstdint>
-
-
 /**
  * @brief Initialize the driver.
  */

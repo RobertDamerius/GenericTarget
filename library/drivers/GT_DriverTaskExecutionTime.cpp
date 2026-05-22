@@ -1,18 +1,12 @@
-#include "GT_DriverTaskExecutionTime.hpp"
+#include <GT_DriverTaskExecutionTime.hpp>
 #if defined(GENERIC_TARGET_IMPLEMENTATION)
-    #include <GenericTarget/GT_GenericTarget.hpp>
-    #include <SimulinkCodeGeneration/SimulinkInterface.hpp>
-    #include <string>
-#elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
-    #include "GT_SimulinkSupport.hpp"
+#include <GenericTarget/GT_GenericTarget.hpp>
+#include <SimulinkCodeGeneration/SimulinkInterface.hpp>
+#include <string>
 #endif
 
 
-void GT_DriverTaskExecutionTimeInitialize(void){
-    #if defined(GENERIC_TARGET_SIMULINK_SUPPORT)
-    gt_simulink_support::GenericTarget::ResetStartTimepoint();
-    #endif
-}
+void GT_DriverTaskExecutionTimeInitialize(void){}
 
 void GT_DriverTaskExecutionTimeTerminate(void){}
 

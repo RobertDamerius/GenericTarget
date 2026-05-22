@@ -4,7 +4,7 @@
 %%   Simulink Coder TLC Code Generation file for SFunctionGTDriverLocalTime
 %% 
 %% Simulink version      : 25.2 (R2025b) 28-Jul-2025
-%% TLC file generated on : 21-May-2026 23:10:54
+%% TLC file generated on : 22-May-2026 13:00:53
 
 /%
      %%%-MATLAB_Construction_Commands_Start
@@ -14,7 +14,7 @@
      def.StartFcnSpec = 'void GT_DriverLocalTimeInitialize()';
      def.TerminateFcnSpec = 'void GT_DriverLocalTimeTerminate()';
      def.HeaderFiles = {'GT_DriverLocalTime.hpp'};
-     def.SourceFiles = {'GT_DriverLocalTime.cpp', 'GT_SimulinkSupport.cpp'};
+     def.SourceFiles = {'GT_DriverLocalTime.cpp'};
      def.SampleTime = 'parameterized';
      def.Options.useTlcWithAccel = false;
      def.Options.language = 'C++';
@@ -86,7 +86,6 @@
         %<LibAddToCommonIncludes("GT_DriverLocalTime.hpp")>
     %endif
     %<SLibAddToStaticSources("GT_DriverLocalTime.cpp")>
-    %<SLibAddToStaticSources("GT_SimulinkSupport.cpp")>
 %endfunction
 
 %% Function: BlockInstanceSetup ===========================================

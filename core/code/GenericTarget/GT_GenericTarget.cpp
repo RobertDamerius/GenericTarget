@@ -3,13 +3,11 @@
 using namespace gt;
 
 
-TargetTime GenericTarget::targetTime;
-DataRecorderManager GenericTarget::dataRecorderManager;
-UDPServiceManager GenericTarget::udpManager;
-ApplicationArguments GenericTarget::applicationArguments;
+AppStartTimepoint GenericTarget::appStartTimepoint;
+AppArguments GenericTarget::appArguments;
 FileSystem GenericTarget::fileSystem;
 std::atomic<bool> GenericTarget::shouldTerminate = ATOMIC_VAR_INIT(false);
-UDPSocket GenericTarget::appSocket;
+AppSocket GenericTarget::appSocket;
 BaseRateScheduler GenericTarget::scheduler;
 
 
@@ -21,10 +19,10 @@ void GenericTarget::ShouldTerminate(void){
 void GenericTarget::Run(int argc, char** argv){
     // set handlers for signals from OS and parse arguments
     SetSignalHandlers();
-    applicationArguments.Parse(argc, argv);
+    appArguments.Parse(argc, argv);
 
     // check if outputs should be redirected to a protocol file
-    if(!applicationArguments.console){
+    if(!appArguments.console){
         RedirectPrintsToFile();
     }
 
@@ -41,7 +39,7 @@ bool GenericTarget::Initialize(void){
     GENERIC_TARGET_PRINT("Initializing application ...\n");
 
     // check for the "--stop" argument
-    if(applicationArguments.stop){
+    if(appArguments.stop){
         GENERIC_TARGET_PRINT("Stopping another possibly ongoing target application (port=%u)\n", SimulinkInterface::portAppSocket);
         StopOtherTargetApplication();
         return false;
@@ -69,10 +67,6 @@ void GenericTarget::Terminate(void){
     scheduler.Stop();
     GENERIC_TARGET_PRINT("Terminating the simulink model\n");
     SimulinkInterface::Terminate();
-    GENERIC_TARGET_PRINT("Destroying UDP sockets\n");
-    udpManager.DestroyAllUDPSockets();
-    GENERIC_TARGET_PRINT("Destroying data recorders\n");
-    dataRecorderManager.DestroyAllDataRecorders();
     appSocket.Close();
 }
 
@@ -80,11 +74,12 @@ void GenericTarget::MainLoop(void){
     GENERIC_TARGET_PRINT("Starting simulink model\n");
     if(scheduler.Start()){
         // wait until application socket is closed or a termination message is received
-        Address source;
+        std::array<uint8_t,4> sourceIP;
+        uint16_t sourcePort;
         uint8_t u[4];
         while(!shouldTerminate && appSocket.IsOpen()){
             appSocket.ResetLastError();
-            int32_t rx = appSocket.ReceiveFrom(source, &u[0], 4);
+            int32_t rx = appSocket.ReceiveFrom(sourceIP, sourcePort, &u[0], 4);
             int32_t errorCode = appSocket.GetLastErrorCode();
             if(rx < 0){
                 #ifdef _WIN32
@@ -96,7 +91,7 @@ void GenericTarget::MainLoop(void){
                 #endif
                 break;
             }
-            if((source.ip == std::array<uint8_t,4>({127,0,0,1})) && (4 == rx) && (0x47 == u[0]) && (0x54 == u[1]) && (0xDE == u[2]) && (0xAD == u[3])){
+            if((sourceIP == std::array<uint8_t,4>({127,0,0,1})) && (4 == rx) && (0x47 == u[0]) && (0x54 == u[1]) && (0xDE == u[2]) && (0xAD == u[3])){
                 break;
             }
         }
@@ -162,9 +157,11 @@ void GenericTarget::RedirectPrintsToFile(void){
 }
 
 void GenericTarget::PrintInfo(void){
-    TimeInfo upTime = targetTime.GetUpTimeUTC();
+    TimeInfo upTime = appStartTimepoint.GetUTC();
     int priorityMax = sched_get_priority_max(SCHED_FIFO);
     int priorityMin = sched_get_priority_min(SCHED_FIFO);
+    std::string strModelName = SimulinkInterface::modelName;
+    strModelName.erase(std::remove_if(strModelName.begin(), strModelName.end(), [](unsigned char c) { return c < 32 || c > 126; }), strModelName.end());
     GENERIC_TARGET_PRINT_RAW("GenericTarget\n");
     GENERIC_TARGET_PRINT_RAW("\n");
     GENERIC_TARGET_PRINT_RAW("Operating System:         %s\n", gt::strOS.c_str());
@@ -175,15 +172,14 @@ void GenericTarget::PrintInfo(void){
     GENERIC_TARGET_PRINT_RAW("Compiler Version:         %s\n", gt::strCompilerVersion.c_str());
     GENERIC_TARGET_PRINT_RAW("Built (local):            %s\n", strBuilt.c_str());
     GENERIC_TARGET_PRINT_RAW("Date (UTC):               %04u-%02u-%02u %02u:%02u:%02u.%03u\n", 1900 + upTime.year, 1 + upTime.month, upTime.mday, upTime.hour, upTime.minute, upTime.second, upTime.nanoseconds / 1000000);
-    GENERIC_TARGET_PRINT_RAW("Arguments:               "); for(size_t i = 0; i < applicationArguments.args.size(); i++){ GENERIC_TARGET_PRINT_RAW(" [%s]", applicationArguments.args[i].c_str()); } GENERIC_TARGET_PRINT_RAW("\n");
-    GENERIC_TARGET_PRINT_RAW("Maximum thread priority:  %d\n",priorityMax);
-    GENERIC_TARGET_PRINT_RAW("Minimum thread priority:  %d\n",priorityMin);
+    GENERIC_TARGET_PRINT_RAW("Arguments:               "); for(size_t i = 0; i < appArguments.args.size(); i++){ GENERIC_TARGET_PRINT_RAW(" [%s]", appArguments.args[i].c_str()); } GENERIC_TARGET_PRINT_RAW("\n");
+    GENERIC_TARGET_PRINT_RAW("Maximum thread priority:  %d\n", priorityMax);
+    GENERIC_TARGET_PRINT_RAW("Minimum thread priority:  %d\n", priorityMin);
     GENERIC_TARGET_PRINT_RAW("\n");
-    GENERIC_TARGET_PRINT_RAW("modelName:                %s\n", gt::ToPrintableString(SimulinkInterface::modelName).c_str());
+    GENERIC_TARGET_PRINT_RAW("modelName:                %s\n", strModelName.c_str());
     GENERIC_TARGET_PRINT_RAW("portAppSocket:            %u\n", SimulinkInterface::portAppSocket);
     GENERIC_TARGET_PRINT_RAW("terminateAtTaskOverload:  %s\n", SimulinkInterface::terminateAtTaskOverload ? "true" : "false");
     GENERIC_TARGET_PRINT_RAW("terminateAtCPUOverload:   %s\n", SimulinkInterface::terminateAtCPUOverload ? "true" : "false");
-    GENERIC_TARGET_PRINT_RAW("priorityDataRecorder:     %d\n", SimulinkInterface::priorityDataRecorder);
     GENERIC_TARGET_PRINT_RAW("baseSampleTime:           %lf s\n", SimulinkInterface::baseSampleTime);
     GENERIC_TARGET_PRINT_RAW("tasks:                    ");
     for(int i = 0; i < SIMULINK_INTERFACE_NUM_TIMINGS; ++i){
@@ -256,6 +252,8 @@ void GenericTarget::PrintNetworkInfo(void){
 }
 
 void GenericTarget::StopOtherTargetApplication(void){
+    appSocket.ResetLastError();
+
     // open the application socket with a random port
     if(!appSocket.Open()){
         GENERIC_TARGET_PRINT_ERROR("Could not open application socket: %s\n", appSocket.GetLastErrorString().c_str());
@@ -266,15 +264,17 @@ void GenericTarget::StopOtherTargetApplication(void){
     }
 
     // send termination message and close socket
-    Address localHost(127, 0, 0, 1, SimulinkInterface::portAppSocket);
+    std::array<uint8_t,4> localHost = {127, 0, 0, 1};
     const uint8_t msgTerminate[] = {0x47,0x54,0xDE,0xAD};
-    if(sizeof(msgTerminate) != appSocket.SendTo(localHost, (uint8_t*)&msgTerminate[0], sizeof(msgTerminate))){
+    if(sizeof(msgTerminate) != appSocket.SendTo(localHost, SimulinkInterface::portAppSocket, (uint8_t*)&msgTerminate[0], sizeof(msgTerminate))){
         GENERIC_TARGET_PRINT_ERROR("Could not send termination message: %s\n", appSocket.GetLastErrorString().c_str());
     }
     appSocket.Close();
 }
 
 bool GenericTarget::InitializeAppSocket(void){
+    appSocket.ResetLastError();
+
     // open the application socket
     if(!appSocket.Open()){
         GENERIC_TARGET_PRINT_ERROR("Could not open application socket: %s\n", appSocket.GetLastErrorString().c_str());
@@ -293,14 +293,6 @@ bool GenericTarget::InitializeAppSocket(void){
 bool GenericTarget::InitializeModel(void){
     GENERIC_TARGET_PRINT("Initializing simulink model\n");
     SimulinkInterface::Initialize();
-    if(udpManager.RegistrationErrorOccurred() || dataRecorderManager.RegistrationErrorOccurred()){
-        return false;
-    }
-    GENERIC_TARGET_PRINT("Creating UDP sockets\n");
-    if(!udpManager.CreateAllUDPSockets()){
-        return false;
-    }
-    GENERIC_TARGET_PRINT("Creating data recorders\n");
-    return dataRecorderManager.CreateAllDataRecorders();
+    return true;
 }
 

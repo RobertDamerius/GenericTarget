@@ -3,6 +3,9 @@
 using namespace gt;
 
 
+#define GENERIC_TARGET_DIRECTORY_PROTOCOL "protocol"
+
+
 FileSystem::FileSystem(){
     // get the absolute path to the application
     #ifdef _WIN32
@@ -32,29 +35,8 @@ bool FileSystem::MakeProtocolDirectory(void){
     return true;
 }
 
-bool FileSystem::MakeDataRecordDirectory(void){
-    std::filesystem::path directory = GetDataRecordDirectory();
-    try{
-        std::filesystem::create_directories(directory);
-    }
-    catch(...){
-        GENERIC_TARGET_PRINT_ERROR("Could not create data record directory \"%s\"!\n", directory.string().c_str());
-        return false;
-    }
-    return true;
-}
-
 std::string FileSystem::GetProtocolFilename(void){
-    std::filesystem::path p = pathToApplication / GENERIC_TARGET_DIRECTORY_PROTOCOL / (GenericTarget::targetTime.GetUpTimeUTCString() + ".txt");
-    return p.string();
-}
-
-std::filesystem::path FileSystem::GetDataRecordDirectory(void){
-    return pathToApplication / GENERIC_TARGET_DIRECTORY_DATA_RECORD / GenericTarget::targetTime.GetUpTimeUTCString();
-}
-
-std::string FileSystem::GetDataRecordIndexFilename(void){
-    std::filesystem::path p = GetDataRecordDirectory() / GENERIC_TARGET_FILE_NAME_DATA_RECORD_INDEX;
+    std::filesystem::path p = pathToApplication / GENERIC_TARGET_DIRECTORY_PROTOCOL / (GenericTarget::appStartTimepoint.GetUTCString() + ".txt");
     return p.string();
 }
 

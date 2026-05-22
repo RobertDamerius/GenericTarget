@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 1.1.0</div>
+<div class="header_version">Version 1.2.0</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -141,7 +141,7 @@ How many threads actually run in parallel in reality depends on the CPU cores us
 In principle, the number of threads that can be executed simultaneously in parallel corresponds to the number of CPU cores.
 This does not mean that with a 4-core CPU, the model may have a maximum of four different sampletimes.
 Only the number of threads working in parallel is limited to four.
-The Generic Target application uses a FIFO strategy for scheduling.
+The Generic Target application uses the <a href="https://man7.org/linux/man-pages/man7/sched.7.html" target="_blank">SCHED_FIFO</a> scheduling policy.
 If there are several tasks to do, they are processed one after the other.
 
 <h2>Thread Overview</h2>
@@ -174,7 +174,7 @@ The number of additional threads depends on the Simulink model.
 For each sample rate or periodic partition, one additional worker thread is added.
 The maximum priority is set via the property <a href="packages_gt_generictarget.html#upperThreadPriority">upperThreadPriority</a>.
 One additional thread is added for each Write To File block.
-The priority is specified via the property <a href="packages_gt_generictarget.html#priorityDataRecorder">priorityDataRecorder</a>.
+The priority is specified via the block mask.
 
 <br><br><br><br>
 

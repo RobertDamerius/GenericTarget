@@ -77,28 +77,28 @@
 						class="st6"> </tspan><tspan class="st6">n + 1</tspan></text>		</g>
 		<g id="shape11-29" v:mID="11" v:groupContext="shape" transform="translate(319.648,-170.829)">
 			<title>Tabelle.11</title>
-			<desc>Data Recorder ID1 priority: priorityDataRecorder</desc>
+			<desc>Data Recorder ID1 priority: threadPriority via block mask</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="120.472" cy="328.234" width="240.95" height="42.5197"/>
 			<rect x="0" y="306.974" width="240.945" height="42.5197" class="st7"/>
 			<text x="70.86" y="324.63" class="st5" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Data Recorder ID1<v:newlineChar/><tspan
-						x="39.72" dy="1.2em" class="st6">priority:  priorityDataRecorder</tspan></text>		</g>
+						x="17.27" dy="1.2em" class="st6">priority:  threadPriority via block mask</tspan></text>		</g>
 		<g id="shape12-33" v:mID="12" v:groupContext="shape" transform="translate(319.648,-121.222)">
 			<title>Tabelle.12</title>
-			<desc>Data Recorder ID2 priority: priorityDataRecorder</desc>
+			<desc>Data Recorder ID2 priority: threadPriority via block mask</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="120.472" cy="328.234" width="240.95" height="42.5197"/>
 			<rect x="0" y="306.974" width="240.945" height="42.5197" class="st7"/>
 			<text x="69.47" y="324.63" class="st5" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Data Recorder ID2<v:newlineChar/><tspan
-						x="39.72" dy="1.2em" class="st6">priority:  priorityDataRecorder</tspan></text>		</g>
+						x="17.27" dy="1.2em" class="st6">priority:  threadPriority via block mask</tspan></text>		</g>
 		<g id="shape13-37" v:mID="13" v:groupContext="shape" transform="translate(319.648,-22.0098)">
 			<title>Tabelle.13</title>
-			<desc>Data Recorder IDn priority: priorityDataRecorder</desc>
+			<desc>Data Recorder IDn priority: threadPriority via block mask</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="120.472" cy="328.234" width="240.95" height="42.5197"/>
 			<rect x="0" y="306.974" width="240.945" height="42.5197" class="st7"/>
 			<text x="69.23" y="324.63" class="st5" v:langID="1031"><v:paragraph v:horizAlign="1"/><v:tabList/>Data Recorder IDn<v:newlineChar/><tspan
-						x="39.72" dy="1.2em" class="st6">priority:  priorityDataRecorder</tspan></text>		</g>
+						x="17.27" dy="1.2em" class="st6">priority:  threadPriority via block mask</tspan></text>		</g>
 		<g id="shape18-41" v:mID="18" v:groupContext="shape" transform="translate(491.976,235.358) rotate(90)">
 			<title>Tabelle.18</title>
 			<path d="M0 349.49 L42.52 349.49" class="st8"/>

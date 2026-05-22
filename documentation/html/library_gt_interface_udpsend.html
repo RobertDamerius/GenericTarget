@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 1.1.0</div>
+<div class="header_version">Version 1.2.0</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -150,8 +150,8 @@ The following table shows all block parameters.
 <h2>Further Notes</h2>
 <h3>Socket</h3>
 A socket serves as the interface between an application and network hardware.
-During model initialization, all UDP sockets are created, and socket options are configured.
-However, binding to a local port and a specific network device occurs within a model's step function, ensuring compatibility even if the network interface is unavailable at startup.
+During model initialization, all UDP sockets are created, and socket options are set.
+However, binding to a local port and a specific network device occurs within a separate network management thread, ensuring compatibility even if the network interface is unavailable at startup.
 The socket options <code>SO_REUSEPORT</code> and <code>SO_REUSEADDR</code> are enabled after socket creation, allowing multiple sockets (e.g., multiple blocks) to bind to the same port and device.
 
 <h3>Port Range</h3>

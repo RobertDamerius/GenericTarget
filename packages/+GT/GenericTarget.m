@@ -10,7 +10,6 @@ classdef GenericTarget < handle
         targetBitmaskCPUCores {mustBeTextScalar, GT.mustBeChar, GT.mustBeHexString} = '';
         applicationArguments {mustBeTextScalar, GT.mustBeChar} = '';
         upperThreadPriority (1,1) uint32 {mustBeInRange(upperThreadPriority, 1, 99)} = 89;
-        priorityDataRecorder (1,1) uint32 {mustBeInRange(priorityDataRecorder, 1, 99)} = 30;
         terminateAtTaskOverload (1,1) logical = true;
         terminateAtCPUOverload (1,1) logical = true;
         customCode {mustBeText, GT.mustBeUnique, GT.mustBeCellStr} = cell.empty();
@@ -636,17 +635,14 @@ classdef GenericTarget < handle
             strArrayOffsetTicks = sprintf('%d', offsetTicks(1));
             strArrayPriorities = sprintf('%d', priorities(1));
             strArrayTaskNames = sprintf('"%s"', taskNames(1));
-            strStepSwitch = sprintf('        case 0: model.%s(); break;', stepPrototypes(1));
+            strStepSwitch = sprintf('        case 0: _model.%s(); break;', stepPrototypes(1));
             for n = uint32(2):numTimings
                 strArraySampleTicks = strcat(strArraySampleTicks, sprintf(',%d', sampleTicks(n)));
                 strArrayOffsetTicks = strcat(strArrayOffsetTicks, sprintf(',%d', offsetTicks(n)));
                 strArrayPriorities = strcat(strArrayPriorities, sprintf(',%d', priorities(n)));
-                strStepSwitch = append(strStepSwitch, sprintf('\n        case %d: model.%s(); break;', uint32(n-1), stepPrototypes(n)));
+                strStepSwitch = append(strStepSwitch, sprintf('\n        case %d: _model.%s(); break;', uint32(n-1), stepPrototypes(n)));
                 strArrayTaskNames = append(strArrayTaskNames, sprintf(', "%s"', taskNames(n)));
             end
-
-            % get priority for data recording thread
-            strpriorityDataRecorder = sprintf('%d', this.priorityDataRecorder);
 
             % get port for application socket
             strPortAppSocket = sprintf('%d', this.portAppSocket);
@@ -693,8 +689,6 @@ classdef GenericTarget < handle
             strSource = strrep(strSource, '$ARRAY_TASK_NAMES$', strArrayTaskNames);
             strHeader = strrep(strHeader, '$STEP_SWITCH$', strStepSwitch);
             strSource = strrep(strSource, '$STEP_SWITCH$', strStepSwitch);
-            strHeader = strrep(strHeader, '$PRIORITY_DATA_RECORDER$', strpriorityDataRecorder);
-            strSource = strrep(strSource, '$PRIORITY_DATA_RECORDER$', strpriorityDataRecorder);
             strHeader = strrep(strHeader, '$PORT_APP_SOCKET$', strPortAppSocket);
             strSource = strrep(strSource, '$PORT_APP_SOCKET$', strPortAppSocket);
             strHeader = strrep(strHeader, '$TERMINATE_AT_TASK_OVERLOAD$', strTerminateAtTaskOverload);

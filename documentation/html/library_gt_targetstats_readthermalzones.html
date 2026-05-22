@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 1.1.0</div>
+<div class="header_version">Version 1.2.0</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -86,6 +86,7 @@ Read all temperature values from "/sys/class/thermal/thermal_zone[i]/temp" with 
 The maximum number of thermal zones to read from is specified via the mask parameter.
 The output dimension is equal to that number.
 If a thermal zone does not exist, NaN is returned for the corresponding index.
+This block has no effect on a non-linux OS.
 
 
 <h2>Output Ports</h2>

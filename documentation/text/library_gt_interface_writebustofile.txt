@@ -3,8 +3,9 @@
 <span style="font-family: Courier New">GenericTarget / Interface / Write Bus To File</span>
 
 <h3>Description</h3>
-Write a complete bus signal to a file. During simulation this block has no effect. Internally a digital
-clock is used as timestamp. The number of samples to be written into a single file can be specified.
+Write a complete bus signal to a file.
+Internally, a digital clock is used as timestamp.
+The number of samples to be written into a single file can be specified.
 A sample indicates a data vector of all signals in the bus and the timestamp for one sample time point.
 
 
@@ -21,6 +22,8 @@ The following table shows all block parameters.
     <tr><th>Parameter Name</th><th>Description</th></tr>
     <tr><td style="font-family: Courier New;">strID</td><td>Unique ID for this data recording.</td></tr>
     <tr><td style="font-family: Courier New;">numSamplesPerFile</td><td>The maximum number of samples per data recording file.</td></tr>
+    <tr><td style="font-family: Courier New;">threadPriority</td><td>Priority of the data recording thread in range [1 (lowest), 99 (highest)]. The default value is 30.</td></tr>
+    <tr><td style="font-family: Courier New;">writeFilesDuringSimulation</td><td>Checkbox to enable data recording during simulation.</td></tr>
     <tr><td style="font-family: Courier New;">SampleTime</td><td>Sampletime.</td></tr>
 </table>
 
@@ -43,11 +46,18 @@ An ID may only occur once in the model.
 The initialization of a target application fails, if the ID is not unique.
 
 <h3>Data Recorder</h3>
-In the Generic Target Core a separate thread takes over the actual writing of the data into the recording file.
+A thread takes over the actual writing of the data into the recording file.
 For each ID a separate thread is created.
-All data recording threads have the same priority, which is defined by the parameter <a href="packages_gt_generictarget.html#priorityDataRecorder">priorityDataRecorder</a> of the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> class.
+The priority for each data recording thread can be adjusted via the <code>threadPriority</code> property in the block mask.
 Via the block mask, the parameter <code>numSamplesPerFile</code> is used to specify how many samples are to be written to a file before a new file is created.
 A sample contains a timestamp, which corresponds to the simulation time (digital clock), as well as all values of the bus at this sampling step.
+If a data recorder is terminated, values that are still unwritten by the tread are written to the data files.
+
+<h3>Write Files during Simulation</h3>
+If the checkbox <code>writeFilesDuringSimulation</code> is enabled, data is recorded during simulation.
+A data directory is created to the current working directory.
+Note that a data directory is created, whenever the initialization callback of the driver block is executed.
+This may also happen during a model compilation, e.g. when clicking the Update button.
 
 <br><br><br><br>
 

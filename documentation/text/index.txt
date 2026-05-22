@@ -24,8 +24,7 @@
         <tr><td style="border:none;"><img src="../img/SimulinkLibrary.svg"></td><td style="border:none;"></td><td valign="top" style="border:none;">
             <h4>Simulink Library</h4>
             The Simulink library contains driver blocks that are used to develop a target application.
-            These blocks generally have no effect in a simulation and serve as code placeholders for the target application.
-            However, a <a href="installtoolbox.html#simulinksupport">Simulink support</a> is implemented which allows many of the blocks to be used in the simulation (some with limitations).
+            Most of these blocks also work during a simulation (some with limitations).
             </td><tr>
         <tr><td style="border:none;"><img src="../img/TemplateModel.svg"></td><td style="border:none;"></td><td valign="top" style="border:none;">
             <h4>Template Model</h4>
@@ -45,7 +44,6 @@
 <h2>How It Works</h2>
     A Simulink model should be created using the provided Simulink template.
     In general, all standard blocks that generate generic C/C++ code can be used.
-    However, special interface blocks like UDP Receive or Target Scope from the Simulink Real-Time Toolbox are not supported.
     The Generic Target Toolbox includes a dedicated Simulink library with driver blocks.
     To deploy a Simulink model to a target computer, use the MATLAB class <a href="packages_gt_generictarget.html">GT.GenericTarget</a>.
     During deployment, Simulink generates generic C/C++ code, which primarily consists of a class with the following methods:

@@ -21,11 +21,6 @@
 #include <mutex>
 #include <condition_variable>
 #include <atomic>
-#include <map>
-#include <unordered_map>
-#include <set>
-#include <unordered_set>
-#include <queue>
 #include <filesystem>
 #include <csignal>
 #include <tuple>
@@ -99,35 +94,14 @@ inline void print_raw(const char* format, ...){
     fflush(stderr);
 }
 
-/**
- * @brief Convert given string data to a C++ string and use only printable characters.
- * @param[in] s The input string to be converted.
- * @return String containing only printable characters.
- */
-inline std::string ToPrintableString(std::string s){
-    std::string result;
-    for(auto&& c : s){
-        if((c >= ' ') || (c <= '~')){
-            result.push_back(c);
-        }
-    }
-    return result;
-}
 
 } /* namespace: gt */
+
 
 #define GENERIC_TARGET_PRINT(...) gt::print(__VA_ARGS__)
 #define GENERIC_TARGET_PRINT_WARNING(...) gt::print_verbose('W', __FILE__, __LINE__, __func__, __VA_ARGS__)
 #define GENERIC_TARGET_PRINT_ERROR(...) gt::print_verbose('E', __FILE__, __LINE__, __func__, __VA_ARGS__)
 #define GENERIC_TARGET_PRINT_RAW(...) gt::print_raw(__VA_ARGS__)
-
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Global Macro Definitions
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#define GENERIC_TARGET_DIRECTORY_PROTOCOL                "protocol"
-#define GENERIC_TARGET_DIRECTORY_DATA_RECORD             "data"
-#define GENERIC_TARGET_FILE_NAME_DATA_RECORD_INDEX       "index"
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

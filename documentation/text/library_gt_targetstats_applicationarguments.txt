@@ -7,6 +7,7 @@
 Get all arguments that have been passed to the application.
 The first argument is the executable name.
 The maximum number of characters as well as the maximum number of arguments that can be stored in the output are configured via the block mask.
+During simulation this block has no effect.
 
 
 <h2>Output Ports</h2>

@@ -1,26 +1,22 @@
-#include "GT_DriverUTCTimestamp.hpp"
-#if defined(GENERIC_TARGET_IMPLEMENTATION)
-    #include <GenericTarget/GT_GenericTarget.hpp>
-#elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
-    #include "GT_SimulinkSupport.hpp"
-#endif
+#include <GT_DriverUTCTimestamp.hpp>
+#include <chrono>
 
 
-void GT_DriverUTCTimestampInitialize(void){
-    #if defined(GENERIC_TARGET_SIMULINK_SUPPORT)
-    gt_simulink_support::GenericTarget::ResetStartTimepoint();
-    #endif
-}
+void GT_DriverUTCTimestampInitialize(void){}
 
 void GT_DriverUTCTimestampTerminate(void){}
 
 void GT_DriverUTCTimestampStep(double* timestamp){
-    #if defined(GENERIC_TARGET_IMPLEMENTATION)
-        *timestamp = gt::GenericTarget::targetTime.GetUTCTimestamp();
-    #elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
-        *timestamp = gt_simulink_support::GenericTarget::GetUTCTimestamp();
-    #else
-        *timestamp = 0.0;
-    #endif
+    auto timePoint = std::chrono::system_clock::now();
+    std::time_t systemTime = std::chrono::system_clock::to_time_t(timePoint);
+    std::tm* gmTime = std::gmtime(&systemTime);
+    double s = static_cast<double>(gmTime->tm_sec);
+    double m = static_cast<double>(gmTime->tm_min);
+    double h = static_cast<double>(gmTime->tm_hour);
+    auto duration = timePoint.time_since_epoch();
+    auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
+    duration -= seconds;
+    s += 1e-9 * static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count());
+    *timestamp = (3600.0 * h + 60.0 * m + s);
 }
 

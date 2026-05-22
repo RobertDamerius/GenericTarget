@@ -1,16 +1,9 @@
-function BuildDrivers(useSimulinkSupport)
-    %GT.BuildDrivers Build or rebuild the driver blocks for the Generic Target toolbox. Simulink blocks will only implement their
-    % functionality on the target and thus have no effect during simulation using Simulink. However, for some blocks a Simulink
-    % support is available, that is, their functionality will also work in Simulink.
-    % 
-    % PARAMETERS
-    % useSimulinkSupport ... (optional) True if driver blocks should be build with simulink support, false otherwise. The default value is true.
+function BuildDrivers()
+    %GT.BuildDrivers Build or rebuild the driver blocks for the Generic Target toolbox. Some blocks have no effect during
+    % simulation using Simulink.
     % 
     % DETAILS
     % This MATLAB function generates all S-functions and compiles the corresponding mex binaries for the Simulink library.
-    arguments
-        useSimulinkSupport (1,1) logical = true
-    end
 
     % print banner
     fprintf('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
@@ -28,8 +21,6 @@ function BuildDrivers(useSimulinkSupport)
     thisDirectory = extractBefore(mfilename('fullpath'), strlength(mfilename('fullpath')) - strlength(mfilename) + 1);
     driverDirectory = fullfile(thisDirectory, '..', '..', 'library', 'drivers');
     cd(driverDirectory);
-    if(useSimulinkSupport), fprintf('simulink support: ON\n');
-    else, fprintf('simulink support: OFF\n'); end
     defs = [];
 
 
@@ -43,7 +34,7 @@ function BuildDrivers(useSimulinkSupport)
     def.TerminateFcnSpec = 'void GT_DriverApplicationArgumentsTerminate()';
     def.OutputFcnSpec    = 'void GT_DriverApplicationArgumentsStep(uint8 y1[p1*p2], uint32 y2[p2], uint32 y3[1], uint32 p1, uint32 p2)';
     def.HeaderFiles      = {'GT_DriverApplicationArguments.hpp'};
-    def.SourceFiles      = {'GT_DriverApplicationArguments.cpp','GT_SimulinkSupport.cpp'};
+    def.SourceFiles      = {'GT_DriverApplicationArguments.cpp'};
     def.IncPaths         = {''};
     def.SrcPaths         = {''};
     def.LibPaths         = {''};
@@ -65,7 +56,7 @@ function BuildDrivers(useSimulinkSupport)
     def.TerminateFcnSpec = 'void GT_DriverUDPSocketTerminate(int32 p1)';
     def.OutputFcnSpec    = 'void GT_DriverUDPSocketStep(int32 p1, uint8 p11, int32 p12, uint8 y1[p12], uint32 y2[1], uint8 y3[4], uint16 y4[1], int32 y5[1], int32 y6[1], uint8 u1[4], uint16 u2, uint8 u3[], uint32 u4, uint8 u5[], uint32 u6)';
     def.HeaderFiles      = {'GT_DriverUDPSocket.hpp'};
-    def.SourceFiles      = {'GT_DriverUDPSocket.cpp','GT_SimulinkSupport.cpp'};
+    def.SourceFiles      = {'GT_DriverUDPSocket.cpp','GT_DriverImplementationDetails.cpp'};
     def.IncPaths         = {''};
     def.SrcPaths         = {''};
     def.LibPaths         = {''};
@@ -87,7 +78,7 @@ function BuildDrivers(useSimulinkSupport)
     def.TerminateFcnSpec = 'void GT_DriverModelExecutionTimeTerminate()';
     def.OutputFcnSpec    = 'void GT_DriverModelExecutionTimeStep(double y1[1])';
     def.HeaderFiles      = {'GT_DriverModelExecutionTime.hpp'};
-    def.SourceFiles      = {'GT_DriverModelExecutionTime.cpp','GT_SimulinkSupport.cpp'};
+    def.SourceFiles      = {'GT_DriverModelExecutionTime.cpp'};
     def.IncPaths         = {''};
     def.SrcPaths         = {''};
     def.LibPaths         = {''};
@@ -109,7 +100,7 @@ function BuildDrivers(useSimulinkSupport)
     def.TerminateFcnSpec = 'void GT_DriverUnixTimeTerminate()';
     def.OutputFcnSpec    = 'void GT_DriverUnixTimeStep(double y1[1])';
     def.HeaderFiles      = {'GT_DriverUnixTime.hpp'};
-    def.SourceFiles      = {'GT_DriverUnixTime.cpp','GT_SimulinkSupport.cpp'};
+    def.SourceFiles      = {'GT_DriverUnixTime.cpp'};
     def.IncPaths         = {''};
     def.SrcPaths         = {''};
     def.LibPaths         = {''};
@@ -131,7 +122,7 @@ function BuildDrivers(useSimulinkSupport)
     def.TerminateFcnSpec = 'void GT_DriverUTCTimestampTerminate()';
     def.OutputFcnSpec    = 'void GT_DriverUTCTimestampStep(double y1[1])';
     def.HeaderFiles      = {'GT_DriverUTCTimestamp.hpp'};
-    def.SourceFiles      = {'GT_DriverUTCTimestamp.cpp','GT_SimulinkSupport.cpp'};
+    def.SourceFiles      = {'GT_DriverUTCTimestamp.cpp'};
     def.IncPaths         = {''};
     def.SrcPaths         = {''};
     def.LibPaths         = {''};
@@ -153,7 +144,7 @@ function BuildDrivers(useSimulinkSupport)
     def.TerminateFcnSpec = 'void GT_DriverUTCTimeTerminate()';
     def.OutputFcnSpec    = 'void GT_DriverUTCTimeStep(int32 y1[1], int32 y2[1], int32 y3[1], int32 y4[1], int32 y5[1], int32 y6[1], int32 y7[1], int32 y8[1], int32 y9[1], int32 y10[1])';
     def.HeaderFiles      = {'GT_DriverUTCTime.hpp'};
-    def.SourceFiles      = {'GT_DriverUTCTime.cpp','GT_SimulinkSupport.cpp'};
+    def.SourceFiles      = {'GT_DriverUTCTime.cpp'};
     def.IncPaths         = {''};
     def.SrcPaths         = {''};
     def.LibPaths         = {''};
@@ -175,7 +166,7 @@ function BuildDrivers(useSimulinkSupport)
     def.TerminateFcnSpec = 'void GT_DriverLocalTimeTerminate()';
     def.OutputFcnSpec    = 'void GT_DriverLocalTimeStep(int32 y1[1], int32 y2[1], int32 y3[1], int32 y4[1], int32 y5[1], int32 y6[1], int32 y7[1], int32 y8[1], int32 y9[1], int32 y10[1])';
     def.HeaderFiles      = {'GT_DriverLocalTime.hpp'};
-    def.SourceFiles      = {'GT_DriverLocalTime.cpp','GT_SimulinkSupport.cpp'};
+    def.SourceFiles      = {'GT_DriverLocalTime.cpp'};
     def.IncPaths         = {''};
     def.SrcPaths         = {''};
     def.LibPaths         = {''};
@@ -188,38 +179,16 @@ function BuildDrivers(useSimulinkSupport)
 
 
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    % Driver: Data Recorder (Scalar Doubles)
+    % Driver: Data Recorder
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    fprintf('define driver: DataRecorderScalarDoubles\n');
+    fprintf('define driver: DataRecorder\n');
     def = legacy_code('initialize');
-    def.SFunctionName    = 'SFunctionGTDriverDataRecorderScalarDoubles';
-    def.StartFcnSpec     = 'void GT_DriverDataRecorderScalarDoublesInitialize(uint8 p1[], uint32 p2, uint8 p3[], uint32 p4, uint32 p5, uint32 p6)';
-    def.TerminateFcnSpec = 'void GT_DriverDataRecorderScalarDoublesTerminate()';
-    def.OutputFcnSpec    = 'void GT_DriverDataRecorderScalarDoublesStep(uint8 p1[], uint32 p2, double u1, double u2[], uint32 p5)';
-    def.HeaderFiles      = {'GT_DriverDataRecorderScalarDoubles.hpp'};
-    def.SourceFiles      = {'GT_DriverDataRecorderScalarDoubles.cpp','GT_SimulinkSupport.cpp'};
-    def.IncPaths         = {''};
-    def.SrcPaths         = {''};
-    def.LibPaths         = {''};
-    def.HostLibFiles     = {''};
-    def.SampleTime       = 'parameterized';
-    def.Options.language = 'C++';
-    def.Options.useTlcWithAccel = false;
-    def.Options.supportsMultipleExecInstances = true;
-    defs = [defs; def];
-
-
-    % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    % Driver: Data Recorder (Bus)
-    % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    fprintf('define driver: DataRecorderBus\n');
-    def = legacy_code('initialize');
-    def.SFunctionName    = 'SFunctionGTDriverDataRecorderBus';
-    def.StartFcnSpec     = 'void GT_DriverDataRecorderBusInitialize(uint8 p1[], uint32 p2, uint32 p3, uint32 p4, uint8 p5[], uint32 p6, uint8 p7[], uint32 p8, uint8 p9[], uint32 p10)';
-    def.TerminateFcnSpec = 'void GT_DriverDataRecorderBusTerminate()';
-    def.OutputFcnSpec    = 'void GT_DriverDataRecorderBusStep(uint8 p1[], uint32 p2, double u1, uint8 u2[], uint32 p4)';
-    def.HeaderFiles      = {'GT_DriverDataRecorderBus.hpp'};
-    def.SourceFiles      = {'GT_DriverDataRecorderBus.cpp','GT_SimulinkSupport.cpp'};
+    def.SFunctionName    = 'SFunctionGTDriverDataRecorder';
+    def.StartFcnSpec     = 'void GT_DriverDataRecorderInitialize(uint8 p1, uint8 p2[], uint32 p3, uint32 p4, uint32 p5, uint32 p6, uint8 p7[], uint32 p8, uint8 p9[], uint32 p10, uint8 p11[], uint32 p12, int32 p13, uint8 p14)';
+    def.TerminateFcnSpec = 'void GT_DriverDataRecorderTerminate(uint8 p14)';
+    def.OutputFcnSpec    = 'void GT_DriverDataRecorderStep(uint8 p1, uint8 p2[], uint32 p3, double u1, double u2[p6], uint32 p6, uint8 u3[p5], uint32 p5, uint8 p14)';
+    def.HeaderFiles      = {'GT_DriverDataRecorder.hpp'};
+    def.SourceFiles      = {'GT_DriverDataRecorder.cpp','GT_DriverImplementationDetails.cpp'};
     def.IncPaths         = {''};
     def.SrcPaths         = {''};
     def.LibPaths         = {''};
@@ -241,7 +210,7 @@ function BuildDrivers(useSimulinkSupport)
     def.TerminateFcnSpec = 'void GT_DriverTaskExecutionTimeTerminate()';
     def.OutputFcnSpec    = 'void GT_DriverTaskExecutionTimeStep(double y1[1], uint8 p1[], uint32 p2)';
     def.HeaderFiles      = {'GT_DriverTaskExecutionTime.hpp'};
-    def.SourceFiles      = {'GT_DriverTaskExecutionTime.cpp','GT_SimulinkSupport.cpp'};
+    def.SourceFiles      = {'GT_DriverTaskExecutionTime.cpp'};
     def.IncPaths         = {''};
     def.SrcPaths         = {''};
     def.LibPaths         = {''};
@@ -263,7 +232,7 @@ function BuildDrivers(useSimulinkSupport)
     def.TerminateFcnSpec = 'void GT_DriverNumTaskOverloadsTerminate()';
     def.OutputFcnSpec    = 'void GT_DriverNumTaskOverloadsStep(uint64 y1[1], uint8 p1[], uint32 p2)';
     def.HeaderFiles      = {'GT_DriverNumTaskOverloads.hpp'};
-    def.SourceFiles      = {'GT_DriverNumTaskOverloads.cpp','GT_SimulinkSupport.cpp'};
+    def.SourceFiles      = {'GT_DriverNumTaskOverloads.cpp'};
     def.IncPaths         = {''};
     def.SrcPaths         = {''};
     def.LibPaths         = {''};
@@ -285,7 +254,7 @@ function BuildDrivers(useSimulinkSupport)
     def.TerminateFcnSpec = 'void GT_DriverNumCPUOverloadsTerminate()';
     def.OutputFcnSpec    = 'void GT_DriverNumCPUOverloadsStep(uint64 y1[1], uint64 y2[1])';
     def.HeaderFiles      = {'GT_DriverNumCPUOverloads.hpp'};
-    def.SourceFiles      = {'GT_DriverNumCPUOverloads.cpp','GT_SimulinkSupport.cpp'};
+    def.SourceFiles      = {'GT_DriverNumCPUOverloads.cpp'};
     def.IncPaths         = {''};
     def.SrcPaths         = {''};
     def.LibPaths         = {''};
@@ -307,7 +276,7 @@ function BuildDrivers(useSimulinkSupport)
     def.TerminateFcnSpec = 'void GT_DriverStopExecutionTerminate()';
     def.OutputFcnSpec    = 'void GT_DriverStopExecutionStep(uint8 u1)';
     def.HeaderFiles      = {'GT_DriverStopExecution.hpp'};
-    def.SourceFiles      = {'GT_DriverStopExecution.cpp','GT_SimulinkSupport.cpp'};
+    def.SourceFiles      = {'GT_DriverStopExecution.cpp'};
     def.IncPaths         = {''};
     def.SrcPaths         = {''};
     def.LibPaths         = {''};
@@ -350,18 +319,14 @@ function BuildDrivers(useSimulinkSupport)
     fprintf('done\n');
 
     % compile
-    if(useSimulinkSupport)
-        cflags    = '-DGENERIC_TARGET_SIMULINK_SUPPORT';
-        cxxflags  = '-DGENERIC_TARGET_SIMULINK_SUPPORT -std=c++20';
-        ldflags   = '-DGENERIC_TARGET_SIMULINK_SUPPORT -std=c++20';
-        libraries = {'-L/usr/lib', '-L/usr/local/lib', '-lstdc++', '-lpthread'};
-        if(ispc)
-            libraries = [libraries, {'-lws2_32', '-lIphlpapi'}];
-        end
-        legacy_code('compile', defs, [{['CFLAGS=$CFLAGS ', cflags],['CXXFLAGS=$CXXFLAGS ', cxxflags],['LINKFLAGS=$LINKFLAGS ', ldflags]}, libraries]);
-    else
-        legacy_code('compile', defs);
+    cflags    = '';
+    cxxflags  = '-std=c++20';
+    ldflags   = '-std=c++20';
+    libraries = {'-L/usr/lib', '-L/usr/local/lib', '-lstdc++', '-lpthread'};
+    if(ispc)
+        libraries = [libraries, {'-lws2_32', '-lIphlpapi'}];
     end
+    legacy_code('compile', defs, [{['CFLAGS=$CFLAGS ', cflags],['CXXFLAGS=$CXXFLAGS ', cxxflags],['LINKFLAGS=$LINKFLAGS ', ldflags]}, libraries]);
 
     % generate TLC
     fprintf('\ngenerate TLC: ');
@@ -380,27 +345,25 @@ function BuildDrivers(useSimulinkSupport)
     fprintf('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
     fprintf(' GENERIC TARGET DRIVER BUILD COMPLETED\n');
     fprintf('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
-    if(useSimulinkSupport)
-        fprintf('        BLOCK                                    SIMULINK SUPPORT\n');
-        fprintf('        --------------------------------------------------------------------------\n');
-        fprintf('        Interface/UDP Send                       yes(*)\n');
-        fprintf('        Interface/UDP Receive                    yes(*)\n');
-        fprintf('        Interface/Write Scalar Doubles To File   no\n');
-        fprintf('        Interface/Write Bus To File              no\n');
-        fprintf('        Interface/Stop Execution                 no\n');
-        fprintf('        Target Stats/Read Thermal Zones          yes(**)\n');
-        fprintf('        Target Stats/Application Arguments       no\n');
-        fprintf('        Time/Model Execution Time                yes\n');
-        fprintf('        Time/UNIX Time                           yes\n');
-        fprintf('        Time/UTC Time                            yes\n');
-        fprintf('        Time/Local Time                          yes\n');
-        fprintf('        Time/Task Execution Time                 no\n');
-        fprintf('        Time/Task Overloads                      no\n');
-        fprintf('        Time/CPU Overloads                       no\n');
-        fprintf('        Time/UTC Timestamp                       yes\n');
-        fprintf('        Time/Time To Latest UTC Timestamp        yes\n');
-        fprintf('        --------------------------------------------------------------------------\n(*) Some socket options are not available or may behave different under windows!\n(**) Only for linux!\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
-    end
+    fprintf('        BLOCK                                    SIMULINK SUPPORT\n');
+    fprintf('        --------------------------------------------------------------------------\n');
+    fprintf('        Interface/UDP Send                       yes(*)\n');
+    fprintf('        Interface/UDP Receive                    yes(*)\n');
+    fprintf('        Interface/Write Scalar Doubles To File   yes\n');
+    fprintf('        Interface/Write Bus To File              yes\n');
+    fprintf('        Interface/Stop Execution                 no\n');
+    fprintf('        Target Stats/Application Arguments       no\n');
+    fprintf('        Target Stats/Read Thermal Zones          yes(**)\n');
+    fprintf('        Time/Model Execution Time                yes\n');
+    fprintf('        Time/UNIX Time                           yes\n');
+    fprintf('        Time/UTC Time                            yes\n');
+    fprintf('        Time/Local Time                          yes\n');
+    fprintf('        Time/Task Execution Time                 no\n');
+    fprintf('        Time/Task Overloads                      no\n');
+    fprintf('        Time/CPU Overloads                       no\n');
+    fprintf('        Time/UTC Timestamp                       yes\n');
+    fprintf('        Time/Time To Latest UTC Timestamp        yes\n');
+    fprintf('        --------------------------------------------------------------------------\n(*) Some socket options are not available or may behave different under windows!\n(**) Only for linux!\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
     fprintf('\n');
 
     % navigate back to current working directory

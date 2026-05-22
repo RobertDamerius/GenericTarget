@@ -1,18 +1,12 @@
-#include "GT_DriverNumTaskOverloads.hpp"
+#include <GT_DriverNumTaskOverloads.hpp>
 #if defined(GENERIC_TARGET_IMPLEMENTATION)
-    #include <GenericTarget/GT_GenericTarget.hpp>
-    #include <SimulinkCodeGeneration/SimulinkInterface.hpp>
-    #include <string>
-#elif defined(GENERIC_TARGET_SIMULINK_SUPPORT)
-    #include "GT_SimulinkSupport.hpp"
+#include <GenericTarget/GT_GenericTarget.hpp>
+#include <SimulinkCodeGeneration/SimulinkInterface.hpp>
+#include <string>
 #endif
 
 
-void GT_DriverNumTaskOverloadsInitialize(void){
-    #if defined(GENERIC_TARGET_SIMULINK_SUPPORT)
-    gt_simulink_support::GenericTarget::ResetStartTimepoint();
-    #endif
-}
+void GT_DriverNumTaskOverloadsInitialize(void){}
 
 void GT_DriverNumTaskOverloadsTerminate(void){}
 

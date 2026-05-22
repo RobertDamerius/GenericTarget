@@ -25,7 +25,6 @@ Detailed information is given afterwards.
 <tr><td style="font-family: Courier New;"><a href="#targetBitmaskCPUCores">targetBitmaskCPUCores</a></td><td style="font-family: Courier New;">char array</td><td style="font-family: Courier New;">''</td><td>A hexadecimal string indicating to which CPU cores the process should be pinned to. If this string is empty, all cores are used.</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#applicationArguments">applicationArguments</a></td><td style="font-family: Courier New;">char array</td><td style="font-family: Courier New;">''</td><td>A string representing additional arguments passed to the application during a Start call.</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#upperThreadPriority">upperThreadPriority</a></td><td style="font-family: Courier New;">uint32</td><td style="font-family: Courier New;">89</td><td>Upper task priority in range [1 (lowest), 99 (highest)].</td></tr>
-<tr><td style="font-family: Courier New;"><a href="#priorityDataRecorder">priorityDataRecorder</a></td><td style="font-family: Courier New;">uint32</td><td style="font-family: Courier New;">30</td><td>Priority for the data recording threads in range [1 (lowest), 99 (highest)].</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#terminateAtTaskOverload">terminateAtTaskOverload</a></td><td style="font-family: Courier New;">logical</td><td style="font-family: Courier New;">true</td><td>True if application should terminate at task overload, false otherwise.</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#terminateAtCPUOverload">terminateAtCPUOverload</a></td><td style="font-family: Courier New;">logical</td><td style="font-family: Courier New;">true</td><td>True if application should terminate at CPU overload, false otherwise.</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#customCode">customCode</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Cell-array of files or directories containing custom code to be uploaded along with the generated code.</td></tr>
@@ -104,12 +103,6 @@ Each samplerate of the Simulink model corresponds to a function that is executed
 The priority of the thread depends on the samplerate.
 The smaller the samplerate, the higher the priority.
 The highest priority is set with this parameter.
-
-<br><br>
-<a name="priorityDataRecorder"></a>
-<h3>priorityDataRecorder</h3>
-If data is to be recorded with the target application, then the data recording takes place in a separate thread that writes the data to files.
-The priority of this thread is set with this parameter.
 
 <br><br>
 <a name="terminateAtTaskOverload"></a>

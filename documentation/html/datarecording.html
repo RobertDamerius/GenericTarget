@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 1.1.0</div>
+<div class="header_version">Version 1.2.0</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -86,19 +86,20 @@
     If data is to be recorded, then this data is first written to a buffer.
     A separate thread then takes care of writing the data to files.
     Each data recorder object has a unique ID.
-    Internally the Generic Target Core software manages a hash table that contains are data recorder objects together with their unique ID as key value.
+    Internally the data recorder manages a hash table that contains are data recorder objects together with their unique ID as key value.
 
     <h3>Initialization</h3>
-    During initialization the target application creates a new data directory with a name denoting the current UTC time.
+    During initialization of the simulink model a new data directory with a name denoting the start timepoint (UTC) is created.
     In addition, an index file is created, which contains information about the data recording.
     At the same time this index file indicates which IDs are present.
+    The index file may be overwritten several times if there are multiple data recorder blocks.
 
     <h3>Termination</h3>
     During the termination phase, unwritten data which may still be in the data recording buffer is written to the file.
 
     <h3>Separate Data Recording Thread</h3>
     Each data recorder object has its own thread, which is responsible for writing to the file.
-    The priority of the thread is defined by the Simulink interface class parameter <a href="packages_gt_generictarget.html#priorityDataRecorder">priorityDataRecorder</a>.
+    The priority of the thread is set via the block mask.
     The data is not written to a file immediately.
     Instead, the data is first written to a buffer.
     A separate thread then handles writing the data to the file.
@@ -117,7 +118,7 @@
     If this parameter is zero, then the file size is unlimited and there will only be one data file, e.g. <code>myData_0</code>.
 
 <h2>The Index File</h2>
-    The index file is created once at the beginning during the initialization phase, before the actual model is started.
+    The index file is written at the beginning during the initialization phase, before the actual model is started.
     This file contains information about when the data recording was started, on which operating system the application was started and which IDs are to be recorded.
     The index file has the following format.
     <br>

@@ -2,13 +2,11 @@
 
 
 #include <GenericTarget/GT_Common.hpp>
-#include <GenericTarget/GT_TargetTime.hpp>
+#include <GenericTarget/GT_AppStartTimepoint.hpp>
+#include <GenericTarget/GT_AppArguments.hpp>
+#include <GenericTarget/GT_AppSocket.hpp>
 #include <GenericTarget/GT_BaseRateScheduler.hpp>
-#include <GenericTarget/GT_ApplicationArguments.hpp>
 #include <GenericTarget/GT_FileSystem.hpp>
-#include <GenericTarget/DataRecorder/GT_DataRecorderManager.hpp>
-#include <GenericTarget/Network/GT_UDPSocket.hpp>
-#include <GenericTarget/Network/GT_UDPServiceManager.hpp>
 
 
 /* Forward declaration of the main entry function. It's used as friend and has access to the protected member functions of the MainApplication class. */
@@ -24,30 +22,28 @@ namespace gt {
  */
 class GenericTarget {
     public:
-        static ApplicationArguments applicationArguments;   // Arguments passed to the application. They are parsed when calling @ref Run.
-        static FileSystem fileSystem;                       // The file system manager for the application.
-        static TargetTime targetTime;                       // The target time containing the up time.
-        static DataRecorderManager dataRecorderManager;     // Manager for data recordings.
-        static UDPServiceManager udpManager;                // Manager for UDP communication.
+        static AppStartTimepoint appStartTimepoint;  // The start timepoint of the application.
+        static AppArguments appArguments;            // Arguments passed to the application. They are parsed when calling @ref Run.
+        static FileSystem fileSystem;                // The file system manager for the application.
 
         /**
          * @brief Get the model execution time (steady clock), that is, the elapsed time to the start of the master clock.
          * @return Model execution time in seconds.
          * @details The master clock is started by the scheduler, which is started in the @ref MainLoop.
          */
-        static inline double GetModelExecutionTime(void){ return scheduler.GetModelExecutionTime(); }
+        static double GetModelExecutionTime(void){ return scheduler.GetModelExecutionTime(); }
 
         /**
          * @brief Get the number of CPU overloads that have been occurred since the start of the base-rate scheduler.
          * @return The number of CPU overloads.
          */
-        static inline uint64_t GetNumCPUOverloads(void){ return scheduler.GetNumCPUOverloads(); }
+        static uint64_t GetNumCPUOverloads(void){ return scheduler.GetNumCPUOverloads(); }
 
         /**
          * @brief Get the number of lost ticks that have been occurred since the start of the base-rate scheduler.
          * @return The number of lost ticks.
          */
-        static inline uint64_t GetNumLostTicks(void){ return scheduler.GetNumLostTicks(); }
+        static uint64_t GetNumLostTicks(void){ return scheduler.GetNumLostTicks(); }
 
         /**
          * @brief Get the latest task execution time for a task.
@@ -55,14 +51,14 @@ class GenericTarget {
          * @return The latest task execution time in seconds or a negative value if the taskID is invalid.
          * @details The task execution time is the computation time required by the step function of the model.
          */
-        static inline double GetTaskExecutionTime(const uint32_t taskID){ return scheduler.GetTaskExecutionTime(taskID); }
+        static double GetTaskExecutionTime(const uint32_t taskID){ return scheduler.GetTaskExecutionTime(taskID); }
 
         /**
          * @brief Get the number of task overloads for a task.
          * @param[in] taskID The ID of the task from which to obtain the latest number of task overloads.
          * @return The latest task overload counter or zero if the taskID is invalid.
          */
-        static inline uint64_t GetNumTaskOverloads(const uint32_t taskID){ return scheduler.GetNumTaskOverloads(taskID); }
+        static uint64_t GetNumTaskOverloads(const uint32_t taskID){ return scheduler.GetNumTaskOverloads(taskID); }
 
         /**
          * @brief Call this function if the generic target application is to be terminated.
@@ -82,7 +78,7 @@ class GenericTarget {
 
     private:
         static std::atomic<bool> shouldTerminate;  // True if application should be terminated, false otherwise.
-        static UDPSocket appSocket;                // The application socket to ensure only one application instance is running on the machine.
+        static AppSocket appSocket;                // The application socket to ensure only one application instance is running on the machine.
         static BaseRateScheduler scheduler;        // The scheduler for the simulink model.
 
         /**

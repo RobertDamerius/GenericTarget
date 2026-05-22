@@ -4,7 +4,7 @@
 %%   Simulink Coder TLC Code Generation file for SFunctionGTDriverUDPSocket
 %% 
 %% Simulink version      : 25.2 (R2025b) 28-Jul-2025
-%% TLC file generated on : 21-May-2026 23:10:53
+%% TLC file generated on : 22-May-2026 13:00:52
 
 /%
      %%%-MATLAB_Construction_Commands_Start
@@ -14,7 +14,7 @@
      def.StartFcnSpec = 'void GT_DriverUDPSocketInitialize(int32 p1, uint8 p2[], uint32 p3, int32 p4, uint8 p5, uint8 p6, uint8 p7, uint8 p8, uint8 p9, uint8 p10[4])';
      def.TerminateFcnSpec = 'void GT_DriverUDPSocketTerminate(int32 p1)';
      def.HeaderFiles = {'GT_DriverUDPSocket.hpp'};
-     def.SourceFiles = {'GT_DriverUDPSocket.cpp', 'GT_SimulinkSupport.cpp'};
+     def.SourceFiles = {'GT_DriverUDPSocket.cpp', 'GT_DriverImplementationDetails.cpp'};
      def.SampleTime = 'parameterized';
      def.Options.useTlcWithAccel = false;
      def.Options.language = 'C++';
@@ -86,7 +86,7 @@
         %<LibAddToCommonIncludes("GT_DriverUDPSocket.hpp")>
     %endif
     %<SLibAddToStaticSources("GT_DriverUDPSocket.cpp")>
-    %<SLibAddToStaticSources("GT_SimulinkSupport.cpp")>
+    %<SLibAddToStaticSources("GT_DriverImplementationDetails.cpp")>
 %endfunction
 
 %% Function: BlockInstanceSetup ===========================================
