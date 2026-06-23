@@ -80,15 +80,7 @@ void GenericTarget::MainLoop(void){
         while(!shouldTerminate && appSocket.IsOpen()){
             appSocket.ResetLastError();
             int32_t rx = appSocket.ReceiveFrom(sourceIP, sourcePort, &u[0], 4);
-            int32_t errorCode = appSocket.GetLastErrorCode();
             if(rx < 0){
-                #ifdef _WIN32
-                if(WSAEMSGSIZE == errorCode){
-                    continue;
-                }
-                #else
-                (void)errorCode;
-                #endif
                 break;
             }
             if((sourceIP == std::array<uint8_t,4>({127,0,0,1})) && (4 == rx) && (0x47 == u[0]) && (0x54 == u[1]) && (0xDE == u[2]) && (0xAD == u[3])){
@@ -129,7 +121,6 @@ void GenericTarget::TerminateHandler(void){
     }
     catch(const std::exception &e){ GENERIC_TARGET_PRINT_RAW("\nERROR: Caught unhandled exception: %s\n", e.what()); }
     catch(...){ GENERIC_TARGET_PRINT_RAW("\nERROR: Caught unknown/unhandled exception!\n"); }
-    #ifndef _WIN32
     const int backtraceSize = 64;
     void* array[backtraceSize];
     int size(backtrace(array, backtraceSize));
@@ -140,7 +131,6 @@ void GenericTarget::TerminateHandler(void){
     }
     GENERIC_TARGET_PRINT_RAW("\nIf DEBUG mode was enabled for the exectuable, convert a printed address to a corresponding code line by executing the command \"addr2line -e ./PRODUCT_NAME +0xABCDEF\" in the binary directory of the application, where 0xABCDEF is the printed address and PRODUCT_NAME is the name of the executable (default: GenericTarget).\n");
     free(messages);
-    #endif
     std::abort();
 }
 
@@ -164,13 +154,12 @@ void GenericTarget::PrintInfo(void){
     strModelName.erase(std::remove_if(strModelName.begin(), strModelName.end(), [](unsigned char c) { return c < 32 || c > 126; }), strModelName.end());
     GENERIC_TARGET_PRINT_RAW("GenericTarget\n");
     GENERIC_TARGET_PRINT_RAW("\n");
-    GENERIC_TARGET_PRINT_RAW("Operating System:         %s\n", gt::strOS.c_str());
     PrintOperatingSystemInfo();
     PrintNetworkInfo();
     GENERIC_TARGET_PRINT_RAW("\n");
-    GENERIC_TARGET_PRINT_RAW("Generic Target Version:   %s\n", gt::strVersion.c_str());
-    GENERIC_TARGET_PRINT_RAW("Compiler Version:         %s\n", gt::strCompilerVersion.c_str());
-    GENERIC_TARGET_PRINT_RAW("Built (local):            %s\n", strBuilt.c_str());
+    GENERIC_TARGET_PRINT_RAW("Generic Target Version:   %.*s\n", static_cast<int>(gt::version.length()), gt::version.data());
+    GENERIC_TARGET_PRINT_RAW("Compiler Version:         %.*s\n", static_cast<int>(gt::compilerVersion.length()), gt::compilerVersion.data());
+    GENERIC_TARGET_PRINT_RAW("Built (local):            %.*s\n", static_cast<int>(gt::builtTimestamp.length()), gt::builtTimestamp.data());
     GENERIC_TARGET_PRINT_RAW("Date (UTC):               %04u-%02u-%02u %02u:%02u:%02u.%03u\n", 1900 + upTime.year, 1 + upTime.month, upTime.mday, upTime.hour, upTime.minute, upTime.second, upTime.nanoseconds / 1000000);
     GENERIC_TARGET_PRINT_RAW("Arguments:               "); for(size_t i = 0; i < appArguments.args.size(); i++){ GENERIC_TARGET_PRINT_RAW(" [%s]", appArguments.args[i].c_str()); } GENERIC_TARGET_PRINT_RAW("\n");
     GENERIC_TARGET_PRINT_RAW("Maximum thread priority:  %d\n", priorityMax);
@@ -191,7 +180,6 @@ void GenericTarget::PrintInfo(void){
 }
 
 void GenericTarget::PrintOperatingSystemInfo(void){
-    #if __linux__
     struct utsname info;
     (void) uname(&info);
     GENERIC_TARGET_PRINT_RAW("sysname:                  %s\n", info.sysname);
@@ -202,21 +190,9 @@ void GenericTarget::PrintOperatingSystemInfo(void){
     #ifdef __USE_GNU
     GENERIC_TARGET_PRINT_RAW("domainname:               %s\n", info.domainname);
     #endif
-    #elif _WIN32
-    OSVERSIONINFO osvi;
-    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    (void) GetVersionEx(&osvi);
-    GENERIC_TARGET_PRINT_RAW("dwBuildNumber:            %ld\n", osvi.dwBuildNumber);
-    GENERIC_TARGET_PRINT_RAW("dwMajorVersion:           %ld\n", osvi.dwMajorVersion);
-    GENERIC_TARGET_PRINT_RAW("dwMinorVersion:           %ld\n", osvi.dwMinorVersion);
-    GENERIC_TARGET_PRINT_RAW("dwPlatformId:             %ld\n", osvi.dwPlatformId);
-    GENERIC_TARGET_PRINT_RAW("szCSDVersion:             %s\n", osvi.szCSDVersion);
-    #endif
 }
 
 void GenericTarget::PrintNetworkInfo(void){
-    #if __linux__
     struct if_nameindex *if_ni, *i;
     if_ni = if_nameindex();
     if(if_ni){
@@ -227,28 +203,6 @@ void GenericTarget::PrintNetworkInfo(void){
         GENERIC_TARGET_PRINT_RAW("\n");
         if_freenameindex(if_ni);
     }
-    #elif _WIN32
-    PIP_ADAPTER_INFO pAdapterInfo = 0;
-    PIP_ADAPTER_INFO pAdapter;
-    DWORD dwSize = 0;
-    if(GetAdaptersInfo(pAdapterInfo, &dwSize) == ERROR_BUFFER_OVERFLOW){
-        pAdapterInfo = (PIP_ADAPTER_INFO)malloc(dwSize);
-    }
-    if(GetAdaptersInfo(pAdapterInfo, &dwSize) == NO_ERROR){
-        pAdapter = pAdapterInfo;
-        GENERIC_TARGET_PRINT_RAW("network interfaces:       ");
-        while(pAdapter){
-            std::string name(pAdapter->AdapterName);
-            std::string description(pAdapter->Description);
-            GENERIC_TARGET_PRINT_RAW("[%s (%s)]", name.c_str(), description.c_str());
-            pAdapter = pAdapter->Next;
-        }
-        GENERIC_TARGET_PRINT_RAW("\n");
-    }
-    if(pAdapterInfo){
-        free(pAdapterInfo);
-    }
-    #endif
 }
 
 void GenericTarget::StopOtherTargetApplication(void){

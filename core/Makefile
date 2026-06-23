@@ -2,7 +2,7 @@
 #
 # Generic Makefile (g++)
 #
-# Version 20221010
+# Version 20260623
 # Copyright (c) Robert Damerius
 #
 #########################################################################
@@ -25,8 +25,7 @@ DIRECTORY_PRODUCT :=
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Libraries and symbols
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-LIBS_WIN          := -lstdc++ -lstdc++fs -lpthread -lwinmm -lgdi32 -lws2_32 -lIphlpapi $TARGET_MAKEFILE_LIBS_WIN$
-LIBS_UNIX         := -lstdc++ -lstdc++fs -lpthread -latomic $TARGET_MAKEFILE_LIBS_UNIX$
+LD_LIBS           := -lstdc++ -lstdc++fs -lpthread -latomic $TARGET_MAKEFILE_LD_LIBS$
 CC_SYMBOLS         = -DGENERIC_TARGET_IMPLEMENTATION $TARGET_MAKEFILE_CC_SYMBOLS$
 
 
@@ -51,13 +50,6 @@ else
     LD_FLAGS   += -O3 -s
 endif
 
-# Libs and shared objects
-ifeq ($(OS), Windows_NT)
-    LD_LIBS    := -static-libgcc -static-libstdc++ -Wl,-Bstatic $(LIBS_WIN) -Wl,-Bdynamic
-else
-    LD_LIBS    := $(LIBS_UNIX)
-endif
-
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Toolset settings
@@ -67,7 +59,6 @@ CPP     := g++
 LD      := ld
 RM      := rm -f -r
 MKDIR   := mkdir -p
-WINDRES := windres
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -80,20 +71,15 @@ rwildcard = $(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2
 SOURCES_BIN := $(call rwildcard,$(DIRECTORY_SOURCE),*.bin)
 SOURCES_C   := $(call rwildcard,$(DIRECTORY_SOURCE),*.c)
 SOURCES_CPP := $(call rwildcard,$(DIRECTORY_SOURCE),*.cpp)
-SOURCES_RC  := $(call rwildcard,$(DIRECTORY_SOURCE),*.rc)
 
 # Object files
 OBJECTS_BIN := $(SOURCES_BIN:.bin=.o)
 OBJECTS_C   := $(SOURCES_C:.c=.o)
 OBJECTS_CPP := $(SOURCES_CPP:.cpp=.o)
-OBJECTS_RC  := $(SOURCES_RC:.rc=.o)
 OBJECTS_ALL  = $(addprefix $(DIRECTORY_BUILD), $(OBJECTS_BIN) $(OBJECTS_C) $(OBJECTS_CPP))
-ifeq ($(OS), Windows_NT)
-    OBJECTS_ALL += $(addprefix $(DIRECTORY_BUILD), $(OBJECTS_RC))
-endif
 
 # Additional shared objects from source directory
-SHARED_OBJECTS = $(call rwildcard,$(DIRECTORY_SOURCE),*.so)
+SHARED_OBJECTS := $(call rwildcard,$(DIRECTORY_SOURCE),*.so)
 
 # All subdirectories of source directory
 DIRECTORY_ALL := $(dir $(call rwildcard,$(DIRECTORY_SOURCE),.))
@@ -106,11 +92,7 @@ LIBRARY_PATHS = -L/usr/local/lib $TARGET_MAKEFILE_LIBRARY_PATHS$ $(addprefix -L,
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Final product
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-ifeq ($(OS), Windows_NT)
-    PRODUCT = $(DIRECTORY_PRODUCT)$(PRODUCT_NAME).exe
-else
-    PRODUCT = $(DIRECTORY_PRODUCT)$(PRODUCT_NAME)
-endif
+PRODUCT = $(DIRECTORY_PRODUCT)$(PRODUCT_NAME)
 
 # Create build folders
 $(shell $(MKDIR) $(DIRECTORY_BUILD) $(addprefix $(DIRECTORY_BUILD), $(DIRECTORY_ALL)) $(DIRECTORY_BUILD) $(addprefix $(DIRECTORY_BUILD), $(DIRECTORY_ALL)))
@@ -119,27 +101,9 @@ $(shell $(MKDIR) $(DIRECTORY_BUILD) $(addprefix $(DIRECTORY_BUILD), $(DIRECTORY_
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Make targets
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.PHONY: all info clean
+.PHONY: all clean
 
 all: $(PRODUCT)
-
-info:
-	@echo ""
-	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo "AppName: $(PRODUCT_NAME)"
-	@echo "OS:      $(OS)"
-	@echo ""
-	@echo "~~~~~~~ COMMAND LIST ~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo "all:     Makes complete software (no precompiled headers)."
-	@echo "clean:   Removes out built project files (.o, .d), build directory \"$(DIRECTORY_BUILD)\" and binaries".
-	@echo "info:    Shows this info."
-	@echo ""
-	@echo "~~~~~~~ DIRECTORY SETTINGS ~~~~~~~~~~~~~~~~~~"
-	@echo "Source:  [$(DIRECTORY_SOURCE)]"
-	@echo "Build:   [$(DIRECTORY_BUILD)]"
-	@echo "Product: [$(DIRECTORY_PRODUCT)]"
-	@echo ""
-	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
 clean:
 	@$(RM) $(call rwildcard,$(DIRECTORY_BUILD),*.o) $(call rwildcard,$(DIRECTORY_BUILD),*.d) $(PRODUCT)
@@ -161,10 +125,6 @@ $(DIRECTORY_BUILD)%.o: %.cpp $(DIRECTORY_BUILD)%.d
 	@printf "[CPP]  > $<\n"
 	@$(CPP) $(INCLUDE_PATHS) $(CPP_FLAGS) $(DEP_FLAGS) -o $@ -c $< $(CC_SYMBOLS)
 	@$(POSTCOMPILE)
-
-$(DIRECTORY_BUILD)%.o: %.rc
-	@printf "[.RC]  > $<\n"
-	@$(WINDRES) $< -O coff -o $@
 
 $(DIRECTORY_BUILD)%.o: %.bin
 	@printf "[BIN]  > $<\n"

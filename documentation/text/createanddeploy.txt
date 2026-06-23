@@ -20,8 +20,6 @@
     In the ideal case the difference is zero.
     In practice, values in the microsecond range are obtained.
     If the base sampletime becomes too small, it can happen that the realtime kernel in combination with the used target computer is no longer able to maintain the given base sampletime.
-    On Windows, the lowest possible sampletime is 1 millisecond.
-    Keep that in mind if you want to deploy your model to a host running Windows.
     <br>
     <br>
     <h3>Build model and deploy to hardware</h3>

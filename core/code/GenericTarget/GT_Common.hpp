@@ -4,7 +4,7 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // External Libraries
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/* Default C++ includes */
+/* Default C++ headers */
 #include <cstdint>
 #include <iostream>
 #include <fstream>
@@ -25,17 +25,7 @@
 #include <csignal>
 #include <tuple>
 
-
-/* OS depending */
-// Windows System (MinGW)
-#ifdef _WIN32
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-#include <windows.h>
-#include <Iphlpapi.h>
-#include <sys/stat.h>
-// Unix System
-#elif __linux__
+/* Linux-specific headers */
 #include <execinfo.h>
 #include <sys/time.h>
 #include <unistd.h>
@@ -52,9 +42,6 @@
 #include <net/if.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#else
-// Other
-#endif
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -62,38 +49,9 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 namespace gt {
 
-static std::chrono::time_point<std::chrono::steady_clock> time_of_start = std::chrono::steady_clock::now();
-static std::mutex mtx_print;
-
-inline void print(const char* format, ...){
-    const std::lock_guard<std::mutex> lock(mtx_print);
-    fprintf(stderr,"   [t=%lf] ", 1e-9 * static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - time_of_start).count()));
-    va_list argptr;
-    va_start(argptr, format);
-    vfprintf(stderr, format, argptr);
-    va_end(argptr);
-    fflush(stderr);
-}
-
-inline void print_verbose(const char c, const char* file, const int line, const char* func, const char* format, ...){
-    const std::lock_guard<std::mutex> lock(mtx_print);
-    fprintf(stderr," %c [t=%lf] %s:%d in %s(): ", c, 1e-9 * static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - time_of_start).count()), file, line, func);
-    va_list argptr;
-    va_start(argptr, format);
-    vfprintf(stderr, format, argptr);
-    va_end(argptr);
-    fflush(stderr);
-}
-
-inline void print_raw(const char* format, ...){
-    const std::lock_guard<std::mutex> lock(mtx_print);
-    va_list argptr;
-    va_start(argptr, format);
-    vfprintf(stderr, format, argptr);
-    va_end(argptr);
-    fflush(stderr);
-}
-
+extern void print(const char* format, ...);
+extern void print_verbose(const char c, const char* file, const int line, const char* func, const char* format, ...);
+extern void print_raw(const char* format, ...);
 
 } /* namespace: gt */
 
@@ -110,10 +68,9 @@ inline void print_raw(const char* format, ...){
 namespace gt {
 
 
-extern const std::string strOS;
-extern const std::string strVersion;
-extern const std::string strCompilerVersion;
-extern const std::string strBuilt;
+inline constexpr std::string_view version{"1.2.0"};
+inline constexpr std::string_view compilerVersion{__VERSION__};
+inline constexpr std::string_view builtTimestamp{__DATE__ " " __TIME__};
 
 
 } /* namespace: gt */

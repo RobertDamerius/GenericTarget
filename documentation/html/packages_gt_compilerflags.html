@@ -91,9 +91,8 @@ Detailed information is given afterwards.
 <br><br>
 <table>
 <tr><th>Property</th><th width="150">Data Type</th><th>Default Value</th><th>Description</th></tr>
-<tr><td style="font-family: Courier New;"><a href="#DEBUG_MODE">DEBUG_MODE</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">0</td><td>True if DEBUG mode is to be enabled when compiling the target software, false otherwise.</td></tr>
-<tr><td style="font-family: Courier New;"><a href="#LIBS_WIN">LIBS_WIN</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional libraries to link against when compiling on windows plattforms.</td></tr>
-<tr><td style="font-family: Courier New;"><a href="#LIBS_UNIX">LIBS_UNIX</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional libraries to link against when compiling on unix plattforms.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#DEBUG_MODE">DEBUG_MODE</a></td><td style="font-family: Courier New;">logical</td><td style="font-family: Courier New;">false</td><td>True if DEBUG mode is to be enabled when compiling the target software, false otherwise.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#LD_LIBS">LD_LIBS</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional libraries to link against.</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#CC_SYMBOLS">CC_SYMBOLS</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional symbols to be set when compiling.</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#CC_FLAGS">CC_FLAGS</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional flags to be set when compiling C source files.</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#CPP_FLAGS">CPP_FLAGS</a></td><td style="font-family: Courier New;">cell array</td><td style="font-family: Courier New;">{}</td><td>Additional flags to be set when compiling C++ source files.</td></tr>
@@ -112,20 +111,12 @@ The application no longer requires root privileges and will not terminate if thr
 If the <code>DEBUG</code> mode is switched off, the optimization <code>-O3</code> is set and symbol names which would be necessary for debugging are not included in the application.
 
 <br><br>
-<a name="LIBS_WIN"></a>
-<h3>LIBS_WIN</h3>
-This flag specifies additional libraries to be used when linking a Windows application.
-The list of libraries for compiling a Windows application is defined as
-<pre>-lstdc++ -lstdc++fs -lpthread -lwinmm -lgdi32 -lws2_32 -lwsock32 -lIphlpapi $TARGET_MAKEFILE_LIBS_WIN$</pre>
-where the expression <code>$TARGET_MAKEFILE_LIBS_WIN$</code> is replaced by the additional libraries.
-
-<br><br>
-<a name="LIBS_UNIX"></a>
-<h3>LIBS_UNIX</h3>
-This flag specifies additional libraries to be used when linking a linux application.
-The list of libraries for compiling a linux application is defined as
-<pre>-lstdc++ -lstdc++fs -lpthread -latomic $TARGET_MAKEFILE_LIBS_UNIX$</pre>
-where the expression <code>$TARGET_MAKEFILE_LIBS_UNIX$</code> is replaced by the additional libraries.
+<a name="LD_LIBS"></a>
+<h3>LD_LIBS</h3>
+This flag specifies additional libraries to be used when linking the application.
+The list of libraries for compiling an application is defined as
+<pre>-lstdc++ -lstdc++fs -lpthread -latomic $TARGET_MAKEFILE_LD_LIBS$</pre>
+where the expression <code>$TARGET_MAKEFILE_LD_LIBS$</code> is replaced by the additional libraries.
 
 <br><br>
 <a name="CC_SYMBOLS"></a>

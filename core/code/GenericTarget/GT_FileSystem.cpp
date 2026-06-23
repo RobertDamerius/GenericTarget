@@ -7,17 +7,8 @@ using namespace gt;
 
 
 FileSystem::FileSystem(){
-    // get the absolute path to the application
-    #ifdef _WIN32
-    char* buffer = new char[65536];
-    DWORD len = GetModuleFileNameA(NULL, &buffer[0], 65536);
-    std::string str(buffer, len);
-    delete[] buffer;
-    #else
-    std::string str("/proc/self/exe");
-    #endif
     try {
-        pathToApplication = std::filesystem::canonical(str);
+        pathToApplication = std::filesystem::canonical("/proc/self/exe");
         pathToApplication.remove_filename();
     }
     catch(...){ }

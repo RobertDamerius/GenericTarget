@@ -30,22 +30,9 @@ using namespace gt::driver;
 
 namespace {
 
-#if __linux__
-const std::string gt_driver_strOS("Linux");
-#elif __FreeBSD__
-const std::string gt_driver_strOS("FreeBSD");
-#elif __ANDROID__
-const std::string gt_driver_strOS("Android");
-#elif __APPLE__
-const std::string gt_driver_strOS("macOS");
-#elif _WIN32
-const std::string gt_driver_strOS("Windows");
-#else
-const std::string gt_driver_strOS("unknown");
-#endif
-const std::string gt_driver_strVersion("1.2.0");
-const std::string gt_driver_strCompilerVersion(__VERSION__);
-const std::string gt_driver_strBuilt(__DATE__ " " __TIME__);
+inline constexpr std::string_view gt_driver_version{"1.2.0"};
+inline constexpr std::string_view gt_driver_compilerVersion{__VERSION__};
+inline constexpr std::string_view gt_driver_builtTimestamp{__DATE__ " " __TIME__};
 const std::string gt_driver_modelName("");
 
 void gt_driver_simulink_print(const char* format, ...){
@@ -689,45 +676,36 @@ bool DataRecorderManager::WriteIndexFile(void){
 
     // version + 0x00
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
-    fwrite(&gt::strVersion[0], 1, gt::strVersion.length(), file);
+    fwrite(gt::version.data(), sizeof(char), gt::version.length(), file);
     #else
-    fwrite(&gt_driver_strVersion[0], 1, gt_driver_strVersion.length(), file);
+    fwrite(gt_driver_version.data(), sizeof(char), gt_driver_version.length(), file);
     #endif
     bytes[0] = 0;
     fwrite(&bytes[0], 1, 1, file);
 
     // modelName + 0x00
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
-    fwrite(&SimulinkInterface::modelName[0], 1, SimulinkInterface::modelName.length(), file);
+    fwrite(&SimulinkInterface::modelName[0], sizeof(char), SimulinkInterface::modelName.length(), file);
     #else
-    fwrite(&gt_driver_modelName[0], 1, gt_driver_modelName.length(), file);
+    fwrite(&gt_driver_modelName[0], sizeof(char), gt_driver_modelName.length(), file);
     #endif
     bytes[0] = 0;
     fwrite(&bytes[0], 1, 1, file);
 
     // compileDate + 0x00
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
-    fwrite(&gt::strBuilt[0], 1, gt::strBuilt.length(), file);
+    fwrite(gt::builtTimestamp.data(), sizeof(char), gt::builtTimestamp.length(), file);
     #else
-    fwrite(&gt_driver_strBuilt[0], 1, gt_driver_strBuilt.length(), file);
+    fwrite(gt_driver_builtTimestamp.data(), sizeof(char), gt_driver_builtTimestamp.length(), file);
     #endif
     bytes[0] = 0;
     fwrite(&bytes[0], 1, 1, file);
 
     // compiler version + 0x00
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
-    fwrite(&gt::strCompilerVersion[0], 1, gt::strCompilerVersion.length(), file);
+    fwrite(gt::compilerVersion.data(), sizeof(char), gt::compilerVersion.length(), file);
     #else
-    fwrite(&gt_driver_strCompilerVersion[0], 1, gt_driver_strCompilerVersion.length(), file);
-    #endif
-    bytes[0] = 0;
-    fwrite(&bytes[0], 1, 1, file);
-
-    // OS + 0x00
-    #if defined(GENERIC_TARGET_IMPLEMENTATION)
-    fwrite(&gt::strOS[0], 1, gt::strOS.length(), file);
-    #else
-    fwrite(&gt_driver_strOS[0], 1, gt_driver_strOS.length(), file);
+    fwrite(gt_driver_compilerVersion.data(), sizeof(char), gt_driver_compilerVersion.length(), file);
     #endif
     bytes[0] = 0;
     fwrite(&bytes[0], 1, 1, file);

@@ -121,20 +121,6 @@ function info = DecodeIndexFile(filename)
         info.compilerVersion = [info.compilerVersion, char(byte)];
     end
 
-    % OS (zero-terminated string)
-    info.operatingSystem = char.empty();
-    while(true)
-        byte = uint8(fread(fp, 1));
-        if(1 ~= numel(byte))
-            fclose(fp);
-            error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!', numel(byte), filename);
-        end
-        if(~byte)
-            break;
-        end
-        info.operatingSystem = [info.operatingSystem, char(byte)];
-    end
-
     % OSInfo (zero-terminated string)
     info.operatingSystemInfo = char.empty();
     while(true)

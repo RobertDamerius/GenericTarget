@@ -4,11 +4,7 @@ using namespace gt;
 
 // helper macros for sockaddr_in struct (win/linux)
 #define GENERIC_TARGET_ADDRESS_PORT(x)   x.sin_port
-#ifdef _WIN32
-#define GENERIC_TARGET_ADDRESS_IP(x)     x.sin_addr.S_un.S_addr
-#else
 #define GENERIC_TARGET_ADDRESS_IP(x)     x.sin_addr.s_addr
-#endif
 
 
 AppSocket::AppSocket(){
@@ -25,13 +21,6 @@ bool AppSocket::Open(void){
         _socket = -1;
         return false;
     }
-
-    // special option to fix windows bug
-    #ifdef _WIN32
-    BOOL bNewBehavior = FALSE;
-    DWORD dwBytesReturned = 0;
-    WSAIoctl(_socket, _WSAIOW(IOC_VENDOR, 12), &bNewBehavior, sizeof bNewBehavior, NULL, 0, &dwBytesReturned, NULL, NULL);
-    #endif
     return true;
 }
 
@@ -41,13 +30,8 @@ bool AppSocket::IsOpen(void){
 
 void AppSocket::Close(void){
     if(IsOpen()){
-        #ifdef _WIN32
-        (void) shutdown(_socket, SD_BOTH);
-        (void) closesocket(_socket);
-        #else
         (void) shutdown(_socket, SHUT_RDWR);
         (void) close(_socket);
-        #endif
         _socket = -1;
     }
 }
@@ -72,11 +56,7 @@ int32_t AppSocket::SendTo(std::array<uint8_t,4> destinationIP, uint16_t destinat
 
 int32_t AppSocket::ReceiveFrom(std::array<uint8_t,4>& sourceIP, uint16_t& sourcePort, uint8_t *bytes, int32_t maxSize){
     sockaddr_in addr{};
-    #ifndef _WIN32
     socklen_t address_size = sizeof(addr);
-    #else
-    int address_size = sizeof(addr);
-    #endif
     int rx = recvfrom(_socket, reinterpret_cast<char*>(bytes), maxSize, 0, reinterpret_cast<struct sockaddr*>(&addr), &address_size);
     uint32_t u32 = ntohl(GENERIC_TARGET_ADDRESS_IP(addr));
     sourceIP[0] = (uint8_t)(0x000000FF & (u32 >> 24));
@@ -88,41 +68,23 @@ int32_t AppSocket::ReceiveFrom(std::array<uint8_t,4>& sourceIP, uint16_t& source
 }
 
 std::string AppSocket::GetLastErrorString(void){
-    #ifdef _WIN32
-    int err = static_cast<int>(WSAGetLastError());
-    std::string errStr("");
-    #else
     int err = static_cast<int>(errno);
     std::string errStr = std::string(strerror(err)) + std::string(" ");
-    #endif
     return errStr + std::string("(") + std::to_string(err) + std::string(")");
 }
 
 std::tuple<int32_t, std::string> AppSocket::GetLastError(void){
-    #ifdef _WIN32
-    int err = static_cast<int>(WSAGetLastError());
-    std::string errStr("");
-    #else
     int err = static_cast<int>(errno);
     std::string errStr = std::string(strerror(err)) + std::string(" ");
-    #endif
     errStr += std::string("(") + std::to_string(err) + std::string(")");
     return std::make_tuple(static_cast<int32_t>(err), errStr);
 }
 
 int32_t AppSocket::GetLastErrorCode(void){
-    #ifdef _WIN32
-    return static_cast<int32_t>(WSAGetLastError());
-    #else
     return static_cast<int32_t>(errno);
-    #endif
 }
 
 void AppSocket::ResetLastError(void){
-    #ifdef _WIN32
-    WSASetLastError(0);
-    #else
     errno = 0;
-    #endif
 }
 

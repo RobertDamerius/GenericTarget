@@ -3,11 +3,7 @@ using namespace gt;
 
 
 PeriodicTimer::PeriodicTimer(){
-    #ifdef _WIN32
-    hTimer = NULL;
-    #else
     fdTimer = -1;
-    #endif
     numCPUOverloads = 0;
     numLostTicks = 0;
     timeOfStart = std::chrono::steady_clock::now();
@@ -19,25 +15,6 @@ bool PeriodicTimer::Start(double sampletime){
         GENERIC_TARGET_PRINT_WARNING("Clock is not steady!\n");
     }
     Stop();
-    #ifdef _WIN32
-    if(sampletime < 0.001){
-        GENERIC_TARGET_PRINT_ERROR("A sample rate less than 1 millisecond can not be set on windows!\n");
-        return false;
-    }
-    hTimer = CreateWaitableTimer(NULL, false, NULL); // no SECURITY_ATRIBUTES, no manual reset, no timer name
-    if(!hTimer){
-        GENERIC_TARGET_PRINT_ERROR("Could not create waitable timer!\n");
-        return false;
-    }
-    LARGE_INTEGER lpDueTime;
-    lpDueTime.QuadPart = (LONGLONG)(timeToWaitBeforeStart * 1e7 * -1); // in 100 ns, negative for relative time (positive would be absolute time using UTC)
-    LONG lPeriod = (LONG)(sampletime * 1e3);
-    if(!SetWaitableTimer(hTimer, &lpDueTime, lPeriod, NULL, NULL, false)){ // No completetion routine, no args for completetion routine, no resume
-        GENERIC_TARGET_PRINT_ERROR("Could not set waitable timer!\n");
-        CloseHandle(hTimer);
-        hTimer = NULL;
-    }
-    #else
     if((fdTimer = timerfd_create(CLOCK_MONOTONIC, 0)) < 0){ // 0: no flags
         GENERIC_TARGET_PRINT_ERROR("Could not create timer!\n");
         return false;
@@ -53,7 +30,6 @@ bool PeriodicTimer::Start(double sampletime){
         fdTimer = -1;
         return false;
     }
-    #endif
     numCPUOverloads = 0;
     numLostTicks = 0;
     timeOfStart = std::chrono::steady_clock::now();
@@ -61,27 +37,13 @@ bool PeriodicTimer::Start(double sampletime){
 }
 
 void PeriodicTimer::Stop(void){
-    #ifdef _WIN32
-    if(hTimer){
-        CloseHandle(hTimer);
-        hTimer = NULL;
-    }
-    #else
     if(fdTimer >= 0){
         close(fdTimer);
         fdTimer = -1;
     }
-    #endif
 }
 
 bool PeriodicTimer::WaitForTick(bool resetTimeOfStart){
-    #ifdef _WIN32
-    bool result = (WaitForSingleObject(hTimer, INFINITE) == WAIT_OBJECT_0);
-    if(resetTimeOfStart){
-        timeOfStart = std::chrono::steady_clock::now();
-    }
-    return result;
-    #else
     int s = -1;
     uint64_t exp = 0;
     for(;;){
@@ -99,7 +61,6 @@ bool PeriodicTimer::WaitForTick(bool resetTimeOfStart){
         break;
     }
     return (s != -1);
-    #endif
 }
 
 double PeriodicTimer::GetTimeToStart(void){

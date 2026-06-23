@@ -429,8 +429,7 @@ classdef GenericTarget < handle
             end
             strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_PRODUCT_NAME$', this.targetProductName);
             strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_DEBUG_MODE$', strDEBUG);
-            strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_LIBS_WIN$', strjoin(this.additionalCompilerFlags.LIBS_WIN));
-            strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_LIBS_UNIX$', strjoin(this.additionalCompilerFlags.LIBS_UNIX));
+            strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_LD_LIBS$', strjoin(this.additionalCompilerFlags.LD_LIBS));
             strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_CC_SYMBOLS$', strjoin(this.additionalCompilerFlags.CC_SYMBOLS));
             strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_CC_FLAGS$', strjoin(this.additionalCompilerFlags.CC_FLAGS));
             strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_CPP_FLAGS$', strjoin(this.additionalCompilerFlags.CPP_FLAGS));

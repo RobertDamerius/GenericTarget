@@ -5,11 +5,6 @@ In addition to the clock time, times relating to the target can also be determin
 Furthermore, the timing status of the target application can be monitored.
 This includes <a href="library_gt_time_taskexecutiontime.html">Task Execution Time</a>, <a href="library_gt_time_taskoverloads.html">Task Overloads</a> and <a href="library_gt_time_cpuoverloads.html">CPU Overloads</a>.
 
-<div class="note-red">
-<h3 class="note-red">Limited Support for Windows</h3>
-CPU overload and lost ticks are not supported for windows operating system. Keep that in mind when deploying a model to a host running windows.
-</div>
-
 The target application uses multi-threading. Each sample rate or periodic partition in the Simulink model corresponds to a separate thread.
 These worker threads are executed in parallel. The number of threads actually executed in parallel at the same time is
 given by the number of CPU cores. Which threads are executed in parallel is decided by the operating system's scheduler.
