@@ -26,6 +26,7 @@
 #include <tuple>
 
 /* Linux-specific headers */
+#include <sys/mman.h>
 #include <execinfo.h>
 #include <sys/time.h>
 #include <unistd.h>

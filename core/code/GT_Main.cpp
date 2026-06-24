@@ -6,9 +6,15 @@
  * @brief The main entry function for the generic target application.
  * @param[in] argc Number of arguments passed to the application.
  * @param[in] argv Array of arguments passed to the application.
- * @return Always 0.
+ * @return 0 on success, -1 otherwise.
  */
 int main(int argc, char **argv){
+    // lock memory pages to prevent swapping
+    if(mlockall(MCL_CURRENT | MCL_FUTURE) < 0){
+        GENERIC_TARGET_PRINT_ERROR("Failed to lock memory: %s\n", std::strerror(errno));
+        return -1;
+    }
+
     // set file mode creation mask (all users, groups, etc. are allowed to read/write data that is created by this application)
     umask(0000);
 
