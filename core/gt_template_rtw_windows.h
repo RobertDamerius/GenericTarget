@@ -1,7 +1,7 @@
 /* Copyright 2011-2024 The MathWorks, Inc. */
 /* File modified in 2026 by Robert Damerius for better integration into Generic Target. */
-#ifndef RTW_LINUX_H
-#define RTW_LINUX_H
+#ifndef RTW_WINDOWS_H
+#define RTW_WINDOWS_H
 
 
 #include <pthread.h>
@@ -63,5 +63,5 @@
     free(semaphoreDW);
 
 
-#endif /* RTW_LINUX_H */
+#endif /* RTW_WINDOWS_H */
 
