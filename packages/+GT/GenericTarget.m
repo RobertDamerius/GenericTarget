@@ -526,28 +526,11 @@ classdef GenericTarget < handle
                     delete(currentFile);
                     continue;
                 end
-
-                % delete file if it contains the string "int_T main(" and "int main(" in a line
-                deleteFile = false;
-                fid = fopen(currentFile);
-                while(~feof(fid))
-                    line = fgetl(fid);
-                    if(~ischar(line)), continue; end
-                    deleteFile = contains(line, 'int_T main(');
-                    if(deleteFile), break; end
-                    deleteFile = contains(line, 'int main(');
-                    if(deleteFile), break; end
-                end
-                fclose(fid);
-                if(deleteFile)
-                    fprintf('    Deleting file "%s"\n', currentFile);
-                    delete(currentFile);
-                end
             end
         end
         function BuildInterfaceClass(this, modelName, codeGenFolder, modelCodeFolder)
             % load code information
-            codeInfoFile = fullfile(codeGenFolder, [modelName '_grt_rtw'], 'codeInfo.mat');
+            codeInfoFile = fullfile(codeGenFolder, [modelName '_ert_rtw'], 'codeInfo.mat');
             fprintf('[GENERIC TARGET] Loading code information "%s"\n', codeInfoFile);
             S = load(codeInfoFile, 'codeInfo');
             codeInfo = S.codeInfo;

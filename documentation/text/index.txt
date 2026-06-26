@@ -76,7 +76,8 @@
     In this template, all necessary settings are set so that the code generation generates the code in such a way that it can subsequently be used correctly in the automated deployment process.
     If settings are changed that affect code generation, the entire deployment process may stop working.
     Different sample rates are processed in parallel on the target PC in different threads.
-    Therefore, the option Allow tasks to execute concurrently on target must be activated in the Simulink settings, for example (Fixed-step solver).
+    Therefore, the option <b>Allow tasks to execute concurrently on target</b> must be activated in the Simulink settings.
+    The system target file must be set to <b>ert.tlc</b>.
     </div>
 
     <div class="note-green"><h3 class="note-green">Note 2: Rate-transition block</h3>
@@ -101,26 +102,18 @@
     Both parameters can be set with the <a href="packages_gt_generictarget.html#portAppSocket">portAppSocket</a> and <code>targetSoftwareDirectory</code> attributes in the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> MATLAB class.
     </div>
 
-    <div class="note-green"><h3 class="note-green">Note 5: Avoid keyword "main"</h3>
-    During the deployment process, all code generation files are checked for the <code>int_T main(</code> and <code>int main(</code> expressions.
-    Files that contain these expressions are removed.
-    This is necessary because the Generic Target framework has its own main entry function.
-    Since it is not distinguished whether the expressions are in a comment, there is thus the danger that also unintentionally files are removed, which contain these expressions e.g. only in comments or strings.
-    Therefore, avoid the use of the keywork main when developing a software.
-    </div>
-
-    <div class="note-green"><h3 class="note-green">Note 6: Avoid keyword "DEBUG"</h3>
+    <div class="note-green"><h3 class="note-green">Note 5: Avoid keyword "DEBUG"</h3>
     If the application is built in DEBUG mode, the C macro <code>DEBUG</code> is set.
     Therefore, no names should be selected that lead to function or variable names with <code>DEBUG</code> in the code generation.
     </div>
 
-    <div class="note-green"><h3 class="note-green">Note 7: Avoid console outputs</h3>
+    <div class="note-green"><h3 class="note-green">Note 6: Avoid console outputs</h3>
     The console output of the target application is redirected to a text file by default at startup.
     Therefore, many console outputs can result in a large text file.
     Also, the output can come from multiple threads at the same time, so multiple console outputs get mixed up.
     </div>
 
-    <div class="note-green"><h3 class="note-green">Note 8: Legacy Code Tool and custom code: use globally unique file names</h3>
+    <div class="note-green"><h3 class="note-green">Note 7: Legacy Code Tool and custom code: use globally unique file names</h3>
     The legacy code tool can be used to generate a Simulink block directly from a given C/C++ code.
     Most of the blocks in the Generic Target library have been generated using the legacy code tool.
     When generating code for a Simulink model, all code files belonging to blocks generated with the Legacy Code Tool are copied into a single directory.

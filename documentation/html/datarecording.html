@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 1.2.0</div>
+<div class="header_version">Version 2.0.0</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -259,27 +259,13 @@
         </tr>
         <tr>
             <td style="font-family: Courier New;">24+N+V+M+D+C</td>
-            <td style="font-family: Courier New;">S</td>
-            <td style="font-family: Courier New;">operatingSystem</td>
-            <td style="font-family: Courier New;">S x char</td>
-            <td>String indicating the operating system the target software were running on, e.g. <code>'Linux'</code>.</td>
-        </tr>
-        <tr>
-            <td style="font-family: Courier New;">24+N+V+M+D+C+S</td>
-            <td style="font-family: Courier New;">1</td>
-            <td style="font-family: Courier New;">zeroTerminator</td>
-            <td style="font-family: Courier New;">uint8_t</td>
-            <td>Zero-terminator for the preceding string. This value is always 0x00 and indicates the end of the string.</td>
-        </tr>
-        <tr>
-            <td style="font-family: Courier New;">25+N+V+M+D+C+S</td>
             <td style="font-family: Courier New;">I</td>
             <td style="font-family: Courier New;">operatingSystemInfo</td>
             <td style="font-family: Courier New;">I x char</td>
             <td>String providing additional information about the operating system. All values are separated by comma and have the syntax <code>name=[value]</code>, where the <code>name</code>/<code>value</code> pair depends on the operating system.<br><b>Example:</b> <code>'sysname=[Linux],nodename=[user],release=[5.19.0-46-generic],version=[#47~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Wed Jun 21 15:35:31 UTC 2],machine=[x86_64],domainname=[(none)]'</code>.</td>
         </tr>
         <tr>
-            <td style="font-family: Courier New;">25+N+V+M+D+C+S+I</td>
+            <td style="font-family: Courier New;">24+N+V+M+D+C+I</td>
             <td style="font-family: Courier New;">1</td>
             <td style="font-family: Courier New;">zeroTerminator</td>
             <td style="font-family: Courier New;">uint8_t</td>

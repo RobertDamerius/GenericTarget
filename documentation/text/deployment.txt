@@ -40,7 +40,7 @@
 
     <div class="note-blue">
     <h3 class="note-blue">Note on code generation</h3>
-    If only the code is to be generated (blue area, steps 1 to 9), the <a href="packages_gt_generictarget.html#GenerateCode">GenerateCode</a> member function can be used.
+    If only the code is to be generated (blue area, steps 1 to 8), the <a href="packages_gt_generictarget.html#GenerateCode">GenerateCode</a> member function can be used.
     </div>
 
     <h3>1. Copy Generic Target Core</h3>
@@ -56,72 +56,49 @@
     <h3>3. Unzip PackNGo.zip</h3>
     The archive is unpacked into the temporary release folder.
 
-    <h3>4. Remove main() Entry Functions</h3>
-    All files containing a <code>main()</code> function are removed.
-    The strings <code>"int_T main("</code> and <code>"int main("</code> are searched for.
-    The Generic Target Core has its own <code>main()</code> function.
-    <br>
-    <br>
-    <span style="color: #f00;">
-    The automatic generation of a main entry function cannot be disabled for the grt.tlc target file under Simulink.
-    There is the possibility that other MATLAB versions generate different prototypes!
-    </span>
-    <div class="note-red">
-    <h3 class="note-red">Important</h3>
-    All source and header files, that contain <code>int_T main(</code> or <code>int main(</code> are removed!
-    It is not examined whether these expressions are part of a comment or not.
-    As soon as one of the expressions appears within a file, this file is removed!
-    </div>
-
-    <h3>5. Replace RTW Headers</h3>
-    All header files named <code>rtw_windows.h</code> and <code>rtw_linux.h</code> are replaced by header files, which are located in the <code>core/</code>
-    directory of the toolbox. In these header files the usage of semaphores and mutexes is defined.
-    A semaphore or mutex is used to ensure data integrity during parallel read or write accesses to resources by different threads.
-    The generated code often includes <code>rtw_windows.h</code>, even if the code is generated for a Linux target.
-    For this reason both headers are functionally identical and use <code>std::mutex</code> as mutex.
-    <code>std::mutex</code> is standard since C++11 (platform independent).
-    POSIX-semaphores are still used as semaphores.
-    The source files <code>rtw_windows.c</code> and <code>rtw_linux.c</code> are also deleted.
+    <h3>4. Replace RTW Headers</h3>
+    The header files <code>rtw_windows.h</code> and <code>rtw_linux.h</code> define the usage of semaphores and mutexes.
+    They are replaced to ensure POSIX semaphores and mutexes in the generated code.
+    Source files like <code>rtw_windows.c</code> and <code>rtw_linux.c</code> are deleted.
     <br>
     <br>
     <span style="color: #f00;">
     There is a possibility that other MATLAB versions generate different headers or that the source code structure on the MATLAB side changes!
     </span>
 
-    <h3>6. Load codeInfo.mat</h3>
+    <h3>5. Load codeInfo.mat</h3>
     At this point, the <code>codeInfo.mat</code> file created during the slbuild step is loaded.
     This file contains additional information about the generated code such as sampletimes and thread priorities.
 
-    <h3>7. Generate Interface Code</h3>
+    <h3>6. Generate Interface Code</h3>
     Based on the information in the <code>codeInfo.mat</code> file, the Simulink interface class is created.
     Additional properties set via the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> class are also integrated into the Simulink interface class.
     A template of the Simulink interface class is located in the <code>core/</code> directory of the toolbox.
     Special entries marked by $ characters are replaced by corresponding values during the code generation of this Simulink interface class.
 
-    <h3>8. Add Custom Code</h3>
+    <h3>7. Add Custom Code</h3>
     Additional code, which is set via the <a href="packages_gt_generictarget.html#customCode">customCode</a> property is added to the temporary release folder.
     All files and folders are copied without checking their content.
 
-    <h3>9. Compress to MODELNAME.zip</h3>
+    <h3>8. Compress to MODELNAME.zip</h3>
     The temporary release folder now contains the whole application source code that must be compiled to create the Generic Target realtime application.
     From the template folder a zip archive (MODELNAME.zip) is generated at this point.
 
     <div class="note-orange">
     <h3 class="note-orange">SSH/SCP</h3>
-    MATLAB does not currently have an SSH or SCP client.
-    Although it is possible to transfer data to MATLAB via FTP, SSH is required to execute commands anyway.
-    For this reason, SSH and SCP commands are called with the <code>system()</code> function of MATLAB.
+    SSH and SCP commands are called with the <code>system()</code> function of MATLAB.
     An SSH and SCP client must be available on the host computer.
+    If only the source code should be transfered and compiled (orange area, steps 9 to 11), the <a href="packages_gt_generictarget.html#DeployGeneratedCode">DeployGeneratedCode</a> member function can be used.
     </div>
 
-    <h3>10. SCP: Upload MODELNAME.zip</h3>
+    <h3>9. SCP: Upload MODELNAME.zip</h3>
     The archive MODELNAME.zip is moved to the home/user directory on the target computer.
 
-    <h3>11. SSH: Unzip</h3>
+    <h3>10. SSH: Unzip</h3>
     The <code>code/</code> and <code>build/</code> <a href="application.html#directory">directory</a> of the Generic Target application are deleted first.
     The uploaded archive is then unpacked.
 
-    <h3>12. SSH: Build Application</h3>
+    <h3>11. SSH: Build Application</h3>
     The make tool is used to compile the software.
     It uses 8 jobs (8 source code files are compiled in parallel).
 

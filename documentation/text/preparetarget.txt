@@ -87,8 +87,7 @@
         <div class="note-orange">
         <h3 class="note-orange">Note</h3>
         C++20 is required. Make sure that the installed g++ compiler supports the C++20 language features. You can check that by running <code>g++ -v -std=c++20</code>.
-        If there's an error like <code>g++: error: unrecognized command line option '-std=c++20'</code>, then C++20 is not supported and you have to update the GNU compiler
-        to the latest version.
+        If there's an error like <code>g++: error: unrecognized command line option '-std=c++20'</code>, then C++20 is not supported and you have to update the GNU compiler to the latest version.
         </div>
 
         <h3>Install SSH Server</h3>
@@ -105,8 +104,7 @@
 <h2>Step 3: Generate SSH Key for Autologin</h2>
     <div class="note-orange">
     <h3 class="note-orange">Note</h3>
-    On Linux this step is <b>recommended</b>. However, on Windows this step is <b>required</b> to allow ssh/scp commands to be executed from the
-    MATLAB console.
+    On Linux this step is <b>recommended</b>. However, on Windows this step is <b>required</b> to allow ssh/scp commands to be executed from the MATLAB console.
     </div>
 
     When creating, starting, or stopping an application on the target computer using the <b>Generic Target Toolbox</b>, commands are executed via <b>SSH</b>.

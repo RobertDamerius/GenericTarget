@@ -1,7 +1,7 @@
 function GetTemplate()
     %GT.GetTemplate Create a pre-configured template Simulink model and save it to the current working directory.
 
-    modelName = 'GenericTargetTemplate';
+    modelName = 'template';
     fileName = [modelName, '.slx'];
     strSampletime = '0.01';
 
@@ -12,55 +12,50 @@ function GetTemplate()
 end
 
 function ConfigureModel(modelName, strSampletime)
+    SetParam(modelName, 'SolverType', 'Fixed-step');
     SetParam(modelName, 'SolverName', 'FixedStepAuto');
     SetParam(modelName, 'SolverMode', 'MultiTasking');
     SetParam(modelName, 'FixedStep', strSampletime);
     SetParam(modelName, 'SaveTime', 'off');
     SetParam(modelName, 'SaveOutput', 'off');
+    SetParam(modelName, 'ConcurrentTasks', 'on');
+    SetParam(modelName, 'SampleTimeConstraint', 'Unconstrained');
     SetParam(modelName, 'UnconnectedInputMsg', 'warning');
     SetParam(modelName, 'UnconnectedOutputMsg', 'warning');
     SetParam(modelName, 'UnconnectedLineMsg', 'warning');
-    % SetParam(modelName, 'RTWInlineParameters', 'on');
-    % SetParam(modelName, 'ProdHWWordLengths', '8,16,32,64,64');
-    SetParam(modelName, 'RTWGenerateCodeOnly', 'on');
-    SetParam(modelName, 'BuildConfiguration', 'Faster Runs');
+    SetParam(modelName, 'SystemTargetFile', 'ert.tlc');
+    SetParam(modelName, 'TargetLang', 'C++');
+    SetParam(modelName, 'TargetLangStandard', 'C++20 (ISO)');
+    SetParam(modelName, 'TargetHWDeviceType', 'Intel->x86-64 (Linux 64)');
+    SetParam(modelName, 'ProdHWDeviceType', 'Intel->x86-64 (Linux 64)');
     SetParam(modelName, 'CodeInterfacePackaging', 'C++ class');
-    SetParam(modelName, 'ConcurrentTasks', 'on');
-    SetParam(modelName, 'DSMLogging', 'off');
-    SetParam(modelName, 'DefaultParameterBehavior', 'Inlined');
-    SetParam(modelName, 'EnableRefExpFcnMdlSchedulingChecks', 'on');
-    SetParam(modelName, 'ForceParamTrailComments', 'on');
-    SetParam(modelName, 'GenCodeOnly', 'on');
-    % SetParam(modelName, 'GenerateDestructor', 'on');
-    % SetParam(modelName, 'IncludeModelTypesInModelClass', 'on');
-    SetParam(modelName, 'InstructionSetExtensions', {'None'});
-    % SetParam(modelName, 'InlineParams', 'on');
-    SetParam(modelName, 'MATLABSourceComments', 'on');
-    SetParam(modelName, 'MatFileLogging', 'off');
-    SetParam(modelName, 'MaxIdLength', '128');
-    % SetParam(modelName, 'MultiInstanceERTCode', 'on');
+    SetParam(modelName, 'SubcomponentCodeInterfacePackaging', 'C++ class');
+    SetParam(modelName, 'Toolchain', 'CMake');
     SetParam(modelName, 'ObjectivePriorities', {'Execution efficiency'});
+    SetParam(modelName, 'DataTypeReplacement', 'CDataTypesFixedWidth');
+    SetParam(modelName, 'DynamicArrayContainerType', 'coder::array');
+    SetParam(modelName, 'EnableRefExpFcnMdlSchedulingChecks', 'on');
+    SetParam(modelName, 'GenCodeOnly', 'on');
+    SetParam(modelName, 'TargetOS', 'NativeThreadsExample');
+    SetParam(modelName, 'GenerateSampleERTMain', 'off');
     SetParam(modelName, 'PackageGeneratedCodeAndArtifacts', 'on');
     SetParam(modelName, 'PackageName', 'PackNGo');
-    SetParam(modelName, 'ProdHWDeviceType', 'Intel->x86-64 (Linux 64)');
-    % SetParam(modelName, 'RTWVerbose', 'off');
+    SetParam(modelName, 'MaxIdLength', '128');
+    SetParam(modelName, 'MaxLineWidth', '256');
+    SetParam(modelName, 'IndentSize', '4');
+    SetParam(modelName, 'NewlineStyle', 'LF');
+    SetParam(modelName, 'MATLABDynamicMemAlloc', 'on');
+    SetParam(modelName, 'SupportContinuousTime', 'on');
+    SetParam(modelName, 'SupportVariableSizeSignals', 'on');
     SetParam(modelName, 'ReturnWorkspaceOutputs', 'off');
-    SetParam(modelName, 'SampleTimeConstraint', 'Unconstrained');
-    SetParam(modelName, 'ShowEliminatedStatement', 'on');
+    SetParam(modelName, 'DSMLogging', 'off');
+    SetParam(modelName, 'MATLABSourceComments', 'on');
+    SetParam(modelName, 'StateflowObjectComments', 'on');
     SetParam(modelName, 'SignalLogging', 'off');
     SetParam(modelName, 'SimCompilerOptimization', 'on');
     SetParam(modelName, 'SimGenImportedTypeDefs', 'on');
-    SetParam(modelName, 'SimParseCustomCode', 'off');
     SetParam(modelName, 'SimTargetLang', 'C++');
-    SetParam(modelName, 'SolverType', 'Fixed-step');
-    SetParam(modelName, 'StateflowObjectComments', 'on');
-    SetParam(modelName, 'TargetHWDeviceType', 'Intel->x86-64 (Linux 64)');
-    SetParam(modelName, 'TargetLang', 'C++');
-    SetParam(modelName, 'TargetLangStandard', 'C++20 (ISO)');
-    % SetParam(modelName, 'UseOperatorNewForModelRefRegistration', 'off');
     SetParam(modelName, 'UseSimReservedNames', 'on');
-    % SetParam(modelName, 'ZeroExternalMemoryAtStartup', 'off');
-    % SetParam(modelName, 'ZeroInternalMemoryAtStartup', 'off');
 end
 
 function model = NewModel(modelName, fileName)

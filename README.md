@@ -3,13 +3,13 @@
 # Generic Target
 
 The **GenericTarget** project is designed to facilitate the deployment of MATLAB/Simulink models to linux-based real-time systems.
-For applications that rely solely on network interfaces, it provides a library and tools to build hardware-agnostic real-time applications with MATLAB/Simulink.
+For applications that rely solely on network interfaces, it provides a library and tools to build hardware-agnostic real-time applications with MATLAB/Simulink (Embedded Coder add-on required).
 Any computer can serve as a target system as long as it runs a Linux operating system with the **PREEMPT_RT** patch.
+It's also possible to run the target application on a Linux desktop OS or Windows using WSL, e.g. for testing purpose.
 
 
 ## Features
 - **Hardware Agnostic**: The target applications runs entirely in the userspace, making it available to all platforms that are supported by Linux.
-- **Cross-Platform**: While focused on Linux, it's possible to deploy a target application to different platforms with minor adjustments.
 - **Multi-Threading**: Automatically schedules tasks with multiple sampling rates, running them in parallel with appropriate thread priorities.
 - **UDP Communication**: Offers direct socket access beyond Simulink UDP blocks, allowing retrieval of sender addresses, dynamic multicast joining, socket error handling, and more.
 - **Timing**: Provides real-time access to system time in multiple formats, including local time, UTC and UNIX timestamp.
@@ -28,7 +28,7 @@ You can always rebuild driver blocks by running:
 GT.BuildDrivers()
 ```
 
-For alternative installation methods using Simulink projects, refer to the documentation.
+For alternative installation methods using MATLAB projects, refer to the documentation.
 
 
 ## Getting Started
@@ -60,8 +60,8 @@ The structure of this repository is as follows.
 | documentation      | contains the HTML-based documentation                                |
 | library            | contains the MATLAB/Simulink library "GenericTarget" (**>= R2025b**) |
 | packages           | contains the MATLAB package "GT"                                     |
-| resources          | contains project definition files for the MATLAB/Simulink project    |
-| GenericTarget.prj  | Simulink project file                                                |
+| resources          | contains project definition files for the MATLAB project             |
+| GenericTarget.prj  | MATLAB project file                                                  |
 | install.m          | MATLAB script to add the Generic Target Toolbox to the MATLAB path   |
 | LICENSE            | license information                                                  |
 | readme.html        | forwards to the documentation                                        |

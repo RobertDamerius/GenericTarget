@@ -1,39 +1,67 @@
+/* Copyright 2011-2024 The MathWorks, Inc. */
+/* File modified in 2026 by Robert Damerius for better integration into Generic Target. */
 #ifndef RTW_LINUX_H
 #define RTW_LINUX_H
 
 
-#include <cstdlib>
-#include <mutex>
+#include <pthread.h>
+#include <stdlib.h>
 #include <semaphore.h>
 
 
-// Mutex (use std::mutex)
-#define rtw_pthread_mutex_init( mutexDW ) \
-    *mutexDW = new std::mutex();
+#ifndef __USE_UNIX98
+#define __USE_UNIX98
+#endif
 
-#define rtw_pthread_mutex_lock( mutexDW ) \
-    ((std::mutex*)mutexDW)->lock();
 
-#define rtw_pthread_mutex_unlock( mutexDW ) \
-    ((std::mutex*)mutexDW)->unlock();
+#if defined(VXWORKS) || defined(__QNX__)
+#define rtw_pthread_mutex_init(mutexDW) \
+    { \
+        pthread_mutexattr_t attr; \
+        pthread_mutexattr_init(&attr); \
+        pthread_mutexattr_setprotocol(&attr, 1); \
+        pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE); \
+        *mutexDW = malloc(sizeof(pthread_mutex_t)); \
+        pthread_mutex_init((pthread_mutex_t*)(*mutexDW), &attr); \
+        pthread_mutexattr_destroy(&attr); \
+    }
+#else
+#define rtw_pthread_mutex_init(mutexDW) \
+    { \
+        pthread_mutexattr_t attr; \
+        pthread_mutexattr_init(&attr); \
+        pthread_mutexattr_setprotocol(&attr, 1); \
+        pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP); \
+        *mutexDW = malloc(sizeof(pthread_mutex_t)); \
+        pthread_mutex_init((pthread_mutex_t*)(*mutexDW), &attr); \
+        pthread_mutexattr_destroy(&attr); \
+    }
+#endif
 
-#define rtw_pthread_mutex_destroy( mutexDW ) \
-    delete ((std::mutex*)mutexDW);
+#define rtw_pthread_mutex_lock(mutexDW) \
+    pthread_mutex_lock((pthread_mutex_t *)(mutexDW));
 
-// Semaphore (use POSIX semaphore)
-#define rtw_pthread_sem_create( semaphoreDW, initVal ) \
+#define rtw_pthread_mutex_unlock(mutexDW) \
+    pthread_mutex_unlock((pthread_mutex_t *)(mutexDW));
+
+#define rtw_pthread_mutex_destroy(mutexDW) \
+    pthread_mutex_destroy((pthread_mutex_t *)(mutexDW)); \
+    free(mutexDW);
+
+#define rtw_pthread_sem_create(semaphoreDW, initVal) \
     *semaphoreDW = malloc(sizeof(sem_t)); \
-    sem_init(*(semaphoreDW), 0, (initVal));
+    sem_init((sem_t *)(*semaphoreDW), 0, (initVal));
 
-#define rtw_pthread_sem_wait( semaphoreDW ) \
-    sem_wait(semaphoreDW);
+#define rtw_pthread_sem_wait(semaphoreDW) \
+    sem_wait((sem_t *)(semaphoreDW));
 
-#define rtw_pthread_sem_post( semaphoreDW ) \
-    sem_post(semaphoreDW);
+#define rtw_pthread_sem_post(semaphoreDW) \
+    sem_post((sem_t *)(semaphoreDW));
 
-#define rtw_pthread_sem_destroy( semaphoreDW ) \
-    sem_destroy(semaphoreDW); \
+#define rtw_pthread_sem_destroy(semaphoreDW) \
+    sem_destroy((sem_t *)semaphoreDW); \
     free(semaphoreDW);
+
 
 #endif /* RTW_LINUX_H */
 

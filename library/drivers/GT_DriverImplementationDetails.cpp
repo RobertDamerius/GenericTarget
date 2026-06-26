@@ -30,7 +30,7 @@ using namespace gt::driver;
 
 namespace {
 
-inline constexpr std::string_view gt_driver_version{"1.2.0"};
+inline constexpr std::string_view gt_driver_version{"2.0.0"};
 inline constexpr std::string_view gt_driver_compilerVersion{__VERSION__};
 inline constexpr std::string_view gt_driver_builtTimestamp{__DATE__ " " __TIME__};
 const std::string gt_driver_modelName("");
