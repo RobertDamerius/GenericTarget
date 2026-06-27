@@ -16,7 +16,7 @@ void GT_DriverUTCTimestampStep(double* timestamp){
     auto duration = timePoint.time_since_epoch();
     auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
     duration -= seconds;
-    s += 1e-9 * static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count());
+    s += std::chrono::duration<double>(duration).count();
     *timestamp = (3600.0 * h + 60.0 * m + s);
 }
 

@@ -245,7 +245,7 @@ bool GenericTarget::InitializeAppSocket(void){
 }
 
 bool GenericTarget::InitializeModel(void){
-    GENERIC_TARGET_PRINT("Initializing simulink model\n");
+    GENERIC_TARGET_PRINT("Initializing model\n");
     SimulinkInterface::Initialize();
     return true;
 }

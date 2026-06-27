@@ -115,7 +115,7 @@ void PeriodicTask::Thread(void){
         auto t1 = std::chrono::steady_clock::now();
         SimulinkInterface::Step(taskID);
         auto t2 = std::chrono::steady_clock::now();
-        taskExecutionTime = 1e-9 * double(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count());
+        taskExecutionTime = std::chrono::duration<double>(t2 - t1).count();
         jobRunning = false;
     }
 }
