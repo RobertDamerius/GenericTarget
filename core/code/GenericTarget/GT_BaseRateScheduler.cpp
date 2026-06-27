@@ -18,11 +18,6 @@ void BaseRateScheduler::Stop(void){
     StopWorkerThreads();
 }
 
-double BaseRateScheduler::GetModelExecutionTime(void){
-    auto timeNow = std::chrono::steady_clock::now();
-    return std::chrono::duration<double>(timeNow - timeOfStart).count();
-}
-
 void BaseRateScheduler::MasterThread(void){
     // some helpful variables
     bool firstTick = true;

@@ -21,7 +21,7 @@ class Event {
          * @brief Notify one thread waiting for this event.
          * @param[in] flag User-specific value that should be forwarded to the waiting thread. Note that -1 is used as default value and therefore to indicate timeout when calling @ref WaitFor.
          */
-        inline void NotifyOne(int flag){
+        void NotifyOne(int flag){
             std::unique_lock<std::mutex> lock(mtx);
             notified = true;
             _flag = flag;
@@ -33,7 +33,7 @@ class Event {
          * @brief Wait for a notification event. A thread calling this function waits until @ref NotifyOne is called.
          * @return The user-specific value that has been set during the @ref NotifyOne call.
          */
-        inline int Wait(void){
+        int Wait(void){
             std::unique_lock<std::mutex> lock(mtx);
             cv.wait(lock, [this](){ return this->notified; });
             notified = false;
@@ -47,7 +47,7 @@ class Event {
          * @param[in] timeoutMs Timeout in milliseconds.
          * @return The user-specific value that has been set during the @ref NotifyOne call or -1 in case of timeout.
          */
-        inline int WaitFor(uint32_t timeoutMs){
+        int WaitFor(uint32_t timeoutMs){
             std::unique_lock<std::mutex> lock(mtx);
             cv.wait_for(lock, std::chrono::milliseconds(timeoutMs), [this](){ return this->notified; });
             notified = false;
@@ -59,7 +59,7 @@ class Event {
         /**
          * @brief Clear a notified event.
          */
-        inline void Clear(void){
+        void Clear(void){
             std::unique_lock<std::mutex> lock(mtx);
             notified = false;
             _flag = -1;

@@ -34,19 +34,19 @@ class BaseRateScheduler {
          * @brief Get the model execution time (steady clock), that is, the elapsed time to the start of the master clock.
          * @return Model execution time in seconds.
          */
-        double GetModelExecutionTime(void);
+        double GetModelExecutionTime(void){ return std::chrono::duration<double>(std::chrono::steady_clock::now() - timeOfStart).count(); }
 
         /**
          * @brief Get the number of CPU overloads that have been occurred since the start of the base-rate scheduler.
          * @return The number of CPU overloads.
          */
-        inline uint64_t GetNumCPUOverloads(void){ return masterClock.GetNumCPUOverloads(); }
+        uint64_t GetNumCPUOverloads(void){ return masterClock.GetNumCPUOverloads(); }
 
         /**
          * @brief Get the number of lost ticks that have been occurred since the start of the base-rate scheduler.
          * @return The number of lost ticks.
          */
-        inline uint64_t GetNumLostTicks(void){ return masterClock.GetNumLostTicks(); }
+        uint64_t GetNumLostTicks(void){ return masterClock.GetNumLostTicks(); }
 
         /**
          * @brief Get the latest task execution time for a task.
@@ -54,7 +54,7 @@ class BaseRateScheduler {
          * @return The latest task execution time in seconds or a negative value if the taskID is invalid.
          * @details The task execution time is the computation time required by the step function of the model.
          */
-        inline double GetTaskExecutionTime(const uint32_t taskID){
+        double GetTaskExecutionTime(const uint32_t taskID){
             if(taskID >= (uint32_t)tasks.size())
                 return -1.0;
             return tasks[taskID]->GetTaskExecutionTime();
@@ -65,7 +65,7 @@ class BaseRateScheduler {
          * @param[in] taskID The ID of the task from which to obtain the latest number of task overloads.
          * @return The latest task overload counter or zero if the taskID is invalid.
          */
-        inline uint64_t GetNumTaskOverloads(const uint32_t taskID){
+        uint64_t GetNumTaskOverloads(const uint32_t taskID){
             if(taskID >= (uint32_t)tasks.size())
                 return 0;
             return tasks[taskID]->GetNumTaskOverloads();

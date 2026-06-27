@@ -6,7 +6,6 @@ PeriodicTimer::PeriodicTimer(){
     fdTimer = -1;
     numCPUOverloads = 0;
     numLostTicks = 0;
-    timeOfStart = std::chrono::steady_clock::now();
 }
 
 bool PeriodicTimer::Start(double sampletime){
@@ -32,7 +31,6 @@ bool PeriodicTimer::Start(double sampletime){
     }
     numCPUOverloads = 0;
     numLostTicks = 0;
-    timeOfStart = std::chrono::steady_clock::now();
     return true;
 }
 
