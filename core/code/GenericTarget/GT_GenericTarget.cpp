@@ -65,13 +65,13 @@ bool GenericTarget::Initialize(void){
 void GenericTarget::Terminate(void){
     GENERIC_TARGET_PRINT("Terminating application ...\n");
     scheduler.Stop();
-    GENERIC_TARGET_PRINT("Terminating the simulink model\n");
+    GENERIC_TARGET_PRINT("Terminating model\n");
     SimulinkInterface::Terminate();
     appSocket.Close();
 }
 
 void GenericTarget::MainLoop(void){
-    GENERIC_TARGET_PRINT("Starting simulink model\n");
+    GENERIC_TARGET_PRINT("Starting model\n");
     if(scheduler.Start()){
         // wait until application socket is closed or a termination message is received
         std::array<uint8_t,4> sourceIP;

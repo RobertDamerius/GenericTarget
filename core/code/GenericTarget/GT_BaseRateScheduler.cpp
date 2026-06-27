@@ -19,14 +19,7 @@ void BaseRateScheduler::Stop(void){
 }
 
 void BaseRateScheduler::MasterThread(void){
-    // some helpful variables
-    bool firstTick = true;
-    uint64_t numCPUOverloads = 0;
-    uint64_t numLostTicks = 0;
-    uint64_t previousCPUOverloads = 0;
-
     // start the master clock
-    GENERIC_TARGET_PRINT("Master thread started (baseSampleTime=%lf)\n", SimulinkInterface::baseSampleTime);
     if(!masterClock.Start(SimulinkInterface::baseSampleTime)){
         masterClock.Stop();
         GenericTarget::ShouldTerminate();
@@ -34,6 +27,7 @@ void BaseRateScheduler::MasterThread(void){
     }
 
     // thread loop
+    bool firstTick = true;
     while(!terminate){
         // wait for a tick event from the master clock and break if clock was destroyed
         if(!masterClock.WaitForTick()) break;
@@ -41,20 +35,12 @@ void BaseRateScheduler::MasterThread(void){
             timeOfStart = std::chrono::steady_clock::now();
             firstTick = false;
         }
-        numCPUOverloads = masterClock.GetNumCPUOverloads();
-        numLostTicks = masterClock.GetNumLostTicks();
 
-        // check for CPU overloads
-        if(previousCPUOverloads != numCPUOverloads){
-            previousCPUOverloads = numCPUOverloads;
-            GENERIC_TARGET_PRINT_ERROR("CPU overload (overloads=%lu, lostTicks=%lu)\n", numCPUOverloads, numLostTicks);
-            if(SimulinkInterface::terminateAtCPUOverload){
-                GenericTarget::ShouldTerminate();
-                break;
-            }
+        // check for CPU overloads and termination
+        if(SimulinkInterface::terminateAtCPUOverload && masterClock.GetNumCPUOverloads()){
+            GenericTarget::ShouldTerminate();
+            break;
         }
-
-        // check termination flag
         if(terminate){
             break;
         }
@@ -67,7 +53,6 @@ void BaseRateScheduler::MasterThread(void){
 
     // stop the master clock
     masterClock.Stop();
-    GENERIC_TARGET_PRINT("Master thread has been stopped (%lu CPU overloads, %lu lost ticks)\n", numCPUOverloads, numLostTicks);
 }
 
 bool BaseRateScheduler::StartWorkerThreads(void){
@@ -82,7 +67,10 @@ bool BaseRateScheduler::StartWorkerThreads(void){
 void BaseRateScheduler::StopWorkerThreads(void){
     for(size_t n = 0; n < tasks.size(); n++){
         tasks[n]->Stop();
-        GENERIC_TARGET_PRINT("Task \"%s\" (priority=%d, samplerate=%lf) has been stopped: %lu task overloads\n", SimulinkInterface::taskNames[tasks[n]->taskID], SimulinkInterface::priorities[tasks[n]->taskID], SimulinkInterface::baseSampleTime*double(SimulinkInterface::sampleTicks[tasks[n]->taskID]), tasks[n]->GetNumTaskOverloads());
+        uint64_t taskOverloads = tasks[n]->GetNumTaskOverloads();
+        if(taskOverloads){
+            GENERIC_TARGET_PRINT_ERROR("Task \"%s\" (priority=%d, samplerate=%lf) stopped with overloads (%lu task overloads)\n", SimulinkInterface::taskNames[tasks[n]->taskID], SimulinkInterface::priorities[tasks[n]->taskID], SimulinkInterface::baseSampleTime*double(SimulinkInterface::sampleTicks[tasks[n]->taskID]), taskOverloads);
+        }
         delete tasks[n];
     }
     tasks.clear();
@@ -111,5 +99,10 @@ void BaseRateScheduler::StopMasterThread(void){
         masterThread.join();
     }
     terminate = false;
+    uint64_t numCPUOverloads = masterClock.GetNumCPUOverloads();
+    uint64_t numLostTicks = masterClock.GetNumLostTicks();
+    if(numCPUOverloads || numLostTicks){
+        GENERIC_TARGET_PRINT_ERROR("Master thread stopped with overloads (%lu CPU overloads, %lu lost ticks)\n", numCPUOverloads, numLostTicks);
+    }
 }
 

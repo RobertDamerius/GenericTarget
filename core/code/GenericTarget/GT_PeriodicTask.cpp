@@ -80,7 +80,6 @@ void PeriodicTask::Notify(void){
             // if a job is still running: task overload, do not notify
             if(jobRunning){
                 uint64_t n = ++numTaskOverloads;
-                GENERIC_TARGET_PRINT_ERROR("Task overload (task=\"%s\", priority=%d, sampletime=%lf, overloads=%lu)\n", SimulinkInterface::taskNames[taskID], SimulinkInterface::priorities[taskID], SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]), n);
                 if(SimulinkInterface::terminateAtTaskOverload){
                     GenericTarget::ShouldTerminate();
                 }
