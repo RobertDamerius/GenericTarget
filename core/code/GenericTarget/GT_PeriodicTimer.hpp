@@ -32,17 +32,10 @@ class PeriodicTimer {
 
         /**
          * @brief Wait for a tick event of the timer.
-         * @param[in] resetTimeOfStart True if internal time-of-start value should be reset, false otherwise (default value is: false).
          * @return True if timer event was received successfully, false otherwise.
          * @details If timer is not created or was destroyed, false will be returned immediately.
          */
-        bool WaitForTick(bool resetTimeOfStart = false);
-
-        /**
-         * @brief Get the elapsed time to the start (@ref Create) of the timer.
-         * @return Elapsed time in seconds.
-         */
-        double GetTimeToStart(void);
+        bool WaitForTick(void);
 
         /**
          * @brief Get the number of CPU overloads that have been occurred since the creation of this timer.

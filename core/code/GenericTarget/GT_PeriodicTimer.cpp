@@ -43,7 +43,7 @@ void PeriodicTimer::Stop(void){
     }
 }
 
-bool PeriodicTimer::WaitForTick(bool resetTimeOfStart){
+bool PeriodicTimer::WaitForTick(void){
     int s = -1;
     uint64_t exp = 0;
     for(;;){
@@ -55,16 +55,8 @@ bool PeriodicTimer::WaitForTick(bool resetTimeOfStart){
             ++numCPUOverloads;
             numLostTicks += (exp - 1);
         }
-        if(resetTimeOfStart){
-            timeOfStart = std::chrono::steady_clock::now();
-        }
         break;
     }
     return (s != -1);
-}
-
-double PeriodicTimer::GetTimeToStart(void){
-    auto timeNow = std::chrono::steady_clock::now();
-    return 1e-9 * double(std::chrono::duration_cast<std::chrono::nanoseconds>(timeNow - timeOfStart).count());
 }
 

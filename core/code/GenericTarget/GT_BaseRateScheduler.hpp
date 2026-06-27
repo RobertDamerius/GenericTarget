@@ -34,7 +34,7 @@ class BaseRateScheduler {
          * @brief Get the model execution time (steady clock), that is, the elapsed time to the start of the master clock.
          * @return Model execution time in seconds.
          */
-        inline double GetModelExecutionTime(void){ return masterClock.GetTimeToStart(); }
+        double GetModelExecutionTime(void);
 
         /**
          * @brief Get the number of CPU overloads that have been occurred since the start of the base-rate scheduler.
@@ -72,10 +72,11 @@ class BaseRateScheduler {
         }
 
     private:
-        std::thread masterThread;           // Thread object for the master thread.
-        std::atomic<bool> terminate;        // Termination flag: true if master thread is to be terminated, false otherwise.
-        std::vector<PeriodicTask*> tasks;   // A list of periodic worker tasks.
-        PeriodicTimer masterClock;          // A periodic timer that represents the master clock.
+        std::thread masterThread;                                         // Thread object for the master thread.
+        std::atomic<bool> terminate;                                      // Termination flag: true if master thread is to be terminated, false otherwise.
+        std::vector<PeriodicTask*> tasks;                                 // A list of periodic worker tasks.
+        PeriodicTimer masterClock;                                        // A periodic timer that represents the master clock.
+        std::chrono::time_point<std::chrono::steady_clock> timeOfStart;   // Timepoint of the first master threads tick.
 
         /**
          * @brief Internal master thread function.

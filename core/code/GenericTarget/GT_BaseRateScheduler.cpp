@@ -6,6 +6,7 @@ using namespace gt;
 
 BaseRateScheduler::BaseRateScheduler(){
     terminate = false;
+    timeOfStart = std::chrono::steady_clock::now();
 }
 
 bool BaseRateScheduler::Start(void){
@@ -15,6 +16,11 @@ bool BaseRateScheduler::Start(void){
 void BaseRateScheduler::Stop(void){
     StopMasterThread();
     StopWorkerThreads();
+}
+
+double BaseRateScheduler::GetModelExecutionTime(void){
+    auto timeNow = std::chrono::steady_clock::now();
+    return std::chrono::duration<double>(timeNow - timeOfStart).count();
 }
 
 void BaseRateScheduler::MasterThread(void){
@@ -35,8 +41,11 @@ void BaseRateScheduler::MasterThread(void){
     // thread loop
     while(!terminate){
         // wait for a tick event from the master clock and break if clock was destroyed
-        if(!masterClock.WaitForTick(firstTick)) break;
-        firstTick = false;
+        if(!masterClock.WaitForTick()) break;
+        if(firstTick){
+            timeOfStart = std::chrono::steady_clock::now();
+            firstTick = false;
+        }
         numCPUOverloads = masterClock.GetNumCPUOverloads();
         numLostTicks = masterClock.GetNumLostTicks();
 
