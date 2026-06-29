@@ -52,6 +52,9 @@ bool GenericTarget::Initialize(void){
     if(!InitializeModel()){
         goto init_fail;
     }
+    if(!std::chrono::steady_clock::is_steady){
+        GENERIC_TARGET_PRINT_WARNING("Clock is not steady!\n");
+    }
     GENERIC_TARGET_PRINT("Initialization successfully completed\n");
     return true;
 

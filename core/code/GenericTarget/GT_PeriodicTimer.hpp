@@ -19,6 +19,15 @@ class PeriodicTimer {
         PeriodicTimer();
 
         /**
+         * @brief Destroy the periodic timer object.
+         */
+        ~PeriodicTimer(){ Stop(); }
+
+        /* Do not allow copying */
+        PeriodicTimer(const PeriodicTimer&) = delete;
+        PeriodicTimer& operator=(const PeriodicTimer&) = delete;
+
+        /**
          * @brief Start the periodic timer.
          * @param[in] sampletime The sampletime in seconds.
          * @return True if success, false otherwise.
@@ -52,7 +61,7 @@ class PeriodicTimer {
     private:
         std::atomic<uint64_t> numCPUOverloads;   // Number of CPU overloads that have been occurred since @ref Create. If the timer is expired by more than one tick, this value is incremented by one.
         std::atomic<uint64_t> numLostTicks;      // Number of lost ticks from the timer since @ref Create. If the timer is expired by more than one tick, this value is incremented by the number of additional expired ticks (lost ticks).
-        int fdTimer;                             // File descriptor of internal timer object.
+        std::atomic<int> fdTimer;                // File descriptor of internal timer object.
 };
 
 
