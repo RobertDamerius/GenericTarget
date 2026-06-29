@@ -67,14 +67,14 @@ bool PeriodicTimer::Start(double sampletime){
 
     numCPUOverloads = 0;
     numLostTicks = 0;
-    isRunning.store(true, std::memory_order_relaxed);
-    timerFd.store(localFd, std::memory_order_release);
+    isRunning.store(true);
+    timerFd.store(localFd);
     return true;
 }
 
 void PeriodicTimer::Stop(void){
     // check if already stopped
-    if(!isRunning.exchange(false, std::memory_order_relaxed)) return;
+    if(!isRunning.exchange(false)) return;
 
     // wake up WaitForTick immediately
     uint64_t wakeUpSignal = 1;
@@ -82,7 +82,7 @@ void PeriodicTimer::Stop(void){
     (void)w;
 
     // safely extract and remove the timer FD from epoll
-    int fd = timerFd.exchange(-1, std::memory_order_acquire);
+    int fd = timerFd.exchange(-1);
     if(fd >= 0){
         epoll_ctl(epollFd, EPOLL_CTL_DEL, fd, nullptr);
         close(fd);
@@ -90,13 +90,13 @@ void PeriodicTimer::Stop(void){
 }
 
 bool PeriodicTimer::WaitForTick(void){
-    if(!isRunning.load(std::memory_order_relaxed)) return false;
+    if(!isRunning) return false;
 
-    int localTimerFd = timerFd.load(std::memory_order_acquire);
+    int localTimerFd = timerFd.load();
     if(localTimerFd < 0) return false;
 
     struct epoll_event events[2];
-    while(isRunning.load(std::memory_order_relaxed)){
+    while(isRunning){
         // block here until either the timer ticks OR Stop() writes to cancelFd
         int nfds = epoll_wait(epollFd, events, 2, -1);
 

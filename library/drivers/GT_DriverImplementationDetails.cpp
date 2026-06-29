@@ -746,7 +746,8 @@ bool SocketBase::IsOpen(void){
 }
 
 void SocketBase::Close(void){
-    if(IsOpen()){
+    int fd = _socket.exchange(-1);
+    if(fd >= 0){
         #ifdef _WIN32
         (void) shutdown(_socket, SD_BOTH);
         (void) closesocket(_socket);
@@ -755,7 +756,6 @@ void SocketBase::Close(void){
         (void) close(_socket);
         #endif
     }
-    _socket = -1;
 }
 
 int32_t SocketBase::SetOption(int level, int optname, const void *optval, int optlen){
@@ -768,9 +768,9 @@ int32_t SocketBase::SetOption(int level, int optname, const void *optval, int op
 
 int32_t SocketBase::GetOption(int level, int optname, void *optval, int *optlen){
     #ifdef _WIN32
-    return static_cast<int32_t>(getsockopt(this->_socket, level, optname, reinterpret_cast<char*>(optval), optlen));
+    return static_cast<int32_t>(getsockopt(_socket, level, optname, reinterpret_cast<char*>(optval), optlen));
     #else
-    return static_cast<int32_t>(getsockopt(this->_socket, level, optname, optval, reinterpret_cast<socklen_t*>(optlen)));
+    return static_cast<int32_t>(getsockopt(_socket, level, optname, optval, reinterpret_cast<socklen_t*>(optlen)));
     #endif
 }
 
@@ -834,8 +834,9 @@ bool SocketBase::EnableNonBlockingMode(void){
     unsigned long nonBlockingMode = 1;
     return ioctlsocket(_socket, FIONBIO, &nonBlockingMode) == 0;
     #else
-    int flags = fcntl(_socket, F_GETFL, 0);
-    return fcntl(_socket, F_SETFL, flags | O_NONBLOCK) != -1;
+    int fd = _socket.load();
+    int flags = fcntl(fd, F_GETFL, 0);
+    return fcntl(fd, F_SETFL, flags | O_NONBLOCK) != -1;
     #endif
 }
 
@@ -902,8 +903,8 @@ int32_t SocketBinding::Bind(uint16_t port, std::array<uint8_t,4> ipInterface){
     addr_this.sin_addr.s_addr = ip ? inet_addr(ip) : htonl(INADDR_ANY);
     addr_this.sin_family = AF_INET;
     addr_this.sin_port = htons(port);
-    int s = static_cast<int>(_socket);
-    return static_cast<int32_t>(bind(s, (struct sockaddr *)&addr_this, sizeof(struct sockaddr_in)));
+    int fd = _socket.load();
+    return static_cast<int32_t>(bind(fd, (struct sockaddr *)&addr_this, sizeof(struct sockaddr_in)));
 }
 
 int32_t SocketBinding::BindToDevice(std::string deviceName){
@@ -929,39 +930,64 @@ uint16_t SocketBinding::GetPort(void){
 }
 
 bool TCPSocketBase::Open(void){
-    _socket = socket(AF_INET, SOCK_STREAM, 0);
-    if(_socket < 0){
-        _socket = -1;
+    int new_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if(new_fd < 0){
         return false;
+    }
+    int old_fd = _socket.exchange(new_fd);
+    if(old_fd >= 0){
+        #ifdef _WIN32
+        (void) shutdown(old_fd, SD_BOTH);
+        (void) closesocket(old_fd);
+        #else
+        (void) shutdown(old_fd, SHUT_RDWR);
+        (void) close(old_fd);
+        #endif
     }
     return true;
 }
 
 int32_t TCPSocketBase::Send(uint8_t *bytes, int32_t size){
-    return static_cast<int32_t>(send(_socket, reinterpret_cast<const char*>(bytes), size, 0));
+    int fd = _socket.load();
+    if(fd < 0){
+        return -1;
+    }
+    return static_cast<int32_t>(send(fd, reinterpret_cast<const char*>(bytes), size, 0));
 }
 
 int32_t TCPSocketBase::Receive(uint8_t *bytes, int32_t maxSize){
-    return static_cast<int32_t>(recv(_socket, reinterpret_cast<char*>(bytes), maxSize, 0));
+    int fd = _socket.load();
+    if(fd < 0){
+        return -1;
+    }
+    return static_cast<int32_t>(recv(fd, reinterpret_cast<char*>(bytes), maxSize, 0));
 }
 
 TCPClientConnection::TCPClientConnection(int clientSocket, Address clientAddress){
-    _socket = clientSocket;
+    _socket.store(clientSocket);
     ip = clientAddress.ip;
     port = clientAddress.port;
 }
 
 int32_t TCPClientSocket::Connect(Address serverAddress){
+    int fd = _socket.load();
+    if(fd < 0){
+        return -1;
+    }
     sockaddr_in addr;
     addr.sin_family = AF_INET;
     memset((void*) &addr.sin_zero[0], 0, 8);
     GT_DRIVER_ADDRESS_PORT(addr) = htons(serverAddress.port);
     GT_DRIVER_ADDRESS_IP(addr) = htonl((0xFF000000 & (serverAddress.ip[0] << 24)) | (0x00FF0000 & (serverAddress.ip[1] << 16)) | (0x0000FF00 & (serverAddress.ip[2] << 8)) | (0x000000FF & serverAddress.ip[3]));
-    return static_cast<int32_t>(connect(_socket, reinterpret_cast<const struct sockaddr*>(&addr), sizeof(addr)));
+    return static_cast<int32_t>(connect(fd, reinterpret_cast<const struct sockaddr*>(&addr), sizeof(addr)));
 }
 
 int32_t TCPServerSocket::Listen(int backlog){
-    return static_cast<int32_t>(listen(_socket, backlog));
+    int fd = _socket.load();
+    if(fd < 0){
+        return -1;
+    }
+    return static_cast<int32_t>(listen(fd, backlog));
 }
 
 TCPClientConnection TCPServerSocket::Accept(void){
@@ -978,9 +1004,8 @@ TCPClientConnection TCPServerSocket::Accept(void){
 }
 
 bool UDPSocket::Open(void){
-    _socket = socket(AF_INET, SOCK_DGRAM, 0);
-    if(_socket < 0){
-        _socket = -1;
+    int new_fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if(new_fd < 0){
         return false;
     }
 
@@ -988,35 +1013,61 @@ bool UDPSocket::Open(void){
     #ifdef _WIN32
     BOOL bNewBehavior = FALSE;
     DWORD dwBytesReturned = 0;
-    WSAIoctl(_socket, _WSAIOW(IOC_VENDOR, 12), &bNewBehavior, sizeof(bNewBehavior), NULL, 0, &dwBytesReturned, NULL, NULL);
+    WSAIoctl(new_fd, _WSAIOW(IOC_VENDOR, 12), &bNewBehavior, sizeof(bNewBehavior), NULL, 0, &dwBytesReturned, NULL, NULL);
     #endif
+
+    int old_fd = _socket.exchange(new_fd);
+    if(old_fd >= 0){
+        #ifdef _WIN32
+        (void) shutdown(old_fd, SD_BOTH);
+        (void) closesocket(old_fd);
+        #else
+        (void) shutdown(old_fd, SHUT_RDWR);
+        (void) close(old_fd);
+        #endif
+    }
+
     return true;
 }
 
 int32_t UDPSocket::SendTo(Address destination, uint8_t *bytes, int32_t size){
+    int fd = _socket.load();
+    if(fd < 0){
+        return -1;
+    }
     sockaddr_in addr;
     addr.sin_family = AF_INET;
     memset((void*) &addr.sin_zero[0], 0, 8);
     GT_DRIVER_ADDRESS_PORT(addr) = htons(destination.port);
-    GT_DRIVER_ADDRESS_IP(addr) = htonl((0xFF000000 & (destination.ip[0] << 24)) | (0x00FF0000 & (destination.ip[1] << 16)) | (0x0000FF00 & (destination.ip[2] << 8)) | (0x000000FF & destination.ip[3]));
-    return static_cast<int32_t>(sendto(_socket, reinterpret_cast<const char*>(bytes), size, 0, reinterpret_cast<const struct sockaddr*>(&addr), sizeof(addr)));
+    uint32_t ip = (static_cast<uint32_t>(destination.ip[0]) << 24) |
+                  (static_cast<uint32_t>(destination.ip[1]) << 16) |
+                  (static_cast<uint32_t>(destination.ip[2]) << 8)  |
+                  (static_cast<uint32_t>(destination.ip[3]));
+    GT_DRIVER_ADDRESS_IP(addr) = htonl(ip);GT_DRIVER_ADDRESS_IP(addr) = htonl((0xFF000000 & (destination.ip[0] << 24)) | (0x00FF0000 & (destination.ip[1] << 16)) | (0x0000FF00 & (destination.ip[2] << 8)) | (0x000000FF & destination.ip[3]));
+    return static_cast<int32_t>(sendto(fd, reinterpret_cast<const char*>(bytes), size, 0, reinterpret_cast<const struct sockaddr*>(&addr), sizeof(addr)));
 }
 
 int32_t UDPSocket::ReceiveFrom(Address& source, uint8_t *bytes, int32_t maxSize){
+    int fd = _socket.load();
+    if(fd < 0){
+        return -1;
+    }
     sockaddr_in addr{};
     #ifndef _WIN32
     socklen_t address_size = sizeof(addr);
     #else
     int address_size = sizeof(addr);
     #endif
-    int rx = recvfrom(_socket, reinterpret_cast<char*>(bytes), maxSize, 0, reinterpret_cast<struct sockaddr*>(&addr), &address_size);
-    uint32_t u32 = ntohl(GT_DRIVER_ADDRESS_IP(addr));
-    source.ip[0] = (uint8_t)(0x000000FF & (u32 >> 24));
-    source.ip[1] = (uint8_t)(0x000000FF & (u32 >> 16));
-    source.ip[2] = (uint8_t)(0x000000FF & (u32 >> 8));
-    source.ip[3] = (uint8_t)(0x000000FF & u32);
-    source.port = (uint16_t)ntohs(GT_DRIVER_ADDRESS_PORT(addr));
-    return static_cast<int32_t>(rx);
+    int32_t rx = static_cast<int32_t>(recvfrom(fd, reinterpret_cast<char*>(bytes), maxSize, 0, reinterpret_cast<struct sockaddr*>(&addr), &address_size));
+    if(rx >= 0){
+        uint32_t u32 = ntohl(GT_DRIVER_ADDRESS_IP(addr));
+        source.ip[0] = static_cast<uint8_t>(0x000000FF & (u32 >> 24));
+        source.ip[1] = static_cast<uint8_t>(0x000000FF & (u32 >> 16));
+        source.ip[2] = static_cast<uint8_t>(0x000000FF & (u32 >> 8));
+        source.ip[3] = static_cast<uint8_t>(0x000000FF & u32);
+        source.port = static_cast<uint16_t>(ntohs(GT_DRIVER_ADDRESS_PORT(addr)));
+    }
+    return rx;
 }
 
 int32_t UDPSocket::SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::string interfaceName, std::array<uint8_t,4> multicastInterfaceAddress){
