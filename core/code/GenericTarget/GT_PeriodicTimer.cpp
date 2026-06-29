@@ -3,9 +3,24 @@ using namespace gt;
 
 
 PeriodicTimer::PeriodicTimer(){
-    fdTimer = -1;
+    epollFd = epoll_create1(0);
+    cancelFd = eventfd(0, EFD_NONBLOCK);
+    timerFd = -1;
     numCPUOverloads = 0;
     numLostTicks = 0;
+    isRunning = false;
+
+    // register the cancellation eventfd with epoll
+    struct epoll_event ev{};
+    ev.events = EPOLLIN;
+    ev.data.fd = cancelFd;
+    epoll_ctl(epollFd, EPOLL_CTL_ADD, cancelFd, &ev);
+}
+
+PeriodicTimer::~PeriodicTimer(){
+    Stop();
+    if (cancelFd >= 0) close(cancelFd);
+    if (epollFd >= 0) close(epollFd);
 }
 
 bool PeriodicTimer::Start(double sampletime){
@@ -40,42 +55,76 @@ bool PeriodicTimer::Start(double sampletime){
         return false;
     }
 
+    // add timer to epoll interest list
+    struct epoll_event ev{};
+    ev.events = EPOLLIN;
+    ev.data.fd = localFd;
+    if(epoll_ctl(epollFd, EPOLL_CTL_ADD, localFd, &ev) < 0){
+        GENERIC_TARGET_PRINT_ERROR("Could not add timer to epoll interest list!\n");
+        close(localFd);
+        return false;
+    }
+
     numCPUOverloads = 0;
     numLostTicks = 0;
-    fdTimer.store(localFd);
+    isRunning.store(true, std::memory_order_relaxed);
+    timerFd.store(localFd, std::memory_order_release);
     return true;
 }
 
 void PeriodicTimer::Stop(void){
-    int fd = fdTimer.exchange(-1);
+    // check if already stopped
+    if(!isRunning.exchange(false, std::memory_order_relaxed)) return;
+
+    // wake up WaitForTick immediately
+    uint64_t wakeUpSignal = 1;
+    ssize_t w = write(cancelFd, &wakeUpSignal, sizeof(wakeUpSignal));
+    (void)w;
+
+    // safely extract and remove the timer FD from epoll
+    int fd = timerFd.exchange(-1, std::memory_order_acquire);
     if(fd >= 0){
+        epoll_ctl(epollFd, EPOLL_CTL_DEL, fd, nullptr);
         close(fd);
     }
 }
 
 bool PeriodicTimer::WaitForTick(void){
-    int currentFd = fdTimer.load();
-    if(currentFd < 0) return false;
+    if(!isRunning.load(std::memory_order_relaxed)) return false;
 
-    uint64_t exp = 0;
-    for(;;){
-        ssize_t s = read(currentFd, &exp, sizeof(exp));
-        if(s == sizeof(exp)){
-            if(exp > 1){
-                ++numCPUOverloads;
-                numLostTicks += (exp - 1);
-            }
-            return true; // tick successful
+    int localTimerFd = timerFd.load(std::memory_order_acquire);
+    if(localTimerFd < 0) return false;
+
+    struct epoll_event events[2];
+    while(isRunning.load(std::memory_order_relaxed)){
+        // block here until either the timer ticks OR Stop() writes to cancelFd
+        int nfds = epoll_wait(epollFd, events, 2, -1);
+
+        if(nfds < 0){
+            if(errno == EINTR) continue; // interrupted by system signal, retry
+            return false;
         }
-        if(s == -1){
-            if(errno == EINTR){
-                continue; // interrupted by signal, try again
+
+        for(int i = 0; i < nfds; ++i){
+            if(events[i].data.fd == cancelFd){
+                // interrupted by Stop(): consume the eventfd value to reset it for the next run
+                uint64_t discard;
+                ssize_t r = read(cancelFd, &discard, sizeof(discard));
+                (void)r;
+                return false;
             }
-            if(errno == EBADF){
-                return false; // timer is closed
+            if(events[i].data.fd == localTimerFd){
+                uint64_t exp = 0;
+                ssize_t s = read(localTimerFd, &exp, sizeof(exp));
+                if(s == sizeof(exp)){
+                    if(exp > 1){
+                        ++numCPUOverloads;
+                        numLostTicks += (exp - 1);
+                    }
+                    return true; // tick successful
+                }
             }
         }
-        break; // other return values of read() indicate error
     }
     return false;
 }
