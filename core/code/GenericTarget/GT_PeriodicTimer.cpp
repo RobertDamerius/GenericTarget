@@ -38,17 +38,12 @@ bool PeriodicTimer::Start(double sampletime){
     auto secs = std::chrono::duration_cast<std::chrono::seconds>(dur);
     auto nsecs = std::chrono::duration_cast<std::chrono::nanoseconds>(dur - secs);
 
-    // initial delay time
-    auto delay = std::chrono::milliseconds(100);
-    auto delay_secs = std::chrono::duration_cast<std::chrono::seconds>(delay);
-    auto delay_nsecs = std::chrono::duration_cast<std::chrono::nanoseconds>(delay - delay_secs);
-
     // set period and initial delay
     struct itimerspec its;
     its.it_interval.tv_sec = secs.count();
     its.it_interval.tv_nsec = nsecs.count();
-    its.it_value.tv_sec = delay_secs.count();
-    its.it_value.tv_nsec = delay_nsecs.count();
+    its.it_value.tv_sec = 0;
+    its.it_value.tv_nsec = 1;
     if(timerfd_settime(localFd, 0, &its, nullptr) < 0){ // 0: no flags
         GENERIC_TARGET_PRINT_ERROR("Could not set time for timer!\n");
         close(localFd);

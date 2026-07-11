@@ -25,16 +25,12 @@ void BaseRateScheduler::MasterThread(void){
         GenericTarget::ShouldTerminate();
         return;
     }
+    timeOfStart = std::chrono::steady_clock::now();
 
     // thread loop
-    bool firstTick = true;
     while(!terminate){
         // wait for a tick event from the master clock and break if clock was destroyed
         if(!masterClock.WaitForTick()) break;
-        if(firstTick){
-            timeOfStart = std::chrono::steady_clock::now();
-            firstTick = false;
-        }
 
         // check for CPU overloads and termination
         if(SimulinkInterface::terminateAtCPUOverload && masterClock.GetNumCPUOverloads()){
