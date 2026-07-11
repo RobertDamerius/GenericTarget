@@ -65,7 +65,7 @@ void BaseRateScheduler::StopWorkerThreads(void){
         tasks[n]->Stop();
         uint64_t taskOverloads = tasks[n]->GetNumTaskOverloads();
         if(taskOverloads){
-            GENERIC_TARGET_PRINT_ERROR("Task \"%s\" (priority=%d, samplerate=%lf) stopped with overloads (%lu task overloads)\n", SimulinkInterface::taskNames[tasks[n]->taskID], SimulinkInterface::priorities[tasks[n]->taskID], SimulinkInterface::baseSampleTime*double(SimulinkInterface::sampleTicks[tasks[n]->taskID]), taskOverloads);
+            GENERIC_TARGET_PRINT_ERROR("Task \"%s\" (samplerate=%lf) stopped with overloads (%lu task overloads)\n", SimulinkInterface::taskNames[tasks[n]->taskID], SimulinkInterface::baseSampleTime*double(SimulinkInterface::sampleTicks[tasks[n]->taskID]), taskOverloads);
         }
         delete tasks[n];
     }
@@ -74,12 +74,11 @@ void BaseRateScheduler::StopWorkerThreads(void){
 }
 
 bool BaseRateScheduler::StartMasterThread(void){
-    int priorityMax = sched_get_priority_max(SCHED_FIFO);
     masterThread = std::thread(&BaseRateScheduler::MasterThread, this);
     struct sched_param param;
-    param.sched_priority = priorityMax;
+    param.sched_priority = gt::basePriority;
     if(0 != pthread_setschedparam(masterThread.native_handle(), SCHED_FIFO, &param)){
-        GENERIC_TARGET_PRINT_ERROR("Could not set maximum thread priority %d for base rate scheduler (sampletime=%lf)\n", priorityMax, SimulinkInterface::baseSampleTime);
+        GENERIC_TARGET_PRINT_ERROR("Could not set maximum thread priority %d for base rate scheduler (sampletime=%lf)\n", gt::basePriority, SimulinkInterface::baseSampleTime);
         #if !defined(DEBUG)
         StopMasterThread();
         return false;

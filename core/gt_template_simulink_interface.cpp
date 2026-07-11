@@ -1,4 +1,4 @@
-/* Auto-generated code (Template Version 20260520) */
+/* Auto-generated code (Template Version 20260711) */
 #include <SimulinkCodeGeneration/SimulinkInterface.hpp>
 
 
@@ -7,7 +7,6 @@ const uint16_t SimulinkInterface::portAppSocket = $PORT_APP_SOCKET$;
 const double SimulinkInterface::baseSampleTime = $BASE_SAMPLE_TIME$;
 const int32_t SimulinkInterface::sampleTicks[] = {$ARRAY_SAMPLE_TICKS$};
 const int32_t SimulinkInterface::offsetTicks[] = {$ARRAY_OFFSET_TICKS$};
-const int32_t SimulinkInterface::priorities[] = {$ARRAY_PRIORITIES$};
 $NAME_OF_CLASS$ SimulinkInterface::_model;
 const char* SimulinkInterface::taskNames[] = {$ARRAY_TASK_NAMES$};
 const bool SimulinkInterface::terminateAtTaskOverload = $TERMINATE_AT_TASK_OVERLOAD$;

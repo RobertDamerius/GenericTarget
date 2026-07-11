@@ -83,7 +83,7 @@
     The generated code essentially contains a class with the methods <code>initialize()</code>, <code>step()</code>, and <code>terminate()</code>.
     The name of the generated class is based on the name of the Simulink model.
     Besides the generated code, the <code>codeInfo.mat</code> file is created during the model code generation.
-    This file contains additional information such as sampletimes, thread priorities, and function names.
+    This file contains additional information such as sampletimes and function names.
     Based on this information and the properties of the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> class object, the interface code is generated.
     The programming interface from the actual Generic Target software to this interface is always the same.
     All sources are copied to the target via SCP and are compiled on the target computer afterwards.
@@ -146,7 +146,7 @@
 
     <h3>5. Load codeInfo.mat</h3>
     At this point, the <code>codeInfo.mat</code> file created during the slbuild step is loaded.
-    This file contains additional information about the generated code such as sampletimes and thread priorities.
+    This file contains additional information about the generated code such as sampletimes and function names.
 
     <h3>6. Generate Interface Code</h3>
     Based on the information in the <code>codeInfo.mat</code> file, the Simulink interface class is created.

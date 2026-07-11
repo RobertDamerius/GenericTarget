@@ -38,10 +38,11 @@ bool PeriodicTask::Start(void){
     t = std::thread(&PeriodicTask::Thread, this);
 
     // set priority
+    int32_t taskPriority = std::clamp(gt::basePriority - static_cast<int32_t>(taskID + 1), int32_t(1), int32_t(99));
     struct sched_param param;
-    param.sched_priority = SimulinkInterface::priorities[taskID];
+    param.sched_priority = taskPriority;
     if(0 != pthread_setschedparam(t.native_handle(), SCHED_FIFO, &param)){
-        GENERIC_TARGET_PRINT_ERROR("Could not set thread priority %d for task \"%s\" (sampletime=%lf)\n", SimulinkInterface::priorities[taskID], SimulinkInterface::taskNames[taskID], SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]));
+        GENERIC_TARGET_PRINT_ERROR("Could not set thread priority %d for task \"%s\" (sampletime=%lf)\n", taskPriority, SimulinkInterface::taskNames[taskID], SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]));
         #if !defined(DEBUG)
         Stop();
         return false;

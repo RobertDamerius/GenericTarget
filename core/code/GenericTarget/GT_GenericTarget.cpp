@@ -173,10 +173,11 @@ void GenericTarget::PrintInfo(void){
     GENERIC_TARGET_PRINT_RAW("terminateAtTaskOverload:  %s\n", SimulinkInterface::terminateAtTaskOverload ? "true" : "false");
     GENERIC_TARGET_PRINT_RAW("terminateAtCPUOverload:   %s\n", SimulinkInterface::terminateAtCPUOverload ? "true" : "false");
     GENERIC_TARGET_PRINT_RAW("baseSampleTime:           %lf s\n", SimulinkInterface::baseSampleTime);
+    GENERIC_TARGET_PRINT_RAW("basePriority:             %d\n", gt::basePriority);
     GENERIC_TARGET_PRINT_RAW("tasks:                    ");
     for(int i = 0; i < SIMULINK_INTERFACE_NUM_TIMINGS; ++i){
         if(i) GENERIC_TARGET_PRINT_RAW("                          ");
-        GENERIC_TARGET_PRINT_RAW("[%d]: name=\"%s\", sampleTicks=%d, sampleOffset=%d, priority=%d\n", i, SimulinkInterface::taskNames[i], SimulinkInterface::sampleTicks[i], SimulinkInterface::offsetTicks[i], SimulinkInterface::priorities[i]);
+        GENERIC_TARGET_PRINT_RAW("[%d]: name=\"%s\", sampleTicks=%d, sampleOffset=%d\n", i, SimulinkInterface::taskNames[i], SimulinkInterface::sampleTicks[i], SimulinkInterface::offsetTicks[i]);
     }
     GENERIC_TARGET_PRINT_RAW("\n");
     GENERIC_TARGET_PRINT_RAW("\n");

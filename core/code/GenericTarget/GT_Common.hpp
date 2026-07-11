@@ -48,7 +48,7 @@
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Macros For Thread-safe Console Prints
+// macros for thread-safe prints
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 namespace gt {
 
@@ -66,7 +66,7 @@ extern void print_raw(const char* format, ...);
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Version Settings
+// target settings
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 namespace gt {
 
@@ -74,6 +74,7 @@ namespace gt {
 inline constexpr std::string_view version{"2.0.0"};
 inline constexpr std::string_view compilerVersion{__VERSION__};
 inline constexpr std::string_view builtTimestamp{__DATE__ " " __TIME__};
+inline constexpr int32_t basePriority{49};
 
 
 } /* namespace: gt */
