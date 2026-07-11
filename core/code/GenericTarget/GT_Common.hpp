@@ -18,7 +18,6 @@
 #include <cstring>
 #include <algorithm>
 #include <thread>
-#include <mutex>
 #include <atomic>
 #include <filesystem>
 #include <csignal>

@@ -98,16 +98,18 @@ void PeriodicTask::Notify(void){
     }
 }
 
+void PeriodicTask::WaitForNotification(void){
+    while(sem_wait(&sem) == -1){
+        if(errno != EINTR){
+            return;
+        }
+    }
+    while(sem_trywait(&sem) == 0); // decrease semaphore counter to zero
+}
+
 void PeriodicTask::Thread(void){
     for(;;){
-        // wait for notification
-        if(sem_wait(&sem) == -1){
-            if(errno == EINTR) continue; // interrupted by signal, resume waiting
-            break; // fatal error or shutdown
-        }
-        while(sem_trywait(&sem) == 0); // decrease semaphore counter to zero
-
-        // check termination flag
+        WaitForNotification();
         if(terminate){
             break;
         }

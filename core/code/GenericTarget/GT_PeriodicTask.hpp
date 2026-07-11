@@ -69,6 +69,11 @@ class PeriodicTask {
         std::atomic<double> taskExecutionTime;    // Task-execution time in seconds.
 
         /**
+         * @brief Wait for a notification.
+         */
+        void WaitForNotification(void);
+
+        /**
          *  @brief Internal thread function.
          */
         void Thread(void);
