@@ -11,7 +11,6 @@ PeriodicTask::PeriodicTask(const uint32_t taskID): taskID((taskID < SIMULINK_INT
     jobRunning = false;
     started = false;
     terminate = false;
-    notified = false;
     taskExecutionTime = 0.0;
 }
 
@@ -22,6 +21,14 @@ PeriodicTask::~PeriodicTask(){
 bool PeriodicTask::Start(void){
     // make sure that the task is stopped
     Stop();
+
+    // initialize semaphore
+    // pshared = 0 (shared between threads of this process)
+    // value = 0 (initial count is 0)
+    if(sem_init(&sem, 0, 0) < 0){
+        GENERIC_TARGET_PRINT_ERROR("Could not initialize semaphore for task \"%s\" (sampletime=%lf)\n!", SimulinkInterface::taskNames[taskID], SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]));
+        return false;
+    }
 
     // start thread
     started = true;
@@ -47,23 +54,21 @@ void PeriodicTask::Stop(void){
     // stop the thread if it is running
     terminate = true;
     if(started){
-        std::unique_lock<std::mutex> lock(mtx);
-        notified = true;
-        cv.notify_one();
+        sem_post(&sem);
+        if(t.joinable()){
+            t.join();
+        }
     }
 
-    // wait until the thread has finished
-    if(started && t.joinable()){
-        t.join();
-    }
+    // destroy semaphore
+    sem_destroy(&sem);
 
-    // reset attributes (except missed ticks)
+    // reset attributes (except numTaskOverloads)
     ticks = 1;
     offsetSamples = 0;
     jobRunning = false;
     started = false;
     terminate = false;
-    notified = false;
     taskExecutionTime = 0.0;
 }
 
@@ -87,11 +92,7 @@ void PeriodicTask::Notify(void){
             }
 
             // notify the actual thread
-            {
-                std::unique_lock<std::mutex> lock(mtx);
-                notified = true;
-                cv.notify_one();
-            }
+            sem_post(&sem);
         }
     }
 }
@@ -99,11 +100,11 @@ void PeriodicTask::Notify(void){
 void PeriodicTask::Thread(void){
     for(;;){
         // wait for notification
-        {
-            std::unique_lock<std::mutex> lock(mtx);
-            cv.wait(lock, [this](){ return (notified || terminate); });
-            notified = false;
+        if(sem_wait(&sem) == -1){
+            if(errno == EINTR) continue; // interrupted by signal, resume waiting
+            break; // fatal error or shutdown
         }
+        while(sem_trywait(&sem) == 0); // decrease semaphore counter to zero
 
         // check termination flag
         if(terminate){

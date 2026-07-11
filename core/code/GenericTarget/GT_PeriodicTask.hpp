@@ -59,9 +59,7 @@ class PeriodicTask {
 
     private:
         std::thread t;                            // Thread object.
-        std::mutex mtx;                           // Mutex for thread notification.
-        std::condition_variable cv;               // Condition variable for thread notification.
-        bool notified;                            // Boolean flag for thread notification.
+        sem_t sem;                                // Semaphore for thread notification.
         std::atomic<bool> started;                // True if periodic task has been started, false otherwise.
         std::atomic<bool> terminate;              // True if thread is to be terminated, false otherwise.
         std::atomic<bool> jobRunning;             // True if a job is running, e.g. the thread is executing some model code, false otherwise.
