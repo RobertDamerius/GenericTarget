@@ -7,15 +7,17 @@
 #include <string>
 #include <tuple>
 #include <atomic>
-#include <mutex>
-#include <condition_variable>
 #include <thread>
+#include <pthread.h>
 #include <unordered_map>
 #include <filesystem>
 #if defined(_WIN32)
+#include <mutex>
+#include <condition_variable>
 #include <Ws2tcpip.h>
 #elif defined(__linux__)
 #include <netinet/in.h>
+#include <semaphore.h>
 #endif
 
 
@@ -23,6 +25,21 @@ namespace gt {
 
 
 namespace driver {
+
+
+/**
+ * @brief Lock guard for POSIX mutex.
+ */
+class LockGuard {
+    public:
+        explicit LockGuard(pthread_mutex_t& mutex) : mtx(&mutex){ pthread_mutex_lock(mtx); }
+        ~LockGuard(){ pthread_mutex_unlock(mtx); }
+        LockGuard(const LockGuard&) = delete;
+        LockGuard& operator=(const LockGuard&) = delete;
+
+    private:
+        pthread_mutex_t* mtx;
+};
 
 
 /**
@@ -36,23 +53,19 @@ class Event {
         Event();
 
         /**
-         * @brief Notify one thread waiting for this event.
-         * @param[in] flag User-specific value that should be forwarded to the waiting thread. Note that -1 is used as default value and therefore to indicate timeout when calling @ref WaitFor.
+         * @brief Destroy the event object.
          */
-        void NotifyOne(int flag);
+        ~Event();
 
         /**
-         * @brief Wait for a notification event. A thread calling this function waits until @ref NotifyOne is called.
-         * @return The user-specific value that has been set during the @ref NotifyOne call.
+         * @brief Notify a thread waiting for this event.
          */
-        int Wait(void);
+        void Notify(void);
 
         /**
-         * @brief Wait for a notification event or for a timeout. A thread calling this function waits until @ref NotifyOne is called or the wait timed out.
-         * @param[in] timeoutMs Timeout in milliseconds.
-         * @return The user-specific value that has been set during the @ref NotifyOne call or -1 in case of timeout.
+         * @brief Wait for a notification event. A thread calling this function waits until @ref Notify is called.
          */
-        int WaitFor(uint32_t timeoutMs);
+        void Wait(void);
 
         /**
          * @brief Clear a notified event.
@@ -60,10 +73,13 @@ class Event {
         void Clear(void);
 
     private:
-        int _flag;                    // User-specific value set during notification. The default value is -1.
+        #if defined(_WIN32)
         std::mutex mtx;               // The mutex used for event notification.
         std::condition_variable cv;   // The condition variable used for event notification.
         bool notified;                // A boolean flag to prevent spurious wakeups.
+        #elif defined(__linux__)
+        sem_t sem;                    // The semaphore used for event notification.
+        #endif
 };
 
 
@@ -157,18 +173,11 @@ class DataRecorderBase {
         std::string filename;              // The absolute filename that has been set during the @ref Start member function.
 
         std::thread threadDataRecorder;    // Data recorder thread instance.
-        std::mutex mtxNotify;              // Mutex for thread notification.
-        std::condition_variable cvNotify;  // Condition variable for thread notification.
-        bool notified;                     // Flag for thread notification.
+        Event event;                       // Event for thread notification.
         std::atomic<bool> terminate;       // Flag for thread termination.
         uint32_t currentFileNumber;        // The current filenumber.
         size_t numSamplesWritten;          // Number of samples that have been written to the current file.
         bool currentFileStarted;           // True if header for current file has been written successfully, false otherwise.
-
-        /**
-         * @brief Notify the data recorder thread.
-         */
-        void Notify(void);
 
         /**
          * @brief Get the current filename based on @ref filename and @ref currentFileNumber.
@@ -193,9 +202,28 @@ class DataRecorderBase {
  * @brief This abstract class represents the basics of a data recorder.
  */
 template <typename T> class DataRecorderTemplate : public DataRecorderBase {
+    public:
+        /**
+         * @brief Construct a new data recorder template.
+         */
+        DataRecorderTemplate(){
+            pthread_mutexattr_t attr;
+            pthread_mutexattr_init(&attr);
+            pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
+            pthread_mutex_init(&mtxBuffer, &attr);
+            pthread_mutexattr_destroy(&attr);
+        }
+
+        /**
+         * @brief Destroy the data recorder template.
+         */
+        ~DataRecorderTemplate(){
+            pthread_mutex_destroy(&mtxBuffer);
+        }
+
     protected:
-        std::vector<T> buffer;   // Buffering of values to be written to file.
-        std::mutex mtxBuffer;    // Protect the @ref buffer.
+        std::vector<T> buffer;       // Buffering of values to be written to file.
+        pthread_mutex_t mtxBuffer;   // Protect the @ref buffer.
 
         /**
          * @brief Write header data to a file.
@@ -215,14 +243,13 @@ template <typename T> class DataRecorderTemplate : public DataRecorderBase {
          * @return True if success, false otherwise.
          */
         bool FlushBuffer(void){
+            const LockGuard lock(mtxBuffer);
             bool success = true;
-            mtxBuffer.lock();
             WriteBufferToDataFiles(buffer);
             if(buffer.size()){
                 buffer.clear();
                 success = false;
             }
-            mtxBuffer.unlock();
             return success;
         }
 
@@ -232,26 +259,22 @@ template <typename T> class DataRecorderTemplate : public DataRecorderBase {
         void ThreadDataRecorder(void){
             std::vector<T> localBuffer;
             while(!terminate){
-                {
-                    std::unique_lock<std::mutex> lock(mtxNotify);
-                    cvNotify.wait(lock, [this](){ return (notified || terminate); });
-                    notified = false;
-                }
+                event.Wait();
                 if(terminate){
                     break;
                 }
-                mtxBuffer.lock();
-                if(buffer.size()){
-                    localBuffer.insert(localBuffer.end(), buffer.begin(), buffer.end());
-                    buffer.clear();
+                {
+                    const LockGuard lock(mtxBuffer);
+                    if(buffer.size()){
+                        localBuffer.insert(localBuffer.end(), buffer.begin(), buffer.end());
+                        buffer.clear();
+                    }
                 }
-                mtxBuffer.unlock();
                 WriteBufferToDataFiles(localBuffer);
             }
             if(localBuffer.size()){
-                mtxBuffer.lock();
+                const LockGuard lock(mtxBuffer);
                 buffer.insert(buffer.begin(), localBuffer.begin(), localBuffer.end());
-                mtxBuffer.unlock();
             }
         }
 };
@@ -933,7 +956,7 @@ class UDPService {
 
     private:
         UDPSocket udpSocket;                                        // Internal socket object for UDP operation.
-        std::mutex mtxSocket;                                       // Protect the @ref udpSocket.
+        pthread_mutex_t mtxSocket;                                  // Protect the @ref udpSocket.
         UDPServiceConfiguration activeConf;                         // The active configuration in use.
         bool activeConfSet;                                         // True if @ref activeConf has already been set.
         std::atomic<int32_t> latestErrorCode;                       // Stores the latest socket error code.

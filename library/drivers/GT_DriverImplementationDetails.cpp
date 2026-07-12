@@ -98,38 +98,50 @@ void gt_driver_simulink_print_verbose(const char c, const char* file, const int 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // implementation
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Event::Event():_flag(-1){}
-
-void Event::NotifyOne(int flag){
-    std::unique_lock<std::mutex> lock(mtx);
-    notified = true;
-    _flag = flag;
-    cv.notify_one();
-    std::this_thread::yield();
+Event::Event(){
+    #if defined(__linux__)
+    sem_init(&sem, 0, 0);
+    #endif
 }
 
-int Event::Wait(void){
+Event::~Event(){
+    #if defined(__linux__)
+    sem_destroy(&sem);
+    #endif
+}
+
+void Event::Notify(void){
+    #if defined(_WIN32)
+    std::unique_lock<std::mutex> lock(mtx);
+    notified = true;
+    cv.notify_one();
+    #elif defined(__linux__)
+    sem_post(&sem);
+    #endif
+}
+
+void Event::Wait(void){
+    #if defined(_WIN32)
     std::unique_lock<std::mutex> lock(mtx);
     cv.wait(lock, [this](){ return this->notified; });
     notified = false;
-    int ret = _flag;
-    _flag = -1;
-    return ret;
-}
-
-int Event::WaitFor(uint32_t timeoutMs){
-    std::unique_lock<std::mutex> lock(mtx);
-    cv.wait_for(lock, std::chrono::milliseconds(timeoutMs), [this](){ return this->notified; });
-    notified = false;
-    int ret = _flag;
-    _flag = -1;
-    return ret;
+    #elif defined(__linux__)
+    while(sem_wait(&sem) == -1){
+        if(errno != EINTR){
+            return;
+        }
+    }
+    while(sem_trywait(&sem) == 0);
+    #endif
 }
 
 void Event::Clear(void){
+    #if defined(_WIN32)
     std::unique_lock<std::mutex> lock(mtx);
     notified = false;
-    _flag = -1;
+    #elif defined(__linux__)
+    while(sem_trywait(&sem) == 0);
+    #endif
 }
 
 DataRecorderBase::DataRecorderBase(){
@@ -141,7 +153,6 @@ DataRecorderBase::DataRecorderBase(){
     dataTypes = "";
     started = false;
     filename = "";
-    notified = false;
     terminate = false;
     currentFileNumber = 0;
     numSamplesWritten = 0;
@@ -206,11 +217,12 @@ bool DataRecorderBase::Start(std::string filename, int32_t threadPriority){
 
 void DataRecorderBase::Stop(void){
     terminate = true;
-    Notify();
+    event.Notify();
     if(threadDataRecorder.joinable()){
         threadDataRecorder.join();
     }
     terminate = false;
+    event.Clear();
     if(started){
         if(!FlushBuffer()){
             std::string currentFileName = GetCurrentFilename();
@@ -223,25 +235,18 @@ void DataRecorderBase::Stop(void){
     currentFileStarted = false;
 }
 
-void DataRecorderBase::Notify(void){
-    std::unique_lock<std::mutex> lock(mtxNotify);
-    notified = true;
-    cvNotify.notify_one();
-}
-
 std::string DataRecorderBase::GetCurrentFilename(void){
     return filename + std::string("_") + std::to_string(currentFileNumber);
 }
 
 void DataRecorderScalarDoubles::Write(double timestamp, void* data, uint32_t numValues){
     if(numSignals == numValues){
+        const LockGuard lock(mtxBuffer);
         double* values = static_cast<double*>(data);
-        mtxBuffer.lock();
         buffer.push_back(timestamp);
         buffer.insert(buffer.end(), &values[0], &values[0] + numSignals);
-        mtxBuffer.unlock();
     }
-    Notify();
+    event.Notify();
 }
 
 bool DataRecorderScalarDoubles::WriteHeader(std::string name){
@@ -333,18 +338,17 @@ void DataRecorderScalarDoubles::WriteBufferToDataFiles(std::vector<double>& valu
 
 void DataRecorderBus::Write(double timestamp, void* data, uint32_t numBytes){
     if(numBytesPerSample == numBytes){
+        const LockGuard lock(mtxBuffer);
         uint8_t* bytes = static_cast<uint8_t*>(data);
         union {
             double d;
             uint8_t bytes[8];
         } un;
         un.d = timestamp;
-        mtxBuffer.lock();
         buffer.insert(buffer.end(), &un.bytes[0], &un.bytes[0] + 8);
         buffer.insert(buffer.end(), &bytes[0], &bytes[0] + numBytesPerSample);
-        mtxBuffer.unlock();
     }
-    Notify();
+    event.Notify();
 }
 
 bool DataRecorderBus::WriteHeader(std::string name){
@@ -1234,6 +1238,11 @@ bool UDPServiceConfiguration::operator==(const UDPServiceConfiguration& rhs) con
 }
 
 UDPService::UDPService(){
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
+    pthread_mutex_init(&mtxSocket, &attr);
+    pthread_mutexattr_destroy(&attr);
     latestErrorCode = 0;
     attemptToBindStatus = 0;
     activeConfSet = false;
@@ -1242,11 +1251,12 @@ UDPService::UDPService(){
 
 UDPService::~UDPService(){
     Destroy();
+    pthread_mutex_destroy(&mtxSocket);
 }
 
 bool UDPService::Create(UDPServiceConfiguration desiredConf){
     {
-        const std::lock_guard<std::mutex> lock(mtxSocket);
+        const LockGuard lock(mtxSocket);
         if(!activeConfSet){
             activeConf = desiredConf;
             activeConfSet = true;
@@ -1334,7 +1344,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
 }
 
 void UDPService::Destroy(void){
-    const std::lock_guard<std::mutex> lock(mtxSocket);
+    const LockGuard lock(mtxSocket);
     if(udpSocket.IsOpen()){
         for(auto&& groupIP : currentlyJoinedGroups){
             (void) udpSocket.LeaveMulticastGroup(groupIP, activeConf.deviceName, activeConf.multicastInterfaceAddress);
@@ -1355,7 +1365,7 @@ std::tuple<int32_t, int32_t> UDPService::SendTo(Address destination, uint8_t *by
         tx = 0;
         bool enableTransmission = (size > 0) || ((0 == size) && activeConf.allowZeroLengthMessage);
         if(enableTransmission){
-            const std::lock_guard<std::mutex> lock(mtxSocket);
+            const LockGuard lock(mtxSocket);
             udpSocket.ResetLastError();
             tx = udpSocket.SendTo(destination, bytes, size);
             latestErrorCode = udpSocket.GetLastErrorCode();
@@ -1370,11 +1380,12 @@ std::tuple<Address, int32_t, int32_t> UDPService::ReceiveFrom(uint8_t *bytes, in
     int32_t rx = -1;
     if(isBound){
         UpdateMulticastGroups(multicastGroups);
-        mtxSocket.lock();
-        udpSocket.ResetLastError();
-        rx = udpSocket.ReceiveFrom(source, bytes, maxSize);
-        latestErrorCode = udpSocket.GetLastErrorCode();
-        mtxSocket.unlock();
+        {
+            const LockGuard lock(mtxSocket);
+            udpSocket.ResetLastError();
+            rx = udpSocket.ReceiveFrom(source, bytes, maxSize);
+            latestErrorCode = udpSocket.GetLastErrorCode();
+        }
     }
     int32_t code = latestErrorCode;
     return std::make_tuple(source, rx, code);
@@ -1382,7 +1393,7 @@ std::tuple<Address, int32_t, int32_t> UDPService::ReceiveFrom(uint8_t *bytes, in
 
 bool UDPService::AttemptToBind(void){
     if(!isBound){
-        const std::lock_guard<std::mutex> lock(mtxSocket);
+        const LockGuard lock(mtxSocket);
 
         // bind port
         if(attemptToBindStatus < 1){
@@ -1436,7 +1447,7 @@ void UDPService::UpdateMulticastGroups(std::vector<std::array<uint8_t,4>> multic
             }
         }
         if(!keepJoined){
-            const std::lock_guard<std::mutex> lock(mtxSocket);
+            const LockGuard lock(mtxSocket);
             keepJoined = (udpSocket.LeaveMulticastGroup(currentlyJoinedGroup, activeConf.deviceName, activeConf.multicastInterfaceAddress) < 0);
         }
         if(keepJoined){
@@ -1454,7 +1465,7 @@ void UDPService::UpdateMulticastGroups(std::vector<std::array<uint8_t,4>> multic
             }
         }
         if(!alreadyJoined){
-            const std::lock_guard<std::mutex> lock(mtxSocket);
+            const LockGuard lock(mtxSocket);
             #ifdef _WIN32
             (void) udpSocket.SetMulticastInterface(desiredJoinedGroup, activeConf.deviceName, activeConf.multicastInterfaceAddress);
             #endif
@@ -1529,7 +1540,7 @@ bool UDPServiceManager::AddService(int32_t id, UDPServiceConfiguration conf){
 void UDPServiceManager::ClearAllServices(void){
     // stop management thread
     terminate = true;
-    event.NotifyOne(0);
+    event.Notify();
     if(managementThread.joinable()){
         managementThread.join();
     }
@@ -1548,7 +1559,7 @@ void UDPServiceManager::ClearAllServices(void){
 std::tuple<int32_t,int32_t> UDPServiceManager::SendTo(int32_t id, Address destination, uint8_t* bytes, int32_t size){
     if(threadStarted){
         threadStarted = false;
-        event.NotifyOne(0);
+        event.Notify();
     }
     std::tuple<int32_t,int32_t> result(0,0);
     auto found = services.find(id);
@@ -1561,7 +1572,7 @@ std::tuple<int32_t,int32_t> UDPServiceManager::SendTo(int32_t id, Address destin
 std::tuple<Address, int32_t, int32_t> UDPServiceManager::ReceiveFrom(int32_t id, uint8_t *bytes, int32_t maxSize, std::vector<std::array<uint8_t,4>> multicastGroups){
     if(threadStarted){
         threadStarted = false;
-        event.NotifyOne(0);
+        event.Notify();
     }
     std::tuple<Address,int32_t,int32_t> result(Address(0,0,0,0,0),0,0);
     auto found = services.find(id);
@@ -1572,8 +1583,7 @@ std::tuple<Address, int32_t, int32_t> UDPServiceManager::ReceiveFrom(int32_t id,
 }
 
 void UDPServiceManager::ManagementThread(void){
-    constexpr uint32_t timeoutMs = 1000;
-    (void) event.Wait();
+    event.Wait();
     while(!terminate){
         bool allBound = true;
         for(auto&& s : services){
@@ -1583,7 +1593,7 @@ void UDPServiceManager::ManagementThread(void){
             GENERIC_TARGET_PRINT("All UDP sockets are ready for operation\n");
             break;
         }
-        (void) event.WaitFor(timeoutMs);
+        event.Wait();
     }
 }
 
