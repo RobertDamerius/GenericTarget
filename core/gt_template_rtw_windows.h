@@ -19,7 +19,7 @@
     { \
         pthread_mutexattr_t attr; \
         pthread_mutexattr_init(&attr); \
-        pthread_mutexattr_setprotocol(&attr, 1); \
+        pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT); \
         pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE); \
         *mutexDW = malloc(sizeof(pthread_mutex_t)); \
         pthread_mutex_init((pthread_mutex_t*)(*mutexDW), &attr); \
@@ -30,7 +30,7 @@
     { \
         pthread_mutexattr_t attr; \
         pthread_mutexattr_init(&attr); \
-        pthread_mutexattr_setprotocol(&attr, 1); \
+        pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT); \
         pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP); \
         *mutexDW = malloc(sizeof(pthread_mutex_t)); \
         pthread_mutex_init((pthread_mutex_t*)(*mutexDW), &attr); \

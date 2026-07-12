@@ -51,6 +51,8 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 namespace gt {
 
+extern void init(void);
+extern void terminate(void);
 extern void print(const char* format, ...);
 extern void print_verbose(const char c, const char* file, const int line, const char* func, const char* format, ...);
 extern void print_raw(const char* format, ...);

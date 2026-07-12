@@ -9,9 +9,12 @@
  * @return 0 on success, -1 otherwise.
  */
 int main(int argc, char **argv){
+    gt::init();
+
     // lock memory pages to prevent swapping
     if(mlockall(MCL_CURRENT | MCL_FUTURE) < 0){
         GENERIC_TARGET_PRINT_ERROR("Failed to lock memory: %s\n", std::strerror(errno));
+        gt::terminate();
         return -1;
     }
 
@@ -20,6 +23,7 @@ int main(int argc, char **argv){
 
     // run actual application
     gt::GenericTarget::Run(argc, argv);
+    gt::terminate();
     return 0;
 }
 
