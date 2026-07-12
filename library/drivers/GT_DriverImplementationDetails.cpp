@@ -204,7 +204,7 @@ bool DataRecorderBase::Start(std::string filename, int32_t threadPriority){
     this->filename = filename;
     threadDataRecorder = std::thread(&DataRecorderBase::ThreadDataRecorder, this);
     struct sched_param param;
-    param.sched_priority = threadPriority;
+    param.sched_priority = std::clamp(int(threadPriority), sched_get_priority_min(SCHED_FIFO), sched_get_priority_max(SCHED_FIFO));
     if(0 != pthread_setschedparam(threadDataRecorder.native_handle(), SCHED_FIFO, &param)){
         GENERIC_TARGET_PRINT_ERROR("Could not set thread priority %d for data recorder thread!\n", threadPriority);
         #if defined(GENERIC_TARGET_IMPLEMENTATION) && !defined(DEBUG) && !defined(_WIN32)
@@ -1529,7 +1529,7 @@ bool UDPServiceManager::AddService(int32_t id, UDPServiceConfiguration conf){
         threadStarted = true;
         managementThread = std::thread(&UDPServiceManager::ManagementThread, this);
         struct sched_param param;
-        param.sched_priority = 21;
+        param.sched_priority = std::clamp(21, sched_get_priority_min(SCHED_FIFO), sched_get_priority_max(SCHED_FIFO));
         if(0 != pthread_setschedparam(managementThread.native_handle(), SCHED_FIFO, &param)){
             GENERIC_TARGET_PRINT_WARNING("Could not set thread priority 21 for UDP service management thread!\n");
         }
