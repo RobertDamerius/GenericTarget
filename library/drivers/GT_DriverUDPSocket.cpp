@@ -21,7 +21,7 @@ gt::driver::UDPServiceManager udpServiceManager;
 void GT_DriverUDPSocketInitialize(int32_t port, uint8_t* deviceName, uint32_t deviceNameLength, int32_t socketPriority, uint8_t allowBroadcast, uint8_t allowZeroLengthMessage, uint8_t multicastAll, uint8_t multicastLoop, uint8_t multicastTTL, uint8_t* multicastInterfaceAddress){
     #if defined(_WIN32) && !defined(GENERIC_TARGET_IMPLEMENTATION)
     if((WSAStartup(MAKEWORD(2, 2), &gt_driver_wsa_data)) || (LOBYTE(gt_driver_wsa_data.wVersion) != 2) || (HIBYTE(gt_driver_wsa_data.wVersion) != 2)){
-        fprintf(stderr, "ERROR: WSAStartup(2,2) failed! Could not setup network for windows OS!\n");
+        fprintf(stderr, "ERROR: Failed to setup network for windows OS! WSAStartup(2,2) failed!\n");
     }
     #endif
     gt::driver::UDPServiceConfiguration conf;

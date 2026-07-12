@@ -206,7 +206,7 @@ bool DataRecorderBase::Start(std::string filename, int32_t threadPriority){
     struct sched_param param;
     param.sched_priority = std::clamp(int(threadPriority), sched_get_priority_min(SCHED_FIFO), sched_get_priority_max(SCHED_FIFO));
     if(0 != pthread_setschedparam(threadDataRecorder.native_handle(), SCHED_FIFO, &param)){
-        GENERIC_TARGET_PRINT_ERROR("Could not set thread priority %d for data recorder thread!\n", threadPriority);
+        GENERIC_TARGET_PRINT_ERROR("Failed to set thread priority %d for data recorder thread!\n", threadPriority);
         #if defined(GENERIC_TARGET_IMPLEMENTATION) && !defined(DEBUG) && !defined(_WIN32)
         Stop();
         return false;
@@ -253,7 +253,7 @@ bool DataRecorderScalarDoubles::WriteHeader(std::string name){
     // open file
     FILE *file = fopen(name.c_str(), "wb");
     if(!file){
-        GENERIC_TARGET_PRINT_ERROR("Could not write file \"%s\"!\n", name.c_str());
+        GENERIC_TARGET_PRINT_ERROR("Failed to write file \"%s\"!\n", name.c_str());
         return false;
     }
 
@@ -355,7 +355,7 @@ bool DataRecorderBus::WriteHeader(std::string name){
     // open file
     FILE *file = fopen(name.c_str(), "wb");
     if(!file){
-        GENERIC_TARGET_PRINT_ERROR("Could not write file \"%s\"!\n", name.c_str());
+        GENERIC_TARGET_PRINT_ERROR("Failed to write file \"%s\"!\n", name.c_str());
         return false;
     }
 
@@ -600,7 +600,7 @@ bool DataRecorderManager::MakeDataDirectory(void){
         }
     }
     catch(...){
-        GENERIC_TARGET_PRINT_ERROR("Could not create data record directory \"%s\"!\n", pathToDataDirectory.string().c_str());
+        GENERIC_TARGET_PRINT_ERROR("Failed to create data record directory \"%s\"!\n", pathToDataDirectory.string().c_str());
         return false;
     }
     return true;
@@ -639,7 +639,7 @@ bool DataRecorderManager::WriteIndexFile(void){
     GENERIC_TARGET_PRINT("Writing data record index file \"%s\"\n", filename.c_str());
     FILE *file = fopen(filename.c_str(), "wb");
     if(!file){
-        GENERIC_TARGET_PRINT_ERROR("Could not write data record index file \"%s\"\n", filename.c_str());
+        GENERIC_TARGET_PRINT_ERROR("Failed to write data record index file \"%s\"\n", filename.c_str());
         return false;
     }
 
@@ -1270,14 +1270,14 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
             if(!udpSocket.Open()){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Could not open UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Failed to open UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
                 return false;
             }
             udpSocket.ResetLastError();
             if(udpSocket.ReusePort(true) < 0){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Could not set SO_REUSEPORT option for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEPORT option for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
                 udpSocket.Close();
                 return false;
             }
@@ -1285,7 +1285,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
             if(udpSocket.ReuseAddress(true) < 0){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Could not set SO_REUSEADDR option for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEADDR option for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
                 udpSocket.Close();
                 return false;
             }
@@ -1293,7 +1293,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
             if(!udpSocket.EnableNonBlockingMode()){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Could not enable non-blocking mode for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Failed to enable non-blocking mode for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
                 udpSocket.Close();
                 return false;
             }
@@ -1301,7 +1301,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
             if(udpSocket.SetSocketPriority(activeConf.socketPriority) < 0){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Could not set SO_PRIORITY option for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Failed to set SO_PRIORITY option for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
                 udpSocket.Close();
                 return false;
             }
@@ -1309,7 +1309,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
             if(udpSocket.AllowBroadcast(activeConf.allowBroadcast) < 0){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Could not set SO_BROADCAST option for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Failed to set SO_BROADCAST option for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
                 udpSocket.Close();
                 return false;
             }
@@ -1317,7 +1317,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
             if(udpSocket.SetMulticastAll(activeConf.multicastAll) < 0){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Could not set IP_MULTICAST_ALL option for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Failed to set IP_MULTICAST_ALL option for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
                 udpSocket.Close();
                 return false;
             }
@@ -1325,7 +1325,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
             if(udpSocket.SetMulticastLoop(activeConf.multicastLoop) < 0){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Could not set IP_MULTICAST_LOOP option for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Failed to set IP_MULTICAST_LOOP option for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
                 udpSocket.Close();
                 return false;
             }
@@ -1333,7 +1333,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
             if(udpSocket.SetMulticastTTL(activeConf.multicastTTL) < 0){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Could not set IP_MULTICAST_TTL option for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Failed to set IP_MULTICAST_TTL option for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
                 udpSocket.Close();
                 return false;
             }
@@ -1402,7 +1402,7 @@ bool UDPService::AttemptToBind(void){
             if(udpSocket.Bind(port) < 0){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 if(errorCode != latestErrorCode){
-                    GENERIC_TARGET_PRINT_ERROR("Could not bind port for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                    GENERIC_TARGET_PRINT_ERROR("Failed to bind port for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
                 }
                 latestErrorCode = errorCode;
                 return false;
@@ -1416,7 +1416,7 @@ bool UDPService::AttemptToBind(void){
             if(udpSocket.BindToDevice(activeConf.deviceName) < 0){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 if(errorCode != latestErrorCode){
-                    GENERIC_TARGET_PRINT_ERROR("Could not bind UDP socket to a device {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                    GENERIC_TARGET_PRINT_ERROR("Failed to bind UDP socket to a device {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
                 }
                 latestErrorCode = errorCode;
                 return false;
@@ -1531,7 +1531,7 @@ bool UDPServiceManager::AddService(int32_t id, UDPServiceConfiguration conf){
         struct sched_param param;
         param.sched_priority = std::clamp(21, sched_get_priority_min(SCHED_FIFO), sched_get_priority_max(SCHED_FIFO));
         if(0 != pthread_setschedparam(managementThread.native_handle(), SCHED_FIFO, &param)){
-            GENERIC_TARGET_PRINT_WARNING("Could not set thread priority 21 for UDP service management thread!\n");
+            GENERIC_TARGET_PRINT_WARNING("Failed to set thread priority 21 for UDP service management thread!\n");
         }
     }
     return success;

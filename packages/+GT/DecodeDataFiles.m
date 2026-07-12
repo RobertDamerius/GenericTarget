@@ -67,12 +67,12 @@ function data = DecodeDataFiles(dataFileNames)
     for i = 1:numel(dataFileNames)
         [fp, errmsg] = fopen(dataFileNames{i}, 'r');
         if(fp < 0)
-            error('Could not open file "%s": %s', dataFileNames{i}, errmsg);
+            error('Failed to open file "%s": %s', dataFileNames{i}, errmsg);
         end
         fseek(fp, 0, 'eof');
         fileDataSize = uint64(ftell(fp));
         if(fileDataSize < uint64(header.offsetSampleData))
-            error(['Invalid header of file "' dataFileNames{i} '"! Could not read sample data!']);
+            error(['Invalid header of file "' dataFileNames{i} '"! Failed to read sample data!']);
         end
         sampleDataSize = fileDataSize - uint64(header.offsetSampleData);
         fseek(fp, header.offsetSampleData, 'bof');
@@ -157,7 +157,7 @@ function [success, header, chunkSizeSampleData] = DecodeHeader(filename)
     % Open file
     [fp, errmsg] = fopen(filename, 'r');
     if(fp < 0)
-        error('Could not open file "%s": %s', filename, errmsg);
+        error('Failed to open file "%s": %s', filename, errmsg);
     end
 
     % Read header ID

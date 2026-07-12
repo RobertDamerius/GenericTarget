@@ -214,18 +214,18 @@ void GenericTarget::StopOtherTargetApplication(void){
 
     // open the application socket with a random port
     if(!appSocket.Open()){
-        GENERIC_TARGET_PRINT_ERROR("Could not open application socket: %s\n", appSocket.GetLastErrorString().c_str());
+        GENERIC_TARGET_PRINT_ERROR("Failed to open application socket: %s\n", appSocket.GetLastErrorString().c_str());
         return;
     }
     if(appSocket.Bind(0) < 0){
-        GENERIC_TARGET_PRINT_ERROR("Unable to bind a random port for the application socket: %s\n", appSocket.GetLastErrorString().c_str());
+        GENERIC_TARGET_PRINT_ERROR("Failed to bind a random port for the application socket: %s\n", appSocket.GetLastErrorString().c_str());
     }
 
     // send termination message and close socket
     std::array<uint8_t,4> localHost = {127, 0, 0, 1};
     const uint8_t msgTerminate[] = {0x47,0x54,0xDE,0xAD};
     if(sizeof(msgTerminate) != appSocket.SendTo(localHost, SimulinkInterface::portAppSocket, (uint8_t*)&msgTerminate[0], sizeof(msgTerminate))){
-        GENERIC_TARGET_PRINT_ERROR("Could not send termination message: %s\n", appSocket.GetLastErrorString().c_str());
+        GENERIC_TARGET_PRINT_ERROR("Failed to send termination message: %s\n", appSocket.GetLastErrorString().c_str());
     }
     appSocket.Close();
 }
@@ -235,13 +235,13 @@ bool GenericTarget::InitializeAppSocket(void){
 
     // open the application socket
     if(!appSocket.Open()){
-        GENERIC_TARGET_PRINT_ERROR("Could not open application socket: %s\n", appSocket.GetLastErrorString().c_str());
+        GENERIC_TARGET_PRINT_ERROR("Failed to open application socket: %s\n", appSocket.GetLastErrorString().c_str());
         return false;
     }
 
     // bind specific port
     if(appSocket.Bind(SimulinkInterface::portAppSocket) < 0){
-        GENERIC_TARGET_PRINT_ERROR("Unable to bind port %u for the application socket: %s\n", SimulinkInterface::portAppSocket, appSocket.GetLastErrorString().c_str());
+        GENERIC_TARGET_PRINT_ERROR("Failed to bind port %u for the application socket: %s\n", SimulinkInterface::portAppSocket, appSocket.GetLastErrorString().c_str());
         appSocket.Close();
         return false;
     }

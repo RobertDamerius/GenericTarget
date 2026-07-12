@@ -29,7 +29,7 @@ bool PeriodicTimer::Start(double sampletime){
     // 0 flags: standard relative timer
     int localFd = timerfd_create(CLOCK_MONOTONIC, 0);
     if(localFd < 0){
-        GENERIC_TARGET_PRINT_ERROR("Could not create timer!\n");
+        GENERIC_TARGET_PRINT_ERROR("Failed to create timer!\n");
         return false;
     }
 
@@ -45,7 +45,7 @@ bool PeriodicTimer::Start(double sampletime){
     its.it_value.tv_sec = 0;
     its.it_value.tv_nsec = 1;
     if(timerfd_settime(localFd, 0, &its, nullptr) < 0){ // 0: no flags
-        GENERIC_TARGET_PRINT_ERROR("Could not set time for timer!\n");
+        GENERIC_TARGET_PRINT_ERROR("Failed to set time for timer!\n");
         close(localFd);
         return false;
     }
@@ -55,7 +55,7 @@ bool PeriodicTimer::Start(double sampletime){
     ev.events = EPOLLIN;
     ev.data.fd = localFd;
     if(epoll_ctl(epollFd, EPOLL_CTL_ADD, localFd, &ev) < 0){
-        GENERIC_TARGET_PRINT_ERROR("Could not add timer to epoll interest list!\n");
+        GENERIC_TARGET_PRINT_ERROR("Failed to add timer to epoll interest list!\n");
         close(localFd);
         return false;
     }

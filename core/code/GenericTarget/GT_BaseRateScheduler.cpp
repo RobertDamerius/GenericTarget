@@ -78,7 +78,7 @@ bool BaseRateScheduler::StartMasterThread(void){
     struct sched_param param;
     param.sched_priority = std::clamp(int(gt::basePriority), sched_get_priority_min(SCHED_FIFO), sched_get_priority_max(SCHED_FIFO));
     if(0 != pthread_setschedparam(masterThread.native_handle(), SCHED_FIFO, &param)){
-        GENERIC_TARGET_PRINT_ERROR("Could not set maximum thread priority %d for base rate scheduler (sampletime=%lf)\n", gt::basePriority, SimulinkInterface::baseSampleTime);
+        GENERIC_TARGET_PRINT_ERROR("Failed to set maximum thread priority %d for base rate scheduler (sampletime=%lf)\n", gt::basePriority, SimulinkInterface::baseSampleTime);
         #if !defined(DEBUG)
         StopMasterThread();
         return false;

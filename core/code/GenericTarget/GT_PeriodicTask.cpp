@@ -26,7 +26,7 @@ bool PeriodicTask::Start(void){
     // pshared = 0 (shared between threads of this process)
     // value = 0 (initial count is 0)
     if(sem_init(&sem, 0, 0) < 0){
-        GENERIC_TARGET_PRINT_ERROR("Could not initialize semaphore for task \"%s\" (sampletime=%lf)\n!", SimulinkInterface::taskNames[taskID], SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]));
+        GENERIC_TARGET_PRINT_ERROR("Failed to initialize semaphore for task \"%s\" (sampletime=%lf)\n!", SimulinkInterface::taskNames[taskID], SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]));
         return false;
     }
 
@@ -42,7 +42,7 @@ bool PeriodicTask::Start(void){
     struct sched_param param;
     param.sched_priority = std::clamp(int(taskPriority), sched_get_priority_min(SCHED_FIFO), sched_get_priority_max(SCHED_FIFO));
     if(0 != pthread_setschedparam(t.native_handle(), SCHED_FIFO, &param)){
-        GENERIC_TARGET_PRINT_ERROR("Could not set thread priority %d for task \"%s\" (sampletime=%lf)\n", taskPriority, SimulinkInterface::taskNames[taskID], SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]));
+        GENERIC_TARGET_PRINT_ERROR("Failed to set thread priority %d for task \"%s\" (sampletime=%lf)\n", taskPriority, SimulinkInterface::taskNames[taskID], SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]));
         #if !defined(DEBUG)
         Stop();
         return false;

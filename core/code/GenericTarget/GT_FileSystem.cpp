@@ -20,7 +20,7 @@ bool FileSystem::MakeProtocolDirectory(void){
         std::filesystem::create_directory(directory);
     }
     catch(...){
-        GENERIC_TARGET_PRINT_ERROR("Could not create protocol directory \"%s\"!\n", directory.string().c_str());
+        GENERIC_TARGET_PRINT_ERROR("Failed to create protocol directory \"%s\"!\n", directory.string().c_str());
         return false;
     }
     return true;
@@ -44,7 +44,7 @@ void FileSystem::KeepNLatestProtocolFiles(uint32_t N){
         for(uint32_t n = N; n < static_cast<uint32_t>(files.size()); ++n){
             std::error_code ec;
             if(!std::filesystem::remove(files[n], ec)){
-                GENERIC_TARGET_PRINT_WARNING("Could not remove protocol file \"%s\": %s\n", files[n].string().c_str(), ec.message().c_str());
+                GENERIC_TARGET_PRINT_WARNING("Failed to remove protocol file \"%s\": %s\n", files[n].string().c_str(), ec.message().c_str());
             }
         }
     }

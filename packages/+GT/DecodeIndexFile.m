@@ -14,7 +14,7 @@ function info = DecodeIndexFile(filename)
     % open index file
     [fp, errmsg] = fopen(filename, 'r');
     if(fp < 0)
-        error('Could not open index file "%s": %s', filename, errmsg);
+        error('Failed to open index file "%s": %s', filename, errmsg);
     end
     fprintf('[GENERIC TARGET] Decoding index file "%s" ...', filename);
 

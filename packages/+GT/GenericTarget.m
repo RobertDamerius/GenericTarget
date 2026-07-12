@@ -150,7 +150,7 @@ classdef GenericTarget < handle
             releaseFolder = fullfile(codeGenFolder, ['GenericTarget_' modelName]);
             fprintf('[GENERIC TARGET] Creating release folder "%s"\n', releaseFolder);
             [~,~] = rmdir(releaseFolder, 's');
-            assert(mkdir(releaseFolder), 'Could not make release folder!');
+            assert(mkdir(releaseFolder), 'Failed to make release folder!');
 
             % generate release code
             this.CopyFrameworkToReleaseFolder(releaseFolder);
@@ -160,7 +160,7 @@ classdef GenericTarget < handle
             if(numel(this.customCode))
                 customCodeFolder = fullfile(releaseFolder, 'code', 'CustomCode');
                 fprintf('[GENERIC TARGET] Adding custom code to "%s"\n', customCodeFolder);
-                assert(mkdir(customCodeFolder), 'Could not make custom code folder!');
+                assert(mkdir(customCodeFolder), 'Failed to make custom code folder!');
                 for i = 1:numel(this.customCode)
                     [~, name, ext] = fileparts(this.customCode{i});
                     [~,~] = copyfile(this.customCode{i}, fullfile(customCodeFolder, [name ext]), 'f');
@@ -237,7 +237,7 @@ classdef GenericTarget < handle
             protocolFileOnTarget = strtrim(cmdout);
             [~,f,e] = fileparts(protocolFileOnTarget);
             if(strcmp(f, '*') || ~strcmp(e, '.txt'))
-                fprintf('ERROR: Could not find a protocol file on the target!\n');
+                fprintf('ERROR: Failed to find a protocol file on the target!\n');
                 commands = cmd1;
                 return;
             end
@@ -406,8 +406,8 @@ classdef GenericTarget < handle
             srcFileVSCode = fullfile(coreDirectory, '.vscode');
             assert(exist(srcDirectoryCode, 'dir'), ['Missing files in Generic Target toolbox: ', srcDirectoryCode]);
             assert(exist(srcFileVSCode, 'file'), ['Missing file in Generic Target toolbox: ', srcDirectoryCode]);
-            assert(copyfile(srcDirectoryCode, fullfile(releaseFolder, 'code'), 'f'), 'Could not copy Generic Target core files!');
-            assert(copyfile(srcFileVSCode, fullfile(releaseFolder, '.vscode'), 'f'), 'Could not copy Generic Target core files!');
+            assert(copyfile(srcDirectoryCode, fullfile(releaseFolder, 'code'), 'f'), 'Failed to copy Generic Target core files!');
+            assert(copyfile(srcFileVSCode, fullfile(releaseFolder, '.vscode'), 'f'), 'Failed to copy Generic Target core files!');
 
             % generate files
             this.GenerateMakefile(releaseFolder);
@@ -439,7 +439,7 @@ classdef GenericTarget < handle
             % write Makefile to release folder
             fidMakefile = fopen(dstMakefile, 'w');
             if(-1 == fidMakefile)
-                error('Could not write to file "%s"', dstMakefile);
+                error('Failed to write to file "%s"', dstMakefile);
             end
             fwrite(fidMakefile, uint8(strMakefile));
             fclose(fidMakefile);
@@ -457,7 +457,7 @@ classdef GenericTarget < handle
             % write readme file to release folder
             fidReadme = fopen(dstReadme, 'w');
             if(-1 == fidReadme)
-                error('Could not write to file "%s"', dstReadme);
+                error('Failed to write to file "%s"', dstReadme);
             end
             fwrite(fidReadme, uint8(strReadme));
             fclose(fidReadme);
@@ -474,7 +474,7 @@ classdef GenericTarget < handle
             % overwrite launch file to release folder
             fidLaunch = fopen(dstLaunch, 'w');
             if(-1 == fidLaunch)
-                error('Could not write to file "%s"', dstLaunch);
+                error('Failed to write to file "%s"', dstLaunch);
             end
             fwrite(fidLaunch, uint8(strLaunch));
             fclose(fidLaunch);
@@ -542,10 +542,10 @@ classdef GenericTarget < handle
             fidHeader = fopen(headerFile, 'w');
             fidSource = fopen(sourceFile, 'w');
             if(-1 == fidHeader)
-                error('Could not write to file "%s"', headerFile);
+                error('Failed to write to file "%s"', headerFile);
             end
             if(-1 == fidSource)
-                error('Could not write to file "%s"', sourceFile);
+                error('Failed to write to file "%s"', sourceFile);
             end
             fwrite(fidHeader, uint8(strInterfaceHeader));
             fwrite(fidSource, uint8(strInterfaceSource));
