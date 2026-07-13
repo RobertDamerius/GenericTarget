@@ -69,80 +69,33 @@
     <br>
     <br>
 
-    <h3>1. Print Application Information</h3>
+    <h3>1. Parse Arguments (arg)</h3>
+    At this point the <a href="#arguments">arguments</a>, which were passed to the application, are evaluated.
+
+    <h3>2. Print Application Information</h3>
     At this point basic information about the application is displayed.
     All output is redirected to a protocol text file by default.
     With the <a href="packages_gt_generictarget.html#ShowLatestProtocol">ShowLatestProtocol</a> member function the latest protocol file from the target computer is displayed.
 
-    <h3>2. Parse Arguments (arg)</h3>
-    At this point the <a href="#arguments">arguments</a>, which were passed to the application, are evaluated.
-    If the argument <code>--stop</code> is in the list of passed arguments, the termination flag is set.
+    <h3>3. Open AppSocket (Abstract UNIX Socket)</h3>
+    The Generic Target application internally uses an abstract UNIX socket, which is called AppSocket.
+    It has a system-wide unique name, that is set via the <a href="packages_gt_generictarget.html#targetSocketName">targetSocketName</a> property.
+    The AppSocket ensures, that the application only runs once on the system.
 
-    <h3>3. Open AppSocket (UDP Socket)</h3>
-    The Generic Target application internally uses an own UDP socket.
-    This UDP socket is called AppSocket.
-    The port of the AppSocket cannot be used for communication via UDP within the Simulink model.
-    The port value is set via the property <a href="packages_gt_generictarget.html#portAppSocket">portAppSocket</a>.
-
-    <h3>4. Bind Port for AppSocket</h3>
-    At this point the port for the application socket is bound.
-    If this operation is unsuccessful, the port is already being used by another application (e.g. an already running Generic Target application).
-
-    <h3>5. If (arg == "--stop")</h3>
-    If the termination flag is not set, the application is terminated.
-    This ensures that a Generic Target application is not executed multiple times at the same time.
-    If the termination flag is set, a termination message is sent to the AppSocket port.
-    An already running Generic Target application receives this termination message and terminates itself.
-
-    <h3>6. Send UDP Termination Message</h3>
-    At this point a UDP termination message is sent. The destination is the localhost, i.e. <code>127.0.0.1</code>.
-    The message consists of 4 bytes and is defined to be <code>[0x47 0x54 0xDE 0xAD]</code>.
-
-    <h3>7. If (arg == "--stop")</h3>
-    If the termination flag is set, the application is terminated.
-
-    <h3>8. SimulinkInterface::Initialize()</h3>
+    <h3>4. SimulinkInterface::Initialize()</h3>
     This is where the Simulink model is initialized.
     All initialization callbacks of the model are called at this point.
     If an error occurs during initialization, the application logs this in the <a href="protocolfile.html">protocol file</a> and the application is to be terminated.
 
+    <h3>5. Start Scheduler</h3>
+    At this point the actual <a href="timingscheduling.html">scheduler</a> is started.
+    The scheduler runs in a high priority master thread and ensures that all <code>step()</code> methods of the Simulink model are called with the appropriate sampletime.
+
+
 <a name="mainloop"></a>
 <h2>Main Loop</h2>
-    After the initialization phase, the main loop is executed until a termination message is received.
-    The main loop is executed in the main thread and only waits for a termination message to interrupt the loop.
-    In addition, the main loop is interrupted if the operating system sends a signal, such as <code>SIGINT</code> or <code>SIGTERM</code> to the application.
-    <br>
-    <br>
-    <center><object data="../img/ApplicationMainLoop.svg" type="image/svg+xml"></object></center><br><br>
-    <br>
-    <br>
-    <h3>1. Start Scheduler</h3>
-    At this point the actual <a href="timingscheduling.html">scheduler</a> is started.
-    The scheduler runs in its own thread and ensures that all <code>step()</code> methods of the Simulink model are called with the appropriate sampletime.
-
-    <h3>2. Receive UDP via AppSocket</h3>
-    The main loop waits for UDP messages.
-    If the application socket was closed, for example because the application was terminated from outside (<code>Ctrl + C</code> or <code>kill</code>), the main loop is interrupted.
-
-    <h3>3. Sender is Localhost</h3>
-    At this point it is checked if the sender of a UDP message is the localhost.
-    The IP address of the localhost is <code>127.0.0.1</code>.
-    If the UDP message comes from a different address, this message is ignored.
-    
-    <div class="note-green">
-    <h3 class="note-green">Note</h3>
-    The termination message can also be sent from another application on the target PC.
-    It is also possible to use a UDP Send block in the Simulink model that sends a termination message to the application socket.
-    In this way, the Generic Target application can be terminated by the model software.
-    </div>
-
-    <h3>4. Received Termination Message</h3>
-    If the received message is a termination message, the main loop is interrupted.
-    Otherwise, the system further waits for a UDP message or a signal from the operating system.
-    A termination message consists of four bytes:
-    <code>[0x47 0x54 0xDE 0xAD]</code>
-    <br>
-    <i>The first two bytes correspond to the ASCII characters 'G' and 'T' (for Generic Target) and the last two bytes give hexadecimal read DEAD.</i>
+    After the initialization phase, the main loop is executed.
+    It is executed in the main thread and only waits for a termination signal to interrupt the loop, e.g. if the operating system sends a signal, such as <code>SIGINT</code> or <code>SIGTERM</code> to the application.
 
 <a name="terminate"></a>
 <h2>Termination</h2>

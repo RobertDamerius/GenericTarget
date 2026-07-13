@@ -6,92 +6,88 @@ using namespace gt;
 AppStartTimepoint GenericTarget::appStartTimepoint;
 AppArguments GenericTarget::appArguments;
 FileSystem GenericTarget::fileSystem;
-std::atomic<bool> GenericTarget::shouldTerminate = ATOMIC_VAR_INIT(false);
+sem_t GenericTarget::semaphoreTerminate;
+std::atomic<bool> GenericTarget::semaphoreInitialized = ATOMIC_VAR_INIT(false);
 AppSocket GenericTarget::appSocket;
 BaseRateScheduler GenericTarget::scheduler;
 
 
 void GenericTarget::ShouldTerminate(void){
-    shouldTerminate = true;
-    GenericTarget::appSocket.Close();
+    if(semaphoreInitialized){
+        sem_post(&semaphoreTerminate);
+    }
 }
 
 void GenericTarget::Run(int argc, char** argv){
-    // set handlers for signals from OS and parse arguments
-    SetSignalHandlers();
-    appArguments.Parse(argc, argv);
-
-    // check if outputs should be redirected to a protocol file
-    if(!appArguments.console){
-        RedirectPrintsToFile();
+    // initialize semaphore for termination
+    if(sem_init(&semaphoreTerminate, 0, 0) < 0){
+        GENERIC_TARGET_PRINT_ERROR("Failed to initialize semaphore!\n");
+        GENERIC_TARGET_PRINT("Application terminated\n");
+        return;
     }
+    semaphoreInitialized = true;
 
-    // run the generic target application
-    if(Initialize()){
-        MainLoop();
-        Terminate();
-    }
-    GENERIC_TARGET_PRINT("Application terminated\n");
-}
-
-bool GenericTarget::Initialize(void){
-    PrintInfo();
-    GENERIC_TARGET_PRINT("Initializing application ...\n");
-
-    // check for the "--stop" argument
-    if(appArguments.stop){
-        GENERIC_TARGET_PRINT("Stopping another possibly ongoing target application (port=%u)\n", SimulinkInterface::portAppSocket);
-        StopOtherTargetApplication();
-        return false;
-    }
-
-    // initialize
-    if(!InitializeAppSocket()){
-        goto init_fail;
-    }
-    if(!InitializeModel()){
-        goto init_fail;
-    }
-    if(!std::chrono::steady_clock::is_steady){
-        GENERIC_TARGET_PRINT_WARNING("Clock is not steady!\n");
-    }
-    GENERIC_TARGET_PRINT("Initialization successfully completed\n");
-    return true;
-
-    // something failed and/or application is to be closed
-    init_fail:
-    GENERIC_TARGET_PRINT_ERROR("Initialization failed!\n");
-    appSocket.Close();
-    return false;
-}
-
-void GenericTarget::Terminate(void){
-    GENERIC_TARGET_PRINT("Terminating application ...\n");
-    scheduler.Stop();
-    GENERIC_TARGET_PRINT("Terminating model\n");
-    SimulinkInterface::Terminate();
-    appSocket.Close();
-}
-
-void GenericTarget::MainLoop(void){
-    GENERIC_TARGET_PRINT("Starting model\n");
-    if(scheduler.Start()){
-        // wait until application socket is closed or a termination message is received
-        std::array<uint8_t,4> sourceIP;
-        uint16_t sourcePort;
-        uint8_t u[4];
-        while(!shouldTerminate && appSocket.IsOpen()){
-            appSocket.ResetLastError();
-            int32_t rx = appSocket.ReceiveFrom(sourceIP, sourcePort, &u[0], 4);
-            if(rx < 0){
-                break;
-            }
-            if((sourceIP == std::array<uint8_t,4>({127,0,0,1})) && (4 == rx) && (0x47 == u[0]) && (0x54 == u[1]) && (0xDE == u[2]) && (0xAD == u[3])){
+    // run target application
+    if(Initialize(argc, argv)){
+        // wait for termination
+        while(sem_wait(&semaphoreTerminate) == -1){
+            if(errno != EINTR){
                 break;
             }
         }
         GENERIC_TARGET_PRINT("Received termination flag, application will be closed\n");
+        Terminate();
     }
+
+    // destroy semaphore
+    semaphoreInitialized = false;
+    sem_destroy(&semaphoreTerminate);
+    GENERIC_TARGET_PRINT("Application terminated\n");
+}
+
+bool GenericTarget::Initialize(int argc, char** argv){
+    // set handlers for signals from OS
+    SetSignalHandlers();
+
+    // parse arguments and check for output redirection
+    appArguments.Parse(argc, argv);
+    if(!appArguments.console){
+        RedirectPrintsToFile();
+    }
+
+    // print application info
+    PrintInfo();
+
+    // check clock
+    if(!std::chrono::steady_clock::is_steady){
+        GENERIC_TARGET_PRINT_WARNING("Clock is not steady!\n");
+    }
+
+    // make sure this application runs only once
+    if(!appSocket.Open(SimulinkInterface::targetSocketName)){
+        return false;
+    }
+
+    // initialize model
+    GENERIC_TARGET_PRINT("Initializing model\n");
+    SimulinkInterface::Initialize();
+
+    // start scheduler
+    GENERIC_TARGET_PRINT("Starting scheduler\n");
+    if(!scheduler.Start()){
+        GENERIC_TARGET_PRINT_ERROR("Failed to start scheduler!\n");
+        appSocket.Close();
+        return false;
+    }
+    return true;
+}
+
+void GenericTarget::Terminate(void){
+    GENERIC_TARGET_PRINT("Stopping scheduler\n");
+    scheduler.Stop();
+    GENERIC_TARGET_PRINT("Terminating model\n");
+    SimulinkInterface::Terminate();
+    appSocket.Close();
 }
 
 void GenericTarget::SetSignalHandlers(void){
@@ -151,10 +147,6 @@ void GenericTarget::RedirectPrintsToFile(void){
 
 void GenericTarget::PrintInfo(void){
     TimeInfo upTime = appStartTimepoint.GetUTC();
-    int priorityMax = sched_get_priority_max(SCHED_FIFO);
-    int priorityMin = sched_get_priority_min(SCHED_FIFO);
-    std::string strModelName = SimulinkInterface::modelName;
-    strModelName.erase(std::remove_if(strModelName.begin(), strModelName.end(), [](unsigned char c) { return c < 32 || c > 126; }), strModelName.end());
     GENERIC_TARGET_PRINT_RAW("GenericTarget\n");
     GENERIC_TARGET_PRINT_RAW("\n");
     PrintOperatingSystemInfo();
@@ -165,11 +157,11 @@ void GenericTarget::PrintInfo(void){
     GENERIC_TARGET_PRINT_RAW("Built (local):            %.*s\n", static_cast<int>(gt::builtTimestamp.length()), gt::builtTimestamp.data());
     GENERIC_TARGET_PRINT_RAW("Date (UTC):               %04u-%02u-%02u %02u:%02u:%02u.%03u\n", 1900 + upTime.year, 1 + upTime.month, upTime.mday, upTime.hour, upTime.minute, upTime.second, upTime.nanoseconds / 1000000);
     GENERIC_TARGET_PRINT_RAW("Arguments:               "); for(size_t i = 0; i < appArguments.args.size(); i++){ GENERIC_TARGET_PRINT_RAW(" [%s]", appArguments.args[i].c_str()); } GENERIC_TARGET_PRINT_RAW("\n");
-    GENERIC_TARGET_PRINT_RAW("Maximum thread priority:  %d\n", priorityMax);
-    GENERIC_TARGET_PRINT_RAW("Minimum thread priority:  %d\n", priorityMin);
+    GENERIC_TARGET_PRINT_RAW("Maximum thread priority:  %d\n", sched_get_priority_max(SCHED_FIFO));
+    GENERIC_TARGET_PRINT_RAW("Minimum thread priority:  %d\n", sched_get_priority_min(SCHED_FIFO));
     GENERIC_TARGET_PRINT_RAW("\n");
-    GENERIC_TARGET_PRINT_RAW("modelName:                %s\n", strModelName.c_str());
-    GENERIC_TARGET_PRINT_RAW("portAppSocket:            %u\n", SimulinkInterface::portAppSocket);
+    GENERIC_TARGET_PRINT_RAW("modelName:                %.*s\n", static_cast<int>(SimulinkInterface::modelName.length()), SimulinkInterface::modelName.data());
+    GENERIC_TARGET_PRINT_RAW("targetSocketName:         %.*s\n", static_cast<int>(SimulinkInterface::targetSocketName.length()), SimulinkInterface::targetSocketName.data());
     GENERIC_TARGET_PRINT_RAW("terminateAtTaskOverload:  %s\n", SimulinkInterface::terminateAtTaskOverload ? "true" : "false");
     GENERIC_TARGET_PRINT_RAW("terminateAtCPUOverload:   %s\n", SimulinkInterface::terminateAtCPUOverload ? "true" : "false");
     GENERIC_TARGET_PRINT_RAW("baseSampleTime:           %lf s\n", SimulinkInterface::baseSampleTime);
@@ -177,7 +169,11 @@ void GenericTarget::PrintInfo(void){
     GENERIC_TARGET_PRINT_RAW("tasks:                    ");
     for(int i = 0; i < SIMULINK_INTERFACE_NUM_TIMINGS; ++i){
         if(i) GENERIC_TARGET_PRINT_RAW("                          ");
-        GENERIC_TARGET_PRINT_RAW("[%d]: name=\"%s\", sampleTicks=%d, sampleOffset=%d\n", i, SimulinkInterface::taskNames[i], SimulinkInterface::sampleTicks[i], SimulinkInterface::offsetTicks[i]);
+        GENERIC_TARGET_PRINT_RAW("[%d]: name=\"%.*s\", sampleTicks=%d, sampleOffset=%d\n",
+            i,
+            static_cast<int>(SimulinkInterface::taskNames[i].length()), SimulinkInterface::taskNames[i].data(),
+            SimulinkInterface::sampleTicks[i],
+            SimulinkInterface::offsetTicks[i]);
     }
     GENERIC_TARGET_PRINT_RAW("\n");
     GENERIC_TARGET_PRINT_RAW("\n");
@@ -208,49 +204,3 @@ void GenericTarget::PrintNetworkInfo(void){
         if_freenameindex(if_ni);
     }
 }
-
-void GenericTarget::StopOtherTargetApplication(void){
-    appSocket.ResetLastError();
-
-    // open the application socket with a random port
-    if(!appSocket.Open()){
-        GENERIC_TARGET_PRINT_ERROR("Failed to open application socket: %s\n", appSocket.GetLastErrorString().c_str());
-        return;
-    }
-    if(appSocket.Bind(0) < 0){
-        GENERIC_TARGET_PRINT_ERROR("Failed to bind a random port for the application socket: %s\n", appSocket.GetLastErrorString().c_str());
-    }
-
-    // send termination message and close socket
-    std::array<uint8_t,4> localHost = {127, 0, 0, 1};
-    const uint8_t msgTerminate[] = {0x47,0x54,0xDE,0xAD};
-    if(sizeof(msgTerminate) != appSocket.SendTo(localHost, SimulinkInterface::portAppSocket, (uint8_t*)&msgTerminate[0], sizeof(msgTerminate))){
-        GENERIC_TARGET_PRINT_ERROR("Failed to send termination message: %s\n", appSocket.GetLastErrorString().c_str());
-    }
-    appSocket.Close();
-}
-
-bool GenericTarget::InitializeAppSocket(void){
-    appSocket.ResetLastError();
-
-    // open the application socket
-    if(!appSocket.Open()){
-        GENERIC_TARGET_PRINT_ERROR("Failed to open application socket: %s\n", appSocket.GetLastErrorString().c_str());
-        return false;
-    }
-
-    // bind specific port
-    if(appSocket.Bind(SimulinkInterface::portAppSocket) < 0){
-        GENERIC_TARGET_PRINT_ERROR("Failed to bind port %u for the application socket: %s\n", SimulinkInterface::portAppSocket, appSocket.GetLastErrorString().c_str());
-        appSocket.Close();
-        return false;
-    }
-    return true;
-}
-
-bool GenericTarget::InitializeModel(void){
-    GENERIC_TARGET_PRINT("Initializing model\n");
-    SimulinkInterface::Initialize();
-    return true;
-}
-

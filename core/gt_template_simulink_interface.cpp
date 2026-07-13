@@ -1,17 +1,8 @@
-/* Auto-generated code (Template Version 20260711) */
+/* Auto-generated code (Template Version 20260713) */
 #include <SimulinkCodeGeneration/SimulinkInterface.hpp>
 
 
-const std::string SimulinkInterface::modelName("$NAME_OF_MODEL$");
-const uint16_t SimulinkInterface::portAppSocket = $PORT_APP_SOCKET$;
-const double SimulinkInterface::baseSampleTime = $BASE_SAMPLE_TIME$;
-const int32_t SimulinkInterface::sampleTicks[] = {$ARRAY_SAMPLE_TICKS$};
-const int32_t SimulinkInterface::offsetTicks[] = {$ARRAY_OFFSET_TICKS$};
 $NAME_OF_CLASS$ SimulinkInterface::_model;
-const char* SimulinkInterface::taskNames[] = {$ARRAY_TASK_NAMES$};
-const bool SimulinkInterface::terminateAtTaskOverload = $TERMINATE_AT_TASK_OVERLOAD$;
-const bool SimulinkInterface::terminateAtCPUOverload = $TERMINATE_AT_CPU_OVERLOAD$;
-const uint32_t SimulinkInterface::numberOfOldProtocolFiles = $NUMBER_OF_OLD_PROTOCOL_FILES$;
 
 
 void SimulinkInterface::Initialize(void){

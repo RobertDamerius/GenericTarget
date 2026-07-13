@@ -25,7 +25,7 @@ struct TimeInfo {
 
 
 /**
- * @brief This class stores the application start timepoint. The timepoint is set when this class is constructed.
+ * @brief This class stores the application start timepoint (system clock). The timepoint is set when this class is constructed.
  */
 class AppStartTimepoint {
     public:

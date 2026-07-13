@@ -86,34 +86,24 @@
     To ensure data integrity, the option <b>Ensure data integrity during data transfer</b> must be enabled in the rate-transition block mask.
     </div>
 
-    <div class="note-green"><h3 class="note-green">Note 3: Fixed application port</h3>
-    When the Generic Target application is started, a defined UDP port is bound.
-    This port has several functions.
-    The application can be terminated with a certain message from the localhost.
-    At the same time, an already assigned port means that an application with this port is already running (this can be any application).
-    This helps to avoid running the same application multiple times.
-    The port itself can be set before code generation using the <a href="packages_gt_generictarget.html#portAppSocket">portAppSocket</a> attribute in the MATLAB class <a href="packages_gt_generictarget.html">GT.GenericTarget</a>.
-    Within the Simulink model, the port should no longer be used as a local port, as it would never be successfully bound.
-    </div>
-
-    <div class="note-green"><h3 class="note-green">Note 4: Multiple applications</h3>
-    If several applications are to run on the same target computer, the application port must be different for each application.
+    <div class="note-green"><h3 class="note-green">Note 3: Multiple applications</h3>
+    If several applications are to run on the same target computer, the target socket name must be different for each application.
     At the same time, a different software directory must be used, otherwise the software directory of one application will be overwritten when another application is used.
-    Both parameters can be set with the <a href="packages_gt_generictarget.html#portAppSocket">portAppSocket</a> and <code>targetSoftwareDirectory</code> attributes in the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> MATLAB class.
+    Both parameters can be set with the <a href="packages_gt_generictarget.html#targetSocketName">targetSocketName</a> and <a href="packages_gt_generictarget.html#targetSoftwareDirectory">targetSoftwareDirectory</a> attributes in the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> MATLAB class.
     </div>
 
-    <div class="note-green"><h3 class="note-green">Note 5: Avoid keyword "DEBUG"</h3>
+    <div class="note-green"><h3 class="note-green">Note 4: Avoid keyword "DEBUG"</h3>
     If the application is built in DEBUG mode, the C macro <code>DEBUG</code> is set.
     Therefore, no names should be selected that lead to function or variable names with <code>DEBUG</code> in the code generation.
     </div>
 
-    <div class="note-green"><h3 class="note-green">Note 6: Avoid console outputs</h3>
+    <div class="note-green"><h3 class="note-green">Note 5: Avoid console outputs</h3>
     The console output of the target application is redirected to a text file by default at startup.
     Therefore, many console outputs can result in a large text file.
     Also, the output can come from multiple threads at the same time, so multiple console outputs get mixed up.
     </div>
 
-    <div class="note-green"><h3 class="note-green">Note 7: Legacy Code Tool and custom code: use globally unique file names</h3>
+    <div class="note-green"><h3 class="note-green">Note 6: Legacy Code Tool and custom code: use globally unique file names</h3>
     The legacy code tool can be used to generate a Simulink block directly from a given C/C++ code.
     Most of the blocks in the Generic Target library have been generated using the legacy code tool.
     When generating code for a Simulink model, all code files belonging to blocks generated with the Legacy Code Tool are copied into a single directory.

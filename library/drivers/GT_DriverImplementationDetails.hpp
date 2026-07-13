@@ -5,6 +5,7 @@
 #include <array>
 #include <vector>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <atomic>
 #include <thread>

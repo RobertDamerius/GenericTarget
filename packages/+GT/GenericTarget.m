@@ -1,12 +1,12 @@
 classdef GenericTarget < handle
     properties
-        portAppSocket (1,1) uint16 {mustBePositive} = 44000;
         portSSH (1,1) uint16 {mustBePositive} = 22;
         connectTimeout (1,1) uint32 {mustBePositive} = 3;
         targetUsername {mustBeTextScalar, GT.mustBeChar} = '';
         targetIPAddress {mustBeTextScalar, GT.mustBeChar} = '';
         targetSoftwareDirectory {mustBeTextScalar, GT.mustBeChar, GT.mustEndWith(targetSoftwareDirectory,'/')} = '~/GenericTarget/';
         targetProductName {mustBeTextScalar, GT.mustBeChar, mustBeValidVariableName} = 'GenericTarget';
+        targetSocketName {mustBeTextScalar, GT.mustBeChar} = '/run/generic-target/app.lock';
         targetBitmaskCPUCores {mustBeTextScalar, GT.mustBeChar, GT.mustBeHexString} = '';
         applicationArguments {mustBeTextScalar, GT.mustBeChar} = '';
         terminateAtTaskOverload (1,1) logical = true;
@@ -191,8 +191,8 @@ classdef GenericTarget < handle
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            fprintf('[GENERIC TARGET] Stopping target software on %s at %s\n', this.targetUsername, this.targetIPAddress);
-            commands = this.RunCommandOnTarget(['sudo ' this.targetSoftwareDirectory this.targetProductName ' --console --stop']);
+            fprintf('[GENERIC TARGET] Stopping target software on %s at %s (%s)\n', this.targetUsername, this.targetIPAddress, this.targetSocketName);
+            commands = this.RunCommandOnTarget(['sudo kill -INT $(sudo ss -axp | grep ''@', this.targetSocketName, ''' | grep -oP ''pid=\K[0-9]+'' | head -n 1)']);
         end
         function commands = Reboot(this)
             %GT.GenericTarget.Reboot Reboot the target computer. An SSH connection will be established to run a reboot command.
@@ -217,7 +217,7 @@ classdef GenericTarget < handle
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            commands = this.RunCommandOnTarget(['pidof ' this.targetProductName]);
+            commands = this.RunCommandOnTarget(['sudo ss -axp | grep ''@', this.targetSocketName, ''' | grep -oP ''pid=\K[0-9]+'' | head -n 1']);
         end
         function commands = ShowIsolatedCPUCores(this)
             %GT.GenericTarget.ShowIsolatedCPUs Show the isolated CPUs for the target. If no CPU cores are isolated the printed console output
@@ -626,9 +626,6 @@ classdef GenericTarget < handle
                 strArrayTaskNames = append(strArrayTaskNames, sprintf(', "%s"', taskNames(n)));
             end
 
-            % get port for application socket
-            strPortAppSocket = sprintf('%d', this.portAppSocket);
-
             % get task overload behaviour
             strTerminateAtTaskOverload = 'false';
             if(this.terminateAtTaskOverload)
@@ -669,8 +666,8 @@ classdef GenericTarget < handle
             strSource = strrep(strSource, '$ARRAY_TASK_NAMES$', strArrayTaskNames);
             strHeader = strrep(strHeader, '$STEP_SWITCH$', strStepSwitch);
             strSource = strrep(strSource, '$STEP_SWITCH$', strStepSwitch);
-            strHeader = strrep(strHeader, '$PORT_APP_SOCKET$', strPortAppSocket);
-            strSource = strrep(strSource, '$PORT_APP_SOCKET$', strPortAppSocket);
+            strHeader = strrep(strHeader, '$TARGET_SOCKET_NAME$', this.targetSocketName);
+            strSource = strrep(strSource, '$TARGET_SOCKET_NAME$', this.targetSocketName);
             strHeader = strrep(strHeader, '$TERMINATE_AT_TASK_OVERLOAD$', strTerminateAtTaskOverload);
             strSource = strrep(strSource, '$TERMINATE_AT_TASK_OVERLOAD$', strTerminateAtTaskOverload);
             strHeader = strrep(strHeader, '$TERMINATE_AT_CPU_OVERLOAD$', strTerminateAtCPUOverload);

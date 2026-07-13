@@ -10,7 +10,11 @@ BaseRateScheduler::BaseRateScheduler(){
 }
 
 bool BaseRateScheduler::Start(void){
-    return StartWorkerThreads() && StartMasterThread();
+    bool success = StartWorkerThreads() && StartMasterThread();
+    if(!success){
+        Stop();
+    }
+    return success;
 }
 
 void BaseRateScheduler::Stop(void){
@@ -65,7 +69,10 @@ void BaseRateScheduler::StopWorkerThreads(void){
         tasks[n]->Stop();
         uint64_t taskOverloads = tasks[n]->GetNumTaskOverloads();
         if(taskOverloads){
-            GENERIC_TARGET_PRINT_ERROR("Task \"%s\" (samplerate=%lf) stopped with overloads (%lu task overloads)\n", SimulinkInterface::taskNames[tasks[n]->taskID], SimulinkInterface::baseSampleTime*double(SimulinkInterface::sampleTicks[tasks[n]->taskID]), taskOverloads);
+            GENERIC_TARGET_PRINT_ERROR("Task \"%.*s\" (samplerate=%lf) stopped with overloads (%lu task overloads)\n", 
+                static_cast<int>(SimulinkInterface::taskNames[tasks[n]->taskID].length()), SimulinkInterface::taskNames[tasks[n]->taskID].data(),
+                SimulinkInterface::baseSampleTime*double(SimulinkInterface::sampleTicks[tasks[n]->taskID]),
+                taskOverloads);
         }
         delete tasks[n];
     }

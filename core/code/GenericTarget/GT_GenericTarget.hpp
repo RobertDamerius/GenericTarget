@@ -9,7 +9,7 @@
 #include <GenericTarget/GT_FileSystem.hpp>
 
 
-/* Forward declaration of the main entry function. It's used as friend and has access to the protected member functions of the MainApplication class. */
+/* Forward declaration of the main entry function. It's used as friend and has access to the protected member functions of the GenericTarget class. */
 int main(int, char**);
 
 
@@ -22,9 +22,9 @@ namespace gt {
  */
 class GenericTarget {
     public:
-        static AppStartTimepoint appStartTimepoint;  // The start timepoint of the application.
-        static AppArguments appArguments;            // Arguments passed to the application. They are parsed when calling @ref Run.
-        static FileSystem fileSystem;                // The file system manager for the application.
+        static AppStartTimepoint appStartTimepoint;   // The start timepoint of the application.
+        static AppArguments appArguments;             // Arguments passed to the application. They are parsed when calling @ref Run.
+        static FileSystem fileSystem;                 // The file system manager for the application.
 
         /**
          * @brief Get the model execution time (steady clock), that is, the elapsed time to the start of the master clock.
@@ -77,26 +77,23 @@ class GenericTarget {
         static void Run(int argc, char** argv);
 
     private:
-        static std::atomic<bool> shouldTerminate;  // True if application should be terminated, false otherwise.
-        static AppSocket appSocket;                // The application socket to ensure only one application instance is running on the machine.
-        static BaseRateScheduler scheduler;        // The scheduler for the simulink model.
+        static sem_t semaphoreTerminate;                 // A semaphore to signal a termination of the application.
+        static std::atomic<bool> semaphoreInitialized;   // True if semaphore is initialized, false otherwise.
+        static AppSocket appSocket;                      // The application socket to ensure only one application instance is running on the machine.
+        static BaseRateScheduler scheduler;              // The scheduler for the simulink model.
 
         /**
          * @brief Initialize the generic target application.
+         * @param[in] argc Number of arguments passed to the application.
+         * @param[in] argv Array of arguments passed to the application.
          * @return True if success, false if application should close.
          */
-        static bool Initialize(void);
+        static bool Initialize(int argc, char** argv);
 
         /**
          * @brief Terminate the generic target application.
          */
         static void Terminate(void);
-
-        /**
-         * @brief Run the main loop of the generic target application.
-         * @details This function will return immediately if the generic target is not initialized.
-         */
-        static void MainLoop(void);
 
         /**
          * @brief Set signal handlers to handle signals from the OS like SIGINT, SIGTERM.
@@ -135,23 +132,6 @@ class GenericTarget {
          * @brief Print network information.
          */
         static void PrintNetworkInfo(void);
-
-        /**
-         * @brief Stop another possibly ongoing target application by sending a termination message to the application port.
-         */
-        static void StopOtherTargetApplication(void);
-
-        /**
-         * @brief Initialize the application socket.
-         * @return True if success, false otherwise.
-         */
-        static bool InitializeAppSocket(void);
-
-        /**
-         * @brief Initialize the simulink model and all modules of the generic target framework.
-         * @return True if success, false otherwise.
-         */
-        static bool InitializeModel(void);
 };
 
 

@@ -91,11 +91,6 @@ In some cases, ports in the dynamic range may be restricted by the operating sys
 If a port cannot be bound, it may already be in use or blocked by system policies.
 Setting the local port to a value below 1 in the block mask allows the Generic Target to request a random local port, usually within the dynamic range.
 
-<div class="note-orange">
-<h3 class="note-orange">Application Port</h3>
-The target application reserves a dedicated port (<a href="packages_gt_generictarget.html#portAppSocket">portAppSocket</a>) to prevent multiple instances from running simultaneously. This port is set via the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> class and cannot be reused within the model.
-</div>
-
 <h3>Buffering</h3>
 When a UDP Receive block executes, it retrieves a message from the operating system's receive buffer of the network device.
 The <b>maximum message size</b> that can be fetched is defined by the <code>rxBufferSize</code> parameter in the block mask.

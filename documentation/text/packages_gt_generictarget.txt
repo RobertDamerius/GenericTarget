@@ -15,13 +15,13 @@ Detailed information is given afterwards.
 <br><br>
 <table>
 <tr><th>Property</th><th width="150">Data Type</th><th>Default Value</th><th>Description</th></tr>
-<tr><td style="font-family: Courier New;"><a href="#portAppSocket">portAppSocket</a></td><td style="font-family: Courier New;">uint16</td><td style="font-family: Courier New;">44000</td><td>The port for the application socket.</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#portSSH">portSSH</a></td><td style="font-family: Courier New;">uint16</td><td style="font-family: Courier New;">22</td><td>The port to be used for SSH/SCP connection.</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#connectTimeout">connectTimeout</a></td><td style="font-family: Courier New;">uint32</td><td style="font-family: Courier New;">3</td><td>Connect timeout in seconds for SSH/SCP connection.</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#targetIPAddress">targetIPAddress</a></td><td style="font-family: Courier New;">char array</td><td style="font-family: Courier New;">''</td><td>IPv4 address of the target PC.</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#targetUsername">targetUsername</a></td><td style="font-family: Courier New;">char array</td><td style="font-family: Courier New;">''</td><td>User name of target PC required to login on target via SSH/SCP.</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#targetSoftwareDirectory">targetSoftwareDirectory</a></td><td style="font-family: Courier New;">char array</td><td style="font-family: Courier New;">'~/GenericTarget/'</td><td>Directory for software on target. Must begin with <code>'~/'</code> and end with <code>'/'</code></td></tr>
 <tr><td style="font-family: Courier New;"><a href="#targetProductName">targetProductName</a></td><td style="font-family: Courier New;">char array</td><td style="font-family: Courier New;">'GenericTarget'</td><td>Name of the executable.</td></tr>
+<tr><td style="font-family: Courier New;"><a href="#targetSocketName">targetSocketName</a></td><td style="font-family: Courier New;">char array</td><td style="font-family: Courier New;">'/run/generic-target/app.lock'</td><td>A system-wide unique socket name to be set for an abstract UNIX socket (without a leading null byte).</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#targetBitmaskCPUCores">targetBitmaskCPUCores</a></td><td style="font-family: Courier New;">char array</td><td style="font-family: Courier New;">''</td><td>A hexadecimal string indicating to which CPU cores the process should be pinned to. If this string is empty, all cores are used.</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#applicationArguments">applicationArguments</a></td><td style="font-family: Courier New;">char array</td><td style="font-family: Courier New;">''</td><td>A string representing additional arguments passed to the application during a Start call.</td></tr>
 <tr><td style="font-family: Courier New;"><a href="#terminateAtTaskOverload">terminateAtTaskOverload</a></td><td style="font-family: Courier New;">logical</td><td style="font-family: Courier New;">true</td><td>True if application should terminate at task overload, false otherwise.</td></tr>
@@ -32,13 +32,12 @@ Detailed information is given afterwards.
 </table>
 
 <br><br>
-<a name="portAppSocket"></a>
-<h3>portAppSocket</h3>
-When the application is started, it always binds a fixed UDP port whose value can be set with this parameter.
-This port ensures that the application can be started only once, because this port can be bound only once.
-At the same time, the application can be terminated with a defined UDP message sent to this port.
-If the application is terminated, the port is released again.
-If several target applications are to be executed at the same time on the same computer, each application must use its own application socket.
+<a name="targetSocketName"></a>
+<h3>targetSocketName</h3>
+When the application is started, it always binds to an abstract UNIX socket with a name set by this parameter.
+This socket ensures that the application is started only once.
+If the application is terminated, the socket is released again.
+If several target applications are to be executed at the same time on the same computer, each application must use its own unique socket name.
 
 <br><br>
 <a name="portSSH"></a>

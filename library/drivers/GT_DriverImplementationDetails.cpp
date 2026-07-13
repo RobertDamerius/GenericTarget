@@ -33,7 +33,7 @@ namespace {
 inline constexpr std::string_view gt_driver_version{"2.0.0"};
 inline constexpr std::string_view gt_driver_compilerVersion{__VERSION__};
 inline constexpr std::string_view gt_driver_builtTimestamp{__DATE__ " " __TIME__};
-const std::string gt_driver_modelName("");
+const std::string_view gt_driver_modelName{""};
 
 void gt_driver_simulink_print(const char* format, ...){
     // for debugging purpose:
@@ -78,8 +78,8 @@ void gt_driver_simulink_print_verbose(const char c, const char* file, const int 
 } /* anonymous namespace */
 
 #define GENERIC_TARGET_PRINT(...) gt_driver_simulink_print(__VA_ARGS__)
-#define GENERIC_TARGET_PRINT_WARNING(...) gt_driver_simulink_print_verbose('W', __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define GENERIC_TARGET_PRINT_ERROR(...) gt_driver_simulink_print_verbose('E', __FILE__, __LINE__, __func__, __VA_ARGS__)
+#define GENERIC_TARGET_PRINT_WARNING(...) gt_driver_simulink_print_verbose('W', __FILE_NAME__, __LINE__, __func__, __VA_ARGS__)
+#define GENERIC_TARGET_PRINT_ERROR(...) gt_driver_simulink_print_verbose('E', __FILE_NAME__, __LINE__, __func__, __VA_ARGS__)
 
 #endif /* !defined(GENERIC_TARGET_IMPLEMENTATION) */
 
@@ -689,9 +689,9 @@ bool DataRecorderManager::WriteIndexFile(void){
 
     // modelName + 0x00
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
-    fwrite(&SimulinkInterface::modelName[0], sizeof(char), SimulinkInterface::modelName.length(), file);
+    fwrite(SimulinkInterface::modelName.data(), sizeof(char), SimulinkInterface::modelName.length(), file);
     #else
-    fwrite(&gt_driver_modelName[0], sizeof(char), gt_driver_modelName.length(), file);
+    fwrite(gt_driver_modelName.data(), sizeof(char), gt_driver_modelName.length(), file);
     #endif
     bytes[0] = 0;
     fwrite(&bytes[0], 1, 1, file);
