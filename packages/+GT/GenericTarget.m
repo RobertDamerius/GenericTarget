@@ -3,7 +3,7 @@ classdef GenericTarget < handle
         portSSH (1,1) uint16 {mustBePositive} = 22;
         connectTimeout (1,1) uint32 {mustBePositive} = 3;
         targetUsername {mustBeTextScalar, GT.mustBeChar} = '';
-        targetIPAddress {mustBeTextScalar, GT.mustBeChar} = '';
+        targetAddress {mustBeTextScalar, GT.mustBeChar} = '';
         targetSoftwareDirectory {mustBeTextScalar, GT.mustBeChar, GT.mustEndWith(targetSoftwareDirectory,'/')} = '~/GenericTarget/';
         targetProductName {mustBeTextScalar, GT.mustBeChar, mustBeValidVariableName} = 'GenericTarget';
         targetSocketName {mustBeTextScalar, GT.mustBeChar} = '/run/generic-target/app.lock';
@@ -16,17 +16,17 @@ classdef GenericTarget < handle
         additionalCompilerFlags (1,1) GT.CompilerFlags = GT.CompilerFlags();
     end
     methods
-        function this = GenericTarget(targetUsername, targetIPAddress)
+        function this = GenericTarget(targetUsername, targetAddress)
             %GT.GenericTarget.GenericTarget Create a Generic Target object.
             %
             % PARAMETERS
             % targetUsername  ... The user name of the target PC required to login on target via SSH/SCP.
-            % targetIPAddress ... The host name of the target, e.g. IP address.
+            % targetAddress ... The host name of the target, e.g. IP address.
             arguments
                 targetUsername {mustBeTextScalar, GT.mustBeChar} = '';
-                targetIPAddress {mustBeTextScalar, GT.mustBeChar} = '';
+                targetAddress {mustBeTextScalar, GT.mustBeChar} = '';
             end
-            this.targetIPAddress = targetIPAddress;
+            this.targetAddress = targetAddress;
             this.targetUsername = targetUsername;
         end
         function commands = Deploy(this, modelName)
@@ -44,7 +44,7 @@ classdef GenericTarget < handle
                 this
                 modelName {mustBeTextScalar, GT.mustBeChar}
             end
-            fprintf('[GENERIC TARGET] Starting deployment of model "%s" on target %s at %s\n', modelName, this.targetUsername, this.targetIPAddress);
+            fprintf('[GENERIC TARGET] Starting deployment of model "%s" on target %s at %s\n', modelName, this.targetUsername, this.targetAddress);
 
             % get code directory of simulink and set temporary zip filename
             zipFileName = fullfile(Simulink.fileGenControl('get', 'CodeGenFolder'), [modelName '.zip']);
@@ -71,21 +71,21 @@ classdef GenericTarget < handle
                 zipFileName {mustBeTextScalar, GT.mustBeChar, GT.mustEndWith(zipFileName, '.zip')}
             end
             assert(exist(zipFileName, 'file'), ['GT.GenericTarget.DeployGeneratedCode(): The specified zip file "', zipFileName, '" does not exist!']);
-            fprintf('[GENERIC TARGET] Starting code deployment (%s) to target %s at %s\n', zipFileName, this.targetUsername, this.targetIPAddress);
+            fprintf('[GENERIC TARGET] Starting code deployment (%s) to target %s at %s\n', zipFileName, this.targetUsername, this.targetAddress);
             tStart = tic();
 
             % SSH: make sure that target software directory exists
-            fprintf(['[GENERIC TARGET] SSH: Creating software directory "' this.targetSoftwareDirectory '" on target ' this.targetIPAddress '\n']);
+            fprintf(['[GENERIC TARGET] SSH: Creating software directory "' this.targetSoftwareDirectory '" on target ' this.targetAddress '\n']);
             cmdSSH1 = this.RunCommandOnTarget(['mkdir -p ' this.targetSoftwareDirectory]);
 
             % SCP: copy zip to target
             targetZipFile = [this.targetSoftwareDirectory 'tmp.zip'];
-            cmdSCP = ['scp -o ConnectTimeout=' num2str(this.connectTimeout) ' -P ' num2str(this.portSSH) ' ' zipFileName ' ' this.targetUsername '@' this.targetIPAddress ':' targetZipFile];
-            fprintf(['[GENERIC TARGET] SCP: Copy new software to target ' this.targetIPAddress '\n']);
+            cmdSCP = ['scp -o ConnectTimeout=' num2str(this.connectTimeout) ' -P ' num2str(this.portSSH) ' ' zipFileName ' ' this.targetUsername '@' this.targetAddress ':' targetZipFile];
+            fprintf(['[GENERIC TARGET] SCP: Copy new software to target ' this.targetAddress '\n']);
             this.RunCommand(cmdSCP);
 
             % SSH: remove old code/build/Makfile/etc., unzip new source and compile
-            fprintf(['[GENERIC TARGET] SSH: Build new software on target ' this.targetIPAddress '\n']);
+            fprintf(['[GENERIC TARGET] SSH: Build new software on target ' this.targetAddress '\n']);
             cmdSSH2 = this.RunCommandOnTarget(['sudo rm -r -f ' this.targetSoftwareDirectory '.vscode ' this.targetSoftwareDirectory 'code ' this.targetSoftwareDirectory 'build ' this.targetSoftwareDirectory 'Makefile ' this.targetSoftwareDirectory 'README.md ; unzip -qq -o ' targetZipFile ' -d ' this.targetSoftwareDirectory ' ; sudo rm ' targetZipFile ' ; cd ' this.targetSoftwareDirectory ' && make clean && make -j8']);
             t = toc(tStart);
             fprintf('\n[GENERIC TARGET] Code deployment completed after %f seconds\n', t);
@@ -182,7 +182,7 @@ classdef GenericTarget < handle
             if(~isempty(this.applicationArguments))
                 args = [' ', this.applicationArguments];
             end
-            fprintf('[GENERIC TARGET] Starting target software on %s at %s\n', this.targetUsername, this.targetIPAddress);
+            fprintf('[GENERIC TARGET] Starting target software on %s at %s\n', this.targetUsername, this.targetAddress);
             commands = this.RunCommandOnTarget(['sudo nohup ' this.GetTasksetOption() this.targetSoftwareDirectory this.targetProductName args ' &> ' this.targetSoftwareDirectory 'out.txt &']);
         end
         function commands = Stop(this)
@@ -191,7 +191,7 @@ classdef GenericTarget < handle
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            fprintf('[GENERIC TARGET] Stopping target software on %s at %s (%s)\n', this.targetUsername, this.targetIPAddress, this.targetSocketName);
+            fprintf('[GENERIC TARGET] Stopping target software on %s at %s (%s)\n', this.targetUsername, this.targetAddress, this.targetSocketName);
             commands = this.RunCommandOnTarget(['sudo kill -INT $(sudo ss -axp | grep ''@', this.targetSocketName, ''' | grep -oP ''pid=\K[0-9]+'' | head -n 1)']);
         end
         function commands = Reboot(this)
@@ -199,7 +199,7 @@ classdef GenericTarget < handle
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            fprintf('[GENERIC TARGET] Rebooting target %s at %s\n', this.targetUsername, this.targetIPAddress);
+            fprintf('[GENERIC TARGET] Rebooting target %s at %s\n', this.targetUsername, this.targetAddress);
             commands = this.RunCommandOnTarget('sudo reboot');
         end
         function commands = Shutdown(this)
@@ -207,7 +207,7 @@ classdef GenericTarget < handle
             % 
             % RETURN
             % commands ... The commands that were executed on the host.
-            fprintf('[GENERIC TARGET] Shutting down target %s at %s\n', this.targetUsername, this.targetIPAddress);
+            fprintf('[GENERIC TARGET] Shutting down target %s at %s\n', this.targetUsername, this.targetAddress);
             commands = this.RunCommandOnTarget('sudo shutdown -h now');
         end
         function commands = ShowPID(this)
@@ -259,9 +259,9 @@ classdef GenericTarget < handle
                 hostDirectory {mustBeTextScalar, GT.mustBeChar} = pwd
             end
             targetProtocolDirectory = this.GetTargetProtocolDirectoryName();
-            fprintf('[GENERIC TARGET] Downloading all protocols (%s) from target %s at %s to host (%s)\n', targetProtocolDirectory, this.targetUsername, this.targetIPAddress, hostDirectory);
+            fprintf('[GENERIC TARGET] Downloading all protocols (%s) from target %s at %s to host (%s)\n', targetProtocolDirectory, this.targetUsername, this.targetAddress, hostDirectory);
             [~,~] = mkdir(hostDirectory);
-            cmdSCP = ['scp -o ConnectTimeout=' num2str(this.connectTimeout) ' -P ' num2str(this.portSSH) ' -r ' this.targetUsername '@' this.targetIPAddress ':' targetProtocolDirectory ' ' hostDirectory];
+            cmdSCP = ['scp -o ConnectTimeout=' num2str(this.connectTimeout) ' -P ' num2str(this.portSSH) ' -r ' this.targetUsername '@' this.targetAddress ':' targetProtocolDirectory ' ' hostDirectory];
             this.RunCommand(cmdSCP);
             commands = {cmdSCP};
             fprintf('[GENERIC TARGET] Download completed\n');
@@ -272,7 +272,7 @@ classdef GenericTarget < handle
             % RETURN
             % commands ... The commands that were executed on the host.
             targetProtocolDirectory = this.GetTargetProtocolDirectoryName();
-            fprintf('[GENERIC TARGET] Stopping target application and deleting all protocol files (%s) from target %s at %s\n', targetProtocolDirectory, this.targetUsername, this.targetIPAddress);
+            fprintf('[GENERIC TARGET] Stopping target application and deleting all protocol files (%s) from target %s at %s\n', targetProtocolDirectory, this.targetUsername, this.targetAddress);
             commands = this.RunCommandOnTarget(['sudo ' this.targetSoftwareDirectory this.targetProductName ' --console --stop ; sudo rm -r -f ' targetProtocolDirectory]);
         end
         function commands = DownloadDataDirectory(this, hostDirectory, targetDataDirectory)
@@ -302,15 +302,15 @@ classdef GenericTarget < handle
             % check if user specified data directory
             cmdSSH = cell.empty();
             if(isempty(targetDataDirectory))
-                fprintf('[GENERIC TARGET] Listing available data directories on target %s at %s\n', this.targetUsername, this.targetIPAddress);
+                fprintf('[GENERIC TARGET] Listing available data directories on target %s at %s\n', this.targetUsername, this.targetAddress);
                 cmdSSH = this.RunCommandOnTarget(['cd ' dataFolder ' && ls']);
                 targetDataDirectory = input('[GENERIC TARGET] Choose directory name to download: ', 's');
             end
 
             % download directory via SCP
-            fprintf('[GENERIC TARGET] Downloading %s from target %s at %s\n', targetDataDirectory, this.targetUsername, this.targetIPAddress);
+            fprintf('[GENERIC TARGET] Downloading %s from target %s at %s\n', targetDataDirectory, this.targetUsername, this.targetAddress);
             [~,~] = mkdir(hostDirectory);
-            cmdSCP = ['scp -o ConnectTimeout=' num2str(this.connectTimeout) ' -P ' num2str(this.portSSH) ' -r ' this.targetUsername '@' this.targetIPAddress ':' dataFolder targetDataDirectory ' ' hostDirectory targetDataDirectory];
+            cmdSCP = ['scp -o ConnectTimeout=' num2str(this.connectTimeout) ' -P ' num2str(this.portSSH) ' -r ' this.targetUsername '@' this.targetAddress ':' dataFolder targetDataDirectory ' ' hostDirectory targetDataDirectory];
             this.RunCommand(cmdSCP);
             if(isempty(cmdSSH))
                 commands = {cmdSCP};
@@ -340,9 +340,9 @@ classdef GenericTarget < handle
             dataFolder = this.GetTargetDataDirectoryName();
 
             % download all data directories via SCP
-            fprintf('[GENERIC TARGET] Downloading all data (%s) from target %s at %s to host (%s)\n', dataFolder, this.targetUsername, this.targetIPAddress, hostDirectory);
+            fprintf('[GENERIC TARGET] Downloading all data (%s) from target %s at %s to host (%s)\n', dataFolder, this.targetUsername, this.targetAddress, hostDirectory);
             [~,~] = mkdir(hostDirectory);
-            cmdSCP = ['scp -o ConnectTimeout=' num2str(this.connectTimeout) ' -P ' num2str(this.portSSH) ' -r ' this.targetUsername '@' this.targetIPAddress ':' dataFolder '* ' hostDirectory];
+            cmdSCP = ['scp -o ConnectTimeout=' num2str(this.connectTimeout) ' -P ' num2str(this.portSSH) ' -r ' this.targetUsername '@' this.targetAddress ':' dataFolder '* ' hostDirectory];
             this.RunCommand(cmdSCP);
             commands = {cmdSCP};
             fprintf('[GENERIC TARGET] Download completed\n');
@@ -353,7 +353,7 @@ classdef GenericTarget < handle
             % RETURN
             % commands ... The commands that were executed on the host.
             dataFolder = this.GetTargetDataDirectoryName();
-            fprintf('[GENERIC TARGET] Stopping target application and deleting all data files (%s) from target %s at %s\n', dataFolder, this.targetUsername, this.targetIPAddress);
+            fprintf('[GENERIC TARGET] Stopping target application and deleting all data files (%s) from target %s at %s\n', dataFolder, this.targetUsername, this.targetAddress);
             commands = this.RunCommandOnTarget(['sudo ' this.targetSoftwareDirectory this.targetProductName ' --console --stop ; sudo rm -r -f ' dataFolder]);
         end
         function dataDirectory = GetTargetDataDirectoryName(this)
@@ -383,7 +383,7 @@ classdef GenericTarget < handle
                 this
                 cmd {mustBeTextScalar, GT.mustBeChar}
             end
-            cmdSSH = ['ssh -o ConnectTimeout=' num2str(this.connectTimeout) ' -p ' num2str(this.portSSH) ' ' this.targetUsername '@' this.targetIPAddress ' "' cmd '"'];
+            cmdSSH = ['ssh -o ConnectTimeout=' num2str(this.connectTimeout) ' -p ' num2str(this.portSSH) ' ' this.targetUsername '@' this.targetAddress ' "' cmd '"'];
             cmdout = this.RunCommand(cmdSSH);
             commands = {cmdSSH};
         end
