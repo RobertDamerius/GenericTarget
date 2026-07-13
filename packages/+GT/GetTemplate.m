@@ -1,7 +1,7 @@
 function GetTemplate()
     %GT.GetTemplate Create a pre-configured template Simulink model and save it to the current working directory.
 
-    modelName = 'template';
+    modelName = 'gt_template';
     fileName = [modelName, '.slx'];
     strSampletime = '0.01';
 
