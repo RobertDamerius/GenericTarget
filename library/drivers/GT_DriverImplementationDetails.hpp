@@ -10,7 +10,6 @@
 #include <atomic>
 #include <thread>
 #include <pthread.h>
-#include <unordered_map>
 #include <filesystem>
 #if defined(_WIN32)
 #include <mutex>
@@ -414,17 +413,21 @@ class DataRecorderManager {
         void ClearAllDataRecorders(void);
 
     private:
-        std::unordered_map<std::string, DataRecorderBase*> dataRecorders;   // List of all created data recorders.
-        std::filesystem::path pathToDataDirectory;                          // Absolute path to the data directory.
+        struct entry {
+            std::string id = "";
+            DataRecorderBase* dataRecorder = nullptr;
+        };
+        std::vector<entry> dataRecorders;            // List of all created data recorders.
+        std::filesystem::path pathToDataDirectory;   // Absolute path to the data directory.
         struct {
-            int32_t year;                                                   // Year A.D.
-            int32_t month;                                                  // Month in range [1,12].
-            int32_t day;                                                    // Day of the month.
-            int32_t hour;                                                   // Hour of the day.
-            int32_t minute;                                                 // Minute of the hour.
-            int32_t second;                                                 // Second of the minute.
-            int32_t millisecond;                                            // Millisecond of the second.
-        } utc;                                                              // UTC that is used for @ref pathToDataDirectory.
+            int32_t year;                            // Year A.D.
+            int32_t month;                           // Month in range [1,12].
+            int32_t day;                             // Day of the month.
+            int32_t hour;                            // Hour of the day.
+            int32_t minute;                          // Minute of the hour.
+            int32_t second;                          // Second of the minute.
+            int32_t millisecond;                     // Millisecond of the second.
+        } utc;                                       // UTC that is used for @ref pathToDataDirectory.
 
         /**
          * @brief Set @ref pathToDataDirectory and @ref utc if they were not set.
@@ -1049,7 +1052,11 @@ class UDPServiceManager {
         std::tuple<Address, int32_t, int32_t> ReceiveFrom(int32_t id, uint8_t *bytes, int32_t maxSize, std::vector<std::array<uint8_t,4>> multicastGroups = {});
 
     private:
-        std::unordered_map<int32_t,UDPService*> services;   // Internal database of UDP services.
+        struct entry {
+            int32_t id = 0;
+            UDPService* service = nullptr;
+        };
+        std::vector<entry> services;                        // Internal database of UDP services.
         std::thread managementThread;                       // Thread that manages all @ref services.
         std::atomic<bool> terminate;                        // Flag for thread termination.
         std::atomic<bool> threadStarted;                    // True if management thread has been started and should be notified by @ref SendTo or @ref ReceiveFrom.

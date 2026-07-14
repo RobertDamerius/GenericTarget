@@ -102,6 +102,7 @@
     During simulation, these blocks only work under the linux operating system.
     </div>
     At the moment only <b>gcc</b> (Linux) and <b>MSYS2/MinGW64</b> (Windows) have been tested to compile the driver blocks.
+    The version must be at least GCC 12.
 
 <h2>Uninstall</h2>
     If you added the directories of the toolbox to the MATLAB path during installation, simply remove them.

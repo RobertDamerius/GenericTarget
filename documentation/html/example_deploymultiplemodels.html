@@ -92,7 +92,7 @@ address  = '192.168.0.100';
 target   = GT.GenericTarget(userName, address);
 
 % Update properties
-target.targetSocketName        = /run/generic-target/application1.lock;
+target.targetSocketName        = '/run/generic-target/application1.lock';
 target.targetSoftwareDirectory = '~/Software1/';
 target.targetProductName       = 'Application1';
 
@@ -108,7 +108,7 @@ address  = '192.168.0.100';
 target   = GT.GenericTarget(userName, address);
 
 % Update properties
-target.targetSocketName        = /run/generic-target/application2.lock;
+target.targetSocketName        = '/run/generic-target/application2.lock';
 target.targetSoftwareDirectory = '~/Software2/';
 target.targetProductName       = 'Application2';
 

@@ -467,17 +467,20 @@ bool DataRecorderManager::AddDataRecorderScalarDoubles(const uint8_t* idCharacte
 
     // check if this data recorder is already in the list
     bool success = false;
-    auto found = dataRecorders.find(id);
-    if(found != dataRecorders.end()){
-        GENERIC_TARGET_PRINT_ERROR("Data recorder with ID \"%s\" has already been registered!\n", id.c_str());
+    bool found = false;
+    for(auto&& rec : dataRecorders){
+        if((found = !rec.id.compare(id))){
+            GENERIC_TARGET_PRINT_ERROR("Data recorder with ID \"%s\" has already been registered!\n", id.c_str());
+            break;
+        }
     }
-    else{
-        DataRecorderScalarDoubles* obj = new DataRecorderScalarDoubles();
-        obj->SetNumSamplesPerFile(numSamplesPerFile);
-        obj->SetNumSignals(numSignals);
-        obj->SetLabels(signalLabels);
-        success = obj->Start((pathToDataDirectory / id).string(), threadPriority);
-        dataRecorders.insert(std::pair<std::string, DataRecorderBase*>(id, obj));
+    if(!found){
+        entry e { .id = id, .dataRecorder = reinterpret_cast<DataRecorderBase*>(new DataRecorderScalarDoubles()) };
+        e.dataRecorder->SetNumSamplesPerFile(numSamplesPerFile);
+        e.dataRecorder->SetNumSignals(numSignals);
+        e.dataRecorder->SetLabels(signalLabels);
+        success = e.dataRecorder->Start((pathToDataDirectory / id).string(), threadPriority);
+        dataRecorders.push_back(e);
     }
 
     // (re-)write index file
@@ -487,9 +490,11 @@ bool DataRecorderManager::AddDataRecorderScalarDoubles(const uint8_t* idCharacte
 
 void DataRecorderManager::WriteScalarDoubles(const uint8_t* idCharacters, uint32_t numIDCharacters, double timestamp, double* values, uint32_t numValues){
     std::string id = ConvertToPrintableString(idCharacters, numIDCharacters);
-    auto found = dataRecorders.find(id);
-    if(found != dataRecorders.end()){
-        found->second->Write(timestamp, static_cast<void*>(values), numValues);
+    for(auto&& rec : dataRecorders){
+        if(!rec.id.compare(id)){
+            rec.dataRecorder->Write(timestamp, static_cast<void*>(values), numValues);
+            break;
+        }
     }
 }
 
@@ -508,19 +513,22 @@ bool DataRecorderManager::AddDataRecorderBus(const uint8_t* idCharacters, uint32
 
     // check if this signal object is already in the list
     bool success = false;
-    auto found = dataRecorders.find(id);
-    if(found != dataRecorders.end()){
-        GENERIC_TARGET_PRINT_ERROR("Data recorder with ID \"%s\" has already been registered!\n", id.c_str());
+    bool found = false;
+    for(auto&& rec : dataRecorders){
+        if((found = !rec.id.compare(id))){
+            GENERIC_TARGET_PRINT_ERROR("Data recorder with ID \"%s\" has already been registered!\n", id.c_str());
+            break;
+        }
     }
-    else{
-        DataRecorderBus* obj = new DataRecorderBus();
-        obj->SetNumSamplesPerFile(numSamplesPerFile);
-        obj->SetNumBytesPerSample(numBytesPerSample);
-        obj->SetLabels(signalLabels);
-        obj->SetDimensions(strDimensions);
-        obj->SetDataTypes(strDataTypes);
-        success = obj->Start((pathToDataDirectory / id).string(), threadPriority);
-        dataRecorders.insert(std::pair<std::string, DataRecorderBase*>(id, obj));
+    if(!found){
+        entry e { .id = id, .dataRecorder = reinterpret_cast<DataRecorderBase*>(new DataRecorderBus()) };
+        e.dataRecorder->SetNumSamplesPerFile(numSamplesPerFile);
+        e.dataRecorder->SetNumBytesPerSample(numBytesPerSample);
+        e.dataRecorder->SetLabels(signalLabels);
+        e.dataRecorder->SetDimensions(strDimensions);
+        e.dataRecorder->SetDataTypes(strDataTypes);
+        success = e.dataRecorder->Start((pathToDataDirectory / id).string(), threadPriority);
+        dataRecorders.push_back(e);
     }
 
     // (re-)write index file
@@ -530,16 +538,18 @@ bool DataRecorderManager::AddDataRecorderBus(const uint8_t* idCharacters, uint32
 
 void DataRecorderManager::WriteBus(const uint8_t* idCharacters, uint32_t numIDCharacters, double timestamp, uint8_t* bytes, uint32_t numBytesPerSample){
     std::string id = ConvertToPrintableString(idCharacters, numIDCharacters);
-    auto found = dataRecorders.find(id);
-    if(found != dataRecorders.end()){
-        found->second->Write(timestamp, static_cast<void*>(bytes), numBytesPerSample);
+    for(auto&& rec : dataRecorders){
+        if(!rec.id.compare(id)){
+            rec.dataRecorder->Write(timestamp, static_cast<void*>(bytes), numBytesPerSample);
+            break;
+        }
     }
 }
 
 void DataRecorderManager::ClearAllDataRecorders(void){
-    for(auto&& p : dataRecorders){
-        p.second->Stop();
-        delete p.second;
+    for(auto&& rec : dataRecorders){
+        rec.dataRecorder->Stop();
+        delete rec.dataRecorder;
     }
     dataRecorders.clear();
     pathToDataDirectory.clear();
@@ -671,9 +681,9 @@ bool DataRecorderManager::WriteIndexFile(void){
     fwrite(&bytes[0], 1, 4, file);
 
     // for all data records, write information
-    for(auto&& p : dataRecorders){
+    for(auto&& rec : dataRecorders){
         // ID (string) + 0x00
-        fwrite(&p.first[0], 1, p.first.size(), file);
+        fwrite(&rec.id[0], 1, rec.id.size(), file);
         bytes[0] = 0;
         fwrite(&bytes[0], 1, 1, file);
     }
@@ -1516,14 +1526,17 @@ UDPServiceManager::~UDPServiceManager(){
 
 bool UDPServiceManager::AddService(int32_t id, UDPServiceConfiguration conf){
     bool success = false;
-    auto found = services.find(id);
-    if(found != services.end()){
-        success = found->second->Create(conf);
+    bool found = false;
+    for(auto&& s : services){
+        if((found = (id == s.id))){
+            success = s.service->Create(conf);
+            break;
+        }
     }
-    else{
-        UDPService* service = new UDPService();
-        success = service->Create(conf);
-        services.insert(std::pair<int32_t, UDPService*>(id, service));
+    if(!found){
+        entry e { .id = id, .service = new UDPService() };
+        success = e.service->Create(conf);
+        services.push_back(e);
     }
     if(!threadStarted && success){
         threadStarted = true;
@@ -1550,8 +1563,8 @@ void UDPServiceManager::ClearAllServices(void){
 
     // destroy all services
     for(auto&& s : services){
-        s.second->Destroy();
-        delete s.second;
+        s.service->Destroy();
+        delete s.service;
     }
     services.clear();
 }
@@ -1562,9 +1575,11 @@ std::tuple<int32_t,int32_t> UDPServiceManager::SendTo(int32_t id, Address destin
         event.Notify();
     }
     std::tuple<int32_t,int32_t> result(0,0);
-    auto found = services.find(id);
-    if(found != services.end()){
-        result = found->second->SendTo(destination, bytes, size);
+    for(auto&& s : services){
+        if(id == s.id){
+            result = s.service->SendTo(destination, bytes, size);
+            break;
+        }
     }
     return result;
 }
@@ -1575,9 +1590,11 @@ std::tuple<Address, int32_t, int32_t> UDPServiceManager::ReceiveFrom(int32_t id,
         event.Notify();
     }
     std::tuple<Address,int32_t,int32_t> result(Address(0,0,0,0,0),0,0);
-    auto found = services.find(id);
-    if(found != services.end()){
-        result = found->second->ReceiveFrom(bytes, maxSize, multicastGroups);
+    for(auto&& s : services){
+        if(id == s.id){
+            result = s.service->ReceiveFrom(bytes, maxSize, multicastGroups);
+            break;
+        }
     }
     return result;
 }
@@ -1587,7 +1604,7 @@ void UDPServiceManager::ManagementThread(void){
     while(!terminate){
         bool allBound = true;
         for(auto&& s : services){
-            allBound &= s.second->AttemptToBind();
+            allBound &= s.service->AttemptToBind();
         }
         if(allBound){
             GENERIC_TARGET_PRINT("All UDP sockets are ready for operation\n");

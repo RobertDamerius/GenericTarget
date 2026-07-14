@@ -156,7 +156,7 @@
             <td style="font-family: Courier New;">D</td>
             <td style="font-family: Courier New;">dateOfCompilation</td>
             <td style="font-family: Courier New;">D x char</td>
-            <td>String indicating the timepoint (local time) when the application has been compiled on the target, e.g. <code>'Jul 21 2023 13:42:00'</code>.</td>
+            <td>String indicating the timepoint (local time) when the application has been compiled on the target, e.g. <code>'Jul 14 2026 13:42:00'</code>.</td>
         </tr>
         <tr>
             <td style="font-family: Courier New;">22+N+V+M+D</td>
@@ -170,7 +170,7 @@
             <td style="font-family: Courier New;">C</td>
             <td style="font-family: Courier New;">compilerVersion</td>
             <td style="font-family: Courier New;">C x char</td>
-            <td>String indicating the GNU compiler version that was used to compile the application, e.g. <code>'11.3.0'</code>.</td>
+            <td>String indicating the GNU compiler version that was used to compile the application, e.g. <code>'12.2.0'</code>.</td>
         </tr>
         <tr>
             <td style="font-family: Courier New;">23+N+V+M+D+C</td>
@@ -184,7 +184,7 @@
             <td style="font-family: Courier New;">I</td>
             <td style="font-family: Courier New;">operatingSystemInfo</td>
             <td style="font-family: Courier New;">I x char</td>
-            <td>String providing additional information about the operating system. All values are separated by comma and have the syntax <code>name=[value]</code>, where the <code>name</code>/<code>value</code> pair depends on the operating system.<br><b>Example:</b> <code>'sysname=[Linux],nodename=[user],release=[5.19.0-46-generic],version=[#47~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Wed Jun 21 15:35:31 UTC 2],machine=[x86_64],domainname=[(none)]'</code>.</td>
+            <td>String providing additional information about the operating system. All values are separated by comma and have the syntax <code>name=[value]</code>, where the <code>name</code>/<code>value</code> pair depends on the operating system.<br><b>Example:</b> <code>'sysname=[Linux],nodename=[debian],release=[6.1.0-50-rt-amd64],version=[#1 SMP PREEMPT_RT Debian 6.1.176-1 (2026-07-02)],machine=[x86_64],domainname=[(none)]'</code>.</td>
         </tr>
         <tr>
             <td style="font-family: Courier New;">24+N+V+M+D+C+I</td>
