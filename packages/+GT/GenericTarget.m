@@ -192,7 +192,7 @@ classdef GenericTarget < handle
             % RETURN
             % commands ... The commands that were executed on the host.
             fprintf('[GENERIC TARGET] Stopping target software on %s at %s (%s)\n', this.targetUsername, this.targetAddress, this.targetSocketName);
-            commands = this.RunCommandOnTarget(['sudo kill -INT $(sudo ss -axp | grep ''@', this.targetSocketName, ''' | grep -oP ''pid=\K[0-9]+'' | head -n 1)']);
+            commands = this.RunCommandOnTarget(this.GetStopCommand());
         end
         function commands = Reboot(this)
             %GT.GenericTarget.Reboot Reboot the target computer. An SSH connection will be established to run a reboot command.
@@ -273,7 +273,7 @@ classdef GenericTarget < handle
             % commands ... The commands that were executed on the host.
             targetProtocolDirectory = this.GetTargetProtocolDirectoryName();
             fprintf('[GENERIC TARGET] Stopping target application and deleting all protocol files (%s) from target %s at %s\n', targetProtocolDirectory, this.targetUsername, this.targetAddress);
-            commands = this.RunCommandOnTarget(['sudo ' this.targetSoftwareDirectory this.targetProductName ' --console --stop ; sudo rm -r -f ' targetProtocolDirectory]);
+            commands = this.RunCommandOnTarget([this.GetStopCommand(), ' ; sudo rm -r -f ' targetProtocolDirectory]);
         end
         function commands = DownloadDataDirectory(this, hostDirectory, targetDataDirectory)
             %GT.GenericTarget.DownloadDataDirectory Download recorded data from the target. The downloaded data will be written to the specified hostDirectory.
@@ -354,7 +354,7 @@ classdef GenericTarget < handle
             % commands ... The commands that were executed on the host.
             dataFolder = this.GetTargetDataDirectoryName();
             fprintf('[GENERIC TARGET] Stopping target application and deleting all data files (%s) from target %s at %s\n', dataFolder, this.targetUsername, this.targetAddress);
-            commands = this.RunCommandOnTarget(['sudo ' this.targetSoftwareDirectory this.targetProductName ' --console --stop ; sudo rm -r -f ' dataFolder]);
+            commands = this.RunCommandOnTarget([this.GetStopCommand(), ' ; sudo rm -r -f ' dataFolder]);
         end
         function dataDirectory = GetTargetDataDirectoryName(this)
             %GT.GenericTarget.GetTargetDataDirectoryName Get the absolute name of the data directory on the target.
@@ -389,6 +389,9 @@ classdef GenericTarget < handle
         end
     end
     methods(Access=private)
+        function stopCommand = GetStopCommand(this)
+            stopCommand = ['sudo kill -INT $(sudo ss -axp | grep ''@', this.targetSocketName, ''' | grep -oP ''pid=\K[0-9]+'' | head -n 1)'];
+        end
         function directory = GetCoreDirectory(~)
             directory = fullfile(extractBefore(mfilename('fullpath'), strlength(mfilename('fullpath')) - strlength(mfilename) + 1), '..', '..', 'core');
         end
@@ -453,6 +456,7 @@ classdef GenericTarget < handle
 
             % update pattern
             strReadme = strrep(strReadme, '$TARGET_README_PRODUCT_NAME$', this.targetProductName);
+            strReadme = strrep(strReadme, '$TARGET_SOCKET_NAME$', this.targetSocketName);
 
             % write readme file to release folder
             fidReadme = fopen(dstReadme, 'w');

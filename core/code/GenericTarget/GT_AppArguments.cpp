@@ -28,7 +28,7 @@ void AppArguments::Parse(int argc, char** argv){
 
 void AppArguments::PrintHelp(void){
     GENERIC_TARGET_PRINT_RAW("\n");
-    GENERIC_TARGET_PRINT_RAW("Syntax: GenericTarget [--console] [--help] [--stop]\n");
+    GENERIC_TARGET_PRINT_RAW("Syntax: GenericTarget [--console] [--help]\n");
     GENERIC_TARGET_PRINT_RAW("\n");
     GENERIC_TARGET_PRINT_RAW("Options:\n");
     GENERIC_TARGET_PRINT_RAW("    --console   Print stdout/stderr to the console instead of redirecting them to a protocol file.\n");
