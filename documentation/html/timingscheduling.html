@@ -155,7 +155,7 @@ Then this thread distributes the event to all worker threads of the model.
 <br>
 The <b>main thread</b> executes the <a href="application.html#flowchart">main entry function</a> of the application.
 The initialization and termination phases of the Generic Target application run in this thread.
-In the actual <a href="application.html#mainloop">main loop</a> this thread receives messages via the application socket and waits for a termination message.
+In the actual <a href="application.html#mainloop">main loop</a> this thread waits for a termination signal, such as <code>SIGINT</code> or <code>SIGTERM</code> to interrupt the loop.
 <br>
 <br>
 The <b>UDP service manager thread</b> has a fixed priority of 21.
