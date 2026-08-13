@@ -91,9 +91,6 @@ void PeriodicTask::Notify(void){
             // if a job is still running: task overload, do not notify
             if(jobRunning){
                 ++numTaskOverloads;
-                if(SimulinkInterface::terminateAtTaskOverload){
-                    GenericTarget::ShouldTerminate();
-                }
                 return;
             }
 

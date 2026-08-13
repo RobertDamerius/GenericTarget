@@ -6,8 +6,6 @@ Simulink.fileGenControl('setConfig', 'config', cfg, 'createDir', true);
 
 % deploy test model
 tg = GT.GenericTarget();
-tg.terminateAtTaskOverload = false;
-tg.terminateAtCPUOverload = false;
 tg.DeployToHost('model','release');
 
 % reset cache folder

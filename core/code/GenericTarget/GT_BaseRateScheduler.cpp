@@ -35,15 +35,7 @@ void BaseRateScheduler::MasterThread(void){
     while(!terminate){
         // wait for a tick event from the master clock and break if clock was destroyed
         if(!masterClock.WaitForTick()) break;
-
-        // check for CPU overloads and termination
-        if(SimulinkInterface::terminateAtCPUOverload && masterClock.GetNumCPUOverloads()){
-            GenericTarget::ShouldTerminate();
-            break;
-        }
-        if(terminate){
-            break;
-        }
+        if(terminate) break;
 
         // signal periodic model tasks
         for(auto&& task : tasks){

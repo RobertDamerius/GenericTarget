@@ -9,8 +9,6 @@ classdef GenericTarget < handle
         targetSocketName {mustBeTextScalar, GT.mustBeChar} = '/run/generic-target/app.lock';
         targetBitmaskCPUCores {mustBeTextScalar, GT.mustBeChar, GT.mustBeHexString} = '';
         applicationArguments {mustBeTextScalar, GT.mustBeChar} = '';
-        terminateAtTaskOverload (1,1) logical = true;
-        terminateAtCPUOverload (1,1) logical = true;
         customCode {mustBeText, GT.mustBeUnique, GT.mustBeCellStr} = cell.empty();
         numberOfOldProtocolFiles (1,1) uint32 = 100;
         additionalCompilerFlags (1,1) GT.CompilerFlags = GT.CompilerFlags();
@@ -630,18 +628,6 @@ classdef GenericTarget < handle
                 strArrayTaskNames = append(strArrayTaskNames, sprintf(', "%s"', taskNames(n)));
             end
 
-            % get task overload behaviour
-            strTerminateAtTaskOverload = 'false';
-            if(this.terminateAtTaskOverload)
-                strTerminateAtTaskOverload = 'true';
-            end
-
-            % get CPU overload behaviour
-            strTerminateAtCPUOverload = 'false';
-            if(this.terminateAtCPUOverload)
-                strTerminateAtCPUOverload = 'true';
-            end
-
             % get number of old protocol files to keep
             strNumberOfOldProtocolFiles = sprintf('%d', this.numberOfOldProtocolFiles);
 
@@ -672,10 +658,6 @@ classdef GenericTarget < handle
             strSource = strrep(strSource, '$STEP_SWITCH$', strStepSwitch);
             strHeader = strrep(strHeader, '$TARGET_SOCKET_NAME$', this.targetSocketName);
             strSource = strrep(strSource, '$TARGET_SOCKET_NAME$', this.targetSocketName);
-            strHeader = strrep(strHeader, '$TERMINATE_AT_TASK_OVERLOAD$', strTerminateAtTaskOverload);
-            strSource = strrep(strSource, '$TERMINATE_AT_TASK_OVERLOAD$', strTerminateAtTaskOverload);
-            strHeader = strrep(strHeader, '$TERMINATE_AT_CPU_OVERLOAD$', strTerminateAtCPUOverload);
-            strSource = strrep(strSource, '$TERMINATE_AT_CPU_OVERLOAD$', strTerminateAtCPUOverload);
             strHeader = strrep(strHeader, '$NUMBER_OF_OLD_PROTOCOL_FILES$', strNumberOfOldProtocolFiles);
             strSource = strrep(strSource, '$NUMBER_OF_OLD_PROTOCOL_FILES$', strNumberOfOldProtocolFiles);
         end

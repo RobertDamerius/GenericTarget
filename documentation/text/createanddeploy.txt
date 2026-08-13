@@ -36,8 +36,6 @@ target.Deploy(model);</pre>
     <h3 class="note-green">Optional Settings</h3>
     Once a GenericTarget object is created, additional parameters can be set.
     To do so, simply change the <a href="packages_gt_generictarget.html#properties">properties</a> of the object before the <a href="packages_gt_generictarget.html#Deploy">Deploy</a> method is called.
-    For example, if the application should not be terminated in case of a task overload, set the corresponding flag to false with <code>target.terminateAtTaskOverload = false;</code>.
-    The list with all properties is given <a href="packages_gt_generictarget.html#properties">here</a>.
     </div>
 
     <div class="note-green">

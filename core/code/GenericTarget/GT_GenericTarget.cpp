@@ -162,8 +162,6 @@ void GenericTarget::PrintInfo(void){
     GENERIC_TARGET_PRINT_RAW("\n");
     GENERIC_TARGET_PRINT_RAW("modelName:                %.*s\n", static_cast<int>(SimulinkInterface::modelName.length()), SimulinkInterface::modelName.data());
     GENERIC_TARGET_PRINT_RAW("targetSocketName:         %.*s\n", static_cast<int>(SimulinkInterface::targetSocketName.length()), SimulinkInterface::targetSocketName.data());
-    GENERIC_TARGET_PRINT_RAW("terminateAtTaskOverload:  %s\n", SimulinkInterface::terminateAtTaskOverload ? "true" : "false");
-    GENERIC_TARGET_PRINT_RAW("terminateAtCPUOverload:   %s\n", SimulinkInterface::terminateAtCPUOverload ? "true" : "false");
     GENERIC_TARGET_PRINT_RAW("baseSampleTime:           %lf s\n", SimulinkInterface::baseSampleTime);
     GENERIC_TARGET_PRINT_RAW("basePriority:             %d\n", gt::basePriority);
     GENERIC_TARGET_PRINT_RAW("tasks:                    ");
