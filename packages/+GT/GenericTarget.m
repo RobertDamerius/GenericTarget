@@ -10,7 +10,7 @@ classdef GenericTarget < handle
         targetBitmaskCPUCores {mustBeTextScalar, GT.mustBeChar, GT.mustBeHexString} = '';
         applicationArguments {mustBeTextScalar, GT.mustBeChar} = '';
         customCode {mustBeText, GT.mustBeUnique, GT.mustBeCellStr} = cell.empty();
-        numberOfOldProtocolFiles (1,1) uint32 = 100;
+        numberOfOldProtocolFiles (1,1) uint32 = 10;
         additionalCompilerFlags (1,1) GT.CompilerFlags = GT.CompilerFlags();
     end
     methods
