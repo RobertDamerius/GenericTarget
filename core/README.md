@@ -16,7 +16,7 @@ sudo nohup ./$TARGET_README_PRODUCT_NAME$ &
 
 To stop a possibly running application, run
 ```
-sudo kill -2 $(sudo ss -axp | grep '@$TARGET_SOCKET_NAME$' | grep -oP 'pid=\K[0-9]+' | head -n 1)
+sudo ss -lpx src '@$TARGET_SOCKET_NAME$' | grep -o 'pid=[0-9]\+' | cut -d= -f2 | xargs -r sudo kill -2
 ```
 
 ## How To Recompile
