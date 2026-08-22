@@ -78,104 +78,73 @@
 <div class="content">
 <h1>Prepare Target Computer</h1>
     Before using the Generic Target Toolbox, the target computer must be set up with a <b>Linux-based operating system</b>.
-    While any Linux distribution can be used, setup steps may vary depending on the chosen distribution.
-    As a result, detailed installation instructions are not provided here - some required packages may already be installed, while others may need to be added manually.
+    While any Linux distribution is supported, <b>Debian is recommended</b>, as it is widely maintained and allows for easy installation of the real-time patch with a single command.
+    Because setup steps can vary between distributions, this document provides installation instructions specifically for Debian; users of other distributions may need to perform additional steps.
     Next, <b>SSH key authentication</b> must be configured to allow passwordless login from the host computer to the target.
     The following steps outline this process.
     <br>
     <ul>
-        <li><a href="#step1">Step 1: Install Linux OS</a></li>
-        <li><a href="#step2">Step 2: Configure Linux</a></li>
+        <li><a href="#step1">Step 1: Install Debian</a></li>
+        <li><a href="#step2">Step 2: Configure Debian</a></li>
         <li><a href="#step3">Step 3: Generate SSH Key for Autologin</a></li>
         <li><a href="#step4">Step 4: Optional Hardware Tuning and Advanced Options</a></li>
     </ul>
 
 
 <a name="step1"></a>
-<h2>Step 1: Install Linux OS</h2>
-    <p>It is recommended to use <b>Debian</b>, as it is widely maintained and allows for easy installation of the real-time patch with a single command. However, any other Linux distribution can also be used.</p>
-    <p>To set up the target computer:</p>
+<h2>Step 1: Install Debian</h2>
+    To set up the target computer:
     <ol>
-        <li><b>Download</b> a Linux distribution of your choice.</li>
-        <li><b>Create a bootable USB stick</b> and boot from it.</li>
-        <li><b>Follow the installation instructions</b>, selecting the minimal installation option if available (excluding office applications and games).</li>
-        <li><b>Enable the SSH server</b> during installation if the option is provided.</li>
+        <li><b>Download</b> the Debian ISO image from <a href="https://www.debian.org" target="_blank">www.debian.org</a>.</li>
+        <li><b>Create a bootable USB stick</b> using the ISO image and boot the target computer from it.</li>
+        <li><b>Follow the installation instructions</b>, selecting the <b>minimal installation</b> option if available to keep the system lightweight.</li>
+        <li><b>Enable the SSH server</b> during the installation process.</li>
     </ol>
-    <p>A desktop environment is <b>not required</b> for the Generic Target Toolbox. Whether to install a graphical user interface on the target computer is up to the user.</p>
+    <i><b>Note</b>: A desktop environment (GUI) is <b>not required</b> for the Generic Target Toolbox. You may choose to install one if you prefer, but it is not necessary for functionality.</i>
 
 
 <a name="step2"></a>
-<h2>Step 2: Configure Linux</h2>
-    At the beginning you can adjust basic settings.
-    For example, the energy saving setting should be adjusted so that the computer does not automatically switch to standby mode.
-    If your linux distribution does not come with <code>sudo</code>, then you have to install it. <code>sudo</code> is required to run
-    application with administrator privileges.
+<h2>Step 2: Configure Debian</h2>
+    Following operating system installation, the required dependencies must be installed and system settings configured.
+    Two main commands, executed in sequence, will automatically complete the full installation and configuration.
 
-        <h3>Install and configure sudo</h3>
-        To install sudo, open a terminal and run
-        <pre>su -l</pre>
-        <pre>apt install sudo</pre>
-        <pre>adduser UserName sudo</pre>
-        where <code>UserName</code> is the user name of the computer.
-        Afterwards reboot the system.
-        <div class="note-orange">
-        <h3 class="note-orange">Note</h3>
-        If sudo is installed but the user is not in the sudoers file, then go into root mode and add the user via
-        <pre>su -l</pre>
-        <pre>adduser UserName sudo</pre>
-        where <code>UserName</code> is the user name of the computer.
-        Afterwards reboot the system.
-        </div>
-        In order to execute sudo commands via SSH without password request, edit the sudoers file for example with the nano editor by running
-        <pre>sudo nano /etc/sudoers</pre>
-        The line starting with "%sudo" must look like this
-        <pre>%sudo   ALL=(ALL:ALL) NOPASSWD: ALL</pre>
-        Save and close the file.
+    <div class="note-green">
+    <h3 class="note-green">Command 1</h3>
+        Open a terminal and run the following command:
+        <pre>su -l -c "export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin && adduser $USER sudo && echo "$USER ALL=(ALL) NOPASSWD: ALL" > ~/$USER-nopasswd && chown root:root ~/$USER-nopasswd && mv ~/$USER-nopasswd /etc/sudoers.d/ && echo 'APT::Get::Always-Include-Phased-Updates "1";' >> /etc/apt/apt.conf.d/99always-include-phased-updates && reboot</pre>
+        This command
+        <ul>
+            <li>adds <code>/sbin</code>, <code>/usr/sbin</code> and <code>/usr/local/sbin</code> to the path</li>
+            <li>adds the user to the sudo group</li>
+            <li>adds a sudoers file to allow passwordless sudo commands</li>
+            <li>disables phased updated</li>
+            <li>reboots the target computer</li>
+        </ul>
+    </div>
 
-        <h3>Update path</h3>
-        On some distributions like Debian, some command line executables are not in the path by default.
-        Add those folders to the path variable by
-        <pre>export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin</pre>
-        and reboot the system.
+    <div class="note-green">
+    <h3 class="note-green">Command 2</h3>
+        Open a terminal and run the following command:
+        <pre>sudo apt update && sudo apt -y upgrade && sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target && echo -e "net.core.rmem_max=33554432\nnet.core.wmem_max=33554432" | sudo tee /etc/sysctl.d/99-custom-buffers.conf && sudo sysctl --system && sudo apt -y install linux-image-rt-amd64 g++ make build-essential net-tools btop && sudo reboot</pre>
+        This command
+        <ul>
+            <li>updates all installed packages</li>
+            <li>disables energy-saving and standby mode</li>
+            <li>set network buffers to 36 MB</li>
+            <li>installs the <code>PREEMPT_RT</code> patch</li>
+            <li>installs C++ compiler and tools: <code>g++</code>, <code>make</code>, <code>build-essential</code>, <code>net-tools</code>, <code>btop</code></li>
+            <li>reboots the target computer</li>
+        </ul>
+    </div>
 
-        <h3>Update system</h3>
-        Connect the target to the internet and update the package database.
-        <pre>sudo apt update</pre>
-        If there're updates available, run
-        <pre>sudo apt upgrade</pre>
+    To check if the realtime kernel is active, open a terminal and run <code>uname -a</code>.
+    You should see something with "SMP PREEMPT_RT".
 
-        <h3>Install PREEMPT_RT patch</h3>
-        The installation of the realtime kernel patch depends on the linux distribution used.
-        Some distributions provide packages like <code>linux-image-realtime</code> or <code>linux-image-rt-amd64</code>.
-        On debian for example, the realtime patch is installed by
-        <pre>sudo apt install linux-image-rt-amd64</pre>
-        After the new kernel has been installed, reboot the machine.
-        To check if the realtime kernel is active, open a terminal and type <code>uname -a</code>.
-        You should see something with "SMP PREEMPT_RT".
-
-        <h3>Configure network buffers</h3>
-        By default the network buffers for sending and receiving messages are limited to a fairly small value of about 100 KB or 200 KB depending on the distribution.
-        To increase the maximum size of those buffers to 36 MB for each socket that is being created, run
-        <pre>sudo sysctl -w net.core.rmem_max=33554432</pre>
-        <pre>sudo sysctl -w net.core.wmem_max=33554432</pre>
-
-        <h3>Install C++ Compiler + Tools</h3>
-        Install the GNU compiler, build tools and C++ libraries with
-        <pre>sudo apt install g++ make build-essential</pre>
-        <div class="note-orange">
-        <h3 class="note-orange">Note</h3>
-        C++20 is required. Make sure that the installed g++ compiler supports the C++20 language features. You can check that by running <code>g++ -v -std=c++20</code>.
-        If there's an error like <code>g++: error: unrecognized command line option '-std=c++20'</code>, then C++20 is not supported and you have to update the GNU compiler to the latest version.
-        </div>
-
-        <h3>Install SSH Server</h3>
-        If the operating system does not come with an SSH server, install the OpenSSH server.
-        <pre>sudo apt install openssh-server</pre>
-
-        <h3>Install optional software</h3>
-        Additional software can now be installed, e.g. tcpdump or wireshark.
-        It is recommended to install network tools (for ping tests):
-        <pre>sudo apt install net-tools</pre>
+    <div class="note-orange">
+    <h3 class="note-orange">Note</h3>
+    C++20 is required. Make sure that the installed g++ compiler supports the C++20 language features. You can check that by running <code>g++ -v -std=c++20</code>.
+    If there's an error like <code>g++: error: unrecognized command line option '-std=c++20'</code>, then C++20 is not supported and you have to update the GNU compiler to the latest version.
+    </div>
 
 
 <a name="step3"></a>

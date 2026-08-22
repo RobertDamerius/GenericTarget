@@ -142,9 +142,12 @@ code, pre {
     border-radius: 2px;
     padding: 1px 4px;
     font-family: monospace,monospace;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 div.note-blue, div.note-green, div.note-orange, div.note-red {
     padding-left: 1.0em;
+    padding-right: 1.0em;
     padding-top: 0.3em;
     padding-bottom: 0.3em;
     margin-bottom: 1.0em;
