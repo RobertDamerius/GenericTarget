@@ -61,8 +61,7 @@ void GT_DriverUDPSocketTerminate(int32_t port){
     (void)port;
 }
 
-void GT_DriverUDPSocketStep(int32_t port, uint8_t tfSendReceive, int32_t rxBufferSize, uint8_t* bytesReceived, uint32_t* numBytesReceived, uint8_t* sourceIP, uint16_t* sourcePort, int32_t* result, int32_t* lastErrorCode, uint8_t* destinationIP, uint16_t destinationPort, uint8_t* bytesToSend, uint32_t numBytesToSend, uint8_t* groupBytes, uint32_t numGroupBytes){
-    *numBytesReceived = 0;
+void GT_DriverUDPSocketStep(int32_t port, uint8_t tfSendReceive, int32_t rxBufferSize, uint8_t* bytesReceived, uint8_t* sourceIP, uint16_t* sourcePort, int32_t* result, int32_t* lastErrorCode, uint8_t* destinationIP, uint16_t destinationPort, uint8_t* bytesToSend, int32_t numBytesToSend, uint8_t* groupBytes, uint32_t numGroupBytes){
     sourceIP[0] = 0;
     sourceIP[1] = 0;
     sourceIP[2] = 0;
@@ -70,7 +69,7 @@ void GT_DriverUDPSocketStep(int32_t port, uint8_t tfSendReceive, int32_t rxBuffe
     *sourcePort = 0;
     if(tfSendReceive){
         gt::driver::Address destination(destinationIP[0], destinationIP[1], destinationIP[2], destinationIP[3], destinationPort);
-        std::tie(*result, *lastErrorCode) = udpServiceManager.SendTo(port, destination, bytesToSend, static_cast<int32_t>(numBytesToSend));
+        std::tie(*result, *lastErrorCode) = udpServiceManager.SendTo(port, destination, bytesToSend, numBytesToSend);
     }
     else{
         gt::driver::Address source;
@@ -79,7 +78,6 @@ void GT_DriverUDPSocketStep(int32_t port, uint8_t tfSendReceive, int32_t rxBuffe
             multicastGroups.push_back({groupBytes[k++], groupBytes[k++], groupBytes[k++], groupBytes[k++]});
         }
         std::tie(source, *result, *lastErrorCode) = udpServiceManager.ReceiveFrom(port, bytesReceived, rxBufferSize, multicastGroups);
-        *numBytesReceived = (*result < 0) ? 0 : static_cast<uint32_t>(*result);
         sourceIP[0] = source.ip[0];
         sourceIP[1] = source.ip[1];
         sourceIP[2] = source.ip[2];

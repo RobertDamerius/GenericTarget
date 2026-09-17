@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 2.0.0</div>
+<div class="header_version">Version 2.1.0</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -41,6 +41,8 @@
 <li class="linav"><a href="packages_gt_mustendwith.html">GT.mustEndWith</a></li>
 <li class="linone"></li>
 <li class="litext">SIMULINK LIBRARY</li>
+<li class="linav"><a href="library_gt_interface_tcpclientsend.html">Interface / TCP Client Send</a></li>
+<li class="linav"><a href="library_gt_interface_tcpclientreceive.html">Interface / TCP Client Receive</a></li>
 <li class="linav"><a href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
 <li class="linav"><a href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
 <li class="linav"><a href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
@@ -141,8 +143,8 @@ If there are several tasks to do, they are processed one after the other.
 
 <h2>Thread Overview</h2>
 There are two threads that are always present.
-These are the the BaseRateScheduler and the main thread.
-The UDP Service Manager thread is available, if UDP transmission blocks are used.
+These are the the <b>BaseRateScheduler</b> and the <b>main</b> thread.
+The UDP Service Manager thread is available, if UDP transmission blocks are used and TCP Client Service threads are running if TCP transmission blocks are used.
 <br>
 <br>
 <center><object data="../img/Threads.svg" type="image/svg+xml"><img src="../img/Threads.svg"></object></center>
@@ -159,8 +161,8 @@ In the actual <a href="application.html#mainloop">main loop</a> this thread wait
 <br>
 <br>
 The <b>UDP service manager thread</b> has a fixed priority of 21.
-It is responsible for binding the ports and device names for all sockets.
-As long as the network interface is not available, it attempts to bind the port and device name every second.
+It is responsible for binding the ports and device names for all UDP sockets.
+As long as the network interface is not available, it attempts to bind the port and device name every 100 milliseconds.
 Once all ports have been bound, this thread is terminated.
 
 <br>
@@ -172,6 +174,11 @@ The smaller the samplerate, the higher the priority.
 For a given task ID <code>n = 0 ... N</code>, where <code>0</code> belongs to the task with the lowest sample time, the priority of a task is calculated by <code>basePriority - (n + 1)</code>.
 One additional thread is added for each Write To File block.
 The priority is specified via the block mask.
+<br>
+<br>
+For each TCP client socket (unique TCP port) an own <b>TCP client service thread</b> is running in the background with a fixed priority of 21.
+This thread is responsible for the entire connection lifecycle, including socket initialization, port binding, establishing the TCP connection to the remote server and managing automatic reconnection attempts.
+If a connection to a server is not established it attempts a reconnection every 100 milliseconds.
 
 <br><br><br><br>
 

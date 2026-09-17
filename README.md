@@ -11,7 +11,8 @@ It's also possible to run the target application on a Linux desktop OS or Window
 ## Features
 - **Hardware Agnostic**: The target applications runs entirely in the userspace, making it available to all platforms that are supported by Linux.
 - **Multi-Threading**: Automatically schedules tasks with multiple sampling rates, running them in parallel with appropriate thread priorities.
-- **UDP Communication**: Offers direct socket access beyond Simulink UDP blocks, allowing retrieval of sender addresses, dynamic multicast joining, socket error handling, and more.
+- **UDP Communication**: Offers direct socket access, allowing retrieval of sender addresses, dynamic multicast joining, socket error handling, and more.
+- **TCP Communication**: Features automatic management of the full TCP connection lifecycle, ensuring continuous data streams through managed disconnection handling and robust automatic reconnection.
 - **Timing**: Provides real-time access to system time in multiple formats, including local time, UTC and UNIX timestamp.
 - **Reliable Data Recording**: Continuously saves data to minimize loss in case of a system failure.
 - **System Monitoring**: Provides access to thermal zones, CPU and task overloads and task execution time for performance analysis.

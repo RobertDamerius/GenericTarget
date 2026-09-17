@@ -73,7 +73,7 @@ extern void print_raw(const char* format, ...);
 namespace gt {
 
 
-inline constexpr std::string_view version{"2.0.0"};
+inline constexpr std::string_view version{"2.1.0"};
 inline constexpr std::string_view compilerVersion{__VERSION__};
 inline constexpr std::string_view builtTimestamp{__DATE__ " " __TIME__};
 inline constexpr int32_t basePriority{49};

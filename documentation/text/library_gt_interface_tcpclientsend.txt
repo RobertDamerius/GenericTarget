@@ -1,0 +1,110 @@
+<h1>TCP Client Send</h1>
+<h3>Library</h3>
+<span style="font-family: Courier New">GenericTarget / Interface / TCP Client Send</span>
+
+<h3>Description</h3>
+Send data to a connected TCP server.
+The server address is set via the server input of a TCP Client Send or TCP Client Receive block if the <b>manageConnection</b> checkbox is enabled.
+For each local TCP port, a separate thread is started, that manages socket creation and connection handling to the server.
+Internally, the target application uses one socket for equal TCP ports.
+If the same local port is set in a TCP Client Send and Receive block, both blocks access the same socket in the background.
+For this reason, the settings in the masks of the corresponding TCP Client Send and Receive blocks must be identical, otherwise the initialization phase of the target application will fail.
+Values less than 1 can also be selected for the port in the block mask.
+In this case, the actual TCP port is selected randomly by the operating system.
+Nevertheless, all TCP Client Send and Receive blocks with the same value in the local port must have the identical mask settings.
+If, for example, several TCP Client blocks have the local port -3, one common socket is used in the background whose current TCP port is randomly assigned by the operating system.
+
+
+<h2>Input Ports</h2>
+<h3>serverAddress</h3>
+A 4-dimensional vector indicating the IPv4 address of the server.
+A zero-value address, e.g. <code>[0,0,0,0]</code>, disconnects the client from the server.
+This input is ignored, if the checkbox <b>manageConnection</b> is disabled.
+<br>
+<b>Data Type:</b> <span style="font-family: Courier New">uint8</span>
+
+<h3>serverPort</h3>
+The server port.
+A value of 0 disconnects the client from the server.
+This input is ignored, if the checkbox <b>manageConnection</b> is disabled.
+<br>
+<b>Data Type:</b> <span style="font-family: Courier New">uint16</span>
+
+<h3>bytes</h3>
+A vector containing the data that should be sent.
+<br>
+<b>Data Type:</b> <span style="font-family: Courier New">uint8</span>
+
+<h3>length</h3>
+The number of bytes that should be sent.
+<br>
+<b>Data Type:</b> <span style="font-family: Courier New">int32</span>
+
+
+<h2>Output Ports</h2>
+<h3>numBytesSent</h3>
+The number of bytes that have been sent or zero in case of errors.
+<br>
+<b>Data Type:</b> <span style="font-family: Courier New">int32</span>
+
+<h3>details</h3>
+This output port is enabled, when checking the option <b>Show details output port</b> via the block mask.
+<br>
+<b>Data Type:</b> <span style="font-family: Courier New">Bus</span>
+<br><br>
+The bus contains the following values.
+<br>
+<table>
+    <tr><th>Parameter Name</th><th>Data Type</th><th>Description</th></tr>
+    <tr><td style="font-family: Courier New;">result</td><td style="font-family: Courier New;">int32</td><td>Result of the socket send function call: The number of bytes that have been sent or a negative value in case of errors.</td></tr>
+    <tr><td style="font-family: Courier New;">lastErrorCode</td><td style="font-family: Courier New;">int32</td><td>The last socket error code from sending a message. 0 means no error. The actual meaning of non-zero values depend on the operating system.</td></tr>
+    <tr><td style="font-family: Courier New;">isConnected</td><td style="font-family: Courier New;">boolean</td><td>The latest connection state to the server.</td></tr>
+</table>
+
+
+<h2>Block Parameters</h2>
+The following table shows all block parameters.
+<table>
+    <tr><th>Parameter Name</th><th>Description</th></tr>
+    <tr><td style="font-family: Courier New;">showDetails</td><td>Checkbox for showing the details output port.</td></tr>
+    <tr><td style="font-family: Courier New;">manageConnection</td><td>Checkbox for enabling connection management.</td></tr>
+    <tr><td style="font-family: Courier New;">localPort</td><td>Local port under the "Socket" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">deviceName</td><td>Device name under the "Socket" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">socketPriority</td><td>Socket priority under the "Advanced" tab.</td></tr>
+    <tr><td style="font-family: Courier New;">SampleTime</td><td>Sampletime.</td></tr>
+</table>
+
+
+<h2>Further Notes</h2>
+<h3>Socket</h3>
+A socket serves as the interface between an application and network hardware.
+The TCP client socket is created when connecting to a TCP server and is destroyed when disconnecting from the server.
+The whole socket creation and connection handling is done in a separate thread that runs with priority 21.
+The socket options <code>SO_REUSEPORT</code> and <code>SO_REUSEADDR</code> are enabled after socket creation, allowing multiple sockets (e.g., multiple blocks) to bind to the same port and device.
+
+<h3>Port Range</h3>
+Port numbers are usually categorized as follows:
+<ul>
+    <li><b>System Ports (1–1023):</b> Reserved for system processes and should not be used.</li>
+    <li><b>User Ports (1024–49151):</b> Available for general use.</li>
+    <li><b>Dynamic Ports (49152–65536):</b> Typically assigned dynamically, but availability may vary depending on the operating system.</li>
+</ul>
+In some cases, ports in the dynamic range may be restricted by the operating system.
+If a port cannot be bound, it may already be in use or blocked by system policies.
+Setting the local port to a value below 1 in the block mask allows the Generic Target to request a random local port, usually within the dynamic range.
+
+<h3>Socket Priority</h3>
+This value must be between <b>0 and 6</b> and determines the protocol-defined priority for outgoing packets.
+Linux uses this setting to manage networking queues, ensuring that higher-priority packets are processed first based on the selected queuing discipline.
+
+<h3>Connection Management</h3>
+For every TCP socket, a dedicated thread is instantiated.
+This thread is responsible for the entire connection lifecycle, including socket initialization, port binding, establishing the TCP connection to the remote server and managing automatic reconnection attempts.
+The necessary server address and port must be supplied as inputs to the TCP Client blocks.
+A request to disconnect is signaled by setting either the server address to 0.0.0.0 or the server port to 0.
+When valid (non-zero) server address and port are provided, the dedicated thread manages the full connection establishment sequence.
+The server address and port might be set by both the TCP Client Send and TCP Client Receive blocks.
+If a specific block should bypass connection management and ignore the server address and port inputs, disable the corresponding connection management checkbox within the block mask.
+
+<br><br><br><br>
+

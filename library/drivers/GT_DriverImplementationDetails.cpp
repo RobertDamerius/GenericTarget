@@ -749,6 +749,16 @@ Address::Address(std::array<uint8_t,4> ip, uint16_t port){
     this->port = port;
 }
 
+std::string Address::ToString(void) {
+    std::stringstream text;
+    text << static_cast<int32_t>(ip[0]) << "." << static_cast<int32_t>(ip[1]) << "." << static_cast<int32_t>(ip[2]) << "." << static_cast<int32_t>(ip[3]) << ":" << static_cast<int32_t>(port);
+    return text.str();
+}
+
+bool Address::operator==(const Address& rhs) const{
+    return (ip == rhs.ip) && (port == rhs.port);
+}
+
 SocketBase::SocketBase():_socket(-1){}
 
 SocketBase::~SocketBase(){
@@ -966,7 +976,11 @@ int32_t TCPSocketBase::Send(uint8_t *bytes, int32_t size){
     if(fd < 0){
         return -1;
     }
+    #ifdef _WIN32
     return static_cast<int32_t>(send(fd, reinterpret_cast<const char*>(bytes), size, 0));
+    #else
+    return static_cast<int32_t>(send(fd, reinterpret_cast<const char*>(bytes), size, MSG_NOSIGNAL));
+    #endif
 }
 
 int32_t TCPSocketBase::Receive(uint8_t *bytes, int32_t maxSize){
@@ -1272,7 +1286,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
             activeConfSet = true;
         }
         if(!(activeConf == desiredConf)){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous socket configuration! The desired configuration is {%s} but this socket has already been configured with {%s}!\n", desiredConf.ToString().c_str(), activeConf.ToString().c_str());
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous UDP socket configuration! The desired configuration is {%s} but this socket has already been configured with {%s}!\n", desiredConf.ToString().c_str(), activeConf.ToString().c_str());
             return false;
         }
         if(!udpSocket.IsOpen()){
@@ -1371,6 +1385,7 @@ void UDPService::Destroy(void){
 
 std::tuple<int32_t, int32_t> UDPService::SendTo(Address destination, uint8_t *bytes, int32_t size){
     int32_t tx = -1;
+    int32_t code = latestErrorCode;
     if(isBound){
         tx = 0;
         bool enableTransmission = (size > 0) || ((0 == size) && activeConf.allowZeroLengthMessage);
@@ -1378,26 +1393,25 @@ std::tuple<int32_t, int32_t> UDPService::SendTo(Address destination, uint8_t *by
             const LockGuard lock(mtxSocket);
             udpSocket.ResetLastError();
             tx = udpSocket.SendTo(destination, bytes, size);
-            latestErrorCode = udpSocket.GetLastErrorCode();
+            latestErrorCode = code = udpSocket.GetLastErrorCode();
         }
     }
-    int32_t code = latestErrorCode;
     return std::make_tuple(tx, code);
 }
 
 std::tuple<Address, int32_t, int32_t> UDPService::ReceiveFrom(uint8_t *bytes, int32_t maxSize, std::vector<std::array<uint8_t,4>> multicastGroups){
     Address source;
     int32_t rx = -1;
+    int32_t code = latestErrorCode;
     if(isBound){
         UpdateMulticastGroups(multicastGroups);
         {
             const LockGuard lock(mtxSocket);
             udpSocket.ResetLastError();
             rx = udpSocket.ReceiveFrom(source, bytes, maxSize);
-            latestErrorCode = udpSocket.GetLastErrorCode();
+            latestErrorCode = code = udpSocket.GetLastErrorCode();
         }
     }
-    int32_t code = latestErrorCode;
     return std::make_tuple(source, rx, code);
 }
 
@@ -1569,12 +1583,12 @@ void UDPServiceManager::ClearAllServices(void){
     services.clear();
 }
 
-std::tuple<int32_t,int32_t> UDPServiceManager::SendTo(int32_t id, Address destination, uint8_t* bytes, int32_t size){
+std::tuple<int32_t, int32_t> UDPServiceManager::SendTo(int32_t id, Address destination, uint8_t* bytes, int32_t size){
     if(threadStarted){
         threadStarted = false;
         event.Notify();
     }
-    std::tuple<int32_t,int32_t> result(0,0);
+    std::tuple<int32_t, int32_t> result(0, 0);
     for(auto&& s : services){
         if(id == s.id){
             result = s.service->SendTo(destination, bytes, size);
@@ -1589,7 +1603,7 @@ std::tuple<Address, int32_t, int32_t> UDPServiceManager::ReceiveFrom(int32_t id,
         threadStarted = false;
         event.Notify();
     }
-    std::tuple<Address,int32_t,int32_t> result(Address(0,0,0,0,0),0,0);
+    std::tuple<Address, int32_t, int32_t> result(Address(0, 0, 0, 0, 0), 0, 0);
     for(auto&& s : services){
         if(id == s.id){
             result = s.service->ReceiveFrom(bytes, maxSize, multicastGroups);
@@ -1610,7 +1624,356 @@ void UDPServiceManager::ManagementThread(void){
             GENERIC_TARGET_PRINT("All UDP sockets are ready for operation\n");
             break;
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+}
+
+TCPClientServiceConfiguration::TCPClientServiceConfiguration(){
+    Reset();
+}
+
+void TCPClientServiceConfiguration::Reset(void){
+    port = 0;
+    deviceName.clear();
+    socketPriority = 0;
+}
+
+std::string TCPClientServiceConfiguration::ToString(void){
+    std::stringstream text;
+    text << "port=" << port;
+    text << ", deviceName=\"" << deviceName << "\"";
+    text << ", socketPriority=" << socketPriority;
+    return text.str();
+}
+
+bool TCPClientServiceConfiguration::operator==(const TCPClientServiceConfiguration& rhs) const {
+    return (port == rhs.port) &&
+           (deviceName == rhs.deviceName) &&
+           (socketPriority == rhs.socketPriority);
+}
+
+TCPClientService::TCPClientService(){
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
+    pthread_mutex_init(&mtxIO, &attr);
+    pthread_mutexattr_destroy(&attr);
+    terminate = false;
+    isCreated = false;
+    isConnected = false;
+    latestErrorCode = 0;
+}
+
+TCPClientService::~TCPClientService(){
+    Destroy();
+    pthread_mutex_destroy(&mtxIO);
+}
+
+bool TCPClientService::Create(TCPClientServiceConfiguration conf){
+    if(isCreated){
+        bool equalConf = (conf == activeConf);
+        if(!equalConf){
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous TCP client socket configuration! The desired configuration is {%s} but this socket has already been configured with {%s}!\n", conf.ToString().c_str(), activeConf.ToString().c_str());
+        }
+        return equalConf;
+    }
+    activeConf = conf;
+    managementThread = std::thread(&TCPClientService::ManagementThread, this);
+    struct sched_param param;
+    param.sched_priority = std::clamp(21, sched_get_priority_min(SCHED_FIFO), sched_get_priority_max(SCHED_FIFO));
+    if(0 != pthread_setschedparam(managementThread.native_handle(), SCHED_FIFO, &param)){
+        GENERIC_TARGET_PRINT_WARNING("Failed to set thread priority 21 for TCP client service management thread!\n");
+    }
+    isCreated = true;
+    return true;
+}
+
+void TCPClientService::Destroy(void){
+    terminate = true;
+    Disconnect();
+    event.Notify();
+    if(managementThread.joinable()){
+        managementThread.join();
+    }
+    terminate = false;
+    isCreated = false;
+    latestErrorCode = 0;
+    event.Clear();
+    activeConf.Reset();
+    commandedAddress.ip.fill(0);
+    commandedAddress.port = 0;
+}
+
+std::tuple<int32_t, int32_t, bool> TCPClientService::Send(Address serverAddress, bool manageConnection, uint8_t* bytes, int32_t size){
+    const LockGuard lock(mtxIO);
+    int32_t tx = -1;
+    int32_t code = latestErrorCode;
+    if(manageConnection && SetNewAddressCommand(serverAddress)){
+        event.Notify();
+    }
+    if(isConnected){
+        tcpSocket.ResetLastError();
+        tx = tcpSocket.Send(bytes, size);
+        latestErrorCode = code = tcpSocket.GetLastErrorCode();
+        bool connectionClosed = (tx < 0) && (
+        #if defined(_WIN32)
+            code == WSAECONNRESET ||
+            code == WSAENOTCONN ||
+            code == WSAESHUTDOWN ||
+            code == WSAECONNABORTED ||
+            code == WSAETIMEDOUT
+        #else
+            code == ECONNRESET ||
+            code == EPIPE ||
+            code == ENOTCONN ||
+            code == ETIMEDOUT
+        #endif
+        );
+        if(connectionClosed){
+            isConnected = false;
+            event.Notify();
+        }
+    }
+    return std::make_tuple(tx, code, isConnected);
+}
+
+std::tuple<int32_t, int32_t, bool> TCPClientService::Receive(Address serverAddress, bool manageConnection, uint8_t *bytes, int32_t maxSize){
+    const LockGuard lock(mtxIO);
+    int32_t rx = -1;
+    int32_t code = latestErrorCode;
+    if(manageConnection && SetNewAddressCommand(serverAddress)){
+        event.Notify();
+    }
+    if(isConnected){
+        tcpSocket.ResetLastError();
+        rx = tcpSocket.Receive(bytes, maxSize);
+        latestErrorCode = code = tcpSocket.GetLastErrorCode();
+        bool connectionClosed = !rx || ((rx < 0) && (
+        #if defined(_WIN32)
+            code == WSAECONNRESET ||
+            code == WSAENOTCONN ||
+            code == WSAECONNABORTED ||
+            code == WSAESHUTDOWN ||
+            code == WSAETIMEDOUT ||
+            code == WSAENETDOWN
+        #else
+            code == ECONNRESET ||
+            code == ENOTCONN ||
+            code == ESHUTDOWN ||
+            code == ETIMEDOUT
+        #endif
+        ));
+        if(connectionClosed){
+            isConnected = false;
+            event.Notify();
+        }
+    }
+    return std::make_tuple(rx, code, isConnected);
+}
+
+bool TCPClientService::SetNewAddressCommand(Address serverAddress){
+    bool changed = !(commandedAddress == serverAddress);
+    commandedAddress = serverAddress;
+    return changed;
+}
+
+void TCPClientService::ManagementThread(void){
+    Address destination;
+    bool destinationChanged = false;
+    bool notConnected = true;
+    while(!terminate){
+        // get commanded server address, check for local changes
+        {
+            const LockGuard lock(mtxIO);
+            destinationChanged = !(destination == commandedAddress);
+            destination = commandedAddress;
+            notConnected = !isConnected;
+        }
+
+        // manage connection
+        if(notConnected || destinationChanged){
+            Disconnect();
+            if(IsConnectCommand(destination) && !Connect(destination, destinationChanged)){
+                if(!terminate){
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                }
+                continue;
+            }
+        }
+
+        // wait for next command
         event.Wait();
     }
+    Disconnect();
+}
+
+bool TCPClientService::IsConnectCommand(Address addr){
+    return (addr.ip[0] || addr.ip[1] || addr.ip[2] || addr.ip[3]) && addr.port;
+}
+
+bool TCPClientService::Connect(Address destination, bool destinationChanged){
+    // open TCP socket
+    tcpSocket.ResetLastError();
+    if(!tcpSocket.Open()){
+        auto [errorCode, errorString] = tcpSocket.GetLastError();
+        if(errorCode != latestErrorCode){
+            GENERIC_TARGET_PRINT_ERROR("Failed to open TCP client socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+        }
+        latestErrorCode = errorCode;
+        return false;
+    }
+
+    // reuse port
+    tcpSocket.ResetLastError();
+    if(tcpSocket.ReusePort(true) < 0){
+        auto [errorCode, errorString] = tcpSocket.GetLastError();
+        if(errorCode != latestErrorCode){
+            GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEPORT option for TCP client socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+        }
+        latestErrorCode = errorCode;
+        tcpSocket.Close();
+        return false;
+    }
+
+    // reuse address
+    tcpSocket.ResetLastError();
+    if(tcpSocket.ReuseAddress(true) < 0){
+        auto [errorCode, errorString] = tcpSocket.GetLastError();
+        if(errorCode != latestErrorCode){
+            GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEADDR option for TCP client socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+        }
+        latestErrorCode = errorCode;
+        tcpSocket.Close();
+        return false;
+    }
+
+    // set socket priority
+    tcpSocket.ResetLastError();
+    if(tcpSocket.SetSocketPriority(activeConf.socketPriority) < 0){
+        auto [errorCode, errorString] = tcpSocket.GetLastError();
+        if(errorCode != latestErrorCode){
+            GENERIC_TARGET_PRINT_ERROR("Failed to set SO_PRIORITY option for TCP client socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+        }
+        latestErrorCode = errorCode;
+        tcpSocket.Close();
+        return false;
+    }
+
+    // bind port
+    uint16_t port = static_cast<uint16_t>(std::clamp(activeConf.port, 0, 65535));
+    tcpSocket.ResetLastError();
+    if(tcpSocket.Bind(port) < 0){
+        auto [errorCode, errorString] = tcpSocket.GetLastError();
+        if(errorCode != latestErrorCode){
+            GENERIC_TARGET_PRINT_ERROR("Failed to bind port for TCP client socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+        }
+        latestErrorCode = errorCode;
+        tcpSocket.Close();
+        return false;
+    }
+
+    // bind to device
+    tcpSocket.ResetLastError();
+    if(tcpSocket.BindToDevice(activeConf.deviceName) < 0){
+        auto [errorCode, errorString] = tcpSocket.GetLastError();
+        if(errorCode != latestErrorCode){
+            GENERIC_TARGET_PRINT_ERROR("Failed to bind TCP client socket to a device {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+        }
+        latestErrorCode = errorCode;
+        tcpSocket.Close();
+        return false;
+    }
+
+    // connect to server
+    tcpSocket.ResetLastError();
+    if(tcpSocket.Connect(destination) < 0){
+        auto [errorCode, errorString] = tcpSocket.GetLastError();
+        if(errorCode != latestErrorCode || destinationChanged){
+            GENERIC_TARGET_PRINT_ERROR("Failed to connect TCP client socket {%s} to %s! %s\n", activeConf.ToString().c_str(), destination.ToString().c_str(), errorString.c_str());
+        }
+        latestErrorCode = errorCode;
+        return false;
+    }
+
+    // enable non-blocking mode
+    tcpSocket.ResetLastError();
+    if(!tcpSocket.EnableNonBlockingMode()){
+        auto [errorCode, errorString] = tcpSocket.GetLastError();
+        if(errorCode != latestErrorCode){
+            GENERIC_TARGET_PRINT_ERROR("Failed to enable non-blocking mode for TCP client socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+        }
+        latestErrorCode = errorCode;
+        tcpSocket.Close();
+        return false;
+    }
+
+    // success
+    GENERIC_TARGET_PRINT("TCP client socket {%s} connected to %s\n", activeConf.ToString().c_str(), destination.ToString().c_str());
+    {
+        const LockGuard lock(mtxIO);
+        isConnected = true;
+    }
+    return true;
+}
+
+void TCPClientService::Disconnect(void){
+    const LockGuard lock(mtxIO);
+    if(tcpSocket.IsOpen()){
+        tcpSocket.Close();
+    }
+    isConnected = false;
+}
+
+TCPClientServiceManager::TCPClientServiceManager(){}
+
+TCPClientServiceManager::~TCPClientServiceManager(){
+    ClearAllServices();
+}
+
+bool TCPClientServiceManager::AddService(int32_t id, TCPClientServiceConfiguration conf){
+    bool success = false;
+    bool found = false;
+    for(auto&& s : services){
+        if((found = (id == s.id))){
+            success = s.service->Create(conf);
+            break;
+        }
+    }
+    if(!found){
+        entry e { .id = id, .service = new TCPClientService() };
+        success = e.service->Create(conf);
+        services.push_back(e);
+    }
+    return success;
+}
+
+void TCPClientServiceManager::ClearAllServices(void){
+    for(auto&& s : services){
+        s.service->Destroy();
+        delete s.service;
+    }
+    services.clear();
+}
+
+std::tuple<int32_t, int32_t, bool> TCPClientServiceManager::Send(int32_t id, Address serverAddress, bool manageConnection, uint8_t* bytes, int32_t size){
+    std::tuple<int32_t, int32_t, bool> result(0, 0, false);
+    for(auto&& s : services){
+        if(id == s.id){
+            result = s.service->Send(serverAddress, manageConnection, bytes, size);
+            break;
+        }
+    }
+    return result;
+}
+
+std::tuple<int32_t, int32_t, bool> TCPClientServiceManager::Receive(int32_t id, Address serverAddress, bool manageConnection, uint8_t *bytes, int32_t maxSize){
+    std::tuple<int32_t, int32_t, bool> result(0, 0, false);
+    for(auto&& s : services){
+        if(id == s.id){
+            result = s.service->Receive(serverAddress, manageConnection, bytes, maxSize);
+            break;
+        }
+    }
+    return result;
 }
 

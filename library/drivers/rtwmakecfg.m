@@ -2,7 +2,7 @@ function makeInfo = rtwmakecfg()
 %RTWMAKECFG adds include and source directories to the make files.
 %    makeInfo=
 %    Simulink version    : 25.2 (R2025b) 28-Jul-2025
-%    MATLAB file generated on : 14-Jul-2026 10:10:07
+%    MATLAB file generated on : 17-Sep-2026 09:22:55
 
 % Verify the Simulink version
 verify_simulink_version();
@@ -59,7 +59,7 @@ makeInfo.sourcePath = correct_path_name(allSrcPaths);
 function info = get_serialized_info()
 
 % Allocate the output structure array
-info(1:13) = struct(...
+info(1:14) = struct(...
     'SFunctionName', '',...
     'IncPaths', {{}},...
     'SrcPaths', {{}},...
@@ -79,49 +79,53 @@ info(2).SFunctionName = 'SFunctionGTDriverUDPSocket';
 info(2).SourceFiles = {'GT_DriverUDPSocket.cpp', 'GT_DriverImplementationDetails.cpp'};
 info(2).Language = 'C++';
 
-info(3).SFunctionName = 'SFunctionGTDriverModelExecutionTime';
-info(3).SourceFiles = {'GT_DriverModelExecutionTime.cpp'};
+info(3).SFunctionName = 'SFunctionGTDriverTCPClientSocket';
+info(3).SourceFiles = {'GT_DriverTCPClientSocket.cpp', 'GT_DriverImplementationDetails.cpp'};
 info(3).Language = 'C++';
 
-info(4).SFunctionName = 'SFunctionGTDriverUnixTime';
-info(4).SourceFiles = {'GT_DriverUnixTime.cpp'};
+info(4).SFunctionName = 'SFunctionGTDriverModelExecutionTime';
+info(4).SourceFiles = {'GT_DriverModelExecutionTime.cpp'};
 info(4).Language = 'C++';
 
-info(5).SFunctionName = 'SFunctionGTDriverUTCTimestamp';
-info(5).SourceFiles = {'GT_DriverUTCTimestamp.cpp'};
+info(5).SFunctionName = 'SFunctionGTDriverUnixTime';
+info(5).SourceFiles = {'GT_DriverUnixTime.cpp'};
 info(5).Language = 'C++';
 
-info(6).SFunctionName = 'SFunctionGTDriverUTCTime';
-info(6).SourceFiles = {'GT_DriverUTCTime.cpp'};
+info(6).SFunctionName = 'SFunctionGTDriverUTCTimestamp';
+info(6).SourceFiles = {'GT_DriverUTCTimestamp.cpp'};
 info(6).Language = 'C++';
 
-info(7).SFunctionName = 'SFunctionGTDriverLocalTime';
-info(7).SourceFiles = {'GT_DriverLocalTime.cpp'};
+info(7).SFunctionName = 'SFunctionGTDriverUTCTime';
+info(7).SourceFiles = {'GT_DriverUTCTime.cpp'};
 info(7).Language = 'C++';
 
-info(8).SFunctionName = 'SFunctionGTDriverDataRecorder';
-info(8).SourceFiles = {'GT_DriverDataRecorder.cpp', 'GT_DriverImplementationDetails.cpp'};
+info(8).SFunctionName = 'SFunctionGTDriverLocalTime';
+info(8).SourceFiles = {'GT_DriverLocalTime.cpp'};
 info(8).Language = 'C++';
 
-info(9).SFunctionName = 'SFunctionGTDriverTaskExecutionTime';
-info(9).SourceFiles = {'GT_DriverTaskExecutionTime.cpp'};
+info(9).SFunctionName = 'SFunctionGTDriverDataRecorder';
+info(9).SourceFiles = {'GT_DriverDataRecorder.cpp', 'GT_DriverImplementationDetails.cpp'};
 info(9).Language = 'C++';
 
-info(10).SFunctionName = 'SFunctionGTDriverNumTaskOverloads';
-info(10).SourceFiles = {'GT_DriverNumTaskOverloads.cpp'};
+info(10).SFunctionName = 'SFunctionGTDriverTaskExecutionTime';
+info(10).SourceFiles = {'GT_DriverTaskExecutionTime.cpp'};
 info(10).Language = 'C++';
 
-info(11).SFunctionName = 'SFunctionGTDriverNumCPUOverloads';
-info(11).SourceFiles = {'GT_DriverNumCPUOverloads.cpp'};
+info(11).SFunctionName = 'SFunctionGTDriverNumTaskOverloads';
+info(11).SourceFiles = {'GT_DriverNumTaskOverloads.cpp'};
 info(11).Language = 'C++';
 
-info(12).SFunctionName = 'SFunctionGTDriverStopExecution';
-info(12).SourceFiles = {'GT_DriverStopExecution.cpp'};
+info(12).SFunctionName = 'SFunctionGTDriverNumCPUOverloads';
+info(12).SourceFiles = {'GT_DriverNumCPUOverloads.cpp'};
 info(12).Language = 'C++';
 
-info(13).SFunctionName = 'SFunctionGTDriverReadThermalZones';
-info(13).SourceFiles = {'GT_DriverReadThermalZones.cpp'};
+info(13).SFunctionName = 'SFunctionGTDriverStopExecution';
+info(13).SourceFiles = {'GT_DriverStopExecution.cpp'};
 info(13).Language = 'C++';
+
+info(14).SFunctionName = 'SFunctionGTDriverReadThermalZones';
+info(14).SourceFiles = {'GT_DriverReadThermalZones.cpp'};
+info(14).Language = 'C++';
 
 %% ------------------------------------------------------------------------
 function verify_simulink_version()

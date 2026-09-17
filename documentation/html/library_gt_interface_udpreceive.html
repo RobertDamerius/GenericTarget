@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 2.0.0</div>
+<div class="header_version">Version 2.1.0</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -41,6 +41,8 @@
 <li class="linav"><a href="packages_gt_mustendwith.html">GT.mustEndWith</a></li>
 <li class="linone"></li>
 <li class="litext">SIMULINK LIBRARY</li>
+<li class="linav"><a href="library_gt_interface_tcpclientsend.html">Interface / TCP Client Send</a></li>
+<li class="linav"><a href="library_gt_interface_tcpclientreceive.html">Interface / TCP Client Receive</a></li>
 <li class="linav"><a href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
 <li class="linav_active"><a href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
 <li class="linav"><a href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
@@ -82,7 +84,7 @@
 
 <h3>Description</h3>
 Receive a UDP message at the specified port. By default all messages from the network buffer of the operating system are fetched. However, this option can be disabled in the advanced tab.
-Internally, the target application uses a separate socket for each defined UDP port.
+Internally, the target application uses one socket for equal UDP ports.
 If the same local port is set in a UDP Send and Receive block, both blocks access the same socket in the background.
 For this reason, the settings in the masks of the corresponding UDP Send and Receive blocks must be identical, otherwise the initialization phase of the target application will fail.
 Values less than 1 can also be selected for the port in the block mask.
@@ -104,9 +106,9 @@ N-dimensional vector containing the latest message that has been fetched from th
 <b>Data Type:</b> <span style="font-family: Courier New">uint8</span>
 
 <h3>length</h3>
-The actual length of the corresponding message.
+The actual length of the corresponding message or zero in case of errors.
 <br>
-<b>Data Type:</b> <span style="font-family: Courier New">uint32</span>
+<b>Data Type:</b> <span style="font-family: Courier New">int32</span>
 
 <h3>details</h3>
 This output port is enabled, when checking the option <b>Show details output port</b> via the block mask.
@@ -119,7 +121,7 @@ The bus contains the following values.
     <tr><th>Parameter Name</th><th>Data Type</th><th>Description</th></tr>
     <tr><td style="font-family: Courier New;">sourceAddress</td><td style="font-family: Courier New;">uint8</td><td>A 4-dimensional vector denoting the IPv4 source address of the received message.</td></tr>
     <tr><td style="font-family: Courier New;">sourcePort</td><td style="font-family: Courier New;">uint16</td><td>The source port of the received message.</td></tr>
-    <tr><td style="font-family: Courier New;">result</td><td style="font-family: Courier New;">int32</td><td>The number of bytes that have been received or a negative value in case of errors.</td></tr>
+    <tr><td style="font-family: Courier New;">result</td><td style="font-family: Courier New;">int32</td><td>Result of the socket recvfrom function call: The number of bytes that have been received or a negative value in case of errors.</td></tr>
     <tr><td style="font-family: Courier New;">lastErrorCode</td><td style="font-family: Courier New;">int32</td><td>The last socket error code from receiving a message. 0 means no error. The actual meaning of non-zero values depend on the operating system.</td></tr>
 </table>
 
@@ -159,7 +161,7 @@ It's possible to use multiple UDP Receive blocks with the same local port in you
 </div>
 
 <h3>Port Range</h3>
-Port numbers are categorized as follows:
+Port numbers are usually categorized as follows:
 <ul>
     <li><b>System Ports (1–1023):</b> Reserved for system processes and should not be used.</li>
     <li><b>User Ports (1024–49151):</b> Available for general use.</li>

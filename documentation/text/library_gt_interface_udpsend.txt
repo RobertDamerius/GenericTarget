@@ -5,7 +5,7 @@
 <h3>Description</h3>
 Send a UDP message to a destination address that is specified via the destination input.
 By default a message of zero-length is not sent. However, this option can be enabled in the advanced tab.
-Internally, the target application uses a separate socket for each defined UDP port.
+Internally, the target application uses one socket for equal UDP ports.
 If the same local port is set in a UDP Send and Receive block, both blocks access the same socket in the background.
 For this reason, the settings in the masks of the corresponding UDP Send and Receive blocks must be identical, otherwise the initialization phase of the target application will fail.
 Values less than 1 can also be selected for the port in the block mask.
@@ -33,7 +33,7 @@ A vector containing the message that should be sent.
 <h3>length</h3>
 The number of bytes that should be sent. The length must not be greater than 65507.
 <br>
-<b>Data Type:</b> <span style="font-family: Courier New">uint32</span>
+<b>Data Type:</b> <span style="font-family: Courier New">int32</span>
 
 
 <h2>Output Ports</h2>
@@ -46,7 +46,7 @@ The bus contains the following values.
 <br>
 <table>
     <tr><th>Parameter Name</th><th>Data Type</th><th>Description</th></tr>
-    <tr><td style="font-family: Courier New;">result</td><td style="font-family: Courier New;">int32</td><td>The value represents the number of bytes that have been sent or a negative value in case of errors.</td></tr>
+    <tr><td style="font-family: Courier New;">result</td><td style="font-family: Courier New;">int32</td><td>Result of the socket sendto function call: The number of bytes that have been sent or a negative value in case of errors.</td></tr>
     <tr><td style="font-family: Courier New;">lastErrorCode</td><td style="font-family: Courier New;">int32</td><td>The value indicates the last socket error code from sending a message. 0 means no error. The actual meaning of non-zero values depend on the operating system.</td></tr>
 </table>
 
@@ -77,7 +77,7 @@ However, binding to a local port and a specific network device occurs within a s
 The socket options <code>SO_REUSEPORT</code> and <code>SO_REUSEADDR</code> are enabled after socket creation, allowing multiple sockets (e.g., multiple blocks) to bind to the same port and device.
 
 <h3>Port Range</h3>
-Port numbers are categorized as follows:
+Port numbers are usually categorized as follows:
 <ul>
     <li><b>System Ports (1–1023):</b> Reserved for system processes and should not be used.</li>
     <li><b>User Ports (1024–49151):</b> Available for general use.</li>

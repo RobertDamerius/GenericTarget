@@ -54,9 +54,31 @@ function BuildDrivers()
     def.SFunctionName    = 'SFunctionGTDriverUDPSocket';
     def.StartFcnSpec     = 'void GT_DriverUDPSocketInitialize(int32 p1, uint8 p2[], uint32 p3, int32 p4, uint8 p5, uint8 p6, uint8 p7, uint8 p8, uint8 p9, uint8 p10[4])';
     def.TerminateFcnSpec = 'void GT_DriverUDPSocketTerminate(int32 p1)';
-    def.OutputFcnSpec    = 'void GT_DriverUDPSocketStep(int32 p1, uint8 p11, int32 p12, uint8 y1[p12], uint32 y2[1], uint8 y3[4], uint16 y4[1], int32 y5[1], int32 y6[1], uint8 u1[4], uint16 u2, uint8 u3[], uint32 u4, uint8 u5[], uint32 u6)';
+    def.OutputFcnSpec    = 'void GT_DriverUDPSocketStep(int32 p1, uint8 p11, int32 p12, uint8 y1[p12], uint8 y2[4], uint16 y3[1], int32 y4[1], int32 y5[1], uint8 u1[4], uint16 u2, uint8 u3[], int32 u4, uint8 u5[], uint32 u6)';
     def.HeaderFiles      = {'GT_DriverUDPSocket.hpp'};
     def.SourceFiles      = {'GT_DriverUDPSocket.cpp','GT_DriverImplementationDetails.cpp'};
+    def.IncPaths         = {''};
+    def.SrcPaths         = {''};
+    def.LibPaths         = {''};
+    def.HostLibFiles     = {''};
+    def.SampleTime       = 'parameterized';
+    def.Options.language = 'C++';
+    def.Options.useTlcWithAccel = false;
+    def.Options.supportsMultipleExecInstances = true;
+    defs = [defs; def];
+
+
+    % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    % Driver: TCP Client Socket
+    % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    fprintf('define driver: TCPClientSocket\n');
+    def = legacy_code('initialize');
+    def.SFunctionName    = 'SFunctionGTDriverTCPClientSocket';
+    def.StartFcnSpec     = 'void GT_DriverTCPClientSocketInitialize(int32 p1, uint8 p2[], uint32 p3, int32 p4)';
+    def.TerminateFcnSpec = 'void GT_DriverTCPClientSocketTerminate(int32 p1)';
+    def.OutputFcnSpec    = 'void GT_DriverTCPClientSocketStep(int32 p1, uint8 p5, int32 p6, uint8 y1[p6], int32 y2[1], int32 y3[1], uint8 y4[1], uint8 u1[4], uint16 u2, uint8 p7, uint8 u3[], int32 u4)';
+    def.HeaderFiles      = {'GT_DriverTCPClientSocket.hpp'};
+    def.SourceFiles      = {'GT_DriverTCPClientSocket.cpp','GT_DriverImplementationDetails.cpp'};
     def.IncPaths         = {''};
     def.SrcPaths         = {''};
     def.LibPaths         = {''};
@@ -349,6 +371,8 @@ function BuildDrivers()
     fprintf('        --------------------------------------------------------------------------\n');
     fprintf('        Interface/UDP Send                       yes(*)\n');
     fprintf('        Interface/UDP Receive                    yes(*)\n');
+    fprintf('        Interface/TCP Client Send                yes(*)\n');
+    fprintf('        Interface/TCP Client Receive             yes(*)\n');
     fprintf('        Interface/Write Scalar Doubles To File   yes\n');
     fprintf('        Interface/Write Bus To File              yes\n');
     fprintf('        Interface/Stop Execution                 no\n');

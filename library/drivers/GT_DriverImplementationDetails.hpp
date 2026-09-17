@@ -500,6 +500,19 @@ class Address {
          * @param[in] port Port value.
          */
         Address(std::array<uint8_t,4> ip, uint16_t port);
+
+        /**
+         * @brief Convert this address to a human-readable string.
+         * @return A string representing this address.
+         */
+        std::string ToString(void);
+
+        /**
+         * @brief Comparison operator.
+         * @param[in] rhs Right-hand sided value used for the comparison.
+         * @return True if this is equal to rhs, false otherwise.
+         */
+        bool operator==(const Address& rhs) const;
 };
 
 
@@ -932,7 +945,7 @@ class UDPService {
          * <1> The last socket error code.
          * @details Keeps returning -1 and the latest error code if @ref AttempToBind has not been completed successfully.
          */
-        std::tuple<int32_t,int32_t> SendTo(Address destination, uint8_t* bytes, int32_t size);
+        std::tuple<int32_t, int32_t> SendTo(Address destination, uint8_t* bytes, int32_t size);
 
         /**
          * @brief Receive bytes from address.
@@ -1032,7 +1045,7 @@ class UDPServiceManager {
          * @details Performs the post-initialization via @ref PostInitialization and then sends the
          * message if that post-initialization was successful.
          */
-        std::tuple<int32_t,int32_t> SendTo(int32_t id, Address destination, uint8_t* bytes, int32_t size);
+        std::tuple<int32_t, int32_t> SendTo(int32_t id, Address destination, uint8_t* bytes, int32_t size);
 
         /**
          * @brief Receive bytes from address.
@@ -1056,17 +1069,224 @@ class UDPServiceManager {
             int32_t id = 0;
             UDPService* service = nullptr;
         };
-        std::vector<entry> services;                        // Internal database of UDP services.
-        std::thread managementThread;                       // Thread that manages all @ref services.
-        std::atomic<bool> terminate;                        // Flag for thread termination.
-        std::atomic<bool> threadStarted;                    // True if management thread has been started and should be notified by @ref SendTo or @ref ReceiveFrom.
-        Event event;                                        // Event to notify the management thread.
+        std::vector<entry> services;       // Internal database of UDP services.
+        std::thread managementThread;      // Thread that manages all @ref services.
+        std::atomic<bool> terminate;       // Flag for thread termination.
+        std::atomic<bool> threadStarted;   // True if management thread has been started and should be notified by @ref SendTo or @ref ReceiveFrom.
+        Event event;                       // Event to notify the management thread.
 
         /**
          * @brief The management thread function.
          * @details This thread attemps to bind port and device name to sockets as long as not completed.
          */
         void ManagementThread(void);
+};
+
+
+/**
+ * @brief The TCP client service configuration. It contains settings for the TCP client socket, such as port and device name.
+ */
+class TCPClientServiceConfiguration {
+    public:
+        int32_t port;             // The port to be bound to the TCP client socket. Values less than 1 indicate a dynamic port. This value is also used as a unique key.
+        std::string deviceName;   // The device name to which the socket should be bound, if this string is non-empty.
+        int32_t socketPriority;   // The socket priority in range [0 (lowest), 6 (highest)] to be set for the TCP client socket.
+
+        /**
+         * @brief Construct a new TCP client service configuration object and set default values.
+         */
+        TCPClientServiceConfiguration();
+
+        /**
+         * @brief Reset all properties.
+         */
+        void Reset(void);
+
+        /**
+         * @brief Convert this configuration to a human-readable string.
+         * @return A string giving information about this configuration.
+         */
+        std::string ToString(void);
+
+        /**
+         * @brief Comparison operator.
+         * @param[in] rhs Right-hand sided value used for the comparison.
+         * @return True if this is equal to rhs, false otherwise.
+         */
+        bool operator==(const TCPClientServiceConfiguration& rhs) const;
+};
+
+
+/**
+ * @brief Manages sending and receiving of TCP messages in a non-blocked manner for a TCP client.
+ * The socket creation and server connection is managed by a separate thread.
+ */
+class TCPClientService {
+    public:
+        /**
+         * @brief Construct a new TCP client service object.
+         */
+        TCPClientService();
+
+        /**
+         * @brief Destroy the TCP client service object.
+         * @details Calls the @ref Destroy member function.
+         */
+        ~TCPClientService();
+
+        /**
+         * @brief Assign the configuration for this service and start it.
+         * @param[in] conf The configuration to be assigned for this service.
+         * @return True if success, false otherwise. If this service has already been created with a different configuration, false is returned.
+         * @details Starts a separate management thread.
+         */
+        bool Create(TCPClientServiceConfiguration conf);
+
+        /**
+         * @brief Destroy the TCP client service.
+         */
+        void Destroy(void);
+
+        /**
+         * @brief Send bytes to address and manage connection.
+         * @param[in] serverAddress The server address to which to connect to.
+         * @param[in] manageConnection True if connection to serverAddress should be managed, false otherwise.
+         * @param[in] bytes Bytes that should be sent.
+         * @param[in] size Number of bytes.
+         * @return A tuple containing the following values:
+         * <0> Number of bytes that have been sent. If an error occurred, the return value is < 0.
+         * <1> The last socket error code.
+         * <2> A flag indicating that connection has been established.
+         * @details Keeps returning {-1,.,false} as long as connection has not been established.
+         */
+        std::tuple<int32_t, int32_t, bool> Send(Address serverAddress, bool manageConnection, uint8_t* bytes, int32_t size);
+
+        /**
+         * @brief Receive bytes from address and manage connection.
+         * @param[in] serverAddress The server address to which to connect to.
+         * @param[in] manageConnection True if connection to serverAddress should be managed, false otherwise.
+         * @param[out] bytes Pointer to data array, where received bytes should be stored.
+         * @param[in] maxSize The maximum size of the data array.
+         * @return A tuple containing the following values:
+         * <0> Number of bytes that have been received. If an error occurred, the return value is < 0.
+         * <1> The last socket error code.
+         * <2> A flag indicating that connection has been established.
+         * @details Keeps returning {-1,.,false} as long as connection has not been established.
+         */
+        std::tuple<int32_t, int32_t, bool> Receive(Address serverAddress, bool manageConnection, uint8_t *bytes, int32_t maxSize);
+
+    private:
+        TCPClientSocket tcpSocket;                  // Internal socket object for TCP client operation.
+        pthread_mutex_t mtxIO;                      // Ensure safe send and receive operations. Protects @ref isConnected and @ref commandedAddress.
+        TCPClientServiceConfiguration activeConf;   // The active configuration in use.
+        std::atomic<bool> terminate;                // Flag for thread termination.
+        bool isCreated;                             // True if this service has already been created, false otherwise.
+        bool isConnected;                           // True if connection to TCP server is established.
+        Address commandedAddress;                   // The commanded address to connect to or zero if disconnect is commanded.
+        std::atomic<int32_t> latestErrorCode;       // Stores the latest socket error code.
+        std::thread managementThread;               // Thread that manages socket creation and server connections.
+        Event event;                                // Event to notify the management thread.
+
+        /**
+         * @brief Set a new commanded address.
+         * @param[in] serverAddress The new server address to be set.
+         * @return True if the address changed its value, false otherwise.
+         */
+        bool SetNewAddressCommand(Address serverAddress);
+
+        /**
+         * @brief The management thread function.
+         * @details This thread manages socket creation and server connections.
+         */
+        void ManagementThread(void);
+
+        /**
+         * @brief Check if a given address represents a given TCP server to connect to.
+         * @param[in] addr The address to be checked.
+         * @return True if addr represents an address to connect to, false if a disconnect is commanded.
+         */
+        bool IsConnectCommand(Address addr);
+
+        /**
+         * @brief Open the TCP client socket, set all required options and connect to the server.
+         * @param[in] destination Destination address to which to connect to.
+         * @param[in] destinationChanged True if the destination address has been changed. This value is used to prevent duplicated error logs.
+         * @return True if success, false otherwise.
+         */
+        bool Connect(Address destination, bool destinationChanged);
+
+        /**
+         * @brief Disconnect from a server by closing the TCP client socket.
+         */
+        void Disconnect(void);
+};
+
+
+/**
+ * @brief This class manages all TCP client services for TCP send and receive operations.
+ */
+class TCPClientServiceManager {
+    public:
+        /**
+         * @brief Construct a new TCP client service manager.
+         */
+        TCPClientServiceManager();
+
+        /**
+         * @brief Destroy the TCP client service manager.
+         */
+        ~TCPClientServiceManager();
+
+        /**
+         * @brief Add a new TCP client service for a TCP client block.
+         * @param[in] id The unique key of the service.
+         * @param[in] conf The configuration to be assigned for the service.
+         * @return True if success, false otherwise.
+         */
+        bool AddService(int32_t id, TCPClientServiceConfiguration conf);
+
+        /**
+         * @brief Clear all TCP client services.
+         * @details This will remove all @ref services.
+         */
+        void ClearAllServices(void);
+
+        /**
+         * @brief Send bytes to address and manage connection.
+         * @param[in] id The identifier of the TCP client service to be used for sending a message.
+         * @param[in] serverAddress The server address to which to connect to.
+         * @param[in] manageConnection True if connection to serverAddress should be managed, false otherwise.
+         * @param[in] bytes Bytes that should be sent.
+         * @param[in] size Number of bytes.
+         * @return A tuple containing the following values:
+         * <0> Number of bytes that have been sent. If an error occurred, the return value is < 0.
+         * <1> The last socket error code.
+         * <2> A flag indicating that connection has been established.
+         * @details Keeps returning {-1,.,false} as long as connection has not been established.
+         */
+        std::tuple<int32_t, int32_t, bool> Send(int32_t id, Address serverAddress, bool manageConnection, uint8_t* bytes, int32_t size);
+
+        /**
+         * @brief Receive bytes from address and manage connection.
+         * @param[in] id The identifier of the TCP client service to be used for receiving a message.
+         * @param[in] serverAddress The server address to which to connect to.
+         * @param[in] manageConnection True if connection to serverAddress should be managed, false otherwise.
+         * @param[out] bytes Pointer to data array, where received bytes should be stored.
+         * @param[in] maxSize The maximum size of the data array.
+         * @return A tuple containing the following values:
+         * <0> Number of bytes that have been received. If an error occurred, the return value is < 0.
+         * <1> The last socket error code.
+         * <2> A flag indicating that connection has been established.
+         * @details Keeps returning {-1,.,false} as long as connection has not been established.
+         */
+        std::tuple<int32_t, int32_t, bool> Receive(int32_t id, Address serverAddress, bool manageConnection, uint8_t *bytes, int32_t maxSize);
+
+    private:
+        struct entry {
+            int32_t id = 0;
+            TCPClientService* service = nullptr;
+        };
+        std::vector<entry> services;   // Internal database of TCP client services.
 };
 
 

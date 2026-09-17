@@ -33,6 +33,8 @@ layoutNavBar = [
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'GT.mustEndWith', 'packages_gt_mustendwith.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.none);
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.text, 'SIMULINK LIBRARY');
+    SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Interface / TCP Client Send', 'library_gt_interface_tcpclientsend.html');
+    SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Interface / TCP Client Receive', 'library_gt_interface_tcpclientreceive.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Interface / UDP Send', 'library_gt_interface_udpsend.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Interface / UDP Receive', 'library_gt_interface_udpreceive.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Interface / Write Scalar Doubles To File', 'library_gt_interface_writescalardoublestofile.html');
