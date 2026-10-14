@@ -30,7 +30,7 @@ using namespace gt::driver;
 
 namespace {
 
-inline constexpr std::string_view gt_driver_version{"2.0.0"};
+inline constexpr std::string_view gt_driver_version{"2.1.0"};
 inline constexpr std::string_view gt_driver_compilerVersion{__VERSION__};
 inline constexpr std::string_view gt_driver_builtTimestamp{__DATE__ " " __TIME__};
 const std::string_view gt_driver_modelName{""};
@@ -773,11 +773,11 @@ void SocketBase::Close(void){
     int fd = _socket.exchange(-1);
     if(fd >= 0){
         #ifdef _WIN32
-        (void) shutdown(_socket, SD_BOTH);
-        (void) closesocket(_socket);
+        (void) shutdown(fd, SD_BOTH);
+        (void) closesocket(fd);
         #else
-        (void) shutdown(_socket, SHUT_RDWR);
-        (void) close(_socket);
+        (void) shutdown(fd, SHUT_RDWR);
+        (void) close(fd);
         #endif
     }
 }
