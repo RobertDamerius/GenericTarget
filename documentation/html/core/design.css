@@ -25,17 +25,18 @@ header {
     font-family: sans-serif;
 }
 .wrapper {
+    display: flex;
     font-size: calc(1em * 0.875);
     min-height: 100vh;
 }
 .navigation {
-    float: left;
-    width: 256px;
+    flex: 0 0 256px;
     background-color: #25282b;
     min-height: 100vh;
 }
 .content {
-    margin-left: 256px;
+    flex: 1;
+    min-width: 0;
     border-right: 0px;
     padding: 1.5em;
     line-height: 1.6;
