@@ -108,4 +108,3 @@ class BaseRateScheduler {
 
 
 } /* namespace: gt */
-

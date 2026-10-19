@@ -21,4 +21,3 @@ extern void GT_DriverNumTaskOverloadsTerminate(void);
  * @param[in] taskNameLength The number of characters representing the task name.
  */
 extern void GT_DriverNumTaskOverloadsStep(uint64_t* numTaskOverloads, uint8_t* taskName, uint32_t taskNameLength);
-

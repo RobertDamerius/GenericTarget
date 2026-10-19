@@ -38,4 +38,3 @@ bool AppSocket::Open(std::string_view socketName){
 void AppSocket::Close(void){
     close(lock_fd);
 }
-

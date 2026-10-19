@@ -1,7 +1,7 @@
 function BuildDrivers()
     %GT.BuildDrivers Build or rebuild the driver blocks for the Generic Target toolbox. Some blocks have no effect during
     % simulation using Simulink.
-    % 
+    %
     % DETAILS
     % This MATLAB function generates all S-functions and compiles the corresponding mex binaries for the Simulink library.
 
@@ -393,4 +393,3 @@ function BuildDrivers()
     % navigate back to current working directory
     cd(currentWorkingDirectory);
 end
-

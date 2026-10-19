@@ -20,4 +20,3 @@ extern void GT_DriverNumCPUOverloadsTerminate(void);
  * @param[out] numLostTicks The latest number of lost ticks.
  */
 extern void GT_DriverNumCPUOverloadsStep(uint64_t* numCPUOverloads, uint64_t* numLostTicks);
-

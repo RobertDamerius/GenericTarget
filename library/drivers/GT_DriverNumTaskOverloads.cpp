@@ -25,4 +25,3 @@ void GT_DriverNumTaskOverloadsStep(uint64_t* numTaskOverloads, uint8_t* taskName
         (void)taskNameLength;
     #endif
 }
-

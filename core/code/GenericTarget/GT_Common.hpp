@@ -80,4 +80,3 @@ inline constexpr int32_t basePriority{49};
 
 
 } /* namespace: gt */
-

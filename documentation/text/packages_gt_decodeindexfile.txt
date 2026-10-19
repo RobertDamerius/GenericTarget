@@ -33,4 +33,3 @@ Decode an index file from a data recording. An index file is created by the Gene
     </table>
 
 <br><br><br><br>
-

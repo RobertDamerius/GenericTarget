@@ -10,4 +10,3 @@ function blkStruct = slblocks
 
     blkStruct.Browser = Browser;
 end
-

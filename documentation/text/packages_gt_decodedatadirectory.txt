@@ -19,11 +19,10 @@ This function reads the index file and reads all data files that match the data 
     <h3>data</h3>
     The data structure containing timeseries for all recorded signals.
     If you want to decode specific data files, see <a href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a>.
-    
+
     <h3>info</h3>
     A structure that contains information about the data recording. This information is read from the index file.
     More information about the structure is given <a href="packages_gt_decodeindexfile.html#output_info">here</a>.
     If you want to decode only the index file, see <a href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a>.
 
 <br><br><br><br>
-

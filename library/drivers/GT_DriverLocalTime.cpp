@@ -24,4 +24,3 @@ void GT_DriverLocalTimeStep(int32_t* nanoseconds, int32_t* second, int32_t* minu
     duration -= seconds;
     *nanoseconds = static_cast<int32_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count());
 }
-

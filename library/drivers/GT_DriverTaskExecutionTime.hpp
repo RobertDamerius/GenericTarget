@@ -22,4 +22,3 @@ extern void GT_DriverTaskExecutionTimeTerminate(void);
  * @details The task execution time is the computation time required by the step function of the model.
  */
 extern void GT_DriverTaskExecutionTimeStep(double* taskExecutionTime, uint8_t* taskName, uint32_t taskNameLength);
-

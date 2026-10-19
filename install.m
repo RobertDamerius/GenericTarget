@@ -31,4 +31,3 @@ fprintf('\nInstallation completed\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 % show documentation
 GT.OpenDocumentation();
-

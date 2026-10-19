@@ -112,4 +112,3 @@ Each time a packet passes through a multicast routing device, its TTL value decr
 If it reaches zero, the routing device discards the message.
 
 <br><br><br><br>
-

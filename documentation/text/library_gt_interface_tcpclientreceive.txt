@@ -103,4 +103,3 @@ The server address and port might be set by both the TCP Client Send and TCP Cli
 If a specific block should bypass connection management and ignore the server address and port inputs, disable the corresponding connection management checkbox within the block mask.
 
 <br><br><br><br>
-

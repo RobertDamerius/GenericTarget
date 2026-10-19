@@ -25,4 +25,3 @@ void GT_DriverApplicationArgumentsStep(uint8_t* argBuffer, uint32_t* numCharsPer
         *numArguments = 0;
     #endif
 }
-

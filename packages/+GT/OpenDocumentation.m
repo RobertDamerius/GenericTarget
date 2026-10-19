@@ -1,6 +1,6 @@
 function OpenDocumentation(page)
     %GT.OpenDocumentation Open the HTML-based documentation of the Generic Target toolbox.
-    % 
+    %
     % PARAMETER
     % page ... (optional) The page to be opened. The default value is 'index.html'.
 
@@ -11,4 +11,3 @@ function OpenDocumentation(page)
     htmlFile = fullfile(thisDirectory, '..', '..', 'documentation', 'html', page);
     web(htmlFile);
 end
-

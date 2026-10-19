@@ -29,4 +29,3 @@ void GT_DriverReadThermalZonesStep(uint32_t maxNumThermalZones, double* temperat
     }
     #endif
 }
-

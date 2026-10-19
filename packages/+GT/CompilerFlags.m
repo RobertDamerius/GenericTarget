@@ -10,4 +10,3 @@ classdef CompilerFlags < handle
         LIBRARY_PATHS {mustBeText, GT.mustBeUnique, GT.mustBeCellStr} = cell.empty();
     end
 end
-

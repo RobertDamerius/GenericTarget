@@ -61,4 +61,3 @@ void GT_DriverTCPClientSocketStep(int32_t port, uint8_t tfSendReceive, int32_t r
         std::tie(*result, *lastErrorCode, *isConnected) = tcpClientServiceManager.Receive(port, serverAddress, manageConnection, bytesReceived, rxBufferSize);
     }
 }
-

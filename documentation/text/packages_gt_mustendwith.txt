@@ -9,4 +9,3 @@ If the condition is not met, an assertion fails.
 <code>GT.mustEndWith(x, s)</code> checks if the string <code>x</code> ends with <code>s</code>.
 
 <br><br><br><br>
-

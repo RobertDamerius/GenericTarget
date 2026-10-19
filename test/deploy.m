@@ -11,4 +11,3 @@ tg.DeployToHost('model','release');
 % reset cache folder
 Simulink.fileGenControl('reset');
 rmdir(fullfile(tempdir,'generic_target_test'),'s');
-

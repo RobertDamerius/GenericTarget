@@ -43,4 +43,3 @@ extern void GT_DriverUDPSocketTerminate(int32_t port);
  * @param[in] numGroupBytes Total number of bytes inside groupBytes (usually a multiple of 4). This value is only used for receive operation.
  */
 extern void GT_DriverUDPSocketStep(int32_t port, uint8_t tfSendReceive, int32_t rxBufferSize, uint8_t* bytesReceived, uint8_t* sourceIP, uint16_t* sourcePort, int32_t* result, int32_t* lastErrorCode, uint8_t* destinationIP, uint16_t destinationPort, uint8_t* bytesToSend, int32_t numBytesToSend, uint8_t* groupBytes, uint32_t numGroupBytes);
-

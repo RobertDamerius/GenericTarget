@@ -114,4 +114,3 @@ function AddModelContent(modelName, strSampletime)
     % set sampletime for write to file block
     set_param(blockWriteToFile, 'SampleTime', strSampletime);
 end
-

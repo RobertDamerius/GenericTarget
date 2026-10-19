@@ -17,4 +17,3 @@ void GT_DriverStopExecutionStep(uint8_t stopExecution){
         (void)stopExecution;
     #endif
 }
-

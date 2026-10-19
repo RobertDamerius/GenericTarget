@@ -17,4 +17,3 @@ void GT_DriverNumCPUOverloadsStep(uint64_t* numCPUOverloads, uint64_t* numLostTi
         *numLostTicks = 0;
     #endif
 }
-

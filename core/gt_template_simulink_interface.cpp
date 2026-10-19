@@ -19,4 +19,3 @@ $STEP_SWITCH$
         default: break;
     }
 }
-

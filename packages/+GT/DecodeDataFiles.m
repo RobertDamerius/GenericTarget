@@ -1,9 +1,9 @@
 function data = DecodeDataFiles(dataFileNames)
     %GT.DecodeDataFiles Decode raw data file(s) recorded by the Generic Target application into a structure of timeseries.
-    % 
+    %
     % PARAMETERS
     % dataFileNames ... A cell array of strings indicating the raw data files that contains the data recorded by the Generic Target application for one ID, e.g. 'myData_0' or {'myData_0','myData_1'}.
-    % 
+    %
     % RETURN
     % data ... The data structure containing timeseries for all recorded signals.
 
@@ -275,4 +275,3 @@ function result = GetSizeOfSignal(dim, type)
             result = numValues * uint64(8);
     end
 end
-

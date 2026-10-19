@@ -16,4 +16,3 @@ extern void GT_DriverUnixTimeTerminate(void);
  * @param[out] time Unix time in seconds.
  */
 extern void GT_DriverUnixTimeStep(double* time);
-

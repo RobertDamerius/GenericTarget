@@ -16,4 +16,3 @@ function GT_CheckUniqueParameterValue(system, block, parameterName)
         end
     end
 end
-

@@ -180,4 +180,3 @@
     If you make changes to the bootloader menu, don't forget to run <code>sudo update-grub</code> and then reboot the target.
 
 <br><br><br><br>
-

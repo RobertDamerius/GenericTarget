@@ -118,4 +118,3 @@
     The application socket is closed and the Generic Target application is terminated.
 
 <br><br><br><br>
-

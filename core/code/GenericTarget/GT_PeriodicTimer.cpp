@@ -123,4 +123,3 @@ bool PeriodicTimer::WaitForTick(void){
     }
     return false;
 }
-

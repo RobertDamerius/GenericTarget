@@ -3,4 +3,3 @@ function mustEndWith(x, s)
     % If the condition is not met, an assertion fails.
     assert(endsWith(x, s), ['Value must end with "', s, '".']);
 end
-

@@ -54,4 +54,3 @@ Note that a data directory is created, whenever the initialization callback of t
 This may also happen during a model compilation, e.g. when clicking the Update button of the <a href="library_gt_interface_writebustofile.html">Write Bus To File</a> block.
 
 <br><br><br><br>
-

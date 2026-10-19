@@ -3,4 +3,3 @@ function mustBeChar(x)
     % If the condition is not met, an assertion fails.
     assert(ischar(x), 'Value must be of type char.');
 end
-

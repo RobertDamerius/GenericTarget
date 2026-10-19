@@ -27,4 +27,3 @@ void GT_DriverModelExecutionTimeStep(double* time){
     *time = std::chrono::duration<double>(std::chrono::steady_clock::now() - time_point_of_start).count();
     #endif
 }
-

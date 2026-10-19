@@ -16,7 +16,7 @@ class gt_lock_guard {
                 pthread_mutex_lock(mtx);
             }
         }
-        ~gt_lock_guard(){ 
+        ~gt_lock_guard(){
             if(mtx){
                 pthread_mutex_unlock(mtx);
             }
@@ -79,4 +79,3 @@ void gt::print_raw(const char* format, ...){
     va_end(argptr);
     fflush(stderr);
 }
-

@@ -42,4 +42,3 @@ extern void GT_DriverDataRecorderTerminate(uint8_t writeFilesDuringSimulation);
  * @param[in] writeFilesDuringSimulation Nonzero if files should be written during simulation.
  */
 extern void GT_DriverDataRecorderStep(uint8_t typeOfRecorder, const uint8_t* idCharacters, uint32_t numIDCharacters, double timestamp, double* values, uint32_t numValues, uint8_t* bytes, uint32_t numBytesPerSample, uint8_t writeFilesDuringSimulation);
-

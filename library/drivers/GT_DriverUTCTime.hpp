@@ -28,4 +28,3 @@ extern void GT_DriverUTCTimeTerminate(void);
  * @param[out] isdst Daylight Saving Time flag. The value is positive if DST is in effect, zero if not and negative if no information is available.
  */
 extern void GT_DriverUTCTimeStep(int32_t* nanoseconds, int32_t* second, int32_t* minute, int32_t* hour, int32_t* mday, int32_t* month, int32_t* year, int32_t* wday, int32_t* yday, int32_t* isdst);
-

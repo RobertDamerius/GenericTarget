@@ -11,4 +11,3 @@ This MATLAB function generates all S-functions and compiles the corresponding me
 <code>GT.BuildDrivers()</code> builds the simulink driver blocks.
 
 <br><br><br><br>
-

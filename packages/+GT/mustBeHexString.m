@@ -7,4 +7,3 @@ function mustBeHexString(x)
         assert(numel(i) && (sum(i) == numel(i)), 'Value must be either an empty string or a hexadecimal string, e.g. "0xFF".');
     end
 end
-

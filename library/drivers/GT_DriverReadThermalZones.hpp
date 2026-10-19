@@ -20,4 +20,3 @@ extern void GT_DriverReadThermalZonesTerminate(void);
  * @param[out] temperatures The output data for the temperatures of the thermal zones in celsius.
  */
 extern void GT_DriverReadThermalZonesStep(uint32_t maxNumThermalZones, double* temperatures);
-

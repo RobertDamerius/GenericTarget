@@ -49,4 +49,3 @@ void FileSystem::KeepNLatestProtocolFiles(uint32_t N){
         }
     }
 }
-

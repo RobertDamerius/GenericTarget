@@ -40,4 +40,3 @@ class SimulinkInterface {
          */
         static void Step(int id);
 };
-

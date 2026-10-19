@@ -19,4 +19,3 @@ void GT_DriverUTCTimestampStep(double* timestamp){
     s += std::chrono::duration<double>(duration).count();
     *timestamp = (3600.0 * h + 60.0 * m + s);
 }
-

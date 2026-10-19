@@ -1,10 +1,10 @@
 function [data,info] = DecodeDataDirectory(directory)
     %GT.DecodeDataDirectory Decode a complete data directory. The data directory must contain an index file.
-    % 
+    %
     % PARAMETERS
     % directory ... The directory that contains the data recorded by the Generic Target application. This directory must
     %               contain at least the index file. If this parameter is not given, then the current working directory is used.
-    % 
+    %
     % RETURN
     % data ... The data structure containing timeseries for all recorded signals.
     % info ... Structure that contains information about the data recording.
@@ -54,4 +54,3 @@ function [data,info] = DecodeDataDirectory(directory)
         end
     end
 end
-

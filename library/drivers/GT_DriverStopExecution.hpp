@@ -19,4 +19,3 @@ extern void GT_DriverStopExecutionTerminate(void);
  * @param[in] stopExecution Non-zero if the execution should be stopped.
  */
 extern void GT_DriverStopExecutionStep(uint8_t stopExecution);
-

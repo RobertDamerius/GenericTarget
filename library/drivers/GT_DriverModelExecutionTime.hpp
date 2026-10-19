@@ -16,4 +16,3 @@ extern void GT_DriverModelExecutionTimeTerminate(void);
  * @param[out] time Model execution time in seconds.
  */
 extern void GT_DriverModelExecutionTimeStep(double* time);
-

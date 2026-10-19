@@ -1,9 +1,9 @@
 function info = DecodeIndexFile(filename)
     %GT.DecodeIndexFile Decode index file created by the Generic Target application.
-    % 
+    %
     % PARAMETERS
     % filename ... The name of the index file to be decoded.
-    % 
+    %
     % RETURN
     % info ... Structure that contains information about the data recording.
     arguments
@@ -138,4 +138,3 @@ function info = DecodeIndexFile(filename)
     fclose(fp);
     fprintf('\b\b\b\b: OK\n');
 end
-

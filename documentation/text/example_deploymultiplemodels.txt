@@ -46,4 +46,3 @@ The timer events of one target application are not synchronized with the timer e
 </div>
 
 <br><br><br><br>
-

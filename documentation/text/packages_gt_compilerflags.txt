@@ -93,4 +93,3 @@ All library paths are given as
 where the expression <code>$TARGET_MAKEFILE_LIBRARY_PATHS$</code> is replaced by the additional paths.
 
 <br><br><br><br>
-

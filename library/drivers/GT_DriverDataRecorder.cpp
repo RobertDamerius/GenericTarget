@@ -67,4 +67,3 @@ void GT_DriverDataRecorderStep(uint8_t typeOfRecorder, const uint8_t* idCharacte
     (void)writeFilesDuringSimulation;
     #endif
 }
-

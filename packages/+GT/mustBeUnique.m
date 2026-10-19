@@ -3,4 +3,3 @@ function mustBeUnique(x)
     % If the condition is not met, an assertion fails.
     assert(numel(x) == numel(unique(x)), 'Value must be unique.');
 end
-

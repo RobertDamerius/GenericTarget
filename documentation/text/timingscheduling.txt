@@ -101,4 +101,3 @@ This thread is responsible for the entire connection lifecycle, including socket
 If a connection to a server is not established it attempts a reconnection every 100 milliseconds.
 
 <br><br><br><br>
-

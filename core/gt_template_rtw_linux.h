@@ -64,4 +64,3 @@
 
 
 #endif /* RTW_LINUX_H */
-

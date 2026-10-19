@@ -17,4 +17,3 @@ function GT_WriteScalarDoublesToFileInitFcn(block)
     set_param(block, 'signalNames', allNames);
     set_param(block, 'numCharacters', num2str(strlength(allNames)));
 end
-

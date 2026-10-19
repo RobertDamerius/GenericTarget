@@ -36,4 +36,3 @@ void AppArguments::PrintHelp(void){
     GENERIC_TARGET_PRINT_RAW("\n");
     GENERIC_TARGET_PRINT_RAW("\n");
 }
-

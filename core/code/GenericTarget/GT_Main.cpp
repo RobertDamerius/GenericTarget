@@ -26,4 +26,3 @@ int main(int argc, char **argv){
     gt::terminate();
     return 0;
 }
-

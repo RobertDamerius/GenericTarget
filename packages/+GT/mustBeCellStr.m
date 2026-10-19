@@ -3,4 +3,3 @@ function mustBeCellStr(x)
     % If the condition is not met, an assertion fails.
     assert(iscellstr(x), 'Value must be a cell array of strings.');
 end
-

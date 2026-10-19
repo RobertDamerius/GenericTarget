@@ -10,4 +10,3 @@ void GT_DriverUnixTimeStep(double* time){
     auto timePoint = std::chrono::system_clock::now();
     *time = std::chrono::duration<double>(timePoint.time_since_epoch()).count();
 }
-

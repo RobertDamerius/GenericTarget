@@ -60,4 +60,3 @@ Note that a data directory is created, whenever the initialization callback of t
 This may also happen during a model compilation, e.g. when clicking the Update button.
 
 <br><br><br><br>
-

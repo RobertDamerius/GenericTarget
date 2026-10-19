@@ -61,7 +61,7 @@ void BaseRateScheduler::StopWorkerThreads(void){
         tasks[n]->Stop();
         uint64_t taskOverloads = tasks[n]->GetNumTaskOverloads();
         if(taskOverloads){
-            GENERIC_TARGET_PRINT_ERROR("Task \"%.*s\" (samplerate=%lf) stopped with overloads (%lu task overloads)\n", 
+            GENERIC_TARGET_PRINT_ERROR("Task \"%.*s\" (samplerate=%lf) stopped with overloads (%lu task overloads)\n",
                 static_cast<int>(SimulinkInterface::taskNames[tasks[n]->taskID].length()), SimulinkInterface::taskNames[tasks[n]->taskID].data(),
                 SimulinkInterface::baseSampleTime*double(SimulinkInterface::sampleTicks[tasks[n]->taskID]),
                 taskOverloads);
@@ -99,4 +99,3 @@ void BaseRateScheduler::StopMasterThread(void){
         GENERIC_TARGET_PRINT_ERROR("Master thread stopped with overloads (%lu CPU overloads, %lu lost ticks)\n", numCPUOverloads, numLostTicks);
     }
 }
-

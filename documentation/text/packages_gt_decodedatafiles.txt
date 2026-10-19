@@ -16,4 +16,3 @@ Decode raw data file(s) recorded by the Generic Target application into a struct
     The data structure containing timeseries for all recorded signals.
 
 <br><br><br><br>
-

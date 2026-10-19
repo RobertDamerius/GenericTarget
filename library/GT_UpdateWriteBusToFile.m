@@ -113,4 +113,3 @@ function result = SizeOfType(type)
             errordlg(['The data type "', type, '" is not supported!'], 'Unsupported Datatype');
     end
 end
-

@@ -46,4 +46,3 @@
     The termination phase of the application.
 
 <br><br><br><br>
-

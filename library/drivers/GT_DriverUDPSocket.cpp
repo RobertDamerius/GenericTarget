@@ -85,4 +85,3 @@ void GT_DriverUDPSocketStep(int32_t port, uint8_t tfSendReceive, int32_t rxBuffe
         *sourcePort = source.port;
     }
 }
-

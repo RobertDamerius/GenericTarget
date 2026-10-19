@@ -53,4 +53,3 @@ class AppStartTimepoint {
 
 
 } /* namespace: gt */
-
