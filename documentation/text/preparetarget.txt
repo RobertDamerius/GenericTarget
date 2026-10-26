@@ -47,14 +47,14 @@
     <div class="note-green">
     <h3 class="note-green">Command 2</h3>
         Open a terminal and run the following command:
-        <pre>sudo apt update && sudo apt -y upgrade && sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target && echo -e "net.core.rmem_max=33554432\nnet.core.wmem_max=33554432" | sudo tee /etc/sysctl.d/99-custom-buffers.conf && sudo sysctl --system && sudo apt -y install linux-image-rt-amd64 g++ make build-essential net-tools btop && sudo reboot</pre>
+        <pre>sudo apt update && sudo apt -y upgrade && sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target && echo -e "net.core.rmem_max=33554432\nnet.core.wmem_max=33554432" | sudo tee /etc/sysctl.d/99-custom-buffers.conf && sudo sysctl --system && sudo apt -y install linux-image-rt-amd64 g++ gdb make build-essential net-tools btop && sudo reboot</pre>
         This command
         <ul>
             <li>updates all installed packages</li>
             <li>disables energy-saving and standby mode</li>
             <li>set network buffers to 36 MB</li>
             <li>installs the <code>PREEMPT_RT</code> patch</li>
-            <li>installs C++ compiler and tools: <code>g++</code>, <code>make</code>, <code>build-essential</code>, <code>net-tools</code>, <code>btop</code></li>
+            <li>installs C++ compiler, debugger and tools: <code>g++</code>, <code>gdb</code>, <code>make</code>, <code>build-essential</code>, <code>net-tools</code>, <code>btop</code></li>
             <li>reboots the target computer</li>
         </ul>
     </div>
