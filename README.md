@@ -1,6 +1,6 @@
-![](documentation/img/icon.svg)
-
 # Generic Target
+
+<div align="center"><img src="documentation/img/icon.svg" alt="Generic Target Logo" width="20%"><br><br></div>
 
 The **GenericTarget** project is designed to facilitate the deployment of MATLAB/Simulink models to linux-based real-time systems.
 For applications that rely solely on network interfaces, it provides a library and tools to build hardware-agnostic real-time applications with MATLAB/Simulink (Embedded Coder add-on required).
