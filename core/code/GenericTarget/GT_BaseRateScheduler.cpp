@@ -66,6 +66,8 @@ void BaseRateScheduler::StopWorkerThreads(void){
                 SimulinkInterface::baseSampleTime*double(SimulinkInterface::sampleTicks[tasks[n]->taskID]),
                 taskOverloads);
         }
+    }
+    for(size_t n = 0; n < tasks.size(); n++){
         delete tasks[n];
     }
     tasks.clear();
