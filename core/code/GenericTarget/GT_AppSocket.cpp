@@ -9,6 +9,11 @@ AppSocket::~AppSocket(){
 }
 
 bool AppSocket::Open(std::string_view socketName){
+    if(lock_fd >= 0){
+        GENERIC_TARGET_PRINT_ERROR("Application socket is already open!\n");
+        return false;
+    }
+
     lock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if(lock_fd < 0){
         GENERIC_TARGET_PRINT_ERROR("Failed to create application socket: %s\n", std::strerror(errno));
@@ -29,12 +34,18 @@ bool AppSocket::Open(std::string_view socketName){
         else{
             GENERIC_TARGET_PRINT_ERROR("Failed to bind application socket: %s\n", std::strerror(errno));
         }
-        close(lock_fd);
+        Close();
         return false;
     }
     return true;
 }
 
 void AppSocket::Close(void){
-    close(lock_fd);
+    if(lock_fd < 0) return;
+
+    int fd = lock_fd;
+    lock_fd = -1;
+    if(close(fd) < 0){
+        GENERIC_TARGET_PRINT_ERROR("Failed to close application socket: %s\n", std::strerror(errno));
+    }
 }
