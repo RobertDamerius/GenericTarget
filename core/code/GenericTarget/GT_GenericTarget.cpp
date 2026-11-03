@@ -76,6 +76,7 @@ bool GenericTarget::Initialize(int argc, char** argv){
     GENERIC_TARGET_PRINT("Starting scheduler\n");
     if(!scheduler.Start()){
         GENERIC_TARGET_PRINT_ERROR("Failed to start scheduler!\n");
+        SimulinkInterface::Terminate();
         appSocket.Close();
         return false;
     }
