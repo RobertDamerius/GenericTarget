@@ -62,7 +62,7 @@ class PeriodicTask {
         sem_t sem;                                // Semaphore for thread notification.
         std::atomic<bool> started;                // True if periodic task has been started, false otherwise.
         std::atomic<bool> terminate;              // True if thread is to be terminated, false otherwise.
-        std::atomic<bool> jobRunning;             // True if a job is running, e.g. the thread is executing some model code, false otherwise.
+        std::atomic<bool> jobPendingOrRunning;    // True if a job is queued or the thread is executing model code.
         std::atomic<uint64_t> numTaskOverloads;   // Total number of task overloads.
         std::atomic<int32_t> ticks;               // Decrementing tick counter to be used to notify the actual thread with a multiple of the base sampletime.
         std::atomic<int32_t> offsetSamples;       // Decrementing tick counter to be used to wait for some ticks before starting with the actual periodic task.

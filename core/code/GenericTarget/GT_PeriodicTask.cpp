@@ -8,7 +8,7 @@ PeriodicTask::PeriodicTask(const uint32_t taskID): taskID((taskID < SIMULINK_INT
     ticks = 1;
     offsetSamples = 0;
     numTaskOverloads = 0;
-    jobRunning = false;
+    jobPendingOrRunning = false;
     started = false;
     terminate = false;
     taskExecutionTime = 0.0;
@@ -36,6 +36,7 @@ bool PeriodicTask::Start(void){
     started = true;
     ticks = 1;
     offsetSamples = 0;
+    jobPendingOrRunning = false;
     numTaskOverloads = 0;
     t = std::thread(&PeriodicTask::Thread, this);
 
@@ -72,7 +73,7 @@ void PeriodicTask::Stop(void){
     // reset attributes (except numTaskOverloads)
     ticks = 1;
     offsetSamples = 0;
-    jobRunning = false;
+    jobPendingOrRunning = false;
     started = false;
     terminate = false;
     taskExecutionTime = 0.0;
@@ -88,8 +89,9 @@ void PeriodicTask::Notify(void){
             // reset tick counter to specified model sample ticks
             ticks = SimulinkInterface::sampleTicks[taskID];
 
-            // if a job is still running: task overload, do not notify
-            if(jobRunning){
+            // A queued or running job cannot accept another notification.
+            bool expected = false;
+            if(!jobPendingOrRunning.compare_exchange_strong(expected, true)){
                 ++numTaskOverloads;
                 return;
             }
@@ -106,7 +108,6 @@ void PeriodicTask::WaitForNotification(void){
             return;
         }
     }
-    while(sem_trywait(&sem) == 0); // decrease semaphore counter to zero
 }
 
 void PeriodicTask::Thread(void){
@@ -117,11 +118,10 @@ void PeriodicTask::Thread(void){
         }
 
         // model step calculation
-        jobRunning = true;
         auto t1 = std::chrono::steady_clock::now();
         SimulinkInterface::Step(taskID);
         auto t2 = std::chrono::steady_clock::now();
         taskExecutionTime = std::chrono::duration<double>(t2 - t1).count();
-        jobRunning = false;
+        jobPendingOrRunning = false;
     }
 }
