@@ -60,6 +60,7 @@ class PeriodicTask {
     private:
         std::thread t;                            // Thread object.
         sem_t sem;                                // Semaphore for thread notification.
+        bool semaphoreInitialized;                // True while sem has been initialized and not yet destroyed.
         std::atomic<bool> started;                // True if periodic task has been started, false otherwise.
         std::atomic<bool> terminate;              // True if thread is to be terminated, false otherwise.
         std::atomic<bool> jobPendingOrRunning;    // True if a job is queued or the thread is executing model code.

@@ -8,6 +8,7 @@ PeriodicTask::PeriodicTask(const uint32_t taskID): taskID((taskID < SIMULINK_INT
     ticks = 1;
     offsetSamples = SimulinkInterface::offsetTicks[this->taskID];
     numTaskOverloads = 0;
+    semaphoreInitialized = false;
     jobPendingOrRunning = false;
     started = false;
     terminate = false;
@@ -22,6 +23,12 @@ bool PeriodicTask::Start(void){
     // make sure that the task is stopped
     Stop();
 
+    if(semaphoreInitialized){
+        GENERIC_TARGET_PRINT_ERROR("Failed to restart task \"%.*s\" because its semaphore is still initialized!\n",
+            static_cast<int>(SimulinkInterface::taskNames[taskID].length()), SimulinkInterface::taskNames[taskID].data());
+        return false;
+    }
+
     // initialize semaphore
     // pshared = 0 (shared between threads of this process)
     // value = 0 (initial count is 0)
@@ -31,6 +38,7 @@ bool PeriodicTask::Start(void){
             SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]));
         return false;
     }
+    semaphoreInitialized = true;
 
     // start thread
     started = true;
@@ -67,8 +75,17 @@ void PeriodicTask::Stop(void){
         }
     }
 
-    // destroy semaphore
-    sem_destroy(&sem);
+    // destroy the semaphore only if initialization succeeded and it has not already been destroyed
+    if(semaphoreInitialized){
+        if(sem_destroy(&sem) == 0){
+            semaphoreInitialized = false;
+        }
+        else{
+            GENERIC_TARGET_PRINT_ERROR("Failed to destroy semaphore for task \"%.*s\": %s\n",
+                static_cast<int>(SimulinkInterface::taskNames[taskID].length()), SimulinkInterface::taskNames[taskID].data(),
+                std::strerror(errno));
+        }
+    }
 
     // reset attributes (except numTaskOverloads)
     ticks = 1;
