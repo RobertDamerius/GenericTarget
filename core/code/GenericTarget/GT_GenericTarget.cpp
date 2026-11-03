@@ -191,8 +191,11 @@ void GenericTarget::PrintInfo(void){
 }
 
 void GenericTarget::PrintOperatingSystemInfo(void){
-    struct utsname info;
-    (void) uname(&info);
+    struct utsname info{};
+    if(uname(&info) < 0){
+        GENERIC_TARGET_PRINT_WARNING("Failed to get operating system information: %s\n", std::strerror(errno));
+        return;
+    }
     GENERIC_TARGET_PRINT_RAW("sysname:                  %s\n", info.sysname);
     GENERIC_TARGET_PRINT_RAW("nodename:                 %s\n", info.nodename);
     GENERIC_TARGET_PRINT_RAW("release:                  %s\n", info.release);
