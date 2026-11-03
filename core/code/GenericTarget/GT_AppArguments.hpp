@@ -23,12 +23,6 @@ class AppArguments {
          * @param[in] argv Array of arguments passed to the application.
          */
         void Parse(int argc, char** argv);
-
-    private:
-        /**
-         * @brief Print help text to the standard output.
-         */
-        void PrintHelp(void);
 };
 
 
