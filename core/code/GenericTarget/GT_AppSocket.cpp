@@ -9,7 +9,7 @@ AppSocket::~AppSocket(){
 }
 
 bool AppSocket::Open(std::string_view socketName){
-    int lock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    lock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if(lock_fd < 0){
         GENERIC_TARGET_PRINT_ERROR("Failed to create application socket: %s\n", std::strerror(errno));
         return false;
