@@ -22,7 +22,7 @@ int main(int argc, char **argv){
     umask(0000);
 
     // run actual application
-    gt::GenericTarget::Run(argc, argv);
+    int result = gt::GenericTarget::Run(argc, argv);
     gt::terminate();
-    return 0;
+    return result;
 }

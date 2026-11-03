@@ -73,8 +73,9 @@ class GenericTarget {
          * @brief Run the main application.
          * @param[in] argc Number of arguments passed to the application.
          * @param[in] argv Array of arguments passed to the application.
+         * @return 0 if success, -1 if error.
          */
-        static void Run(int argc, char** argv);
+        static int Run(int argc, char** argv);
 
     private:
         static sem_t semaphoreTerminate;                 // A semaphore to signal a termination of the application.

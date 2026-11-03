@@ -18,31 +18,43 @@ void GenericTarget::ShouldTerminate(void){
     }
 }
 
-void GenericTarget::Run(int argc, char** argv){
+int GenericTarget::Run(int argc, char** argv){
     // initialize semaphore for termination
     if(sem_init(&semaphoreTerminate, 0, 0) < 0){
         GENERIC_TARGET_PRINT_ERROR("Failed to initialize semaphore!\n");
         GENERIC_TARGET_PRINT("Application terminated\n");
-        return;
+        return -1;
     }
     semaphoreInitialized = true;
 
     // run target application
+    int result = 0;
     if(Initialize(argc, argv)){
         // wait for termination
         while(sem_wait(&semaphoreTerminate) == -1){
             if(errno != EINTR){
+                GENERIC_TARGET_PRINT_ERROR("Failed to wait for termination signal: %s\n", std::strerror(errno));
+                result = -1;
                 break;
             }
         }
-        GENERIC_TARGET_PRINT("Received termination flag, application will be closed\n");
+        if(result == 0){
+            GENERIC_TARGET_PRINT("Received termination flag, application will be closed\n");
+        }
         Terminate();
+    }
+    else{
+        result = -1;
     }
 
     // destroy semaphore
     semaphoreInitialized = false;
-    sem_destroy(&semaphoreTerminate);
+    if(sem_destroy(&semaphoreTerminate) < 0){
+        GENERIC_TARGET_PRINT_ERROR("Failed to destroy termination semaphore: %s\n", std::strerror(errno));
+        result = -1;
+    }
     GENERIC_TARGET_PRINT("Application terminated\n");
+    return result;
 }
 
 bool GenericTarget::Initialize(int argc, char** argv){
