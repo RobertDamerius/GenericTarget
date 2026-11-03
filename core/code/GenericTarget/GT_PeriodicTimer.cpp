@@ -26,6 +26,22 @@ PeriodicTimer::~PeriodicTimer(){
 bool PeriodicTimer::Start(double sampletime){
     Stop(); // ensure any previous timer is closed
 
+    // check for valid sample time
+    if(!std::isfinite(sampletime) || sampletime <= 0.0){
+        GENERIC_TARGET_PRINT_ERROR("Invalid sampletime: %g seconds\n", sampletime);
+        return false;
+    }
+    const long double wholeSeconds = std::floor(static_cast<long double>(sampletime));
+    if(wholeSeconds >= static_cast<long double>(std::numeric_limits<time_t>::max())){
+        GENERIC_TARGET_PRINT_ERROR("Sampletime is too large: %g seconds\n", sampletime);
+        return false;
+    }
+    const long fractionalNanoseconds = static_cast<long>((static_cast<long double>(sampletime) - wholeSeconds) * 1000000000.0L);
+    if(wholeSeconds == 0.0L && fractionalNanoseconds == 0){
+        GENERIC_TARGET_PRINT_ERROR("Sampletime is below the 1 ns resolution: %g seconds\n", sampletime);
+        return false;
+    }
+
     // 0 flags: standard relative timer
     int localFd = timerfd_create(CLOCK_MONOTONIC, 0);
     if(localFd < 0){
@@ -33,15 +49,10 @@ bool PeriodicTimer::Start(double sampletime){
         return false;
     }
 
-    // split sampletime into seconds and nanosecons
-    std::chrono::duration<double> dur(sampletime);
-    auto secs = std::chrono::duration_cast<std::chrono::seconds>(dur);
-    auto nsecs = std::chrono::duration_cast<std::chrono::nanoseconds>(dur - secs);
-
     // set period and initial delay
-    struct itimerspec its;
-    its.it_interval.tv_sec = secs.count();
-    its.it_interval.tv_nsec = nsecs.count();
+    struct itimerspec its{};
+    its.it_interval.tv_sec = static_cast<time_t>(wholeSeconds);
+    its.it_interval.tv_nsec = fractionalNanoseconds;
     its.it_value.tv_sec = 0;
     its.it_value.tv_nsec = 1;
     if(timerfd_settime(localFd, 0, &its, nullptr) < 0){ // 0: no flags

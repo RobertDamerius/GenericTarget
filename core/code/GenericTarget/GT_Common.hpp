@@ -22,6 +22,7 @@
 #include <filesystem>
 #include <csignal>
 #include <tuple>
+#include <limits>
 
 /* Linux-specific headers */
 #include <semaphore.h>
