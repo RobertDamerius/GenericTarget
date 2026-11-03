@@ -6,7 +6,7 @@ using namespace gt;
 
 PeriodicTask::PeriodicTask(const uint32_t taskID): taskID((taskID < SIMULINK_INTERFACE_NUM_TIMINGS) ? taskID : 0){
     ticks = 1;
-    offsetSamples = 0;
+    offsetSamples = SimulinkInterface::offsetTicks[this->taskID];
     numTaskOverloads = 0;
     jobPendingOrRunning = false;
     started = false;
@@ -35,7 +35,7 @@ bool PeriodicTask::Start(void){
     // start thread
     started = true;
     ticks = 1;
-    offsetSamples = 0;
+    offsetSamples = SimulinkInterface::offsetTicks[taskID];
     jobPendingOrRunning = false;
     numTaskOverloads = 0;
     t = std::thread(&PeriodicTask::Thread, this);
