@@ -14,19 +14,22 @@ bool AppSocket::Open(std::string_view socketName){
         return false;
     }
 
+    struct sockaddr_un addr{};
+    const size_t max_name_len = sizeof(addr.sun_path) - 1;
+    if(socketName.empty() || socketName.size() > max_name_len){
+        GENERIC_TARGET_PRINT_ERROR("Invalid application socket name length: expected at most %zu bytes, got %zu\n", max_name_len, socketName.size());
+        return false;
+    }
+
     lock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if(lock_fd < 0){
         GENERIC_TARGET_PRINT_ERROR("Failed to create application socket: %s\n", std::strerror(errno));
         return false;
     }
-    struct sockaddr_un addr{};
     addr.sun_family = AF_UNIX;
     addr.sun_path[0] = '\0';
-    size_t max_name_len = sizeof(addr.sun_path) - 1;
-    size_t name_len = socketName.length();
-    size_t bytes_to_copy = std::min(name_len, max_name_len);
-    std::memcpy(addr.sun_path + 1, socketName.data(), bytes_to_copy);
-    socklen_t addr_len = offsetof(struct sockaddr_un, sun_path) + 1 + bytes_to_copy;
+    std::memcpy(addr.sun_path + 1, socketName.data(), socketName.size());
+    socklen_t addr_len = static_cast<socklen_t>(offsetof(struct sockaddr_un, sun_path) + 1 + socketName.size());
     if(bind(lock_fd, reinterpret_cast<struct sockaddr*>(&addr), addr_len) < 0){
         if(errno == EADDRINUSE){
             GENERIC_TARGET_PRINT_ERROR("Another instance of this application is already running!\n");
