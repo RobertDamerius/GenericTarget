@@ -34,18 +34,36 @@ std::string FileSystem::GetProtocolFilename(void){
 void FileSystem::KeepNLatestProtocolFiles(uint32_t N){
     std::filesystem::path directory = pathToApplication / GENERIC_TARGET_DIRECTORY_PROTOCOL;
     std::vector<std::filesystem::path> files;
-    for(const auto& entry : std::filesystem::directory_iterator(directory)){
-        if(entry.is_regular_file()){
-            files.push_back(entry.path());
+    std::error_code ec;
+    std::filesystem::directory_iterator entry(directory, ec);
+    if(ec){
+        GENERIC_TARGET_PRINT_WARNING("Failed to enumerate protocol directory \"%s\": %s\n", directory.string().c_str(), ec.message().c_str());
+        return;
+    }
+
+    const std::filesystem::directory_iterator end;
+    while(entry != end){
+        const auto status = entry->symlink_status(ec);
+        if(ec){
+            GENERIC_TARGET_PRINT_WARNING("Failed to inspect protocol directory entry \"%s\": %s\n", entry->path().string().c_str(), ec.message().c_str());
+            ec.clear();
+        }
+        else if(std::filesystem::is_regular_file(status)){
+            files.push_back(entry->path());
+        }
+
+        entry.increment(ec);
+        if(ec){
+            GENERIC_TARGET_PRINT_WARNING("Failed to continue enumerating protocol directory \"%s\": %s\n", directory.string().c_str(), ec.message().c_str());
+            return;
         }
     }
-    if(static_cast<uint32_t>(files.size()) > N){
-        std::sort(files.rbegin(), files.rend());
-        for(uint32_t n = N; n < static_cast<uint32_t>(files.size()); ++n){
-            std::error_code ec;
-            if(!std::filesystem::remove(files[n], ec)){
-                GENERIC_TARGET_PRINT_WARNING("Failed to remove protocol file \"%s\": %s\n", files[n].string().c_str(), ec.message().c_str());
-            }
+
+    std::sort(files.rbegin(), files.rend());
+    for(size_t n = N; n < files.size(); ++n){
+        ec.clear();
+        if(!std::filesystem::remove(files[n], ec)){
+            GENERIC_TARGET_PRINT_WARNING("Failed to remove protocol file \"%s\": %s\n", files[n].string().c_str(), ec ? ec.message().c_str() : "file was not removed");
         }
     }
 }
