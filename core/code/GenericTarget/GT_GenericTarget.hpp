@@ -118,8 +118,9 @@ class GenericTarget {
         /**
          * @brief Redirect prints to stdout/stderr to a file.
          * @details The log output directory is created if it does not exist.
+         * @return True if success, false otherwise.
          */
-        static void RedirectPrintsToFile(void);
+        static bool RedirectPrintsToFile(void);
 
         /**
          * @brief Print initial information to the console output.

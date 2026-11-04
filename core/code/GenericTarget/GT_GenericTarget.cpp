@@ -63,8 +63,8 @@ bool GenericTarget::Initialize(int argc, char** argv){
 
     // parse arguments and check for output redirection
     appArguments.Parse(argc, argv);
-    if(!appArguments.console){
-        RedirectPrintsToFile();
+    if(!appArguments.console && !RedirectPrintsToFile()){
+        return false;
     }
 
     // print application info
@@ -146,21 +146,17 @@ void GenericTarget::TerminateHandler(void){
     std::abort();
 }
 
-void GenericTarget::RedirectPrintsToFile(void){
+bool GenericTarget::RedirectPrintsToFile(void){
     if(fileSystem.MakeProtocolDirectory()){
         fileSystem.KeepNLatestProtocolFiles(SimulinkInterface::numberOfOldProtocolFiles);
         std::string filename = fileSystem.GetProtocolFilename();
         GENERIC_TARGET_PRINT_RAW("\nConsole output is redirected to \"%s\"\n",filename.c_str());
         GENERIC_TARGET_PRINT_RAW("If you don't want to redirect the output to a file, start the application with the option \"--console\"\n\n");
-        if(std::freopen(filename.c_str(), "a", stdout) == nullptr){
-            const int error = errno;
-            GENERIC_TARGET_PRINT_ERROR("Failed to redirect stdout to \"%s\": %s\n", filename.c_str(), std::strerror(error));
-        }
-        if(std::freopen(filename.c_str(), "a", stderr) == nullptr){
-            const int error = errno;
-            GENERIC_TARGET_PRINT_ERROR("ERROR: Failed to redirect stderr to \"%s\": %s\n", filename.c_str(), std::strerror(error));
+        if(!std::freopen(filename.c_str(), "a", stdout)  || !std::freopen(filename.c_str(), "a", stderr)){
+            return false;
         }
     }
+    return true;
 }
 
 void GenericTarget::PrintInfo(void){
