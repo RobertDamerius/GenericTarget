@@ -119,17 +119,25 @@ void PeriodicTask::Notify(void){
     }
 }
 
-void PeriodicTask::WaitForNotification(void){
+bool PeriodicTask::WaitForNotification(void){
     while(sem_wait(&sem) == -1){
         if(errno != EINTR){
-            return;
+            const int error = errno;
+            GENERIC_TARGET_PRINT_ERROR("Failed to wait for notification for task \"%.*s\": %s\n",
+                static_cast<int>(SimulinkInterface::taskNames[taskID].length()), SimulinkInterface::taskNames[taskID].data(),
+                std::strerror(error));
+            GenericTarget::ShouldTerminate();
+            return false;
         }
     }
+    return true;
 }
 
 void PeriodicTask::Thread(void){
     for(;;){
-        WaitForNotification();
+        if(!WaitForNotification()){
+            break;
+        }
         if(terminate){
             break;
         }

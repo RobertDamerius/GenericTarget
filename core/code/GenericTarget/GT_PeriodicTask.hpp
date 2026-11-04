@@ -71,8 +71,9 @@ class PeriodicTask {
 
         /**
          * @brief Wait for a notification.
+         * @return True if success, false otherwise.
          */
-        void WaitForNotification(void);
+        bool WaitForNotification(void);
 
         /**
          *  @brief Internal thread function.
