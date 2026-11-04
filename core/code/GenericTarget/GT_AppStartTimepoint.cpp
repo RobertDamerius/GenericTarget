@@ -24,6 +24,6 @@ AppStartTimepoint::AppStartTimepoint(){
 
     // convert to string
     char buffer[64];
-    snprintf(buffer, sizeof(buffer), "%u%02u%02u_%02u%02u%02u%03u", 1900 + startTimepoint.year, 1 + startTimepoint.month, startTimepoint.mday, startTimepoint.hour, startTimepoint.minute, startTimepoint.second, startTimepoint.nanoseconds / 1000000);
+    snprintf(buffer, sizeof(buffer), "%04d%02d%02d_%02d%02d%02d%03d", 1900 + startTimepoint.year, 1 + startTimepoint.month, startTimepoint.mday, startTimepoint.hour, startTimepoint.minute, startTimepoint.second, startTimepoint.nanoseconds / 1000000);
     strStartTimepoint = std::string(buffer);
 }

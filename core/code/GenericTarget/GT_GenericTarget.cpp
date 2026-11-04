@@ -152,9 +152,14 @@ void GenericTarget::RedirectPrintsToFile(void){
         std::string filename = fileSystem.GetProtocolFilename();
         GENERIC_TARGET_PRINT_RAW("\nConsole output is redirected to \"%s\"\n",filename.c_str());
         GENERIC_TARGET_PRINT_RAW("If you don't want to redirect the output to a file, start the application with the option \"--console\"\n\n");
-        FILE* unused = std::freopen(filename.c_str(), "a", stdout);
-        unused = std::freopen(filename.c_str(), "a", stderr);
-        (void)unused;
+        if(std::freopen(filename.c_str(), "a", stdout) == nullptr){
+            const int error = errno;
+            GENERIC_TARGET_PRINT_ERROR("Failed to redirect stdout to \"%s\": %s\n", filename.c_str(), std::strerror(error));
+        }
+        if(std::freopen(filename.c_str(), "a", stderr) == nullptr){
+            const int error = errno;
+            GENERIC_TARGET_PRINT_ERROR("ERROR: Failed to redirect stderr to \"%s\": %s\n", filename.c_str(), std::strerror(error));
+        }
     }
 }
 
@@ -168,7 +173,7 @@ void GenericTarget::PrintInfo(void){
     GENERIC_TARGET_PRINT_RAW("Generic Target Version:   %.*s\n", static_cast<int>(gt::version.length()), gt::version.data());
     GENERIC_TARGET_PRINT_RAW("Compiler Version:         %.*s\n", static_cast<int>(gt::compilerVersion.length()), gt::compilerVersion.data());
     GENERIC_TARGET_PRINT_RAW("Built (local):            %.*s\n", static_cast<int>(gt::builtTimestamp.length()), gt::builtTimestamp.data());
-    GENERIC_TARGET_PRINT_RAW("Date (UTC):               %04u-%02u-%02u %02u:%02u:%02u.%03u\n", 1900 + upTime.year, 1 + upTime.month, upTime.mday, upTime.hour, upTime.minute, upTime.second, upTime.nanoseconds / 1000000);
+    GENERIC_TARGET_PRINT_RAW("Date (UTC):               %04d-%02d-%02d %02d:%02d:%02d.%03d\n", 1900 + upTime.year, 1 + upTime.month, upTime.mday, upTime.hour, upTime.minute, upTime.second, upTime.nanoseconds / 1000000);
     GENERIC_TARGET_PRINT_RAW("Arguments:               "); for(size_t i = 0; i < appArguments.args.size(); i++){ GENERIC_TARGET_PRINT_RAW(" [%s]", appArguments.args[i].c_str()); } GENERIC_TARGET_PRINT_RAW("\n");
     GENERIC_TARGET_PRINT_RAW("Maximum thread priority:  %d\n", sched_get_priority_max(SCHED_FIFO));
     GENERIC_TARGET_PRINT_RAW("Minimum thread priority:  %d\n", sched_get_priority_min(SCHED_FIFO));
