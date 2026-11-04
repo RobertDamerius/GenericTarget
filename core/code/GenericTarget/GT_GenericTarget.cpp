@@ -64,6 +64,7 @@ bool GenericTarget::Initialize(int argc, char** argv){
     // parse arguments and check for output redirection
     appArguments.Parse(argc, argv);
     if(!appArguments.console && !RedirectPrintsToFile()){
+        GENERIC_TARGET_PRINT_ERROR("Failed to redirect prints to file!\n");
         return false;
     }
 
@@ -147,15 +148,64 @@ void GenericTarget::TerminateHandler(void){
 }
 
 bool GenericTarget::RedirectPrintsToFile(void){
-    if(fileSystem.MakeProtocolDirectory()){
-        fileSystem.KeepNLatestProtocolFiles(SimulinkInterface::numberOfOldProtocolFiles);
-        std::string filename = fileSystem.GetProtocolFilename();
-        GENERIC_TARGET_PRINT_RAW("\nConsole output is redirected to \"%s\"\n",filename.c_str());
-        GENERIC_TARGET_PRINT_RAW("If you don't want to redirect the output to a file, start the application with the option \"--console\"\n\n");
-        if(!std::freopen(filename.c_str(), "a", stdout)  || !std::freopen(filename.c_str(), "a", stderr)){
+    if(!fileSystem.MakeProtocolDirectory()){
+        return false;
+    }
+    fileSystem.KeepNLatestProtocolFiles(SimulinkInterface::numberOfOldProtocolFiles);
+    std::string filename = fileSystem.GetProtocolFilename();
+    int logFd = open(filename.c_str(), O_WRONLY | O_CREAT | O_APPEND | O_CLOEXEC, 0666);
+    if(logFd < 0){
+        return false;
+    }
+    if(logFd <= STDERR_FILENO){
+        const int safeLogFd = fcntl(logFd, F_DUPFD_CLOEXEC, STDERR_FILENO + 1);
+        close(logFd);
+        if(safeLogFd < 0){
             return false;
         }
+        logFd = safeLogFd;
     }
+
+    const int savedStdout = fcntl(STDOUT_FILENO, F_DUPFD_CLOEXEC, STDERR_FILENO + 1);
+    if(savedStdout < 0){
+        close(logFd);
+        return false;
+    }
+    const int savedStderr = fcntl(STDERR_FILENO, F_DUPFD_CLOEXEC, STDERR_FILENO + 1);
+    if(savedStderr < 0){
+        close(savedStdout);
+        close(logFd);
+        return false;
+    }
+
+    GENERIC_TARGET_PRINT_RAW("\nConsole output is redirected to \"%s\"\n", filename.c_str());
+    GENERIC_TARGET_PRINT_RAW("If you don't want to redirect the output to a file, start the application with the option \"--console\"\n\n");
+    const bool stdoutFlushFailed = std::fflush(stdout) == EOF;
+    const bool stderrFlushFailed = std::fflush(stderr) == EOF;
+    if(stdoutFlushFailed || stderrFlushFailed){
+        close(savedStderr);
+        close(savedStdout);
+        close(logFd);
+        return false;
+    }
+
+    if(dup2(logFd, STDOUT_FILENO) < 0){
+        close(savedStderr);
+        close(savedStdout);
+        close(logFd);
+        return false;
+    }
+    if(dup2(logFd, STDERR_FILENO) < 0){
+        dup2(savedStdout, STDOUT_FILENO);
+        close(savedStderr);
+        close(savedStdout);
+        close(logFd);
+        return false;
+    }
+
+    close(savedStderr);
+    close(savedStdout);
+    close(logFd);
     return true;
 }
 
