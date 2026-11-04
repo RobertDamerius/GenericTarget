@@ -6,12 +6,12 @@ namespace {
 
 pthread_mutex_t mtx_print;
 std::chrono::time_point<std::chrono::steady_clock> time_of_start;
-bool is_initialized = false;
+std::atomic<bool> is_initialized{false};
 
 
 class gt_lock_guard {
     public:
-        explicit gt_lock_guard(pthread_mutex_t& mutex) : mtx(is_initialized ? &mutex : nullptr){
+        explicit gt_lock_guard(pthread_mutex_t& mutex) : mtx(is_initialized.load(std::memory_order_acquire) ? &mutex : nullptr){
             if(mtx){
                 pthread_mutex_lock(mtx);
             }
@@ -39,19 +39,17 @@ void gt::init(void){
     pthread_mutex_init(&mtx_print, &attr);
     pthread_mutexattr_destroy(&attr);
     time_of_start = std::chrono::steady_clock::now();
-    std::atomic_thread_fence(std::memory_order_release); // prevent code reordering by compiler optimization
-    is_initialized = true;
+    is_initialized.store(true, std::memory_order_release);
 }
 
 void gt::terminate(void){
-    is_initialized = false;
-    std::atomic_thread_fence(std::memory_order_release); // prevent code reordering by compiler optimization
+    is_initialized.store(false, std::memory_order_release);
     pthread_mutex_destroy(&mtx_print);
 }
 
 void gt::print(const char* format, ...){
     const gt_lock_guard lock(mtx_print);
-    auto start = is_initialized ? time_of_start : std::chrono::steady_clock::now();
+    auto start = is_initialized.load(std::memory_order_acquire) ? time_of_start : std::chrono::steady_clock::now();
     fprintf(stderr,"   [t=%lf] ", std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count());
     va_list argptr;
     va_start(argptr, format);
@@ -62,7 +60,7 @@ void gt::print(const char* format, ...){
 
 void gt::print_verbose(const char c, const char* file, const int line, const char* func, const char* format, ...){
     const gt_lock_guard lock(mtx_print);
-    auto start = is_initialized ? time_of_start : std::chrono::steady_clock::now();
+    auto start = is_initialized.load(std::memory_order_acquire) ? time_of_start : std::chrono::steady_clock::now();
     fprintf(stderr," %c [t=%lf] %s:%d in %s(): ", c, std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count(), file, line, func);
     va_list argptr;
     va_start(argptr, format);

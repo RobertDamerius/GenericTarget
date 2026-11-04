@@ -55,6 +55,7 @@ class BaseRateScheduler {
          * @param[in] taskID The ID of the task from which to obtain the latest task execution time.
          * @return The latest task execution time in seconds or a negative value if the taskID is invalid.
          * @details The task execution time is the computation time required by the step function of the model.
+         * @note Call only while the scheduler is running; calls concurrent with start or stop may race with task-vector changes.
          */
         double GetTaskExecutionTime(const uint32_t taskID){
             if(taskID >= (uint32_t)tasks.size())
@@ -66,6 +67,7 @@ class BaseRateScheduler {
          * @brief Get the number of task overloads for a task.
          * @param[in] taskID The ID of the task from which to obtain the latest number of task overloads.
          * @return The latest task overload counter or zero if the taskID is invalid.
+         * @note Call only while the scheduler is running; calls concurrent with start or stop may race with task-vector changes.
          */
         uint64_t GetNumTaskOverloads(const uint32_t taskID){
             if(taskID >= (uint32_t)tasks.size())
