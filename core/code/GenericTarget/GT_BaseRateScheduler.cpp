@@ -25,7 +25,6 @@ void BaseRateScheduler::Stop(void){
 void BaseRateScheduler::MasterThread(void){
     // start the master clock
     if(!masterClock.Start(SimulinkInterface::baseSampleTime)){
-        masterClock.Stop();
         GenericTarget::ShouldTerminate();
         return;
     }
@@ -33,8 +32,12 @@ void BaseRateScheduler::MasterThread(void){
 
     // thread loop
     while(!terminate){
-        // wait for a tick event from the master clock and break if clock was destroyed
-        if(!masterClock.WaitForTick()) break;
+        const int tickResult = masterClock.WaitForTick();
+        if(tickResult < 0){
+            GenericTarget::ShouldTerminate();
+            break;
+        }
+        if(tickResult == 0) break;
         if(terminate) break;
 
         // signal periodic model tasks
@@ -42,9 +45,6 @@ void BaseRateScheduler::MasterThread(void){
             task->Notify();
         }
     }
-
-    // stop the master clock
-    masterClock.Stop();
 }
 
 bool BaseRateScheduler::StartWorkerThreads(void){
@@ -90,10 +90,11 @@ bool BaseRateScheduler::StartMasterThread(void){
 
 void BaseRateScheduler::StopMasterThread(void){
     terminate = true;
-    masterClock.Stop();
+    masterClock.Cancel();
     if(masterThread.joinable()){
         masterThread.join();
     }
+    masterClock.Stop();
     terminate = false;
     uint64_t numCPUOverloads = masterClock.GetNumCPUOverloads();
     uint64_t numLostTicks = masterClock.GetNumLostTicks();

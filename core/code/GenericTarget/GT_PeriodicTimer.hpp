@@ -8,8 +8,7 @@ namespace gt {
 
 
 /**
- * @brief This class represents a periodic timer that waits for timer interrupts. The periodic time is set when calling the @ref Start
- * member function.
+ * @brief This class represents a periodic timer that waits for timer interrupts. The periodic time is set when calling @ref Start.
  */
 class PeriodicTimer {
     public:
@@ -30,21 +29,27 @@ class PeriodicTimer {
         /**
          * @brief Start the periodic timer.
          * @param[in] sampletime The sampletime in seconds.
-         * @return True if success, false otherwise.
+         * @return True if successful, false if the sampletime is invalid, initialization fails, or the timer is already running.
          */
         bool Start(double sampletime);
 
         /**
-         * @brief Stop the periodic timer.
+         * @brief Request that a thread blocked in @ref WaitForTick exits.
+         */
+        void Cancel(void);
+
+        /**
+         * @brief Disarm the timer and clear any pending cancellation event.
+         * @details Call after the thread waiting for ticks has exited.
          */
         void Stop(void);
 
         /**
          * @brief Wait for a tick event of the timer.
-         * @return True if timer event was received successfully, false otherwise.
-         * @details If timer is not created or was destroyed, false will be returned immediately.
+         * @return 1 for a timer tick, 0 if cancelled, or -1 on an error.
+         * @details If called while the timer is stopped, 0 is returned immediately.
          */
-        bool WaitForTick(void);
+        int32_t WaitForTick(void);
 
         /**
          * @brief Get the number of CPU overloads that have been occurred since the creation of this timer.
@@ -59,12 +64,13 @@ class PeriodicTimer {
         uint64_t GetNumLostTicks(void){ return numLostTicks; }
 
     private:
-        int epollFd;                             // File descriptor for epoll.
-        int cancelFd;                            // File descriptor for cancel events.
-        std::atomic<uint64_t> numCPUOverloads;   // Number of CPU overloads that have been occurred since @ref Create. If the timer is expired by more than one tick, this value is incremented by one.
-        std::atomic<uint64_t> numLostTicks;      // Number of lost ticks from the timer since @ref Create. If the timer is expired by more than one tick, this value is incremented by the number of additional expired ticks (lost ticks).
-        std::atomic<int> timerFd;                // File descriptor of internal timer object.
-        std::atomic<bool> isRunning;             // True if timer is running, false otherwise.
+        int epollFd{-1};                            // File descriptor for epoll.
+        int cancelFd{-1};                           // File descriptor for cancel events.
+        std::atomic<uint64_t> numCPUOverloads{0};   // Number of CPU overloads that have been occurred since @ref Create. If the timer is expired by more than one tick, this value is incremented by one.
+        std::atomic<uint64_t> numLostTicks{0};      // Number of lost ticks from the timer since @ref Create. If the timer is expired by more than one tick, this value is incremented by the number of additional expired ticks (lost ticks).
+        std::atomic<int> timerFd{-1};               // File descriptor of internal timer object.
+        std::atomic<bool> isRunning{false};         // True if timer is running, false otherwise.
+        bool isStarted{false};                      // True while the timer's file descriptors are allocated.
 };
 
 
