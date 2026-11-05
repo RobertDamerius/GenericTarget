@@ -211,6 +211,7 @@ bool GenericTarget::RedirectPrintsToFile(void){
 
 void GenericTarget::PrintInfo(void){
     TimeInfo upTime = appStartTimepoint.GetUTC();
+    GENERIC_TARGET_PRINT_RAW("GenericTarget\n\n");
     PrintOperatingSystemInfo();
     PrintNetworkInfo();
     GENERIC_TARGET_PRINT_RAW("\n");

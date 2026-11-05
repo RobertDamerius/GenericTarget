@@ -9,8 +9,6 @@
  * @return 0 on success, -1 otherwise.
  */
 int main(int argc, char **argv){
-    GENERIC_TARGET_PRINT_RAW("GenericTarget\n\n");
-
     // lock memory pages to prevent swapping
     if(mlockall(MCL_CURRENT | MCL_FUTURE) < 0){
         GENERIC_TARGET_PRINT_ERROR("Failed to lock memory: {}\n", std::strerror(errno));
