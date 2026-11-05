@@ -61,8 +61,8 @@ void BaseRateScheduler::StopWorkerThreads(void){
         tasks[n]->Stop();
         uint64_t taskOverloads = tasks[n]->GetNumTaskOverloads();
         if(taskOverloads){
-            GENERIC_TARGET_PRINT_ERROR("Task \"%.*s\" (samplerate=%lf) stopped with overloads (%lu task overloads)\n",
-                static_cast<int>(SimulinkInterface::taskNames[tasks[n]->taskID].length()), SimulinkInterface::taskNames[tasks[n]->taskID].data(),
+            GENERIC_TARGET_PRINT_ERROR("Task \"{}\" (samplerate={}) stopped with overloads ({} task overloads)\n",
+                SimulinkInterface::taskNames[tasks[n]->taskID],
                 SimulinkInterface::baseSampleTime*double(SimulinkInterface::sampleTicks[tasks[n]->taskID]),
                 taskOverloads);
         }
@@ -79,7 +79,7 @@ bool BaseRateScheduler::StartMasterThread(void){
     struct sched_param param;
     param.sched_priority = std::clamp(int(gt::basePriority), sched_get_priority_min(SCHED_FIFO), sched_get_priority_max(SCHED_FIFO));
     if(0 != pthread_setschedparam(masterThread.native_handle(), SCHED_FIFO, &param)){
-        GENERIC_TARGET_PRINT_ERROR("Failed to set maximum thread priority %d for base rate scheduler (sampletime=%lf)\n", gt::basePriority, SimulinkInterface::baseSampleTime);
+        GENERIC_TARGET_PRINT_ERROR("Failed to set maximum thread priority {} for base rate scheduler (sampletime={})\n", gt::basePriority, SimulinkInterface::baseSampleTime);
         #if !defined(DEBUG)
         StopMasterThread();
         return false;
@@ -99,6 +99,6 @@ void BaseRateScheduler::StopMasterThread(void){
     uint64_t numCPUOverloads = masterClock.GetNumCPUOverloads();
     uint64_t numLostTicks = masterClock.GetNumLostTicks();
     if(numCPUOverloads || numLostTicks){
-        GENERIC_TARGET_PRINT_ERROR("Master thread stopped with overloads (%lu CPU overloads, %lu lost ticks)\n", numCPUOverloads, numLostTicks);
+        GENERIC_TARGET_PRINT_ERROR("Master thread stopped with overloads ({} CPU overloads, {} lost ticks)\n", numCPUOverloads, numLostTicks);
     }
 }

@@ -9,12 +9,11 @@
  * @return 0 on success, -1 otherwise.
  */
 int main(int argc, char **argv){
-    gt::init();
+    GENERIC_TARGET_PRINT_RAW("GenericTarget\n\n");
 
     // lock memory pages to prevent swapping
     if(mlockall(MCL_CURRENT | MCL_FUTURE) < 0){
-        GENERIC_TARGET_PRINT_ERROR("Failed to lock memory: %s\n", std::strerror(errno));
-        gt::terminate();
+        GENERIC_TARGET_PRINT_ERROR("Failed to lock memory: {}\n", std::strerror(errno));
         return -1;
     }
 
@@ -22,7 +21,5 @@ int main(int argc, char **argv){
     umask(0000);
 
     // run actual application
-    int result = gt::GenericTarget::Run(argc, argv);
-    gt::terminate();
-    return result;
+    return gt::GenericTarget::Run(argc, argv);
 }

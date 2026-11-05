@@ -17,13 +17,13 @@ bool AppSocket::Open(std::string_view socketName){
     struct sockaddr_un addr{};
     const size_t max_name_len = sizeof(addr.sun_path) - 1;
     if(socketName.empty() || socketName.size() > max_name_len){
-        GENERIC_TARGET_PRINT_ERROR("Invalid application socket name length: expected at most %zu bytes, got %zu\n", max_name_len, socketName.size());
+        GENERIC_TARGET_PRINT_ERROR("Invalid application socket name length: expected at most {} bytes, got {}\n", max_name_len, socketName.size());
         return false;
     }
 
     lock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if(lock_fd < 0){
-        GENERIC_TARGET_PRINT_ERROR("Failed to create application socket: %s\n", std::strerror(errno));
+        GENERIC_TARGET_PRINT_ERROR("Failed to create application socket: {}\n", std::strerror(errno));
         return false;
     }
     addr.sun_family = AF_UNIX;
@@ -35,7 +35,7 @@ bool AppSocket::Open(std::string_view socketName){
             GENERIC_TARGET_PRINT_ERROR("Another instance of this application is already running!\n");
         }
         else{
-            GENERIC_TARGET_PRINT_ERROR("Failed to bind application socket: %s\n", std::strerror(errno));
+            GENERIC_TARGET_PRINT_ERROR("Failed to bind application socket: {}\n", std::strerror(errno));
         }
         Close();
         return false;
@@ -49,6 +49,6 @@ void AppSocket::Close(void){
     int fd = lock_fd;
     lock_fd = -1;
     if(close(fd) < 0){
-        GENERIC_TARGET_PRINT_ERROR("Failed to close application socket: %s\n", std::strerror(errno));
+        GENERIC_TARGET_PRINT_ERROR("Failed to close application socket: {}\n", std::strerror(errno));
     }
 }

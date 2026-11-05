@@ -23,6 +23,9 @@
 #include <csignal>
 #include <tuple>
 #include <limits>
+#include <format>
+#include <syncstream>
+#include <utility>
 
 /* Linux-specific headers */
 #include <semaphore.h>
@@ -48,34 +51,70 @@
 #include <net/if.h>
 
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// macros for thread-safe prints
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 namespace gt {
 
-extern void init(void);
-extern void terminate(void);
-extern void print(const char* format, ...);
-extern void print_verbose(const char c, const char* file, const int line, const char* func, const char* format, ...);
-extern void print_raw(const char* format, ...);
+
+inline constexpr std::string_view version{"2.1.0"};
+inline constexpr int32_t basePriority{49};
+inline constexpr std::string_view compilerVersion{__VERSION__};
+extern const std::string_view builtTimestamp;
+
+
+/**
+ * @brief Get the log elapsed seconds since the first call of this function.
+ * @return Elapsed seconds since the first call of this function.
+ */
+extern double get_log_elapsed_seconds(void);
+
+
+/**
+ * @brief Print a formatted message to the standard error stream.
+ * @tparam Args The types of the arguments for the format string.
+ * @param[in] fmt The format string.
+ * @param[in] args The arguments for the format string.
+ */
+template <typename... Args> void print(std::format_string<Args...> fmt, Args&&... args){
+    std::osyncstream synced_err(std::cerr);
+    synced_err << std::format("   [t={:.6f}] ", get_log_elapsed_seconds());
+    synced_err << std::format(fmt, std::forward<Args>(args)...);
+}
+
+
+/**
+ * @brief Print a formatted message to the standard error stream with additional information.
+ * @tparam Args The types of the arguments for the format string.
+ * @param[in] severity The severity level of the message (e.g., 'E' for error, 'W' for warning).
+ * @param[in] file The source file name where the message is generated.
+ * @param[in] line The line number in the source file where the message is generated.
+ * @param[in] function The function name where the message is generated.
+ * @param[in] fmt The format string.
+ * @param[in] args The arguments for the format string.
+ */
+template <typename... Args> void print_verbose(char severity, const char* file, int line, const char* function, std::format_string<Args...> fmt, Args&&... args){
+    std::osyncstream synced_err(std::cerr);
+    synced_err << std::format(" {} [t={:.6f}] {}:{} in {}(): ", severity, get_log_elapsed_seconds(), file, line, function);
+    synced_err << std::format(fmt, std::forward<Args>(args)...);
+}
+
+
+/**
+ * @brief Print a formatted message to the standard error stream without additional information.
+ * @tparam Args The types of the arguments for the format string.
+ * @param[in] fmt The format string.
+ * @param[in] args The arguments for the format string.
+ */
+template <typename... Args> void print_raw(std::format_string<Args...> fmt, Args&&... args){
+    (void) get_log_elapsed_seconds();
+    std::osyncstream synced_err(std::cerr);
+    synced_err << std::format(fmt, std::forward<Args>(args)...);
+}
+
 
 } /* namespace: gt */
 
 
+/* Macro definitions for thread-safe message printing */
 #define GENERIC_TARGET_PRINT(...) gt::print(__VA_ARGS__)
 #define GENERIC_TARGET_PRINT_WARNING(...) gt::print_verbose('W', __FILE__, __LINE__, __func__, __VA_ARGS__)
 #define GENERIC_TARGET_PRINT_ERROR(...) gt::print_verbose('E', __FILE__, __LINE__, __func__, __VA_ARGS__)
 #define GENERIC_TARGET_PRINT_RAW(...) gt::print_raw(__VA_ARGS__)
-
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// target settings
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-namespace gt {
-
-inline constexpr std::string_view version{"2.1.0"};
-inline constexpr std::string_view compilerVersion{__VERSION__};
-inline constexpr std::string_view builtTimestamp{__DATE__ " " __TIME__};
-inline constexpr int32_t basePriority{49};
-
-} /* namespace: gt */

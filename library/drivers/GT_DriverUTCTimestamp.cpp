@@ -15,6 +15,10 @@ void GT_DriverUTCTimestampStep(double* timestamp){
     #else
         std::tm* gmTime = ::gmtime_r(&systemTime, &gmTimeStruct);
     #endif
+    if(gmTime == nullptr){
+        *timestamp = 0.0;
+        return;
+    }
     double s = static_cast<double>(gmTime->tm_sec);
     double m = static_cast<double>(gmTime->tm_min);
     double h = static_cast<double>(gmTime->tm_hour);

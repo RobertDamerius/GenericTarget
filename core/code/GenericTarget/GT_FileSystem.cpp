@@ -20,7 +20,7 @@ bool FileSystem::MakeProtocolDirectory(void){
         std::filesystem::create_directory(directory);
     }
     catch(...){
-        GENERIC_TARGET_PRINT_ERROR("Failed to create protocol directory \"%s\"!\n", directory.string().c_str());
+        GENERIC_TARGET_PRINT_ERROR("Failed to create protocol directory \"{}\"!\n", directory.string());
         return false;
     }
     return true;
@@ -37,7 +37,7 @@ void FileSystem::KeepNLatestProtocolFiles(uint32_t N){
     std::error_code ec;
     std::filesystem::directory_iterator entry(directory, ec);
     if(ec){
-        GENERIC_TARGET_PRINT_WARNING("Failed to enumerate protocol directory \"%s\": %s\n", directory.string().c_str(), ec.message().c_str());
+        GENERIC_TARGET_PRINT_WARNING("Failed to enumerate protocol directory \"{}\": {}\n", directory.string(), ec.message());
         return;
     }
 
@@ -45,7 +45,7 @@ void FileSystem::KeepNLatestProtocolFiles(uint32_t N){
     while(entry != end){
         const auto status = entry->symlink_status(ec);
         if(ec){
-            GENERIC_TARGET_PRINT_WARNING("Failed to inspect protocol directory entry \"%s\": %s\n", entry->path().string().c_str(), ec.message().c_str());
+            GENERIC_TARGET_PRINT_WARNING("Failed to inspect protocol directory entry \"{}\": {}\n", entry->path().string(), ec.message());
             ec.clear();
         }
         else if(std::filesystem::is_regular_file(status)){
@@ -54,7 +54,7 @@ void FileSystem::KeepNLatestProtocolFiles(uint32_t N){
 
         entry.increment(ec);
         if(ec){
-            GENERIC_TARGET_PRINT_WARNING("Failed to continue enumerating protocol directory \"%s\": %s\n", directory.string().c_str(), ec.message().c_str());
+            GENERIC_TARGET_PRINT_WARNING("Failed to continue enumerating protocol directory \"{}\": {}\n", directory.string(), ec.message());
             return;
         }
     }
@@ -63,7 +63,7 @@ void FileSystem::KeepNLatestProtocolFiles(uint32_t N){
     for(size_t n = N; n < files.size(); ++n){
         ec.clear();
         if(!std::filesystem::remove(files[n], ec)){
-            GENERIC_TARGET_PRINT_WARNING("Failed to remove protocol file \"%s\": %s\n", files[n].string().c_str(), ec ? ec.message().c_str() : "file was not removed");
+            GENERIC_TARGET_PRINT_WARNING("Failed to remove protocol file \"{}\": {}\n", files[n].string(), ec ? ec.message() : "file was not removed");
         }
     }
 }

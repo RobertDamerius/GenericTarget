@@ -15,6 +15,19 @@ void GT_DriverUTCTimeStep(int32_t* nanoseconds, int32_t* second, int32_t* minute
     #else
         std::tm* gmTime = ::gmtime_r(&systemTime, &gmTimeStruct);
     #endif
+    if(gmTime == nullptr){
+        *second = 0;
+        *minute = 0;
+        *hour = 0;
+        *mday = 1;
+        *month = 0;
+        *year = 0;
+        *wday = 0;
+        *yday = 0;
+        *isdst = 0;
+        *nanoseconds = 0;
+        return;
+    }
     *second = static_cast<int32_t>(gmTime->tm_sec);
     *minute = static_cast<int32_t>(gmTime->tm_min);
     *hour = static_cast<int32_t>(gmTime->tm_hour);

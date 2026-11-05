@@ -24,8 +24,8 @@ bool PeriodicTask::Start(void){
     Stop();
 
     if(semaphoreInitialized){
-        GENERIC_TARGET_PRINT_ERROR("Failed to restart task \"%.*s\" because its semaphore is still initialized!\n",
-            static_cast<int>(SimulinkInterface::taskNames[taskID].length()), SimulinkInterface::taskNames[taskID].data());
+        GENERIC_TARGET_PRINT_ERROR("Failed to restart task \"{}\" because its semaphore is still initialized!\n",
+            SimulinkInterface::taskNames[taskID]);
         return false;
     }
 
@@ -33,8 +33,8 @@ bool PeriodicTask::Start(void){
     // pshared = 0 (shared between threads of this process)
     // value = 0 (initial count is 0)
     if(sem_init(&sem, 0, 0) < 0){
-        GENERIC_TARGET_PRINT_ERROR("Failed to initialize semaphore for task \"%.*s\" (sampletime=%lf)!\n",
-            static_cast<int>(SimulinkInterface::taskNames[taskID].length()), SimulinkInterface::taskNames[taskID].data(),
+        GENERIC_TARGET_PRINT_ERROR("Failed to initialize semaphore for task \"{}\" (sampletime={})!\n",
+            SimulinkInterface::taskNames[taskID],
             SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]));
         return false;
     }
@@ -53,9 +53,9 @@ bool PeriodicTask::Start(void){
     struct sched_param param;
     param.sched_priority = std::clamp(int(taskPriority), sched_get_priority_min(SCHED_FIFO), sched_get_priority_max(SCHED_FIFO));
     if(0 != pthread_setschedparam(t.native_handle(), SCHED_FIFO, &param)){
-        GENERIC_TARGET_PRINT_ERROR("Failed to set thread priority %d for task \"%.*s\" (sampletime=%lf)\n",
+        GENERIC_TARGET_PRINT_ERROR("Failed to set thread priority {} for task \"{}\" (sampletime={})\n",
             taskPriority,
-            static_cast<int>(SimulinkInterface::taskNames[taskID].length()), SimulinkInterface::taskNames[taskID].data(),
+            SimulinkInterface::taskNames[taskID],
             SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]));
         #if !defined(DEBUG)
         Stop();
@@ -81,8 +81,8 @@ void PeriodicTask::Stop(void){
             semaphoreInitialized = false;
         }
         else{
-            GENERIC_TARGET_PRINT_ERROR("Failed to destroy semaphore for task \"%.*s\": %s\n",
-                static_cast<int>(SimulinkInterface::taskNames[taskID].length()), SimulinkInterface::taskNames[taskID].data(),
+            GENERIC_TARGET_PRINT_ERROR("Failed to destroy semaphore for task \"{}\": {}\n",
+                SimulinkInterface::taskNames[taskID],
                 std::strerror(errno));
         }
     }
@@ -123,8 +123,8 @@ bool PeriodicTask::WaitForNotification(void){
     while(sem_wait(&sem) == -1){
         if(errno != EINTR){
             const int error = errno;
-            GENERIC_TARGET_PRINT_ERROR("Failed to wait for notification for task \"%.*s\": %s\n",
-                static_cast<int>(SimulinkInterface::taskNames[taskID].length()), SimulinkInterface::taskNames[taskID].data(),
+            GENERIC_TARGET_PRINT_ERROR("Failed to wait for notification for task \"{}\": {}\n",
+                SimulinkInterface::taskNames[taskID],
                 std::strerror(error));
             GenericTarget::ShouldTerminate();
             return false;

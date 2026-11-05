@@ -24,31 +24,31 @@ bool PeriodicTimer::Start(double sampletime){
 
     // check for valid sample time
     if(!std::isfinite(sampletime) || sampletime <= 0.0){
-        GENERIC_TARGET_PRINT_ERROR("Invalid sampletime: %g seconds\n", sampletime);
+        GENERIC_TARGET_PRINT_ERROR("Invalid sampletime: {} seconds\n", sampletime);
         return false;
     }
     const long double wholeSeconds = std::floor(static_cast<long double>(sampletime));
     if(wholeSeconds >= static_cast<long double>(std::numeric_limits<time_t>::max())){
-        GENERIC_TARGET_PRINT_ERROR("Sampletime is too large: %g seconds\n", sampletime);
+        GENERIC_TARGET_PRINT_ERROR("Sampletime is too large: {} seconds\n", sampletime);
         return false;
     }
     const long fractionalNanoseconds = static_cast<long>((static_cast<long double>(sampletime) - wholeSeconds) * 1000000000.0L);
     if(wholeSeconds == 0.0L && fractionalNanoseconds == 0){
-        GENERIC_TARGET_PRINT_ERROR("Sampletime is below the 1 ns resolution: %g seconds\n", sampletime);
+        GENERIC_TARGET_PRINT_ERROR("Sampletime is below the 1 ns resolution: {} seconds\n", sampletime);
         return false;
     }
 
     // create epoll, cancel event, and timer
     const int localEpollFd = epoll_create1(0);
     if(localEpollFd < 0){
-        GENERIC_TARGET_PRINT_ERROR("Failed to create epoll instance: %s\n", std::strerror(errno));
+        GENERIC_TARGET_PRINT_ERROR("Failed to create epoll instance: {}\n", std::strerror(errno));
         return false;
     }
     const int localCancelFd = eventfd(0, EFD_NONBLOCK);
     if(localCancelFd < 0){
         const int error = errno;
         close(localEpollFd);
-        GENERIC_TARGET_PRINT_ERROR("Failed to create cancellation event: %s\n", std::strerror(error));
+        GENERIC_TARGET_PRINT_ERROR("Failed to create cancellation event: {}\n", std::strerror(error));
         return false;
     }
     const int localTimerFd = timerfd_create(CLOCK_MONOTONIC, 0);
@@ -56,7 +56,7 @@ bool PeriodicTimer::Start(double sampletime){
         const int error = errno;
         close(localCancelFd);
         close(localEpollFd);
-        GENERIC_TARGET_PRINT_ERROR("Failed to create timer: %s\n", std::strerror(error));
+        GENERIC_TARGET_PRINT_ERROR("Failed to create timer: {}\n", std::strerror(error));
         return false;
     }
 
@@ -69,7 +69,7 @@ bool PeriodicTimer::Start(double sampletime){
         close(localTimerFd);
         close(localCancelFd);
         close(localEpollFd);
-        GENERIC_TARGET_PRINT_ERROR("Failed to add cancellation event to epoll: %s\n", std::strerror(error));
+        GENERIC_TARGET_PRINT_ERROR("Failed to add cancellation event to epoll: {}\n", std::strerror(error));
         return false;
     }
     ev.data.fd = localTimerFd;
@@ -78,7 +78,7 @@ bool PeriodicTimer::Start(double sampletime){
         close(localTimerFd);
         close(localCancelFd);
         close(localEpollFd);
-        GENERIC_TARGET_PRINT_ERROR("Failed to add timer to epoll: %s\n", std::strerror(error));
+        GENERIC_TARGET_PRINT_ERROR("Failed to add timer to epoll: {}\n", std::strerror(error));
         return false;
     }
 
@@ -93,7 +93,7 @@ bool PeriodicTimer::Start(double sampletime){
         close(localTimerFd);
         close(localCancelFd);
         close(localEpollFd);
-        GENERIC_TARGET_PRINT_ERROR("Failed to set time for timer: %s\n", std::strerror(error));
+        GENERIC_TARGET_PRINT_ERROR("Failed to set time for timer: {}\n", std::strerror(error));
         return false;
     }
 
@@ -116,7 +116,7 @@ void PeriodicTimer::Cancel(void){
         } while(written < 0 && errno == EINTR);
         if(written < 0 && errno != EAGAIN){
             const int error = errno;
-            GENERIC_TARGET_PRINT_ERROR("Failed to signal timer cancellation: %s\n", std::strerror(error));
+            GENERIC_TARGET_PRINT_ERROR("Failed to signal timer cancellation: {}\n", std::strerror(error));
         }
     }
 }
@@ -129,7 +129,7 @@ void PeriodicTimer::Stop(void){
     if(fd >= 0){
         struct itimerspec disarmed{};
         if(timerfd_settime(fd, 0, &disarmed, nullptr) < 0){
-            GENERIC_TARGET_PRINT_ERROR("Failed to stop timer: %s\n", std::strerror(errno));
+            GENERIC_TARGET_PRINT_ERROR("Failed to stop timer: {}\n", std::strerror(errno));
         }
     }
 
@@ -143,7 +143,7 @@ void PeriodicTimer::Stop(void){
         if(r < 0 && errno == EINTR && attempt < 2){
             continue;
         }
-        GENERIC_TARGET_PRINT_ERROR("Failed to clear timer cancellation event: %s\n", std::strerror(errno));
+        GENERIC_TARGET_PRINT_ERROR("Failed to clear timer cancellation event: {}\n", std::strerror(errno));
         break;
     }
 
@@ -183,7 +183,7 @@ int32_t PeriodicTimer::WaitForTick(void){
         if(nfds < 0){
             if(errno == EINTR) continue; // interrupted by system signal, retry
             const int error = errno;
-            GENERIC_TARGET_PRINT_ERROR("Failed to wait for timer event: %s\n", std::strerror(error));
+            GENERIC_TARGET_PRINT_ERROR("Failed to wait for timer event: {}\n", std::strerror(error));
             return -1;
         }
 
@@ -205,7 +205,7 @@ int32_t PeriodicTimer::WaitForTick(void){
                 if(!isRunning) return 0;
                 if(s < 0 && errno == EINTR) continue;
                 const int error = (s < 0) ? errno : EIO;
-                GENERIC_TARGET_PRINT_ERROR("Failed to read timer event: %s\n", std::strerror(error));
+                GENERIC_TARGET_PRINT_ERROR("Failed to read timer event: {}\n", std::strerror(error));
                 return -1;
             }
         }

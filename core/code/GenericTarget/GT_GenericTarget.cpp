@@ -33,7 +33,7 @@ int GenericTarget::Run(int argc, char** argv){
         // wait for termination
         while(sem_wait(&semaphoreTerminate) == -1){
             if(errno != EINTR){
-                GENERIC_TARGET_PRINT_ERROR("Failed to wait for termination signal: %s\n", std::strerror(errno));
+                GENERIC_TARGET_PRINT_ERROR("Failed to wait for termination signal: {}\n", std::strerror(errno));
                 result = -1;
                 break;
             }
@@ -50,7 +50,7 @@ int GenericTarget::Run(int argc, char** argv){
     // destroy semaphore
     semaphoreInitialized = false;
     if(sem_destroy(&semaphoreTerminate) < 0){
-        GENERIC_TARGET_PRINT_ERROR("Failed to destroy termination semaphore: %s\n", std::strerror(errno));
+        GENERIC_TARGET_PRINT_ERROR("Failed to destroy termination semaphore: {}\n", std::strerror(errno));
         result = -1;
     }
     GENERIC_TARGET_PRINT("Application terminated\n");
@@ -112,7 +112,7 @@ void GenericTarget::SetSignalHandlers(void){
 }
 
 void GenericTarget::SignalHandler(int signum){
-    GENERIC_TARGET_PRINT("Caught signal %d!\n", signum);
+    GENERIC_TARGET_PRINT("Caught signal {}!\n", signum);
     switch(signum){
         case SIGSEGV:
             throw std::runtime_error("SIGSEGV");
@@ -132,7 +132,7 @@ void GenericTarget::TerminateHandler(void){
             throw;
         }
     }
-    catch(const std::exception &e){ GENERIC_TARGET_PRINT_RAW("\nERROR: Caught unhandled exception: %s\n", e.what()); }
+    catch(const std::exception &e){ GENERIC_TARGET_PRINT_RAW("\nERROR: Caught unhandled exception: {}\n", e.what()); }
     catch(...){ GENERIC_TARGET_PRINT_RAW("\nERROR: Caught unknown/unhandled exception!\n"); }
     const int backtraceSize = 64;
     void* array[backtraceSize];
@@ -140,7 +140,7 @@ void GenericTarget::TerminateHandler(void){
     char** messages(backtrace_symbols(array, size));
     GENERIC_TARGET_PRINT_RAW("\nBacktrace:\n");
     for(int i = 0; (i < size) && (messages != nullptr); ++i){
-        GENERIC_TARGET_PRINT_RAW("[%d]: %s\n", i, messages[i]);
+        GENERIC_TARGET_PRINT_RAW("[{}]: {}\n", i, messages[i]);
     }
     GENERIC_TARGET_PRINT_RAW("\nIf DEBUG mode was enabled for the exectuable, convert a printed address to a corresponding code line by executing the command \"addr2line -e ./PRODUCT_NAME +0xABCDEF\" in the binary directory of the application, where 0xABCDEF is the printed address and PRODUCT_NAME is the name of the executable (default: GenericTarget).\n");
     free(messages);
@@ -178,7 +178,7 @@ bool GenericTarget::RedirectPrintsToFile(void){
         return false;
     }
 
-    GENERIC_TARGET_PRINT_RAW("\nConsole output is redirected to \"%s\"\n", filename.c_str());
+    GENERIC_TARGET_PRINT_RAW("\nConsole output is redirected to \"{}\"\n", filename);
     GENERIC_TARGET_PRINT_RAW("If you don't want to redirect the output to a file, start the application with the option \"--console\"\n\n");
     const bool stdoutFlushFailed = std::fflush(stdout) == EOF;
     const bool stderrFlushFailed = std::fflush(stderr) == EOF;
@@ -211,29 +211,27 @@ bool GenericTarget::RedirectPrintsToFile(void){
 
 void GenericTarget::PrintInfo(void){
     TimeInfo upTime = appStartTimepoint.GetUTC();
-    GENERIC_TARGET_PRINT_RAW("GenericTarget\n");
-    GENERIC_TARGET_PRINT_RAW("\n");
     PrintOperatingSystemInfo();
     PrintNetworkInfo();
     GENERIC_TARGET_PRINT_RAW("\n");
-    GENERIC_TARGET_PRINT_RAW("Generic Target Version:   %.*s\n", static_cast<int>(gt::version.length()), gt::version.data());
-    GENERIC_TARGET_PRINT_RAW("Compiler Version:         %.*s\n", static_cast<int>(gt::compilerVersion.length()), gt::compilerVersion.data());
-    GENERIC_TARGET_PRINT_RAW("Built (local):            %.*s\n", static_cast<int>(gt::builtTimestamp.length()), gt::builtTimestamp.data());
-    GENERIC_TARGET_PRINT_RAW("Date (UTC):               %04d-%02d-%02d %02d:%02d:%02d.%03d\n", 1900 + upTime.year, 1 + upTime.month, upTime.mday, upTime.hour, upTime.minute, upTime.second, upTime.nanoseconds / 1000000);
-    GENERIC_TARGET_PRINT_RAW("Arguments:               "); for(size_t i = 0; i < appArguments.args.size(); i++){ GENERIC_TARGET_PRINT_RAW(" [%s]", appArguments.args[i].c_str()); } GENERIC_TARGET_PRINT_RAW("\n");
-    GENERIC_TARGET_PRINT_RAW("Maximum thread priority:  %d\n", sched_get_priority_max(SCHED_FIFO));
-    GENERIC_TARGET_PRINT_RAW("Minimum thread priority:  %d\n", sched_get_priority_min(SCHED_FIFO));
+    GENERIC_TARGET_PRINT_RAW("Generic Target Version:   {}\n", gt::version);
+    GENERIC_TARGET_PRINT_RAW("Compiler Version:         {}\n", gt::compilerVersion);
+    GENERIC_TARGET_PRINT_RAW("Built (local):            {}\n", gt::builtTimestamp);
+    GENERIC_TARGET_PRINT_RAW("Date (UTC):               {:04}-{:02}-{:02} {:02}:{:02}:{:02}.{:03}\n", 1900 + upTime.year, 1 + upTime.month, upTime.mday, upTime.hour, upTime.minute, upTime.second, upTime.nanoseconds / 1000000);
+    GENERIC_TARGET_PRINT_RAW("Arguments:               "); for(size_t i = 0; i < appArguments.args.size(); i++){ GENERIC_TARGET_PRINT_RAW(" [{}]", appArguments.args[i]); } GENERIC_TARGET_PRINT_RAW("\n");
+    GENERIC_TARGET_PRINT_RAW("Maximum thread priority:  {}\n", sched_get_priority_max(SCHED_FIFO));
+    GENERIC_TARGET_PRINT_RAW("Minimum thread priority:  {}\n", sched_get_priority_min(SCHED_FIFO));
     GENERIC_TARGET_PRINT_RAW("\n");
-    GENERIC_TARGET_PRINT_RAW("modelName:                %.*s\n", static_cast<int>(SimulinkInterface::modelName.length()), SimulinkInterface::modelName.data());
-    GENERIC_TARGET_PRINT_RAW("targetSocketName:         %.*s\n", static_cast<int>(SimulinkInterface::targetSocketName.length()), SimulinkInterface::targetSocketName.data());
-    GENERIC_TARGET_PRINT_RAW("baseSampleTime:           %lf s\n", SimulinkInterface::baseSampleTime);
-    GENERIC_TARGET_PRINT_RAW("basePriority:             %d\n", gt::basePriority);
+    GENERIC_TARGET_PRINT_RAW("modelName:                {}\n", SimulinkInterface::modelName);
+    GENERIC_TARGET_PRINT_RAW("targetSocketName:         {}\n", SimulinkInterface::targetSocketName);
+    GENERIC_TARGET_PRINT_RAW("baseSampleTime:           {:f} s\n", SimulinkInterface::baseSampleTime);
+    GENERIC_TARGET_PRINT_RAW("basePriority:             {}\n", gt::basePriority);
     GENERIC_TARGET_PRINT_RAW("tasks:                    ");
     for(int i = 0; i < SIMULINK_INTERFACE_NUM_TIMINGS; ++i){
         if(i) GENERIC_TARGET_PRINT_RAW("                          ");
-        GENERIC_TARGET_PRINT_RAW("[%d]: name=\"%.*s\", sampleTicks=%d, sampleOffset=%d\n",
+        GENERIC_TARGET_PRINT_RAW("[{}]: name=\"{}\", sampleTicks={}, sampleOffset={}\n",
             i,
-            static_cast<int>(SimulinkInterface::taskNames[i].length()), SimulinkInterface::taskNames[i].data(),
+            SimulinkInterface::taskNames[i],
             SimulinkInterface::sampleTicks[i],
             SimulinkInterface::offsetTicks[i]);
     }
@@ -244,16 +242,16 @@ void GenericTarget::PrintInfo(void){
 void GenericTarget::PrintOperatingSystemInfo(void){
     struct utsname info{};
     if(uname(&info) < 0){
-        GENERIC_TARGET_PRINT_WARNING("Failed to get operating system information: %s\n", std::strerror(errno));
+        GENERIC_TARGET_PRINT_WARNING("Failed to get operating system information: {}\n", std::strerror(errno));
         return;
     }
-    GENERIC_TARGET_PRINT_RAW("sysname:                  %s\n", info.sysname);
-    GENERIC_TARGET_PRINT_RAW("nodename:                 %s\n", info.nodename);
-    GENERIC_TARGET_PRINT_RAW("release:                  %s\n", info.release);
-    GENERIC_TARGET_PRINT_RAW("version:                  %s\n", info.version);
-    GENERIC_TARGET_PRINT_RAW("machine:                  %s\n", info.machine);
+    GENERIC_TARGET_PRINT_RAW("sysname:                  {}\n", info.sysname);
+    GENERIC_TARGET_PRINT_RAW("nodename:                 {}\n", info.nodename);
+    GENERIC_TARGET_PRINT_RAW("release:                  {}\n", info.release);
+    GENERIC_TARGET_PRINT_RAW("version:                  {}\n", info.version);
+    GENERIC_TARGET_PRINT_RAW("machine:                  {}\n", info.machine);
     #ifdef __USE_GNU
-    GENERIC_TARGET_PRINT_RAW("domainname:               %s\n", info.domainname);
+    GENERIC_TARGET_PRINT_RAW("domainname:               {}\n", info.domainname);
     #endif
 }
 
@@ -263,7 +261,7 @@ void GenericTarget::PrintNetworkInfo(void){
     if(if_ni){
         GENERIC_TARGET_PRINT_RAW("network interfaces:       ");
         for(i = if_ni; !(i->if_index == 0 && i->if_name == nullptr); i++){
-            GENERIC_TARGET_PRINT_RAW("[%s]", i->if_name);
+            GENERIC_TARGET_PRINT_RAW("[{}]", i->if_name);
         }
         GENERIC_TARGET_PRINT_RAW("\n");
         if_freenameindex(if_ni);

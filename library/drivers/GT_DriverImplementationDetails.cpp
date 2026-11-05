@@ -8,6 +8,10 @@
 #include <cstring>
 #include <algorithm>
 #include <sstream>
+#include <format>
+#include <iostream>
+#include <syncstream>
+#include <utility>
 #if defined(_WIN32)
 #include <winsock2.h>
 #include <Iphlpapi.h>
@@ -35,44 +39,15 @@ inline constexpr std::string_view gt_driver_compilerVersion{__VERSION__};
 inline constexpr std::string_view gt_driver_builtTimestamp{__DATE__ " " __TIME__};
 const std::string_view gt_driver_modelName{""};
 
-void gt_driver_simulink_print(const char* format, ...){
-    // for debugging purpose:
-    // FILE *fp = fopen("debug.txt","at");
-    // if(fp){
-    //     va_list argptr;
-    //     va_start(argptr, format);
-    //     vfprintf(fp, format, argptr);
-    //     va_end(argptr);
-    //     fflush(fp);
-    //     fclose(fp);
-    // }
-
-    va_list argptr;
-    va_start(argptr, format);
-    vfprintf(stderr, format, argptr);
-    va_end(argptr);
-    fflush(stderr);
+template <typename... Args> void gt_driver_simulink_print(std::format_string<Args...> format, Args&&... args){
+    std::osyncstream synced_err(std::cerr);
+    synced_err << std::format(format, std::forward<Args>(args)...);
 }
 
-void gt_driver_simulink_print_verbose(const char c, const char* file, const int line, const char* func, const char* format, ...){
-    // for debugging purpose:
-    // FILE *fp = fopen("debug.txt","at");
-    // if(fp){
-    //     fprintf(fp,"%c %s:%d in %s(): ", c, file, line, func);
-    //     va_list argptr;
-    //     va_start(argptr, format);
-    //     vfprintf(fp, format, argptr);
-    //     va_end(argptr);
-    //     fflush(fp);
-    //     fclose(fp);
-    // }
-
-    fprintf(stderr,"%c %s:%d in %s(): ", c, file, line, func);
-    va_list argptr;
-    va_start(argptr, format);
-    vfprintf(stderr, format, argptr);
-    va_end(argptr);
-    fflush(stderr);
+template <typename... Args> void gt_driver_simulink_print_verbose(char severity, const char* file, int line, const char* function, std::format_string<Args...> format, Args&&... args){
+    std::osyncstream synced_err(std::cerr);
+    synced_err << std::format("{} {}:{} in {}(): ", severity, file, line, function);
+    synced_err << std::format(format, std::forward<Args>(args)...);
 }
 
 } /* anonymous namespace */
@@ -206,7 +181,7 @@ bool DataRecorderBase::Start(std::string filename, int32_t threadPriority){
     struct sched_param param;
     param.sched_priority = std::clamp(int(threadPriority), sched_get_priority_min(SCHED_FIFO), sched_get_priority_max(SCHED_FIFO));
     if(0 != pthread_setschedparam(threadDataRecorder.native_handle(), SCHED_FIFO, &param)){
-        GENERIC_TARGET_PRINT_ERROR("Failed to set thread priority %d for data recorder thread!\n", threadPriority);
+        GENERIC_TARGET_PRINT_ERROR("Failed to set thread priority {} for data recorder thread!\n", threadPriority);
         #if defined(GENERIC_TARGET_IMPLEMENTATION) && !defined(DEBUG) && !defined(_WIN32)
         Stop();
         return false;
@@ -226,7 +201,7 @@ void DataRecorderBase::Stop(void){
     if(started){
         if(!FlushBuffer()){
             std::string currentFileName = GetCurrentFilename();
-            GENERIC_TARGET_PRINT_WARNING("Remaining signal data is in the buffer but could not be written to the data file \"%s\"!\n", currentFileName.c_str());
+            GENERIC_TARGET_PRINT_WARNING("Remaining signal data is in the buffer but could not be written to the data file \"{}\"!\n", currentFileName);
         }
     }
     started = false;
@@ -253,7 +228,7 @@ bool DataRecorderScalarDoubles::WriteHeader(std::string name){
     // open file
     FILE *file = fopen(name.c_str(), "wb");
     if(!file){
-        GENERIC_TARGET_PRINT_ERROR("Failed to write file \"%s\"!\n", name.c_str());
+        GENERIC_TARGET_PRINT_ERROR("Failed to write file \"{}\"!\n", name);
         return false;
     }
 
@@ -307,7 +282,7 @@ void DataRecorderScalarDoubles::WriteBufferToDataFiles(std::vector<double>& valu
             }
             currentFileStarted = true;
             numSamplesWritten = 0;
-            GENERIC_TARGET_PRINT("Created data recording file \"%s\"\n", currentFileName.c_str());
+            GENERIC_TARGET_PRINT("Created data recording file \"{}\"\n", currentFileName);
         }
 
         // started file: write samples
@@ -355,7 +330,7 @@ bool DataRecorderBus::WriteHeader(std::string name){
     // open file
     FILE *file = fopen(name.c_str(), "wb");
     if(!file){
-        GENERIC_TARGET_PRINT_ERROR("Failed to write file \"%s\"!\n", name.c_str());
+        GENERIC_TARGET_PRINT_ERROR("Failed to write file \"{}\"!\n", name);
         return false;
     }
 
@@ -419,7 +394,7 @@ void DataRecorderBus::WriteBufferToDataFiles(std::vector<uint8_t>& bytes){
             }
             currentFileStarted = true;
             numSamplesWritten = 0;
-            GENERIC_TARGET_PRINT("Created data recording file \"%s\"\n", currentFileName.c_str());
+            GENERIC_TARGET_PRINT("Created data recording file \"{}\"\n", currentFileName);
         }
 
         // we have a started file, write samples
@@ -470,7 +445,7 @@ bool DataRecorderManager::AddDataRecorderScalarDoubles(const uint8_t* idCharacte
     bool found = false;
     for(auto&& rec : dataRecorders){
         if((found = !rec.id.compare(id))){
-            GENERIC_TARGET_PRINT_ERROR("Data recorder with ID \"%s\" has already been registered!\n", id.c_str());
+            GENERIC_TARGET_PRINT_ERROR("Data recorder with ID \"{}\" has already been registered!\n", id);
             break;
         }
     }
@@ -516,7 +491,7 @@ bool DataRecorderManager::AddDataRecorderBus(const uint8_t* idCharacters, uint32
     bool found = false;
     for(auto&& rec : dataRecorders){
         if((found = !rec.id.compare(id))){
-            GENERIC_TARGET_PRINT_ERROR("Data recorder with ID \"%s\" has already been registered!\n", id.c_str());
+            GENERIC_TARGET_PRINT_ERROR("Data recorder with ID \"{}\" has already been registered!\n", id);
             break;
         }
     }
@@ -578,16 +553,27 @@ void DataRecorderManager::SetPathAndTimeIfNotSet(void){
         #else
             std::tm* gmTime = ::gmtime_r(&systemTime, &gmTimeStruct);
         #endif
-        utc.year = 1900 + static_cast<int32_t>(gmTime->tm_year);
-        utc.month = 1 + static_cast<int32_t>(gmTime->tm_mon);
-        utc.day = static_cast<int32_t>(gmTime->tm_mday);
-        utc.hour = static_cast<int32_t>(gmTime->tm_hour);
-        utc.minute = static_cast<int32_t>(gmTime->tm_min);
-        utc.second = static_cast<int32_t>(gmTime->tm_sec);
-        auto duration = timePoint.time_since_epoch();
-        auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
-        duration -= seconds;
-        utc.millisecond = static_cast<int32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count());
+        if(gmTime == nullptr){
+            utc.year = 1900;
+            utc.month = 1;
+            utc.day = 1;
+            utc.hour = 0;
+            utc.minute = 0;
+            utc.second = 0;
+            utc.millisecond = 0;
+        }
+        else{
+            utc.year = 1900 + static_cast<int32_t>(gmTime->tm_year);
+            utc.month = 1 + static_cast<int32_t>(gmTime->tm_mon);
+            utc.day = static_cast<int32_t>(gmTime->tm_mday);
+            utc.hour = static_cast<int32_t>(gmTime->tm_hour);
+            utc.minute = static_cast<int32_t>(gmTime->tm_min);
+            utc.second = static_cast<int32_t>(gmTime->tm_sec);
+            auto duration = timePoint.time_since_epoch();
+            auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
+            duration -= seconds;
+            utc.millisecond = static_cast<int32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count());
+        }
         char buffer[64];
         snprintf(buffer, sizeof(buffer), "%u%02u%02u_%02u%02u%02u%03u", utc.year, utc.month, utc.day, utc.hour, utc.minute, utc.second, utc.millisecond);
         std::string utcString = std::string(buffer);
@@ -611,11 +597,11 @@ std::string DataRecorderManager::ConvertToPrintableString(const uint8_t* data, u
 bool DataRecorderManager::MakeDataDirectory(void){
     try{
         if(std::filesystem::create_directories(pathToDataDirectory)){
-            GENERIC_TARGET_PRINT("Created data recording directory \"%s\"\n", pathToDataDirectory.string().c_str());
+            GENERIC_TARGET_PRINT("Created data recording directory \"{}\"\n", pathToDataDirectory.string());
         }
     }
     catch(...){
-        GENERIC_TARGET_PRINT_ERROR("Failed to create data record directory \"%s\"!\n", pathToDataDirectory.string().c_str());
+        GENERIC_TARGET_PRINT_ERROR("Failed to create data record directory \"{}\"!\n", pathToDataDirectory.string());
         return false;
     }
     return true;
@@ -651,10 +637,10 @@ std::string DataRecorderManager::GetOSInfo(void){
 bool DataRecorderManager::WriteIndexFile(void){
     // open index file
     std::string filename = (pathToDataDirectory / "index").string();
-    GENERIC_TARGET_PRINT("Writing data record index file \"%s\"\n", filename.c_str());
+    GENERIC_TARGET_PRINT("Writing data record index file \"{}\"\n", filename);
     FILE *file = fopen(filename.c_str(), "wb");
     if(!file){
-        GENERIC_TARGET_PRINT_ERROR("Failed to write data record index file \"%s\"\n", filename.c_str());
+        GENERIC_TARGET_PRINT_ERROR("Failed to write data record index file \"{}\"\n", filename);
         return false;
     }
 
@@ -1291,7 +1277,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
             activeConfSet = true;
         }
         if(!(activeConf == desiredConf)){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous UDP socket configuration! The desired configuration is {%s} but this socket has already been configured with {%s}!\n", desiredConf.ToString().c_str(), activeConf.ToString().c_str());
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous UDP socket configuration! The desired configuration is {{{}}} but this socket has already been configured with {{{}}}!\n", desiredConf.ToString(), activeConf.ToString());
             return false;
         }
         if(!udpSocket.IsOpen()){
@@ -1299,14 +1285,14 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
             if(!udpSocket.Open()){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Failed to open UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Failed to open UDP socket {{{}}}! {}\n", activeConf.ToString(), errorString);
                 return false;
             }
             udpSocket.ResetLastError();
             if(udpSocket.ReusePort(true) < 0){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEPORT option for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEPORT option for UDP socket {{{}}}! {}\n", activeConf.ToString(), errorString);
                 udpSocket.Close();
                 return false;
             }
@@ -1314,7 +1300,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
             if(udpSocket.ReuseAddress(true) < 0){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEADDR option for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEADDR option for UDP socket {{{}}}! {}\n", activeConf.ToString(), errorString);
                 udpSocket.Close();
                 return false;
             }
@@ -1322,7 +1308,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
             if(!udpSocket.EnableNonBlockingMode()){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Failed to enable non-blocking mode for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Failed to enable non-blocking mode for UDP socket {{{}}}! {}\n", activeConf.ToString(), errorString);
                 udpSocket.Close();
                 return false;
             }
@@ -1330,7 +1316,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
             if(udpSocket.SetSocketPriority(activeConf.socketPriority) < 0){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Failed to set SO_PRIORITY option for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Failed to set SO_PRIORITY option for UDP socket {{{}}}! {}\n", activeConf.ToString(), errorString);
                 udpSocket.Close();
                 return false;
             }
@@ -1338,7 +1324,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
             if(udpSocket.AllowBroadcast(activeConf.allowBroadcast) < 0){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Failed to set SO_BROADCAST option for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Failed to set SO_BROADCAST option for UDP socket {{{}}}! {}\n", activeConf.ToString(), errorString);
                 udpSocket.Close();
                 return false;
             }
@@ -1346,7 +1332,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
             if(udpSocket.SetMulticastAll(activeConf.multicastAll) < 0){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Failed to set IP_MULTICAST_ALL option for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Failed to set IP_MULTICAST_ALL option for UDP socket {{{}}}! {}\n", activeConf.ToString(), errorString);
                 udpSocket.Close();
                 return false;
             }
@@ -1354,7 +1340,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
             if(udpSocket.SetMulticastLoop(activeConf.multicastLoop) < 0){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Failed to set IP_MULTICAST_LOOP option for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Failed to set IP_MULTICAST_LOOP option for UDP socket {{{}}}! {}\n", activeConf.ToString(), errorString);
                 udpSocket.Close();
                 return false;
             }
@@ -1362,7 +1348,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
             if(udpSocket.SetMulticastTTL(activeConf.multicastTTL) < 0){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Failed to set IP_MULTICAST_TTL option for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                GENERIC_TARGET_PRINT_ERROR("Failed to set IP_MULTICAST_TTL option for UDP socket {{{}}}! {}\n", activeConf.ToString(), errorString);
                 udpSocket.Close();
                 return false;
             }
@@ -1379,7 +1365,7 @@ void UDPService::Destroy(void){
             (void) udpSocket.LeaveMulticastGroup(groupIP, activeConf.deviceName, activeConf.multicastInterfaceAddress);
         }
         udpSocket.Close();
-        GENERIC_TARGET_PRINT("Closed UDP socket {%s}\n", activeConf.ToString().c_str());
+        GENERIC_TARGET_PRINT("Closed UDP socket {{{}}}\n", activeConf.ToString());
     }
     currentlyJoinedGroups.clear();
     latestErrorCode = 0;
@@ -1431,7 +1417,7 @@ bool UDPService::AttemptToBind(void){
             if(udpSocket.Bind(port) < 0){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 if(errorCode != latestErrorCode){
-                    GENERIC_TARGET_PRINT_ERROR("Failed to bind port for UDP socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                    GENERIC_TARGET_PRINT_ERROR("Failed to bind port for UDP socket {{{}}}! {}\n", activeConf.ToString(), errorString);
                 }
                 latestErrorCode = errorCode;
                 return false;
@@ -1445,7 +1431,7 @@ bool UDPService::AttemptToBind(void){
             if(udpSocket.BindToDevice(activeConf.deviceName) < 0){
                 auto [errorCode, errorString] = udpSocket.GetLastError();
                 if(errorCode != latestErrorCode){
-                    GENERIC_TARGET_PRINT_ERROR("Failed to bind UDP socket to a device {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+                    GENERIC_TARGET_PRINT_ERROR("Failed to bind UDP socket to a device {{{}}}! {}\n", activeConf.ToString(), errorString);
                 }
                 latestErrorCode = errorCode;
                 return false;
@@ -1455,7 +1441,7 @@ bool UDPService::AttemptToBind(void){
 
         // success
         isBound = true;
-        GENERIC_TARGET_PRINT("UDP socket operational {%s}\n", activeConf.ToString().c_str());
+        GENERIC_TARGET_PRINT("UDP socket operational {{{}}}\n", activeConf.ToString());
     }
     return true;
 }
@@ -1678,7 +1664,7 @@ bool TCPClientService::Create(TCPClientServiceConfiguration conf){
     if(isCreated){
         bool equalConf = (conf == activeConf);
         if(!equalConf){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous TCP client socket configuration! The desired configuration is {%s} but this socket has already been configured with {%s}!\n", conf.ToString().c_str(), activeConf.ToString().c_str());
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous TCP client socket configuration! The desired configuration is {{{}}} but this socket has already been configured with {{{}}}!\n", conf.ToString(), activeConf.ToString());
         }
         return equalConf;
     }
@@ -1822,7 +1808,7 @@ bool TCPClientService::Connect(Address destination, bool destinationChanged){
     if(!tcpSocket.Open()){
         auto [errorCode, errorString] = tcpSocket.GetLastError();
         if(errorCode != latestErrorCode){
-            GENERIC_TARGET_PRINT_ERROR("Failed to open TCP client socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+            GENERIC_TARGET_PRINT_ERROR("Failed to open TCP client socket {{{}}}! {}\n", activeConf.ToString(), errorString);
         }
         latestErrorCode = errorCode;
         return false;
@@ -1833,7 +1819,7 @@ bool TCPClientService::Connect(Address destination, bool destinationChanged){
     if(tcpSocket.ReusePort(true) < 0){
         auto [errorCode, errorString] = tcpSocket.GetLastError();
         if(errorCode != latestErrorCode){
-            GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEPORT option for TCP client socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+            GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEPORT option for TCP client socket {{{}}}! {}\n", activeConf.ToString(), errorString);
         }
         latestErrorCode = errorCode;
         tcpSocket.Close();
@@ -1845,7 +1831,7 @@ bool TCPClientService::Connect(Address destination, bool destinationChanged){
     if(tcpSocket.ReuseAddress(true) < 0){
         auto [errorCode, errorString] = tcpSocket.GetLastError();
         if(errorCode != latestErrorCode){
-            GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEADDR option for TCP client socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+            GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEADDR option for TCP client socket {{{}}}! {}\n", activeConf.ToString(), errorString);
         }
         latestErrorCode = errorCode;
         tcpSocket.Close();
@@ -1857,7 +1843,7 @@ bool TCPClientService::Connect(Address destination, bool destinationChanged){
     if(tcpSocket.SetSocketPriority(activeConf.socketPriority) < 0){
         auto [errorCode, errorString] = tcpSocket.GetLastError();
         if(errorCode != latestErrorCode){
-            GENERIC_TARGET_PRINT_ERROR("Failed to set SO_PRIORITY option for TCP client socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+            GENERIC_TARGET_PRINT_ERROR("Failed to set SO_PRIORITY option for TCP client socket {{{}}}! {}\n", activeConf.ToString(), errorString);
         }
         latestErrorCode = errorCode;
         tcpSocket.Close();
@@ -1870,7 +1856,7 @@ bool TCPClientService::Connect(Address destination, bool destinationChanged){
     if(tcpSocket.Bind(port) < 0){
         auto [errorCode, errorString] = tcpSocket.GetLastError();
         if(errorCode != latestErrorCode){
-            GENERIC_TARGET_PRINT_ERROR("Failed to bind port for TCP client socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+            GENERIC_TARGET_PRINT_ERROR("Failed to bind port for TCP client socket {{{}}}! {}\n", activeConf.ToString(), errorString);
         }
         latestErrorCode = errorCode;
         tcpSocket.Close();
@@ -1882,7 +1868,7 @@ bool TCPClientService::Connect(Address destination, bool destinationChanged){
     if(tcpSocket.BindToDevice(activeConf.deviceName) < 0){
         auto [errorCode, errorString] = tcpSocket.GetLastError();
         if(errorCode != latestErrorCode){
-            GENERIC_TARGET_PRINT_ERROR("Failed to bind TCP client socket to a device {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+            GENERIC_TARGET_PRINT_ERROR("Failed to bind TCP client socket to a device {{{}}}! {}\n", activeConf.ToString(), errorString);
         }
         latestErrorCode = errorCode;
         tcpSocket.Close();
@@ -1894,7 +1880,7 @@ bool TCPClientService::Connect(Address destination, bool destinationChanged){
     if(tcpSocket.Connect(destination) < 0){
         auto [errorCode, errorString] = tcpSocket.GetLastError();
         if(errorCode != latestErrorCode || destinationChanged){
-            GENERIC_TARGET_PRINT_ERROR("Failed to connect TCP client socket {%s} to %s! %s\n", activeConf.ToString().c_str(), destination.ToString().c_str(), errorString.c_str());
+            GENERIC_TARGET_PRINT_ERROR("Failed to connect TCP client socket {{{}}} to {}! {}\n", activeConf.ToString(), destination.ToString(), errorString);
         }
         latestErrorCode = errorCode;
         return false;
@@ -1905,7 +1891,7 @@ bool TCPClientService::Connect(Address destination, bool destinationChanged){
     if(!tcpSocket.EnableNonBlockingMode()){
         auto [errorCode, errorString] = tcpSocket.GetLastError();
         if(errorCode != latestErrorCode){
-            GENERIC_TARGET_PRINT_ERROR("Failed to enable non-blocking mode for TCP client socket {%s}! %s\n", activeConf.ToString().c_str(), errorString.c_str());
+            GENERIC_TARGET_PRINT_ERROR("Failed to enable non-blocking mode for TCP client socket {{{}}}! {}\n", activeConf.ToString(), errorString);
         }
         latestErrorCode = errorCode;
         tcpSocket.Close();
@@ -1913,7 +1899,7 @@ bool TCPClientService::Connect(Address destination, bool destinationChanged){
     }
 
     // success
-    GENERIC_TARGET_PRINT("TCP client socket {%s} connected to %s\n", activeConf.ToString().c_str(), destination.ToString().c_str());
+    GENERIC_TARGET_PRINT("TCP client socket {{{}}} connected to {}\n", activeConf.ToString(), destination.ToString());
     {
         const LockGuard lock(mtxIO);
         isConnected = true;
