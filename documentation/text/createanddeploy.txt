@@ -14,7 +14,7 @@
     In this example the difference of both times is recorded and written to a file.
     <br>
     <br>
-    <center><object data="../img/GenericTargetTemplate.svg" type="image/svg+xml"></object></center>
+    <center><img src="../img/GenericTargetTemplate.svg"></center>
     <br>
     Basically, this test should be performed once for each target to check if the desired sample rate can be used.
     In the ideal case the difference is zero.

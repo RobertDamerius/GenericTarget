@@ -10,7 +10,6 @@ classdef GenericTarget < handle
         targetBitmaskCPUCores {mustBeTextScalar, GT.mustBeChar, GT.mustBeHexString} = '';
         applicationArguments {mustBeTextScalar, GT.mustBeChar} = '';
         customCode {mustBeText, GT.mustBeUnique, GT.mustBeCellStr} = cell.empty();
-        numberOfOldProtocolFiles (1,1) uint32 = 10;
         additionalCompilerFlags (1,1) GT.CompilerFlags = GT.CompilerFlags();
     end
     methods
@@ -181,7 +180,7 @@ classdef GenericTarget < handle
                 args = [' ', this.applicationArguments];
             end
             fprintf('[GENERIC TARGET] Starting target software on %s at %s\n', this.targetUsername, this.targetAddress);
-            commands = this.RunCommandOnTarget(['sudo nohup ' this.GetTasksetOption() this.targetSoftwareDirectory this.targetProductName args ' &> ' this.targetSoftwareDirectory 'out.txt &']);
+            commands = this.RunCommandOnTarget(['sudo nohup ' this.GetTasksetOption() this.targetSoftwareDirectory this.targetProductName args ' >> ' this.targetSoftwareDirectory 'out.txt 2>&1 &']);
         end
         function commands = Stop(this)
             %GT.GenericTarget.Stop Stop the target application. An SSH connection will be established to stop the application.
@@ -224,54 +223,6 @@ classdef GenericTarget < handle
             % RETURN
             % commands ... The commands that were executed on the host.
             commands = this.RunCommandOnTarget('cat /sys/devices/system/cpu/isolated');
-        end
-        function commands = ShowLatestProtocol(this)
-            %GT.GenericTarget.ShowLatestProtocol Show the latest protocol file from the target.
-            %
-            % RETURN
-            % commands ... The commands that were executed on the host.
-            targetProtocolDirectory = this.GetTargetProtocolDirectoryName();
-            [cmd1, cmdout] = this.RunCommandOnTarget(['ls -rt ', targetProtocolDirectory, '*.txt | tail -n1']);
-            protocolFileOnTarget = strtrim(cmdout);
-            [~,f,e] = fileparts(protocolFileOnTarget);
-            if(strcmp(f, '*') || ~strcmp(e, '.txt'))
-                fprintf('ERROR: Failed to find a protocol file on the target!\n');
-                commands = cmd1;
-                return;
-            end
-            cmd2 = this.RunCommandOnTarget(['cat ' protocolFileOnTarget]);
-            commands = [cmd1(:); cmd2(:)];
-        end
-        function commands = DownloadAllProtocols(this, hostDirectory)
-            %GT.GenericTarget.DownloadAllProtocols Download all protocol files from the target. The downloaded text will be written to the specified hostDirectory.
-            %
-            % PARAMETERS
-            % hostDirectory ... The destination directory (absolute path) on the host where to write the downloaded files to.
-            %                   If the directory does not exist, then it will be created. If this argument is not given, then
-            %                   the current working directory is used as default directory.
-            %
-            % RETURN
-            % commands ... The commands that were executed on the host.
-            arguments
-                this
-                hostDirectory {mustBeTextScalar, GT.mustBeChar} = pwd
-            end
-            targetProtocolDirectory = this.GetTargetProtocolDirectoryName();
-            fprintf('[GENERIC TARGET] Downloading all protocols (%s) from target %s at %s to host (%s)\n', targetProtocolDirectory, this.targetUsername, this.targetAddress, hostDirectory);
-            [~,~] = mkdir(hostDirectory);
-            cmdSCP = ['scp -o ConnectTimeout=' num2str(this.connectTimeout) ' -P ' num2str(this.portSSH) ' -r ' this.targetUsername '@' this.targetAddress ':' targetProtocolDirectory ' ' hostDirectory];
-            this.RunCommand(cmdSCP);
-            commands = {cmdSCP};
-            fprintf('[GENERIC TARGET] Download completed\n');
-        end
-        function commands = DeleteAllProtocols(this)
-            %GT.GenericTarget.DeleteAllProtocols Delete all protocol text files on the target. This will also stop a running target application.
-            %
-            % RETURN
-            % commands ... The commands that were executed on the host.
-            targetProtocolDirectory = this.GetTargetProtocolDirectoryName();
-            fprintf('[GENERIC TARGET] Stopping target application and deleting all protocol files (%s) from target %s at %s\n', targetProtocolDirectory, this.targetUsername, this.targetAddress);
-            commands = this.RunCommandOnTarget([this.GetStopCommand(), ' ; sudo rm -r -f ' targetProtocolDirectory]);
         end
         function commands = DownloadDataDirectory(this, hostDirectory, targetDataDirectory)
             %GT.GenericTarget.DownloadDataDirectory Download recorded data from the target. The downloaded data will be written to the specified hostDirectory.
@@ -360,13 +311,6 @@ classdef GenericTarget < handle
             % RETURN
             % dataDirectory ... Absolute data directory name on the target (ends with a separator '/').
             dataDirectory = [this.targetSoftwareDirectory, 'data/'];
-        end
-        function protocolDirectory = GetTargetProtocolDirectoryName(this)
-            %GT.GenericTarget.GetTargetProtocolDirectoryName Get the absolute name of the protocol directory on the target.
-            %
-            % RETURN
-            % protocolDirectory ... Absolute protocol directory name on the target (ends with a separator '/').
-            protocolDirectory = [this.targetSoftwareDirectory, 'protocol/'];
         end
         function [commands, cmdout] = RunCommandOnTarget(this, cmd)
             %GT.GenericTarget.RunCommandOnTarget Run a command to the target computer. The command is executed via SSH.
@@ -628,9 +572,6 @@ classdef GenericTarget < handle
                 strArrayTaskNames = append(strArrayTaskNames, sprintf(', "%s"', taskNames(n)));
             end
 
-            % get number of old protocol files to keep
-            strNumberOfOldProtocolFiles = sprintf('%d', this.numberOfOldProtocolFiles);
-
             % read template interface files and replace macros in both header and source template code
             strHeader = fileread(fullfile(this.GetCoreDirectory(), 'gt_template_simulink_interface.hpp'));
             strSource = fileread(fullfile(this.GetCoreDirectory(), 'gt_template_simulink_interface.cpp'));
@@ -658,8 +599,6 @@ classdef GenericTarget < handle
             strSource = strrep(strSource, '$STEP_SWITCH$', strStepSwitch);
             strHeader = strrep(strHeader, '$TARGET_SOCKET_NAME$', this.targetSocketName);
             strSource = strrep(strSource, '$TARGET_SOCKET_NAME$', this.targetSocketName);
-            strHeader = strrep(strHeader, '$NUMBER_OF_OLD_PROTOCOL_FILES$', strNumberOfOldProtocolFiles);
-            strSource = strrep(strSource, '$NUMBER_OF_OLD_PROTOCOL_FILES$', strNumberOfOldProtocolFiles);
         end
         function CompressReleaseFolder(~, releaseFolder, zipFileName)
             % get all listings from the release folder

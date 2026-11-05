@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 2.1.0</div>
+<div class="header_version">Version 2.2.0</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -70,7 +70,7 @@
 <li class="linav"><a href="application.html">Application Overview</a></li>
 <li class="linav"><a href="timingscheduling.html">Timing & Scheduling</a></li>
 <li class="linav"><a href="datarecording.html">Data Recording</a></li>
-<li class="linav"><a href="protocolfile.html">Protocol File</a></li>
+<li class="linav"><a href="consoleoutput.html">Console Output</a></li>
 <li class="linone"></li>
 <li class="litext">HOW THE DEPLOYMENT WORKS</li>
 <li class="linav"><a href="deployment.html">Deployment Process</a></li>
@@ -144,8 +144,8 @@
 
     <div class="note-orange">
     <h3 class="note-orange">Note</h3>
-    C++20 is required. Make sure that the installed g++ compiler supports the C++20 language features. You can check that by running <code>g++ -v -std=c++20</code>.
-    If there's an error like <code>g++: error: unrecognized command line option '-std=c++20'</code>, then C++20 is not supported and you have to update the GNU compiler to the latest version.
+    A <code>g++</code> compiler version 13 or newer is required to build the target application, and it must support the C++20 standard.
+    Check the installed compiler version by running <code>g++ --version</code>. To check C++20 support, run <code>g++ -std=c++20 -x c++ -fsyntax-only /dev/null</code>; the command should complete without an error.
     </div>
 
 

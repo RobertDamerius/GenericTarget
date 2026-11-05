@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 2.1.0</div>
+<div class="header_version">Version 2.2.0</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -70,7 +70,7 @@
 <li class="linav"><a href="application.html">Application Overview</a></li>
 <li class="linav"><a href="timingscheduling.html">Timing & Scheduling</a></li>
 <li class="linav"><a href="datarecording.html">Data Recording</a></li>
-<li class="linav_active"><a href="protocolfile.html">Protocol File</a></li>
+<li class="linav_active"><a href="consoleoutput.html">Console Output</a></li>
 <li class="linone"></li>
 <li class="litext">HOW THE DEPLOYMENT WORKS</li>
 <li class="linav"><a href="deployment.html">Deployment Process</a></li>
@@ -78,52 +78,66 @@
 
 </div>
 <div class="content">
-<h1>Protocol File</h1>
-    If the target application is started, the console output is redirected to a text file.
-    All protocol files are stored in the <code>protocol/</code> directory in the <a href="packages_gt_generictarget.html#targetSoftwareDirectory">software directory</a> of the target application.
-    A protocol file contains information about the target software such as warnings and error messages.
+<h1>Console Output</h1>
+    The console output contains information about the target software such as warnings and error messages.
     All messages are time stamped.
-    If the application is started with <code>--console</code>, the output is not redirected to a text file.
 
-<h3>Example Protocol File</h3>
-    Using the MATLAB class <a href="packages_gt_generictarget.html">GT.GenericTarget</a> the current protocol file is displayed:
-    <pre>target.ShowLatestProtocol();    % target is a GT.GenericTarget object</pre>
-    The content of a protocol file looks like this:
-    <br>
-    <br>
-    <center><object data="../img/TextLog.svg" type="image/svg+xml"></object></center>
-    <br>
-    <br>
+<h3>Example Console Output</h3>
+    The console output looks like this:
+
+    <pre>==========================================================================
+[2026-11-05 16:52:15.256437671 UTC] >>> TARGET START (PID: 1228)
+==========================================================================
+
+sysname:                  Linux
+nodename:                 debian
+release:                  6.12.115+deb13.1-rt-amd64
+version:                  #1 SMP PREEMPT_RT Debian 6.12.115-2 (2026-11-01)
+machine:                  x86_64
+domainname:               (none)
+network interfaces:       [lo][enp5s0][enp4s0][wlo1]
+
+Generic Target Version:   2.2.0
+Compiler Version:         14.2.0
+Built (local):            Nov  5 2026 17:51:19
+Date (UTC):               2026-11-05 16:52:15.250
+Application Path:         /home/target/GenericTarget/
+Arguments:                [/home/target/GenericTarget/GenericTarget]
+Maximum thread priority:  99
+Minimum thread priority:  1
+
+modelName:                model
+targetSocketName:         /run/generic-target/app.lock
+baseSampleTime:           0.010000 s
+basePriority:             49
+tasks:                    [0]: name="D1", sampleTicks=1, sampleOffset=0
+                          [1]: name="D2", sampleTicks=100, sampleOffset=0
+
+[2026-11-05 16:52:15.259534570 UTC] [INFO] Initializing model
+[2026-11-05 16:52:15.260748711 UTC] [INFO] UDP socket operational {port=0, deviceName="", socketPriority=6, allowBroadcast=0, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
+[2026-11-05 16:52:15.261974973 UTC] [INFO] Created data recording directory "/home/target/GenericTarget/data/20261105_165215250"
+[2026-11-05 16:52:15.263109445 UTC] [INFO] Writing data record index file "/home/target/GenericTarget/data/20261105_165215250/index"
+[2026-11-05 16:52:15.264303447 UTC] [INFO] Writing data record index file "/home/target/GenericTarget/data/20261105_165215250/index"
+[2026-11-05 16:52:15.264371303 UTC] [INFO] UDP socket operational {port=-1, deviceName="", socketPriority=6, allowBroadcast=1, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
+[2026-11-05 16:52:15.264386084 UTC] [INFO] UDP socket operational {port=1900, deviceName="", socketPriority=6, allowBroadcast=0, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
+[2026-11-05 16:52:15.264389679 UTC] [INFO] Starting scheduler
+[2026-11-05 16:52:15.267988593 UTC] [INFO] All UDP sockets are ready for operation
+[2026-11-05 16:52:15.268603915 UTC] [INFO] Created data recording file "/home/target/GenericTarget/data/20261105_165215250/scalar_doubles_0"
+[2026-11-05 16:52:15.268627682 UTC] [INFO] Created data recording file "/home/target/GenericTarget/data/20261105_165215250/bus_0"
+[2026-11-05 16:52:25.268216134 UTC] [INFO] Received termination flag, application will be closed
+[2026-11-05 16:52:25.268281821 UTC] [INFO] Stopping scheduler
+[2026-11-05 16:52:25.269950236 UTC] [INFO] Terminating model
+[2026-11-05 16:52:25.287807246 UTC] [INFO] Closed UDP socket {port=0, deviceName="", socketPriority=6, allowBroadcast=0, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
+[2026-11-05 16:52:25.287870592 UTC] [INFO] Closed UDP socket {port=-1, deviceName="", socketPriority=6, allowBroadcast=1, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
+[2026-11-05 16:52:25.287981234 UTC] [INFO] Closed UDP socket {port=1900, deviceName="", socketPriority=6, allowBroadcast=0, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
+--------------------------------------------------------------------------
+[2026-11-05 16:52:25.291539003 UTC] <<< TARGET STOP (PID: 1228)
+==========================================================================</pre>
 
 
-    <h3>Section 1</h3>
-    This area displays application information, such as the Generic Target version, the name of the deployed Simulink model, when it was compiled, when it was started, and so on.
-    Some detailed information about the target model, such as priorities, sampletimes, etc., are also shown.
-
-
-    <h3>Section 2</h3>
-    The type of message is displayed at the beginning of a line.
-    No character here means that it is information.
-    An 'E' means error, a 'W' means warning.
-    In this example, there're no errors or warnings.
-
-
-    <h3>Section 3</h3>
-    Specifies the timestamp.
-    This time refers to the start time of the application.
-
-
-    <h3>Section 4</h3>
-    Messages during the initialization phase.
-
-
-    <h3>Section 5</h3>
-    The application has received a termination message.
-    In this case the application was stopped by calling the <a href="packages_gt_generictarget.html#Stop">Stop</a> member function of the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> MATLAB class.
-
-
-    <h3>Section 6</h3>
-    The termination phase of the application.
+    <h3>Log Format</h3>
+    The output consists of a header marking the application's start, descriptive information about the system and application, timestamped log messages, and a footer marking the application's stop.
+    Each log message has an absolute UTC timestamp and a severity: <code>[INFO]</code>, <code>[WARNING]</code>, or <code>[ERROR]</code>.
 
 <br><br><br><br>
 

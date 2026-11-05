@@ -62,7 +62,7 @@ layoutNavBar = [
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Application Overview', 'application.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Timing & Scheduling', 'timingscheduling.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Data Recording', 'datarecording.html');
-    SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Protocol File', 'protocolfile.html');
+    SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Console Output', 'consoleoutput.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.none);
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.text, 'HOW THE DEPLOYMENT WORKS');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Deployment Process', 'deployment.html');

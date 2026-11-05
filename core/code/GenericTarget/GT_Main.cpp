@@ -1,4 +1,3 @@
-#include <GenericTarget/GT_Common.hpp>
 #include <GenericTarget/GT_GenericTarget.hpp>
 
 
@@ -9,15 +8,5 @@
  * @return 0 on success, -1 otherwise.
  */
 int main(int argc, char **argv){
-    // lock memory pages to prevent swapping
-    if(mlockall(MCL_CURRENT | MCL_FUTURE) < 0){
-        GENERIC_TARGET_PRINT_ERROR("Failed to lock memory: {}\n", std::strerror(errno));
-        return -1;
-    }
-
-    // set file mode creation mask (all users, groups, etc. are allowed to read/write data that is created by this application)
-    umask(0000);
-
-    // run actual application
     return gt::GenericTarget::Run(argc, argv);
 }

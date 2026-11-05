@@ -1,41 +1,84 @@
 ## How To Launch
-This directory contains the built software as well as source files, protocol files and data recordings. To start the application manually, run the following command in this directory:
-```
+
+This directory contains the built software as well as source files and data recordings. To start the application manually, run the following command in this directory:
+
+```bash
 sudo ./$TARGET_README_PRODUCT_NAME$
 ```
 
-If the output should be printed to the console instead of being redirected into a text file, run
-```
-sudo ./$TARGET_README_PRODUCT_NAME$ --console
+To redirect the output to a text file, run
+
+```bash
+sudo ./$TARGET_README_PRODUCT_NAME$ >> out.txt 2>&1
 ```
 
 If the application is to be started without waiting for termination in a console window, execute the following command:
-```
-sudo nohup ./$TARGET_README_PRODUCT_NAME$ &
+
+```bash
+sudo nohup ./$TARGET_README_PRODUCT_NAME$ >> out.txt 2>&1 &
 ```
 
+## How To Stop
+
 To stop a possibly running application, run
-```
+
+```bash
 sudo ss -lpx src '@$TARGET_SOCKET_NAME$' | grep -o 'pid=[0-9]\+' | cut -d= -f2 | xargs -r sudo kill -2
 ```
 
 ## How To Recompile
+
 To recompile the generic target application, run
-```
+
+```bash
 make clean && make -j8
 ```
 
 ## How To Autostart
-If you want to autostart the application via a cron job, edit the crontab via
+
+To autostart the application create a `systemd` service
+
+```bash
+sudo nano /etc/systemd/system/generictarget.service
 ```
-sudo crontab -e
+
+and paste the following configuration
+
+```ini
+[Unit]
+Description=GenericTarget
+After=network.target remote-fs.target
+
+[Service]
+Type=simple
+User=root
+
+# Optional: Add a brief startup delay if the boot storm causes overloads
+ExecStartPre=/bin/sleep 5
+
+# Ensure log file exists and is owned by your regular user before starting
+ExecStartPre=/bin/touch /home/UserName/PathToApplication/out.txt
+ExecStartPre=/bin/chown UserName:UserName /home/UserName/PathToApplication/out.txt
+
+# Run application
+ExecStart=/usr/bin/taskset 0x0f /home/UserName/PathToApplication/$TARGET_README_PRODUCT_NAME$
+
+# Systemd native logging (append mode)
+StandardOutput=append:/home/UserName/PathToApplication/out.txt
+StandardError=inherit
+
+# Restart behavior in case of crashes
+Restart=no
+
+[Install]
+WantedBy=multi-user.target
 ```
-and add the line
-```
-@reboot /home/UserName/PathToApplication/$TARGET_README_PRODUCT_NAME$ >/dev/null 2>&1
-```
-where UserName and PathToApplication have to be modified.
-If the application should be started on specific cpu cores, e.g. 0,1,2,3, modify the line to
-```
-@reboot taskset 0x0f /home/UserName/PathToApplication/$TARGET_README_PRODUCT_NAME$ >/dev/null 2>&1
+
+where `UserName`, `PathToApplication` and possibly `taskset 0x0f` have to be modified.
+Reload systemd, enable the service to start automatically on boot:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable generictarget.service
+sudo systemctl start generictarget.service
 ```

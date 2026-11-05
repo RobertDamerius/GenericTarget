@@ -2,72 +2,70 @@
 
 <div align="center"><img src="documentation/img/icon.svg" alt="Generic Target Logo" width="20%"><br><br></div>
 
-The **GenericTarget** project is designed to facilitate the deployment of MATLAB/Simulink models to linux-based real-time systems.
-For applications that rely solely on network interfaces, it provides a library and tools to build hardware-agnostic real-time applications with MATLAB/Simulink (Embedded Coder add-on required).
-Any computer can serve as a target system as long as it runs a Linux operating system with the **PREEMPT_RT** patch.
-It's also possible to run the target application on a Linux desktop OS or Windows using WSL, e.g. for testing purpose.
+Generic Target deploys MATLAB/Simulink models as real-time applications on Linux. It can run on any hardware capable of running Linux; real-time operation requires a **PREEMPT_RT** kernel. The toolbox is designed for applications that communicate with external devices over network interfaces, with support for protocols such as UDP and TCP.
 
+## 📋 Requirements
 
-## Features
-- **Hardware Agnostic**: The target applications runs entirely in the userspace, making it available to all platforms that are supported by Linux.
-- **Multi-Threading**: Automatically schedules tasks with multiple sampling rates, running them in parallel with appropriate thread priorities.
-- **UDP Communication**: Offers direct socket access, allowing retrieval of sender addresses, dynamic multicast joining, socket error handling, and more.
-- **TCP Communication**: Features automatic management of the full TCP connection lifecycle, ensuring continuous data streams through managed disconnection handling and robust automatic reconnection.
-- **Timing**: Provides real-time access to system time in multiple formats, including local time, UTC and UNIX timestamp.
-- **Reliable Data Recording**: Continuously saves data to minimize loss in case of a system failure.
-- **System Monitoring**: Provides access to thermal zones, CPU and task overloads and task execution time for performance analysis.
+### Host Computer
 
+- MATLAB R2025b or newer.
+- Simulink and Embedded Coder.
+- SSH/SCP client for deploying to a remote target.
+- A C/C++ compiler configured in MATLAB with `mex -setup` to build or rebuild driver blocks.
 
-## Download and Installation
-Clone this repository or download the [latest release](https://github.com/RobertDamerius/GenericTarget/releases/latest).
-Run `install.m` in MATLAB to add the toolbox to MATLAB's path.
-For optimal compatibility with your host system, it is recommended to **rebuild all driver blocks** during the installation.
+### Target Computer
 
-You can always rebuild driver blocks by running:
+- Linux. A Linux desktop or Windows with WSL can be used for testing.
+- A **PREEMPT_RT** kernel for real-time operation.
+- **g++ 13 or newer**, with support for the **C++20** standard.
 
-```
+## ✨ Features
+
+- **Hardware agnostic**: Runs in Linux userspace and supports Linux-compatible hardware.
+- **Multithreading**: Schedules tasks with multiple sample rates using thread priorities.
+- **UDP communication**: Provides direct socket access, sender addresses, dynamic multicast joining, and socket error handling.
+- **TCP communication**: Manages connection lifecycle, disconnections, and automatic reconnection.
+- **Timing**: Provides system time in local, UTC, and UNIX timestamp formats.
+- **Data recording**: Writes data continuously to reduce loss in case of system failure.
+- **System monitoring**: Exposes thermal zones, CPU and task overloads, and task execution time.
+
+## 📦 Install
+
+Clone this repository or download the [latest release](https://github.com/RobertDamerius/GenericTarget/releases/latest). In MATLAB, run `install.m` to add the toolbox to the MATLAB path. For compatibility with your host system, rebuilding the driver blocks during installation is recommended:
+
+```matlab
 GT.BuildDrivers()
 ```
 
-For alternative installation methods using MATLAB projects, refer to the documentation.
+For installation through MATLAB projects, see the documentation.
 
+## 🚀 Get Started
 
-## Getting Started
-Open [readme.html](readme.html) in a web browser to access the HTML documentation.
-It provides a detailed overview of the **Generic Target Toolbox**, including setup instructions for the target computer and a guide to creating your first real-time application.
+Open [readme.html](readme.html) in a browser for target setup instructions and a guide to creating and deploying an application.
 
+## 📖 Documentation
 
-## Documentation
-A comprehensive HTML-based documentation for offline use is available within this repository, including:
+The offline HTML documentation covers setup, configuration and deployment. Open [readme.html](readme.html) in a browser, or launch it from MATLAB:
 
-- Detailed setup instructions
-- Configuration examples for real-time applications
-- Best practices for optimizing performance
-
-To access the documentation, open the [readme.html](readme.html) file with a browser.
-Once you installed the Generic Target Toolbox in MATLAB, you can also open the documentation by running the following command in the MATLAB command window:
-
-```
+```matlab
 GT.OpenDocumentation()
 ```
 
+## 📁 Repository Overview
 
-## Repository Structure
-The structure of this repository is as follows.
+| File / Directory    | Description                                 |
+| :------------------ | :------------------------------------------ |
+| `core/`             | Generic Target Core source and templates    |
+| `documentation/`    | offline HTML documentation and source files |
+| `library/`          | MATLAB/Simulink library                     |
+| `packages/`         | MATLAB `GT` package                         |
+| `resources/`        | MATLAB project definition files             |
+| `GenericTarget.prj` | MATLAB project                              |
+| `install.m`         | adds the toolbox to the MATLAB path         |
+| `LICENSE`           | license information                         |
+| `readme.html`       | entry point for the HTML documentation      |
+| `README.md`         | this file                                   |
 
-| File / Directory   | Description                                                          |
-| :----------------- | :------------------------------------------------------------------- |
-| core               | contains source code and template files for the Generic Target Core  |
-| documentation      | contains the HTML-based documentation                                |
-| library            | contains the MATLAB/Simulink library "GenericTarget" (**>= R2025b**) |
-| packages           | contains the MATLAB package "GT"                                     |
-| resources          | contains project definition files for the MATLAB project             |
-| GenericTarget.prj  | MATLAB project file                                                  |
-| install.m          | MATLAB script to add the Generic Target Toolbox to the MATLAB path   |
-| LICENSE            | license information                                                  |
-| readme.html        | forwards to the documentation                                        |
-| README.md          | this file                                                            |
+## 📄 License
 
-
-## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.

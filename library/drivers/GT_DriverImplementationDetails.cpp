@@ -8,6 +8,7 @@
 #include <cstring>
 #include <algorithm>
 #include <sstream>
+#include <chrono>
 #include <format>
 #include <iostream>
 #include <syncstream>
@@ -34,27 +35,37 @@ using namespace gt::driver;
 
 namespace {
 
-inline constexpr std::string_view gt_driver_version{"2.1.0"};
+inline constexpr std::string_view gt_driver_version{"2.2.0"};
 inline constexpr std::string_view gt_driver_compilerVersion{__VERSION__};
 inline constexpr std::string_view gt_driver_builtTimestamp{__DATE__ " " __TIME__};
 const std::string_view gt_driver_modelName{""};
 
-template <typename... Args> void gt_driver_simulink_print(std::format_string<Args...> format, Args&&... args){
+template <typename... Args> void gt_driver_simulink_print_info(std::format_string<Args...> format, Args&&... args){
+    auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
+    std::osyncstream synced_out(std::cerr);
+    synced_out << std::format("[{:%Y-%m-%d %H:%M:%S} UTC] [INFO] ", utc_time);
+    synced_out << std::format(format, std::forward<Args>(args)...);
+}
+
+template <typename... Args> void gt_driver_simulink_print_warning(const char* file, int line, const char* func, std::format_string<Args...> format, Args&&... args){
+    auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
     std::osyncstream synced_err(std::cerr);
+    synced_err << std::format("[{:%Y-%m-%d %H:%M:%S} UTC] [WARNING] [{}:{}] [{}] ", utc_time, file, line, func);
     synced_err << std::format(format, std::forward<Args>(args)...);
 }
 
-template <typename... Args> void gt_driver_simulink_print_verbose(char severity, const char* file, int line, const char* function, std::format_string<Args...> format, Args&&... args){
+template <typename... Args> void gt_driver_simulink_print_error(const char* file, int line, const char* func, std::format_string<Args...> format, Args&&... args){
+    auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
     std::osyncstream synced_err(std::cerr);
-    synced_err << std::format("{} {}:{} in {}(): ", severity, file, line, function);
+    synced_err << std::format("[{:%Y-%m-%d %H:%M:%S} UTC] [ERROR] [{}:{}] [{}] ", utc_time, file, line, func);
     synced_err << std::format(format, std::forward<Args>(args)...);
 }
 
 } /* anonymous namespace */
 
-#define GENERIC_TARGET_PRINT(...) gt_driver_simulink_print(__VA_ARGS__)
-#define GENERIC_TARGET_PRINT_WARNING(...) gt_driver_simulink_print_verbose('W', __FILE_NAME__, __LINE__, __func__, __VA_ARGS__)
-#define GENERIC_TARGET_PRINT_ERROR(...) gt_driver_simulink_print_verbose('E', __FILE_NAME__, __LINE__, __func__, __VA_ARGS__)
+#define GENERIC_TARGET_PRINT_INFO(...) gt_driver_simulink_print_info(__VA_ARGS__)
+#define GENERIC_TARGET_PRINT_WARNING(...) gt_driver_simulink_print_warning(__FILE__, __LINE__, __func__, __VA_ARGS__)
+#define GENERIC_TARGET_PRINT_ERROR(...) gt_driver_simulink_print_error(__FILE__, __LINE__, __func__, __VA_ARGS__)
 
 #endif /* !defined(GENERIC_TARGET_IMPLEMENTATION) */
 
@@ -282,7 +293,7 @@ void DataRecorderScalarDoubles::WriteBufferToDataFiles(std::vector<double>& valu
             }
             currentFileStarted = true;
             numSamplesWritten = 0;
-            GENERIC_TARGET_PRINT("Created data recording file \"{}\"\n", currentFileName);
+            GENERIC_TARGET_PRINT_INFO("Created data recording file \"{}\"\n", currentFileName);
         }
 
         // started file: write samples
@@ -394,7 +405,7 @@ void DataRecorderBus::WriteBufferToDataFiles(std::vector<uint8_t>& bytes){
             }
             currentFileStarted = true;
             numSamplesWritten = 0;
-            GENERIC_TARGET_PRINT("Created data recording file \"{}\"\n", currentFileName);
+            GENERIC_TARGET_PRINT_INFO("Created data recording file \"{}\"\n", currentFileName);
         }
 
         // we have a started file, write samples
@@ -533,7 +544,7 @@ void DataRecorderManager::ClearAllDataRecorders(void){
 void DataRecorderManager::SetPathAndTimeIfNotSet(void){
     if(pathToDataDirectory.empty()){
         #if defined(GENERIC_TARGET_IMPLEMENTATION)
-        std::filesystem::path pathToApplication = gt::GenericTarget::fileSystem.GetAbsoluteApplicationPath();
+        std::filesystem::path pathToApplication = gt::GenericTarget::absoluteApplicationPath;
         auto startTimepoint = gt::GenericTarget::appStartTimepoint.GetUTC();
         utc.year = 1900 + startTimepoint.year;
         utc.month = 1 + startTimepoint.month;
@@ -597,7 +608,7 @@ std::string DataRecorderManager::ConvertToPrintableString(const uint8_t* data, u
 bool DataRecorderManager::MakeDataDirectory(void){
     try{
         if(std::filesystem::create_directories(pathToDataDirectory)){
-            GENERIC_TARGET_PRINT("Created data recording directory \"{}\"\n", pathToDataDirectory.string());
+            GENERIC_TARGET_PRINT_INFO("Created data recording directory \"{}\"\n", pathToDataDirectory.string());
         }
     }
     catch(...){
@@ -637,7 +648,7 @@ std::string DataRecorderManager::GetOSInfo(void){
 bool DataRecorderManager::WriteIndexFile(void){
     // open index file
     std::string filename = (pathToDataDirectory / "index").string();
-    GENERIC_TARGET_PRINT("Writing data record index file \"{}\"\n", filename);
+    GENERIC_TARGET_PRINT_INFO("Writing data record index file \"{}\"\n", filename);
     FILE *file = fopen(filename.c_str(), "wb");
     if(!file){
         GENERIC_TARGET_PRINT_ERROR("Failed to write data record index file \"{}\"\n", filename);
@@ -1365,7 +1376,7 @@ void UDPService::Destroy(void){
             (void) udpSocket.LeaveMulticastGroup(groupIP, activeConf.deviceName, activeConf.multicastInterfaceAddress);
         }
         udpSocket.Close();
-        GENERIC_TARGET_PRINT("Closed UDP socket {{{}}}\n", activeConf.ToString());
+        GENERIC_TARGET_PRINT_INFO("Closed UDP socket {{{}}}\n", activeConf.ToString());
     }
     currentlyJoinedGroups.clear();
     latestErrorCode = 0;
@@ -1441,7 +1452,7 @@ bool UDPService::AttemptToBind(void){
 
         // success
         isBound = true;
-        GENERIC_TARGET_PRINT("UDP socket operational {{{}}}\n", activeConf.ToString());
+        GENERIC_TARGET_PRINT_INFO("UDP socket operational {{{}}}\n", activeConf.ToString());
     }
     return true;
 }
@@ -1612,7 +1623,7 @@ void UDPServiceManager::ManagementThread(void){
             allBound &= s.service->AttemptToBind();
         }
         if(allBound){
-            GENERIC_TARGET_PRINT("All UDP sockets are ready for operation\n");
+            GENERIC_TARGET_PRINT_INFO("All UDP sockets are ready for operation\n");
             break;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -1899,7 +1910,7 @@ bool TCPClientService::Connect(Address destination, bool destinationChanged){
     }
 
     // success
-    GENERIC_TARGET_PRINT("TCP client socket {{{}}} connected to {}\n", activeConf.ToString(), destination.ToString());
+    GENERIC_TARGET_PRINT_INFO("TCP client socket {{{}}} connected to {}\n", activeConf.ToString(), destination.ToString());
     {
         const LockGuard lock(mtxIO);
         isConnected = true;

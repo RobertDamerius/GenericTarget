@@ -11,7 +11,7 @@
 
     <br>
     <br>
-    <center><object width="95%" data="../img/UDPReceiveLoop.svg" type="image/svg+xml"></object></center>
+    <center><img width="95%" src="../img/UDPReceiveLoop.svg"></center>
     <br>
     <br>
 

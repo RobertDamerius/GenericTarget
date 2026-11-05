@@ -9,13 +9,7 @@ namespace gt {
 
 class AppArguments {
     public:
-        bool console;                    // True if prints should be displayed in the console instead of redirecting them to a protocol file.
         std::vector<std::string> args;   // List of all arguments passed to the application.
-
-        /**
-         * @brief Construct a new app arguments object and set default values.
-         */
-        AppArguments();
 
         /**
          * @brief Parse the arguments passed to the application.

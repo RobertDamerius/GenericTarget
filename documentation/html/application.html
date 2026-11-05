@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 2.1.0</div>
+<div class="header_version">Version 2.2.0</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -70,7 +70,7 @@
 <li class="linav_active"><a href="application.html">Application Overview</a></li>
 <li class="linav"><a href="timingscheduling.html">Timing & Scheduling</a></li>
 <li class="linav"><a href="datarecording.html">Data Recording</a></li>
-<li class="linav"><a href="protocolfile.html">Protocol File</a></li>
+<li class="linav"><a href="consoleoutput.html">Console Output</a></li>
 <li class="linone"></li>
 <li class="litext">HOW THE DEPLOYMENT WORKS</li>
 <li class="linav"><a href="deployment.html">Deployment Process</a></li>
@@ -94,7 +94,6 @@
         <li>build</li>
         <li>code</li>
         <li>data</li>
-        <li>protocol</li>
     </ul>
     <ul class="file">
         <li>GenericTarget</li>
@@ -108,8 +107,7 @@
         <tr><td>build</td><td>This directory is created during the compilation process. During compilation, object files and dependency files are first created from the source file, which are then linked together to the application. The dependency files ensure that when a source or header file is changed, only those source files are recompiled that depend on the changed files.</td></tr>
         <tr><td>code</td><td>This directory contains the source code of the application including the Generic Target Core, the generated code from Simulink as well as optional custom code.</td></tr>
         <tr><td>data</td><td>This directory is created by the application to store <a href="datarecording.html">data recording files</a>, if data recording is to be used, i.e. if there're Write To File blocks in the model.</td></tr>
-        <tr><td>protocol</td><td>This directory is created by the application to store <a href="protocolfile.html">protocol files</a>.</td></tr>
-        <tr><td>GenericTarget</td><td>This is the executable. The name can be changed via the property <a href="packages_gt_generictarget.html#targetProductName">targetProductName</a>.</tr>
+        <tr><td>GenericTarget</td><td>This is the executable. The name can be changed via the property <a href="packages_gt_generictarget.html#targetProductName">targetProductName</a>.</td></tr>
         <tr><td>Makefile</td><td>On the target computer the software is compiled with the g++ compiler. For this purpose the make tool is used, which uses the Makefile to execute appropriate commands. The Makefile compiles all source files in the <code>code/</code> directory.</td></tr>
         <tr><td>README.md</td><td>A readme file providing additional information.</td></tr>
     </table>
@@ -117,13 +115,7 @@
 
     <a name="arguments"></a>
     <h3>Application Arguments</h3>
-    The following arguments can be passed to the application.
-    <br><br>
-    <table>
-        <tr><th>Argument</th><th>Description</th></tr>
-        <tr><td style="font-family: Courier New;">--console</td><td>Print stdout/stderr to the console instead of redirecting them to a protocol file.</td></tr>
-    </table>
-    <br>
+    Arguments passed to the application are displayed with the application information and are available through the <a href="library_gt_targetstats_applicationarguments.html">Target Stats / Application Arguments</a> block.
 
     <a name="flowchart"></a>
     <h3>Application Flowchart</h3>
@@ -133,7 +125,7 @@
     All three steps are described in detail below.
     <br>
     <br>
-    <center><object data="../img/ApplicationOverview.svg" type="image/svg+xml"></object></center>
+    <center><img src="../img/ApplicationOverview.svg"></center>
     <br>
     <br>
 
@@ -143,7 +135,7 @@
     The individual steps are explained below.
     <br>
     <br>
-    <center><object data="../img/ApplicationInitialize.svg" type="image/svg+xml"></object></center><br><br>
+    <center><img src="../img/ApplicationInitialize.svg"></center><br><br>
     <br>
     <br>
 
@@ -152,8 +144,7 @@
 
     <h3>2. Print Application Information</h3>
     At this point basic information about the application is displayed.
-    All output is redirected to a protocol text file by default.
-    With the <a href="packages_gt_generictarget.html#ShowLatestProtocol">ShowLatestProtocol</a> member function the latest protocol file from the target computer is displayed.
+    All output is written to the error stream. When the application is started with <code>GT.GenericTarget.Start</code>, MATLAB redirects the stream to a file.
 
     <h3>3. Open AppSocket (Abstract UNIX Socket)</h3>
     The Generic Target application internally uses an abstract UNIX socket, which is called AppSocket.
@@ -163,7 +154,7 @@
     <h3>4. SimulinkInterface::Initialize()</h3>
     This is where the Simulink model is initialized.
     All initialization callbacks of the model are called at this point.
-    If an error occurs during initialization, the application logs this in the <a href="protocolfile.html">protocol file</a> and the application is to be terminated.
+    If an error occurs during initialization, the message is printed to the <a href="consoleoutput.html">standard error stream</a> and the application is terminated.
 
     <h3>5. Start Scheduler</h3>
     At this point the actual <a href="timingscheduling.html">scheduler</a> is started.
@@ -181,7 +172,7 @@
     At the same time, allocated memory is freed again.
     <br>
     <br>
-    <center><object data="../img/ApplicationTerminate.svg" type="image/svg+xml"></object></center><br><br>
+    <center><img src="../img/ApplicationTerminate.svg"></center><br><br>
     <br>
     <br>
     <h3>1. Stop Scheduler</h3>

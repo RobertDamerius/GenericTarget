@@ -5,7 +5,7 @@ using namespace gt;
 
 AppStartTimepoint GenericTarget::appStartTimepoint;
 AppArguments GenericTarget::appArguments;
-FileSystem GenericTarget::fileSystem;
+std::filesystem::path GenericTarget::absoluteApplicationPath;
 sem_t GenericTarget::semaphoreTerminate;
 std::atomic<bool> GenericTarget::semaphoreInitialized = ATOMIC_VAR_INIT(false);
 AppSocket GenericTarget::appSocket;
@@ -19,41 +19,54 @@ void GenericTarget::ShouldTerminate(void){
 }
 
 int GenericTarget::Run(int argc, char** argv){
+    // lock memory pages to prevent swapping
+    if(mlockall(MCL_CURRENT | MCL_FUTURE) < 0){
+        PrintHeader();
+        GENERIC_TARGET_PRINT_ERROR("Failed to lock memory: {}\n", std::strerror(errno));
+        PrintFooter();
+        return -1;
+    }
+
+    // set file mode creation mask (all users, groups, etc. are allowed to read/write data that is created by this application)
+    umask(0000);
+
+    PrintHeader();
+    int result = 0;
+
     // initialize semaphore for termination
     if(sem_init(&semaphoreTerminate, 0, 0) < 0){
         GENERIC_TARGET_PRINT_ERROR("Failed to initialize semaphore!\n");
-        GENERIC_TARGET_PRINT("Application terminated\n");
-        return -1;
-    }
-    semaphoreInitialized = true;
-
-    // run target application
-    int result = 0;
-    if(Initialize(argc, argv)){
-        // wait for termination
-        while(sem_wait(&semaphoreTerminate) == -1){
-            if(errno != EINTR){
-                GENERIC_TARGET_PRINT_ERROR("Failed to wait for termination signal: {}\n", std::strerror(errno));
-                result = -1;
-                break;
-            }
-        }
-        if(result == 0){
-            GENERIC_TARGET_PRINT("Received termination flag, application will be closed\n");
-        }
-        Terminate();
+        result = -1;
     }
     else{
-        result = -1;
+        semaphoreInitialized = true;
+
+        if(Initialize(argc, argv)){
+            // wait for termination
+            while(sem_wait(&semaphoreTerminate) == -1){
+                if(errno != EINTR){
+                    GENERIC_TARGET_PRINT_ERROR("Failed to wait for termination signal: {}\n", std::strerror(errno));
+                    result = -1;
+                    break;
+                }
+            }
+            if(result == 0){
+                GENERIC_TARGET_PRINT_INFO("Received termination flag, application will be closed\n");
+            }
+            Terminate();
+        }
+        else{
+            result = -1;
+        }
+
+        semaphoreInitialized = false;
+        if(sem_destroy(&semaphoreTerminate) < 0){
+            GENERIC_TARGET_PRINT_ERROR("Failed to destroy termination semaphore: {}\n", std::strerror(errno));
+            result = -1;
+        }
     }
 
-    // destroy semaphore
-    semaphoreInitialized = false;
-    if(sem_destroy(&semaphoreTerminate) < 0){
-        GENERIC_TARGET_PRINT_ERROR("Failed to destroy termination semaphore: {}\n", std::strerror(errno));
-        result = -1;
-    }
-    GENERIC_TARGET_PRINT("Application terminated\n");
+    PrintFooter();
     return result;
 }
 
@@ -61,12 +74,18 @@ bool GenericTarget::Initialize(int argc, char** argv){
     // set handlers for signals from OS
     SetSignalHandlers();
 
-    // parse arguments and check for output redirection
-    appArguments.Parse(argc, argv);
-    if(!appArguments.console && !RedirectPrintsToFile()){
-        GENERIC_TARGET_PRINT_ERROR("Failed to redirect prints to file!\n");
+    // get absolute path to application
+    try {
+        absoluteApplicationPath = std::filesystem::canonical("/proc/self/exe");
+        absoluteApplicationPath.remove_filename();
+    }
+    catch(...){
+        GENERIC_TARGET_PRINT_ERROR("Failed to get absolute path to application!\n");
         return false;
     }
+
+    // parse arguments
+    appArguments.Parse(argc, argv);
 
     // print application info
     PrintInfo();
@@ -82,11 +101,11 @@ bool GenericTarget::Initialize(int argc, char** argv){
     }
 
     // initialize model
-    GENERIC_TARGET_PRINT("Initializing model\n");
+    GENERIC_TARGET_PRINT_INFO("Initializing model\n");
     SimulinkInterface::Initialize();
 
     // start scheduler
-    GENERIC_TARGET_PRINT("Starting scheduler\n");
+    GENERIC_TARGET_PRINT_INFO("Starting scheduler\n");
     if(!scheduler.Start()){
         GENERIC_TARGET_PRINT_ERROR("Failed to start scheduler!\n");
         SimulinkInterface::Terminate();
@@ -97,9 +116,9 @@ bool GenericTarget::Initialize(int argc, char** argv){
 }
 
 void GenericTarget::Terminate(void){
-    GENERIC_TARGET_PRINT("Stopping scheduler\n");
+    GENERIC_TARGET_PRINT_INFO("Stopping scheduler\n");
     scheduler.Stop();
-    GENERIC_TARGET_PRINT("Terminating model\n");
+    GENERIC_TARGET_PRINT_INFO("Terminating model\n");
     SimulinkInterface::Terminate();
     appSocket.Close();
 }
@@ -112,7 +131,7 @@ void GenericTarget::SetSignalHandlers(void){
 }
 
 void GenericTarget::SignalHandler(int signum){
-    GENERIC_TARGET_PRINT("Caught signal {}!\n", signum);
+    GENERIC_TARGET_PRINT_INFO("Caught signal {}!\n", signum);
     switch(signum){
         case SIGSEGV:
             throw std::runtime_error("SIGSEGV");
@@ -132,86 +151,23 @@ void GenericTarget::TerminateHandler(void){
             throw;
         }
     }
-    catch(const std::exception &e){ GENERIC_TARGET_PRINT_RAW("\nERROR: Caught unhandled exception: {}\n", e.what()); }
-    catch(...){ GENERIC_TARGET_PRINT_RAW("\nERROR: Caught unknown/unhandled exception!\n"); }
+    catch(const std::exception &e){ GENERIC_TARGET_PRINT_ERROR("Caught unhandled exception: {}\n", e.what()); }
+    catch(...){ GENERIC_TARGET_PRINT_ERROR("Caught unknown/unhandled exception!\n"); }
     const int backtraceSize = 64;
     void* array[backtraceSize];
     int size(backtrace(array, backtraceSize));
     char** messages(backtrace_symbols(array, size));
-    GENERIC_TARGET_PRINT_RAW("\nBacktrace:\n");
+    GENERIC_TARGET_PRINT_ERROR("Backtrace:\n");
     for(int i = 0; (i < size) && (messages != nullptr); ++i){
-        GENERIC_TARGET_PRINT_RAW("[{}]: {}\n", i, messages[i]);
+        GENERIC_TARGET_PRINT_ERROR("[{}]: {}\n", i, messages[i]);
     }
-    GENERIC_TARGET_PRINT_RAW("\nIf DEBUG mode was enabled for the exectuable, convert a printed address to a corresponding code line by executing the command \"addr2line -e ./PRODUCT_NAME +0xABCDEF\" in the binary directory of the application, where 0xABCDEF is the printed address and PRODUCT_NAME is the name of the executable (default: GenericTarget).\n");
+    GENERIC_TARGET_PRINT_ERROR("If DEBUG mode was enabled for the exectuable, convert a printed address to a corresponding code line by executing the command \"addr2line -e ./PRODUCT_NAME +0xABCDEF\" in the binary directory of the application, where 0xABCDEF is the printed address and PRODUCT_NAME is the name of the executable (default: GenericTarget).\n");
     free(messages);
     std::abort();
 }
 
-bool GenericTarget::RedirectPrintsToFile(void){
-    if(!fileSystem.MakeProtocolDirectory()){
-        return false;
-    }
-    fileSystem.KeepNLatestProtocolFiles(SimulinkInterface::numberOfOldProtocolFiles);
-    std::string filename = fileSystem.GetProtocolFilename();
-    int logFd = open(filename.c_str(), O_WRONLY | O_CREAT | O_APPEND | O_CLOEXEC, 0666);
-    if(logFd < 0){
-        return false;
-    }
-    if(logFd <= STDERR_FILENO){
-        const int safeLogFd = fcntl(logFd, F_DUPFD_CLOEXEC, STDERR_FILENO + 1);
-        close(logFd);
-        if(safeLogFd < 0){
-            return false;
-        }
-        logFd = safeLogFd;
-    }
-
-    const int savedStdout = fcntl(STDOUT_FILENO, F_DUPFD_CLOEXEC, STDERR_FILENO + 1);
-    if(savedStdout < 0){
-        close(logFd);
-        return false;
-    }
-    const int savedStderr = fcntl(STDERR_FILENO, F_DUPFD_CLOEXEC, STDERR_FILENO + 1);
-    if(savedStderr < 0){
-        close(savedStdout);
-        close(logFd);
-        return false;
-    }
-
-    GENERIC_TARGET_PRINT_RAW("\nConsole output is redirected to \"{}\"\n", filename);
-    GENERIC_TARGET_PRINT_RAW("If you don't want to redirect the output to a file, start the application with the option \"--console\"\n\n");
-    const bool stdoutFlushFailed = std::fflush(stdout) == EOF;
-    const bool stderrFlushFailed = std::fflush(stderr) == EOF;
-    if(stdoutFlushFailed || stderrFlushFailed){
-        close(savedStderr);
-        close(savedStdout);
-        close(logFd);
-        return false;
-    }
-
-    if(dup2(logFd, STDOUT_FILENO) < 0){
-        close(savedStderr);
-        close(savedStdout);
-        close(logFd);
-        return false;
-    }
-    if(dup2(logFd, STDERR_FILENO) < 0){
-        dup2(savedStdout, STDOUT_FILENO);
-        close(savedStderr);
-        close(savedStdout);
-        close(logFd);
-        return false;
-    }
-
-    close(savedStderr);
-    close(savedStdout);
-    close(logFd);
-    return true;
-}
-
 void GenericTarget::PrintInfo(void){
     TimeInfo upTime = appStartTimepoint.GetUTC();
-    GENERIC_TARGET_PRINT_RAW("GenericTarget\n\n");
     PrintOperatingSystemInfo();
     PrintNetworkInfo();
     GENERIC_TARGET_PRINT_RAW("\n");
@@ -219,6 +175,7 @@ void GenericTarget::PrintInfo(void){
     GENERIC_TARGET_PRINT_RAW("Compiler Version:         {}\n", gt::compilerVersion);
     GENERIC_TARGET_PRINT_RAW("Built (local):            {}\n", gt::builtTimestamp);
     GENERIC_TARGET_PRINT_RAW("Date (UTC):               {:04}-{:02}-{:02} {:02}:{:02}:{:02}.{:03}\n", 1900 + upTime.year, 1 + upTime.month, upTime.mday, upTime.hour, upTime.minute, upTime.second, upTime.nanoseconds / 1000000);
+    GENERIC_TARGET_PRINT_RAW("Application Path:         {}\n", absoluteApplicationPath.string());
     GENERIC_TARGET_PRINT_RAW("Arguments:               "); for(size_t i = 0; i < appArguments.args.size(); i++){ GENERIC_TARGET_PRINT_RAW(" [{}]", appArguments.args[i]); } GENERIC_TARGET_PRINT_RAW("\n");
     GENERIC_TARGET_PRINT_RAW("Maximum thread priority:  {}\n", sched_get_priority_max(SCHED_FIFO));
     GENERIC_TARGET_PRINT_RAW("Minimum thread priority:  {}\n", sched_get_priority_min(SCHED_FIFO));
@@ -237,7 +194,20 @@ void GenericTarget::PrintInfo(void){
             SimulinkInterface::offsetTicks[i]);
     }
     GENERIC_TARGET_PRINT_RAW("\n");
-    GENERIC_TARGET_PRINT_RAW("\n");
+}
+
+void GenericTarget::PrintHeader(void){
+    auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
+    GENERIC_TARGET_PRINT_RAW("==========================================================================\n");
+    GENERIC_TARGET_PRINT_RAW("[{:%Y-%m-%d %H:%M:%S} UTC] >>> TARGET START (PID: {})\n", utc_time, getpid());
+    GENERIC_TARGET_PRINT_RAW("==========================================================================\n\n");
+}
+
+void GenericTarget::PrintFooter(void){
+    auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
+    GENERIC_TARGET_PRINT_RAW("--------------------------------------------------------------------------\n");
+    GENERIC_TARGET_PRINT_RAW("[{:%Y-%m-%d %H:%M:%S} UTC] <<< TARGET STOP (PID: {})\n", utc_time, getpid());
+    GENERIC_TARGET_PRINT_RAW("==========================================================================\n");
 }
 
 void GenericTarget::PrintOperatingSystemInfo(void){

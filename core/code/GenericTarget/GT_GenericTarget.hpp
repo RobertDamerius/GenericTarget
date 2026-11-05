@@ -6,7 +6,6 @@
 #include <GenericTarget/GT_AppArguments.hpp>
 #include <GenericTarget/GT_AppSocket.hpp>
 #include <GenericTarget/GT_BaseRateScheduler.hpp>
-#include <GenericTarget/GT_FileSystem.hpp>
 
 
 /* Forward declaration of the main entry function. It's used as friend and has access to the protected member functions of the GenericTarget class. */
@@ -22,9 +21,9 @@ namespace gt {
  */
 class GenericTarget {
     public:
-        static AppStartTimepoint appStartTimepoint;   // The start timepoint of the application.
-        static AppArguments appArguments;             // Arguments passed to the application. They are parsed when calling @ref Run.
-        static FileSystem fileSystem;                 // The file system manager for the application.
+        static AppStartTimepoint appStartTimepoint;             // The start timepoint of the application.
+        static AppArguments appArguments;                       // Arguments passed to the application. They are parsed when calling @ref Run.
+        static std::filesystem::path absoluteApplicationPath;   // Absolute path to the application.
 
         /**
          * @brief Get the model execution time (steady clock), that is, the elapsed time to the start of the master clock.
@@ -116,16 +115,19 @@ class GenericTarget {
         static void TerminateHandler(void);
 
         /**
-         * @brief Redirect prints to stdout/stderr to a file.
-         * @details The log output directory is created if it does not exist.
-         * @return True if success, false otherwise.
+         * @brief Print the application header.
          */
-        static bool RedirectPrintsToFile(void);
+        static void PrintHeader(void);
 
         /**
          * @brief Print initial information to the console output.
          */
         static void PrintInfo(void);
+
+        /**
+         * @brief Print the application footer.
+         */
+        static void PrintFooter(void);
 
         /**
          * @brief Print additional operating system information.

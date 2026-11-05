@@ -1,4 +1,4 @@
-    <center><object data="../img/icon.svg" type="image/svg+xml"></object></center>
+    <center><img src="../img/icon.svg"></center>
     <br>
 
 <h1>Generic Target</h1>
@@ -56,7 +56,7 @@
     This information is used to generate a Simulink interface class, which follows a standardized programming interface for integration with the Generic Target Core.
     <br>
     <br>
-    <center><object width="95%" data="../img/Overview.svg" type="image/svg+xml"></object></center>
+    <center><img width="95%" src="../img/Overview.svg"></center>
     <br>
     During deployment, both the generated model code and the Generic Target Core source code are transferred to the target computer via SCP.
     The target computer then compiles all sources, with deployment commands sent via SSH.
@@ -97,13 +97,7 @@
     Therefore, no names should be selected that lead to function or variable names with <code>DEBUG</code> in the code generation.
     </div>
 
-    <div class="note-green"><h3 class="note-green">Note 5: Avoid console outputs</h3>
-    The console output of the target application is redirected to a text file by default at startup.
-    Therefore, many console outputs can result in a large text file.
-    Also, the output can come from multiple threads at the same time, so multiple console outputs get mixed up.
-    </div>
-
-    <div class="note-green"><h3 class="note-green">Note 6: Legacy Code Tool and custom code: use globally unique file names</h3>
+    <div class="note-green"><h3 class="note-green">Note 5: Legacy Code Tool and custom code: use globally unique file names</h3>
     The legacy code tool can be used to generate a Simulink block directly from a given C/C++ code.
     Most of the blocks in the Generic Target library have been generated using the legacy code tool.
     When generating code for a Simulink model, all code files belonging to blocks generated with the Legacy Code Tool are copied into a single directory.

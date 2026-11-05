@@ -10,7 +10,7 @@
 <body>
 <header>
 <div class="header_title">Generic Target</div>
-<div class="header_version">Version 2.1.0</div>
+<div class="header_version">Version 2.2.0</div>
 </header>
 <button onclick="PageToTop()" id="buttonToTop"></button>
 <div class="wrapper">
@@ -70,7 +70,7 @@
 <li class="linav"><a href="application.html">Application Overview</a></li>
 <li class="linav_active"><a href="timingscheduling.html">Timing & Scheduling</a></li>
 <li class="linav"><a href="datarecording.html">Data Recording</a></li>
-<li class="linav"><a href="protocolfile.html">Protocol File</a></li>
+<li class="linav"><a href="consoleoutput.html">Console Output</a></li>
 <li class="linone"></li>
 <li class="litext">HOW THE DEPLOYMENT WORKS</li>
 <li class="linav"><a href="deployment.html">Deployment Process</a></li>
@@ -104,7 +104,7 @@ If there are several tasks to do, they are processed one after the other.
 The following figure shows an example for the case that all worker threads can work at the same time.
 <br>
 <br>
-<center><object data="../img/timingscheduling.svg" type="image/svg+xml"></object></center>
+<center><img src="../img/timingscheduling.svg"></center>
 <br>
 <br>
 
@@ -116,7 +116,7 @@ events but the realtime thread was not able to handle them in time, a lost tick 
 number of lost ticks is incremented by the number of tick events that have been lost.
 <br>
 <br>
-<center><object data="../img/cpuoverload.svg" type="image/svg+xml"></object></center>
+<center><img src="../img/cpuoverload.svg"></center>
 <br>
 <br>
 
@@ -129,7 +129,7 @@ Thus, if several lost wakeups occur during a step calculation, a corresponding n
 The master thread detects all lost wakeups and thus recognizes task overloads.
 <br>
 <br>
-<center><object data="../img/taskoverload.svg" type="image/svg+xml"></object></center>
+<center><img src="../img/taskoverload.svg"></center>
 <br>
 <br>
 
@@ -147,7 +147,7 @@ These are the the <b>BaseRateScheduler</b> and the <b>main</b> thread.
 The UDP Service Manager thread is available, if UDP transmission blocks are used and TCP Client Service threads are running if TCP transmission blocks are used.
 <br>
 <br>
-<center><object data="../img/Threads.svg" type="image/svg+xml"><img src="../img/Threads.svg"></object></center>
+<center><img src="../img/Threads.svg"></center>
 <br>
 <br>
 The <b>BaseRateScheduler thread</b> has a high priority (basePriority: 49).

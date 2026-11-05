@@ -54,59 +54,69 @@
 namespace gt {
 
 
-inline constexpr std::string_view version{"2.1.0"};
+inline constexpr std::string_view version{"2.2.0"};
 inline constexpr int32_t basePriority{49};
 inline constexpr std::string_view compilerVersion{__VERSION__};
 extern const std::string_view builtTimestamp;
 
 
 /**
- * @brief Get the log elapsed seconds since the first call of this function.
- * @return Elapsed seconds since the first call of this function.
- */
-extern double get_log_elapsed_seconds(void);
-
-
-/**
- * @brief Print a formatted message to the standard error stream.
+ * @brief Print an informational message to the standard error stream.
  * @tparam Args The types of the arguments for the format string.
  * @param[in] fmt The format string.
  * @param[in] args The arguments for the format string.
  */
-template <typename... Args> void print(std::format_string<Args...> fmt, Args&&... args){
+template <typename... Args> void print_info(std::format_string<Args...> fmt, Args&&... args){
+    auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
+    std::osyncstream synced_out(std::cerr);
+    synced_out << std::format("[{:%Y-%m-%d %H:%M:%S} UTC] [INFO] ", utc_time);
+    synced_out << std::format(fmt, std::forward<Args>(args)...);
+}
+
+
+/**
+ * @brief Print a warning message to the standard error stream.
+ * @tparam Args The types of the arguments for the format string.
+ * @param[in] file The file name where the warning is generated.
+ * @param[in] line The line number where the warning is generated.
+ * @param[in] func The function name where the warning is generated.
+ * @param[in] fmt The format string.
+ * @param[in] args The arguments for the format string.
+ */
+template <typename... Args> void print_warning(const char* file, int line, const char* func, std::format_string<Args...> fmt, Args&&... args){
+    auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
     std::osyncstream synced_err(std::cerr);
-    synced_err << std::format("   [t={:.6f}] ", get_log_elapsed_seconds());
+    synced_err << std::format("[{:%Y-%m-%d %H:%M:%S} UTC] [WARNING] [{}:{}] [{}] ", utc_time, file, line, func);
     synced_err << std::format(fmt, std::forward<Args>(args)...);
 }
 
 
 /**
- * @brief Print a formatted message to the standard error stream with additional information.
+ * @brief Print an error message to the standard error stream.
  * @tparam Args The types of the arguments for the format string.
- * @param[in] severity The severity level of the message (e.g., 'E' for error, 'W' for warning).
- * @param[in] file The source file name where the message is generated.
- * @param[in] line The line number in the source file where the message is generated.
- * @param[in] function The function name where the message is generated.
+ * @param[in] file The file name where the error is generated.
+ * @param[in] line The line number where the error is generated.
+ * @param[in] func The function name where the error is generated.
  * @param[in] fmt The format string.
  * @param[in] args The arguments for the format string.
  */
-template <typename... Args> void print_verbose(char severity, const char* file, int line, const char* function, std::format_string<Args...> fmt, Args&&... args){
+template <typename... Args> void print_error(const char* file, int line, const char* func, std::format_string<Args...> fmt, Args&&... args){
+    auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
     std::osyncstream synced_err(std::cerr);
-    synced_err << std::format(" {} [t={:.6f}] {}:{} in {}(): ", severity, get_log_elapsed_seconds(), file, line, function);
+    synced_err << std::format("[{:%Y-%m-%d %H:%M:%S} UTC] [ERROR] [{}:{}] [{}] ", utc_time, file, line, func);
     synced_err << std::format(fmt, std::forward<Args>(args)...);
 }
 
 
 /**
- * @brief Print a formatted message to the standard error stream without additional information.
+ * @brief Print a formatted message to the standard error stream without a severity prefix.
  * @tparam Args The types of the arguments for the format string.
  * @param[in] fmt The format string.
  * @param[in] args The arguments for the format string.
  */
 template <typename... Args> void print_raw(std::format_string<Args...> fmt, Args&&... args){
-    (void) get_log_elapsed_seconds();
-    std::osyncstream synced_err(std::cerr);
-    synced_err << std::format(fmt, std::forward<Args>(args)...);
+    std::osyncstream synced_out(std::cerr);
+    synced_out << std::format(fmt, std::forward<Args>(args)...);
 }
 
 
@@ -114,7 +124,7 @@ template <typename... Args> void print_raw(std::format_string<Args...> fmt, Args
 
 
 /* Macro definitions for thread-safe message printing */
-#define GENERIC_TARGET_PRINT(...) gt::print(__VA_ARGS__)
-#define GENERIC_TARGET_PRINT_WARNING(...) gt::print_verbose('W', __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define GENERIC_TARGET_PRINT_ERROR(...) gt::print_verbose('E', __FILE__, __LINE__, __func__, __VA_ARGS__)
+#define GENERIC_TARGET_PRINT_INFO(...) gt::print_info(__VA_ARGS__)
+#define GENERIC_TARGET_PRINT_WARNING(...) gt::print_warning(__FILE__, __LINE__, __func__, __VA_ARGS__)
+#define GENERIC_TARGET_PRINT_ERROR(...) gt::print_error(__FILE__, __LINE__, __func__, __VA_ARGS__)
 #define GENERIC_TARGET_PRINT_RAW(...) gt::print_raw(__VA_ARGS__)
