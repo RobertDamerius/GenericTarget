@@ -57,6 +57,7 @@ layoutNavBar = [
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Suggested Procedure for UDP Reception', 'example_udpreceiveloop.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Deploy Multiple Models', 'example_deploymultiplemodels.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Debugging with Visual Studio Code', 'example_debugging.html');
+    SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Analyzing Crash Reports', 'example_crashreport.html');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.none);
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.text, 'HOW THE APPLICATION WORKS');
     SimpleDoc.NavEntry(SimpleDoc.NavEntryType.link, 'Application Overview', 'application.html');

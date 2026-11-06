@@ -98,9 +98,10 @@ class GenericTarget {
         static void Terminate(void);
 
         /**
-         * @brief Set signal handlers to handle signals from the OS like SIGINT, SIGTERM.
+         * @brief Set the signal and crash handlers for the application.
+         * @return True if success, false otherwise.
          */
-        static void SetSignalHandlers(void);
+        static bool SetSignalHandlers(void);
 
         /**
          * @brief The signal handler.
@@ -109,10 +110,10 @@ class GenericTarget {
         static void SignalHandler(int signum);
 
         /**
-         * @brief Global termination function that is called if exception handling fails.
-         * @details On linux, a backtrace to the error is printed if debugging is enabled.
+         * @brief The crash handler.
+         * @param[in] signal Signal that was received.
          */
-        static void TerminateHandler(void);
+        static void CrashHandler(int signal);
 
         /**
          * @brief Print initial information to the console output.

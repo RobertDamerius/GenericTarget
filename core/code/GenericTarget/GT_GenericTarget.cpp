@@ -66,7 +66,10 @@ int GenericTarget::Run(int argc, char** argv){
 }
 
 bool GenericTarget::Initialize(int argc, char** argv){
-    SetSignalHandlers();
+    // set signal handlers
+    if(!SetSignalHandlers()){
+        return false;
+    }
 
     // get absolute path to application
     try {
@@ -114,47 +117,52 @@ void GenericTarget::Terminate(void){
     m_appSocket.Close();
 }
 
-void GenericTarget::SetSignalHandlers(void){
-    std::set_terminate(GenericTarget::TerminateHandler);
+bool GenericTarget::SetSignalHandlers(void){
     std::signal(SIGINT, &GenericTarget::SignalHandler);
     std::signal(SIGTERM, &GenericTarget::SignalHandler);
-    std::signal(SIGSEGV, &GenericTarget::SignalHandler);
+
+    struct sigaction action{};
+    action.sa_handler = CrashHandler;
+    sigemptyset(&action.sa_mask);
+    action.sa_flags = SA_RESETHAND;
+
+    constexpr int signals[] = {SIGSEGV, SIGABRT, SIGBUS, SIGILL, SIGFPE};
+    for(int signal : signals){
+        if(sigaction(signal, &action, nullptr) < 0){
+            GENERIC_TARGET_PRINT_ERROR("Failed to install crash handler for signal {}\n", signal);
+            return false;
+        }
+    }
+    return true;
 }
 
 void GenericTarget::SignalHandler(int signum){
-    GENERIC_TARGET_PRINT_INFO("Caught signal {}!\n", signum);
-    switch(signum){
-        case SIGSEGV:
-            throw std::runtime_error("SIGSEGV");
-            break;
-        case SIGINT:
-        case SIGTERM:
-            GenericTarget::ShouldTerminate();
-            break;
-    }
+    GenericTarget::ShouldTerminate();
+    (void) signum;
 }
 
-void GenericTarget::TerminateHandler(void){
-    static bool triedRethrow = false;
-    try {
-        if(!triedRethrow){
-            triedRethrow = true;
-            throw;
-        }
+void GenericTarget::CrashHandler(int signal){
+    const char banner[] = "\n==========================================================================\n";
+    const char vline[] = "\n==========================================================================\n\n";
+    const char* sigName = "UNKNOWN";
+    switch (signal) {
+        case SIGSEGV: sigName = "SIGSEGV (Segmentation fault)"; break;
+        case SIGABRT: sigName = "SIGABRT (Aborted)"; break;
+        case SIGBUS:  sigName = "SIGBUS (Bus error)"; break;
+        case SIGILL:  sigName = "SIGILL (Illegal instruction)"; break;
+        case SIGFPE:  sigName = "SIGFPE (Floating-point exception)"; break;
     }
-    catch(const std::exception &e){ GENERIC_TARGET_PRINT_ERROR("Caught unhandled exception: {}\n", e.what()); }
-    catch(...){ GENERIC_TARGET_PRINT_ERROR("Caught unknown/unhandled exception!\n"); }
-    const int backtraceSize = 64;
-    void* array[backtraceSize];
-    int size(backtrace(array, backtraceSize));
-    char** messages(backtrace_symbols(array, size));
-    GENERIC_TARGET_PRINT_RAW("Backtrace:\n");
-    for(int i = 0; (i < size) && (messages != nullptr); ++i){
-        GENERIC_TARGET_PRINT_RAW("[{}]: {}\n", i, messages[i]);
-    }
-    GENERIC_TARGET_PRINT_RAW("If DEBUG mode was enabled for the exectuable, convert a printed address to a corresponding code line by executing the command \"addr2line -e ./PRODUCT_NAME +0xABCDEF\" in the binary directory of the application, where 0xABCDEF is the printed address and PRODUCT_NAME is the name of the executable (default: GenericTarget).\n");
-    free(messages);
-    std::abort();
+    write(STDERR_FILENO, banner, sizeof(banner) - 1);
+    write(STDERR_FILENO, "CRASH DETECTED: ", 16);
+    write(STDERR_FILENO, sigName, __builtin_strlen(sigName));
+    write(STDERR_FILENO, vline, sizeof(vline) - 1);
+
+    constexpr int backtraceSize = 64;
+    void* frames[backtraceSize];
+    int frameCount = backtrace(frames, backtraceSize);
+    backtrace_symbols_fd(frames, frameCount, STDERR_FILENO);
+    write(STDERR_FILENO, banner, sizeof(banner) - 1);
+    _Exit(128 + signal);
 }
 
 void GenericTarget::PrintInfo(void){

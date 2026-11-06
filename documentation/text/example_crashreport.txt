@@ -1,0 +1,63 @@
+<h1>Analyzing Crash Reports</h1>
+    If the target application crashes, a backtrace is written to the <a href="consoleoutput.html">console output</a>.
+    This backtrace helps identify the location in the code that caused the crash.
+    It is highly recommended to compile the application with DEBUG mode enabled.
+    In DEBUG mode, all optimizations are disabled and the symbol table is kept in the executable.
+    The resulting binary is slightly larger and task execution may be a bit slower.
+    In some cases, DEBUG mode can also reveal <a href="timingscheduling.html#taskoverload">task overloads</a> or <a href="timingscheduling.html#cpuoverload">CPU overloads</a> that might otherwise remain hidden when all optimizations are enabled.
+    There are two ways to enable DEBUG mode.
+    You can either redeploy the target application with the additional compiler flag <a href="packages_gt_generictarget.html#DEBUG_MODE">additionalCompilerFlags.DEBUG_MODE</a>, or you can modify the Makefile and recompile the application manually.
+    The second option is especially useful if code generation takes a long time.
+
+    <br>
+    <h3>Variant 1: Set DEBUG mode before deployment</h3>
+    To enable DEBUG mode during deployment, set the appropriate property of the target object before calling the <a href="packages_gt_generictarget.html#Deploy">Deploy</a> member function.
+    <pre>target = GT.GenericTarget(userName, address);
+target.additionalCompilerFlags.DEBUG_MODE = true;
+target.Deploy(modelName);</pre>
+
+    <br>
+    <h3>Variant 2: Modify DEBUG mode and recompile manually</h3>
+    Navigate to the <a href="application.html#directory">application directory</a> on the target and open the Makefile.
+    Look for the line near the beginning that starts with <code>DEBUG_MODE :=</code>.
+    Enable DEBUG mode by setting it to
+    <pre>DEBUG_MODE := 1</pre>
+    Save the Makefile and open a terminal in the same directory as the Makefile.
+    Rebuild the application from scratch by clearing the cache files and compiling with 8 jobs in parallel:
+    <pre>make clean && make -j8</pre>
+    The compilation was successful if the last message looks like <code>[APP] > GenericTarget</code> and no errors are reported.
+
+<h2>Viewing the Output</h2>
+    The crash report is printed to the console output and may look like this:
+    <pre>==========================================================================
+CRASH DETECTED: SIGSEGV (Segmentation fault)
+==========================================================================
+
+./GenericTarget(+0x4b2ec) [0x5573dd31b2ec]
+/lib/x86_64-linux-gnu/libc.so.6(+0x3fd70) [0x7fa66b595d70]
+./GenericTarget(+0x6debf) [0x5573dd33debf]
+./GenericTarget(+0x51950) [0x5573dd321950]
+./GenericTarget(+0x4ecbb) [0x5573dd31ecbb]
+./GenericTarget(+0x5030c) [0x5573dd32030c]
+./GenericTarget(+0x50277) [0x5573dd320277]
+./GenericTarget(+0x501e7) [0x5573dd3201e7]
+./GenericTarget(+0x501a0) [0x5573dd3201a0]
+./GenericTarget(+0x50184) [0x5573dd320184]
+/lib/x86_64-linux-gnu/libstdc++.so.6(+0xe1224) [0x7fa66b948224]
+/lib/x86_64-linux-gnu/libc.so.6(+0x928bb) [0x7fa66b5e88bb]
+/lib/x86_64-linux-gnu/libc.so.6(+0x110538) [0x7fa66b666538]
+
+==========================================================================</pre>
+
+    This report indicates a segmentation fault and prints the backtrace from the most recent call to the least recent call.
+    To map a printed address to a source line, run the following command in the application directory:
+    <pre>addr2line -e ./PRODUCT_NAME +0xABCDEF</pre>
+    Here, <code>0xABCDEF</code> is the printed address and <code>PRODUCT_NAME</code> is the name of the executable (default: GenericTarget).
+
+    Start searching from the top of the trace downward.
+    In the above example, the command <code>addr2line -e ./GenericTarget +0x6debf</code> returned the following result:
+    <pre>/home/target/GenericTarget/code/SimulinkCodeGeneration/test/model_ert_rtw/model.cpp:196</pre>
+    This identifies the file and line number that caused the crash.
+
+    Alternatively, <a href="example_debugging.html">debug the application</a> using VSCode.
+<br><br><br><br>

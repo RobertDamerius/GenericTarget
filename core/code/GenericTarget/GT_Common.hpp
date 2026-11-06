@@ -6,6 +6,7 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /* Default C++ headers */
 #include <cstdint>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <cstdio>
