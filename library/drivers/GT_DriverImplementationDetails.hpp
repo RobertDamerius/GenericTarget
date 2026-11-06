@@ -32,13 +32,13 @@ namespace driver {
  */
 class LockGuard {
     public:
-        explicit LockGuard(pthread_mutex_t& mutex) : mtx(&mutex){ pthread_mutex_lock(mtx); }
-        ~LockGuard(){ pthread_mutex_unlock(mtx); }
+        explicit LockGuard(pthread_mutex_t& mutex) : m_mtx(&mutex){ pthread_mutex_lock(m_mtx); }
+        ~LockGuard(){ pthread_mutex_unlock(m_mtx); }
         LockGuard(const LockGuard&) = delete;
         LockGuard& operator=(const LockGuard&) = delete;
 
     private:
-        pthread_mutex_t* mtx;
+        pthread_mutex_t* m_mtx;
 };
 
 
@@ -74,11 +74,11 @@ class Event {
 
     private:
         #if defined(_WIN32)
-        std::mutex mtx;               // The mutex used for event notification.
-        std::condition_variable cv;   // The condition variable used for event notification.
-        bool notified;                // A boolean flag to prevent spurious wakeups.
+        std::mutex m_mtx;               // The mutex used for event notification.
+        std::condition_variable m_cv;   // The condition variable used for event notification.
+        bool m_notified{false};         // A boolean flag to prevent spurious wakeups.
         #elif defined(__linux__)
-        sem_t sem;                    // The semaphore used for event notification.
+        sem_t m_sem;                    // The semaphore used for event notification.
         #endif
 };
 
@@ -89,14 +89,9 @@ class Event {
 class DataRecorderBase {
     public:
         /**
-         * @brief Construct a data recorder base object.
-         */
-        DataRecorderBase();
-
-        /**
          * @brief Destroy the data recorder base object.
          */
-        virtual ~DataRecorderBase();
+        virtual ~DataRecorderBase() = default;
 
         /**
          * @brief Set the number of samples per file.
@@ -155,32 +150,32 @@ class DataRecorderBase {
 
         /**
          * @brief Write data values to buffer.
-         * @param[in] t The timestamp in seconds to which the data belongs to.
+         * @param[in] timestamp The timestamp in seconds to which the data belongs to.
          * @param[in] data Signal data to be written.
-         * @param[in] N Number of data elements to be written.
+         * @param[in] numValues Number of data elements to be written.
          * @details This member function triggers the data recording thread that writes the data to the binary file.
          */
-        virtual void Write(double t, void* data, uint32_t N) = 0;
+        virtual void Write(double timestamp, void* data, uint32_t numValues) = 0;
 
     protected:
-        size_t numSamplesPerFile;          // Number of samples per file. If this value is zero, all samples are written to a single file.
-        uint32_t numSignals;               // Number of scalar values.
-        uint32_t numBytesPerSample;        // Number of bytes per sample.
-        std::string labels;                // Signal labels.
-        std::string dimensions;            // Dimensions (string).
-        std::string dataTypes;             // Data types (string).
-        std::atomic<bool> started;         // True if @ref Start has already been called, false otherwise.
-        std::string filename;              // The absolute filename that has been set during the @ref Start member function.
+        size_t m_numSamplesPerFile{0};          // Number of samples per file. If this value is zero, all samples are written to a single file.
+        uint32_t m_numSignals{0};               // Number of scalar values.
+        uint32_t m_numBytesPerSample{0};        // Number of bytes per sample.
+        std::string m_labels;                   // Signal labels.
+        std::string m_dimensions;               // Dimensions (string).
+        std::string m_dataTypes;                // Data types (string).
+        std::atomic<bool> m_started{false};     // True if @ref Start has already been called, false otherwise.
+        std::string m_filename;                 // The absolute filename that has been set during the @ref Start member function.
 
-        std::thread threadDataRecorder;    // Data recorder thread instance.
-        Event event;                       // Event for thread notification.
-        std::atomic<bool> terminate;       // Flag for thread termination.
-        uint32_t currentFileNumber;        // The current filenumber.
-        size_t numSamplesWritten;          // Number of samples that have been written to the current file.
-        bool currentFileStarted;           // True if header for current file has been written successfully, false otherwise.
+        std::thread m_threadDataRecorder;       // Data recorder thread instance.
+        Event m_event;                          // Event for thread notification.
+        std::atomic<bool> m_terminate{false};   // Flag for thread termination.
+        uint32_t m_currentFileNumber{0};        // The current filenumber.
+        size_t m_numSamplesWritten{0};          // Number of samples that have been written to the current file.
+        bool m_currentFileStarted{false};       // True if header for current file has been written successfully, false otherwise.
 
         /**
-         * @brief Get the current filename based on @ref filename and @ref currentFileNumber.
+         * @brief Get the current filename based on @ref m_filename and @ref m_currentFileNumber.
          * @return Filename of the current data file.
          */
         std::string GetCurrentFilename(void);
@@ -201,7 +196,7 @@ class DataRecorderBase {
 /**
  * @brief This abstract class represents the basics of a data recorder.
  */
-template <typename T> class DataRecorderTemplate : public DataRecorderBase {
+template <typename T> class DataRecorderTemplate: public DataRecorderBase {
     public:
         /**
          * @brief Construct a new data recorder template.
@@ -210,7 +205,7 @@ template <typename T> class DataRecorderTemplate : public DataRecorderBase {
             pthread_mutexattr_t attr;
             pthread_mutexattr_init(&attr);
             pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
-            pthread_mutex_init(&mtxBuffer, &attr);
+            pthread_mutex_init(&m_mtxBuffer, &attr);
             pthread_mutexattr_destroy(&attr);
         }
 
@@ -218,12 +213,12 @@ template <typename T> class DataRecorderTemplate : public DataRecorderBase {
          * @brief Destroy the data recorder template.
          */
         ~DataRecorderTemplate(){
-            pthread_mutex_destroy(&mtxBuffer);
+            pthread_mutex_destroy(&m_mtxBuffer);
         }
 
     protected:
-        std::vector<T> buffer;       // Buffering of values to be written to file.
-        pthread_mutex_t mtxBuffer;   // Protect the @ref buffer.
+        std::vector<T> m_buffer;       // Buffering of values to be written to file.
+        pthread_mutex_t m_mtxBuffer;   // Protect the @ref m_buffer.
 
         /**
          * @brief Write header data to a file.
@@ -243,11 +238,11 @@ template <typename T> class DataRecorderTemplate : public DataRecorderBase {
          * @return True if success, false otherwise.
          */
         bool FlushBuffer(void){
-            const LockGuard lock(mtxBuffer);
+            const LockGuard lock(m_mtxBuffer);
             bool success = true;
-            WriteBufferToDataFiles(buffer);
-            if(buffer.size()){
-                buffer.clear();
+            WriteBufferToDataFiles(m_buffer);
+            if(m_buffer.size()){
+                m_buffer.clear();
                 success = false;
             }
             return success;
@@ -258,23 +253,23 @@ template <typename T> class DataRecorderTemplate : public DataRecorderBase {
          */
         void ThreadDataRecorder(void){
             std::vector<T> localBuffer;
-            while(!terminate){
-                event.Wait();
-                if(terminate){
+            while(!m_terminate){
+                m_event.Wait();
+                if(m_terminate){
                     break;
                 }
                 {
-                    const LockGuard lock(mtxBuffer);
-                    if(buffer.size()){
-                        localBuffer.insert(localBuffer.end(), buffer.begin(), buffer.end());
-                        buffer.clear();
+                    const LockGuard lock(m_mtxBuffer);
+                    if(m_buffer.size()){
+                        localBuffer.insert(localBuffer.end(), m_buffer.begin(), m_buffer.end());
+                        m_buffer.clear();
                     }
                 }
                 WriteBufferToDataFiles(localBuffer);
             }
             if(localBuffer.size()){
-                const LockGuard lock(mtxBuffer);
-                buffer.insert(buffer.begin(), localBuffer.begin(), localBuffer.end());
+                const LockGuard lock(m_mtxBuffer);
+                m_buffer.insert(m_buffer.begin(), localBuffer.begin(), localBuffer.end());
             }
         }
 };
@@ -285,6 +280,8 @@ template <typename T> class DataRecorderTemplate : public DataRecorderBase {
  */
 class DataRecorderScalarDoubles: public DataRecorderTemplate<double> {
     public:
+        ~DataRecorderScalarDoubles(){ Stop(); }
+
         /**
          * @brief Write data values to buffer.
          * @param[in] timestamp The timestamp in seconds to which the data belongs to.
@@ -315,6 +312,8 @@ class DataRecorderScalarDoubles: public DataRecorderTemplate<double> {
  */
 class DataRecorderBus: public DataRecorderTemplate<uint8_t> {
     public:
+        ~DataRecorderBus(){ Stop(); }
+
         /**
          * @brief Write data values to buffer.
          * @param[in] timestamp The timestamp in seconds to which the data belongs to.
@@ -346,14 +345,9 @@ class DataRecorderBus: public DataRecorderTemplate<uint8_t> {
 class DataRecorderManager {
     public:
         /**
-         * @brief Construct a new data recorder manager.
-         */
-        DataRecorderManager();
-
-        /**
          * @brief Destroy the manager for data recordings.
          */
-        ~DataRecorderManager();
+        ~DataRecorderManager(){ ClearAllDataRecorders(); }
 
         /**
          * @brief Add a new data recorder for scalar doubles.
@@ -408,26 +402,26 @@ class DataRecorderManager {
         void WriteBus(const uint8_t* idCharacters, uint32_t numIDCharacters, double timestamp, uint8_t* bytes, uint32_t numBytesPerSample);
 
         /**
-         * @brief Clear all data recorders. This will stop and remove all @ref dataRecorders.
+         * @brief Clear all data recorders. This will stop and remove all @ref m_dataRecorders.
          */
         void ClearAllDataRecorders(void);
 
     private:
         struct entry {
-            std::string id = "";
-            DataRecorderBase* dataRecorder = nullptr;
+            std::string m_id;
+            DataRecorderBase* m_dataRecorder{nullptr};
         };
-        std::vector<entry> dataRecorders;            // List of all created data recorders.
-        std::filesystem::path pathToDataDirectory;   // Absolute path to the data directory.
+        std::vector<entry> m_dataRecorders;            // List of all created data recorders.
+        std::filesystem::path m_pathToDataDirectory;   // Absolute path to the data directory.
         struct {
-            int32_t year;                            // Year A.D.
-            int32_t month;                           // Month in range [1,12].
-            int32_t day;                             // Day of the month.
-            int32_t hour;                            // Hour of the day.
-            int32_t minute;                          // Minute of the hour.
-            int32_t second;                          // Second of the minute.
-            int32_t millisecond;                     // Millisecond of the second.
-        } utc;                                       // UTC that is used for @ref pathToDataDirectory.
+            int32_t year{0};                           // Year A.D.
+            int32_t month{1};                          // Month in range [1,12].
+            int32_t day{0};                            // Day of the month.
+            int32_t hour{0};                           // Hour of the day.
+            int32_t minute{0};                         // Minute of the hour.
+            int32_t second{0};                         // Second of the minute.
+            int32_t millisecond{0};                    // Millisecond of the second.
+        } m_utc;                                       // UTC that is used for @ref m_pathToDataDirectory.
 
         /**
          * @brief Set @ref pathToDataDirectory and @ref utc if they were not set.
@@ -449,6 +443,14 @@ class DataRecorderManager {
          * @return String containing only printable characters.
          */
         std::string ConvertToPrintableString(const uint8_t* data, uint32_t numCharacters);
+
+        /**
+         * @brief Convert given string data to a C++ string and use only valid characters for a data recorder ID.
+         * @param[in] data The input string data to be converted.
+         * @param[in] numCharacters Actual number of characters in the input data to be converted.
+         * @return String containing only valid characters for a data recorder ID.
+         */
+        std::string ConvertToValidID(const uint8_t* data, uint32_t numCharacters);
 
         /**
          * @brief Make the data recording directory.
@@ -476,13 +478,13 @@ class DataRecorderManager {
 class Address {
     public:
         std::array<uint8_t,4> ip;   // IPv4 address.
-        uint16_t port;              // Port value.
+        uint16_t port{0};           // Port value.
 
         /**
          * @brief Create an address object (IP version 4).
          * @details IPv4 address and port are set to zero.
          */
-        Address():Address(0,0,0,0,0){};
+        Address():Address(0,0,0,0,0){}
 
         /**
          * @brief Create an address object (IP version 4).
@@ -517,20 +519,14 @@ class Address {
 
 
 /**
- *  @brief Abstract Class: SocketBase
- *  @details Holds the actual socket and provides basic socket API.
+ *  @brief Holds the actual socket and provides basic socket API.
  */
 class SocketBase {
     public:
         /**
-         * @brief Create the socket base object.
-         */
-        SocketBase();
-
-        /**
          * @brief Destroy the socket base object.
          */
-        ~SocketBase();
+        virtual ~SocketBase(){ Close(); }
 
         /**
          * @brief Close the socket.
@@ -557,7 +553,7 @@ class SocketBase {
          * @param[in] optlen The size, in bytes, of the buffer pointed to by the optval parameter.
          * @return If no error occurs, zero is returned.
          */
-        int32_t SetOption(int level, int optname, const void *optval, int optlen);
+        int32_t SetOption(int level, int optname, const void* optval, int optlen);
 
         /**
          * @brief Get socket option using the getsockopt() function.
@@ -567,7 +563,7 @@ class SocketBase {
          * @param[in] optlen A pointer to the size, in bytes, of the optval buffer.
          * @return If not error occurs, zero is returned.
          */
-        int32_t GetOption(int level, int optname, void *optval, int *optlen);
+        int32_t GetOption(int level, int optname, void* optval, int* optlen);
 
         /**
          * @brief Set the receive timeout in seconds.
@@ -644,13 +640,12 @@ class SocketBase {
         void ResetLastError(void);
 
     protected:
-        std::atomic<int> _socket;  // Internal socket value.
+        std::atomic<int> m_socket{-1};  // Internal socket value.
 };
 
 
 /**
- * @brief Abstract Class: SocketBinding
- * @details Augments the base socket with the possibility of binding ports to a socket.
+ * @brief Augments the base socket with the possibility of binding ports to a socket.
  */
 class SocketBinding: public SocketBase {
     public:
@@ -678,8 +673,7 @@ class SocketBinding: public SocketBase {
 
 
 /**
- * @brief The basic TCP socket.
- * @details Augments the @ref SocketBinding class by a TCP specific Open() member function.
+ * @brief Augments the @ref SocketBinding class by a TCP specific Open() member function.
  */
 class TCPSocketBase: public SocketBinding {
     public:
@@ -695,7 +689,7 @@ class TCPSocketBase: public SocketBinding {
          * @param[in] size Number of bytes to be sent.
          * @return Return value of the send() function of the socket API.
          */
-        int32_t Send(uint8_t *bytes, int32_t size);
+        int32_t Send(uint8_t* bytes, int32_t size);
 
         /**
          * @brief Receive bytes.
@@ -703,7 +697,7 @@ class TCPSocketBase: public SocketBinding {
          * @param[in] maxSize The maximum size of the input "bytes" array.
          * @return Return value of the recv() function of the socket API.
          */
-        int32_t Receive(uint8_t *bytes, int32_t maxSize);
+        int32_t Receive(uint8_t* bytes, int32_t maxSize);
 };
 
 
@@ -721,14 +715,13 @@ class TCPClientConnection: public Address, public TCPSocketBase {
         TCPClientConnection(int clientSocket, Address clientAddress);
 
     private:
-        using TCPSocketBase::Open; // Hide the open function.
-        using TCPSocketBase::Bind; // Hide the bind function.
+        using TCPSocketBase::Open;   // Hide the open function.
+        using TCPSocketBase::Bind;   // Hide the bind function.
 };
 
 
 /**
- *  @brief The TCP client socket.
- *  @details Can be used to connect a client to a server.
+ *  @brief Used to connect a client to a server.
  */
 class TCPClientSocket: public TCPSocketBase {
     public:
@@ -742,8 +735,7 @@ class TCPClientSocket: public TCPSocketBase {
 
 
 /**
- * @brief The TCP server socket.
- * @details Can be used as a TCP server, that listens and accepts clients. The communication to a client is handled via the @ref TCPClientConnection class.
+ * @brief The TCP server, that listens and accepts clients. The communication to a client is handled via the @ref TCPClientConnection class.
  */
 class TCPServerSocket: public TCPSocketBase {
     public:
@@ -763,8 +755,7 @@ class TCPServerSocket: public TCPSocketBase {
 
 
 /**
- * @brief The UDP socket.
- * @details Can be used for unicast or multicast operation. This class provides a SendTo() member function to send bytes to a specified endpoint. The ReceiveFrom() member functions returns sender information.
+ * @brief The UDP socket for unicast or multicast operation.
  */
 class UDPSocket: public SocketBinding {
     public:
@@ -781,7 +772,7 @@ class UDPSocket: public SocketBinding {
          * @param[in] size Number of bytes.
          * @return Return value of the sendto() function of the socket API.
          */
-        int32_t SendTo(Address destination, uint8_t *bytes, int32_t size);
+        int32_t SendTo(Address destination, uint8_t* bytes, int32_t size);
 
         /**
          * @brief Receive a unicast message.
@@ -790,7 +781,7 @@ class UDPSocket: public SocketBinding {
          * @param[in] maxSize The maximum size of the input "bytes" array.
          * @return Return value of the recvfrom() function of the socket API.
          */
-        int32_t ReceiveFrom(Address& source, uint8_t *bytes, int32_t maxSize);
+        int32_t ReceiveFrom(Address& source, uint8_t* bytes, int32_t maxSize);
 
         /**
          * @brief Set the network interface to be used for sending multicast traffic.
@@ -869,20 +860,15 @@ class UDPSocket: public SocketBinding {
  */
 class UDPServiceConfiguration {
     public:
-        int32_t port;                                      // The port to be bound to the UDP socket. Values less than 1 indicate a dynamic port. This value is also used as a unique key.
+        int32_t port{0};                                   // The port to be bound to the UDP socket. Values less than 1 indicate a dynamic port. This value is also used as a unique key.
         std::string deviceName;                            // The device name to which the socket should be bound, if this string is non-empty.
-        int32_t socketPriority;                            // The socket priority in range [0 (lowest), 6 (highest)] to be set for the UDP socket.
-        bool allowBroadcast;                               // True if broadcast messages are allowed to be sent, false otherwise.
-        bool allowZeroLengthMessage;                       // True if zero-length messages should be allowed, false otherwise.
-        bool multicastAll;                                 // True if IP_MULTICAST_ALL option should be set, false otherwise.
-        bool multicastLoop;                                // True if IP_MULTICAST_LOOP option should be set, false otherwise.
-        uint8_t multicastTTL;                              // Time-to-live for multicast messages.
+        int32_t socketPriority{0};                         // The socket priority in range [0 (lowest), 6 (highest)] to be set for the UDP socket.
+        bool allowBroadcast{false};                        // True if broadcast messages are allowed to be sent, false otherwise.
+        bool allowZeroLengthMessage{false};                // True if zero-length messages should be allowed, false otherwise.
+        bool multicastAll{false};                          // True if IP_MULTICAST_ALL option should be set, false otherwise.
+        bool multicastLoop{false};                         // True if IP_MULTICAST_LOOP option should be set, false otherwise.
+        uint8_t multicastTTL{0};                           // Time-to-live for multicast messages.
         std::array<uint8_t,4> multicastInterfaceAddress;   // The IP address of the interface to be used for multicast messages.
-
-        /**
-         * @brief Construct a new UDP service configuration object and set default values.
-         */
-        UDPServiceConfiguration();
 
         /**
          * @brief Reset all properties.
@@ -960,26 +946,26 @@ class UDPService {
          * <2> The last socket error code.
          * @details Keeps returning -1 and the latest error code if @ref AttempToBind has not been completed successfully.
          */
-        std::tuple<Address, int32_t, int32_t> ReceiveFrom(uint8_t *bytes, int32_t maxSize, std::vector<std::array<uint8_t,4>> multicastGroups = {});
+        std::tuple<Address, int32_t, int32_t> ReceiveFrom(uint8_t* bytes, int32_t maxSize, std::vector<std::array<uint8_t,4>> multicastGroups = {});
 
         /**
          * @brief Attempt to bind the port and device name to the socket using the internally stored configuration..
          * @return True if the socket is ready and has been completely initialized, false otherwise.
-         * @details This function tries to bind the port and the network device name to the @ref udpSocket.
-         * It sets the @ref isBound flag to true if it succeeds.
+         * @details This function tries to bind the port and the network device name to the @ref m_udpSocket.
+         * It sets the @ref m_isBound flag to true if it succeeds.
          * If it has been completed once, then this functions always returns true.
          */
         bool AttemptToBind(void);
 
     private:
-        UDPSocket udpSocket;                                        // Internal socket object for UDP operation.
-        pthread_mutex_t mtxSocket;                                  // Protect the @ref udpSocket.
-        UDPServiceConfiguration activeConf;                         // The active configuration in use.
-        bool activeConfSet;                                         // True if @ref activeConf has already been set.
-        std::atomic<int32_t> latestErrorCode;                       // Stores the latest socket error code.
-        std::vector<std::array<uint8_t,4>> currentlyJoinedGroups;   // List of successfully joined multicast groups.
-        std::atomic<bool> isBound;                                  // True if port and interface are bound and socket is ready for operation, false otherwise.
-        int32_t attemptToBindStatus;                                // Status code for attempting to bind port and device name. 0: not bound, 1: port bound, 2: port and device name bound.
+        UDPSocket m_udpSocket;                                        // Internal socket object for UDP operation.
+        pthread_mutex_t m_mtxSocket;                                  // Protect the @ref m_udpSocket.
+        UDPServiceConfiguration m_activeConf;                         // The active configuration in use.
+        bool m_activeConfSet{false};                                  // True if @ref m_activeConf has already been set.
+        std::atomic<int32_t> m_latestErrorCode{0};                    // Stores the latest socket error code.
+        std::vector<std::array<uint8_t,4>> m_currentlyJoinedGroups;   // List of successfully joined multicast groups.
+        std::atomic<bool> m_isBound{false};                           // True if port and interface are bound and socket is ready for operation, false otherwise.
+        int32_t m_attemptToBindStatus{0};                             // Status code for attempting to bind port and device name. 0: not bound, 1: port bound, 2: port and device name bound.
 
         /**
          * @brief Update the multicast groups that have been joined.
@@ -1010,14 +996,9 @@ class UDPService {
 class UDPServiceManager {
     public:
         /**
-         * @brief Construct a new UDP service manager.
-         */
-        UDPServiceManager();
-
-        /**
          * @brief Destroy the UDP service manager.
          */
-        ~UDPServiceManager();
+        ~UDPServiceManager(){ ClearAllServices(); }
 
         /**
          * @brief Add a new UDP service for a UDP block.
@@ -1029,7 +1010,7 @@ class UDPServiceManager {
 
         /**
          * @brief Clear all UDP services.
-         * @details This will remove all @ref services.
+         * @details This will remove all @ref m_services.
          */
         void ClearAllServices(void);
 
@@ -1062,18 +1043,18 @@ class UDPServiceManager {
          * @details Performs the post-initialization via @ref PostInitialization and then sends the
          * message if that post-initialization was successful.
          */
-        std::tuple<Address, int32_t, int32_t> ReceiveFrom(int32_t id, uint8_t *bytes, int32_t maxSize, std::vector<std::array<uint8_t,4>> multicastGroups = {});
+        std::tuple<Address, int32_t, int32_t> ReceiveFrom(int32_t id, uint8_t* bytes, int32_t maxSize, std::vector<std::array<uint8_t,4>> multicastGroups = {});
 
     private:
         struct entry {
-            int32_t id = 0;
-            UDPService* service = nullptr;
+            int32_t m_id{0};
+            UDPService* m_service{nullptr};
         };
-        std::vector<entry> services;       // Internal database of UDP services.
-        std::thread managementThread;      // Thread that manages all @ref services.
-        std::atomic<bool> terminate;       // Flag for thread termination.
-        std::atomic<bool> threadStarted;   // True if management thread has been started and should be notified by @ref SendTo or @ref ReceiveFrom.
-        Event event;                       // Event to notify the management thread.
+        std::vector<entry> m_services;              // Internal database of UDP services.
+        std::thread m_managementThread;             // Thread that manages all @ref m_services.
+        std::atomic<bool> m_terminate{false};       // Flag for thread termination.
+        std::atomic<bool> m_threadStarted{false};   // True if management thread has been started and should be notified by @ref SendTo or @ref ReceiveFrom.
+        Event m_event;                              // Event to notify the management thread.
 
         /**
          * @brief The management thread function.
@@ -1088,14 +1069,9 @@ class UDPServiceManager {
  */
 class TCPClientServiceConfiguration {
     public:
-        int32_t port;             // The port to be bound to the TCP client socket. Values less than 1 indicate a dynamic port. This value is also used as a unique key.
-        std::string deviceName;   // The device name to which the socket should be bound, if this string is non-empty.
-        int32_t socketPriority;   // The socket priority in range [0 (lowest), 6 (highest)] to be set for the TCP client socket.
-
-        /**
-         * @brief Construct a new TCP client service configuration object and set default values.
-         */
-        TCPClientServiceConfiguration();
+        int32_t port{0};             // The port to be bound to the TCP client socket. Values less than 1 indicate a dynamic port. This value is also used as a unique key.
+        std::string deviceName;      // The device name to which the socket should be bound, if this string is non-empty.
+        int32_t socketPriority{0};   // The socket priority in range [0 (lowest), 6 (highest)] to be set for the TCP client socket.
 
         /**
          * @brief Reset all properties.
@@ -1173,19 +1149,19 @@ class TCPClientService {
          * <2> A flag indicating that connection has been established.
          * @details Keeps returning {-1,.,false} as long as connection has not been established.
          */
-        std::tuple<int32_t, int32_t, bool> Receive(Address serverAddress, bool manageConnection, uint8_t *bytes, int32_t maxSize);
+        std::tuple<int32_t, int32_t, bool> Receive(Address serverAddress, bool manageConnection, uint8_t* bytes, int32_t maxSize);
 
     private:
-        TCPClientSocket tcpSocket;                  // Internal socket object for TCP client operation.
-        pthread_mutex_t mtxIO;                      // Ensure safe send and receive operations. Protects @ref isConnected and @ref commandedAddress.
-        TCPClientServiceConfiguration activeConf;   // The active configuration in use.
-        std::atomic<bool> terminate;                // Flag for thread termination.
-        bool isCreated;                             // True if this service has already been created, false otherwise.
-        bool isConnected;                           // True if connection to TCP server is established.
-        Address commandedAddress;                   // The commanded address to connect to or zero if disconnect is commanded.
-        std::atomic<int32_t> latestErrorCode;       // Stores the latest socket error code.
-        std::thread managementThread;               // Thread that manages socket creation and server connections.
-        Event event;                                // Event to notify the management thread.
+        TCPClientSocket m_tcpSocket;                  // Internal socket object for TCP client operation.
+        pthread_mutex_t m_mtxIO;                      // Ensure safe send and receive operations. Protects @ref m_isConnected and @ref m_commandedAddress.
+        TCPClientServiceConfiguration m_activeConf;   // The active configuration in use.
+        std::atomic<bool> m_terminate{false};         // Flag for thread termination.
+        bool m_isCreated{false};                      // True if this service has already been created, false otherwise.
+        bool m_isConnected{false};                    // True if connection to TCP server is established.
+        Address m_commandedAddress;                   // The commanded address to connect to or zero if disconnect is commanded.
+        std::atomic<int32_t> m_latestErrorCode{0};    // Stores the latest socket error code.
+        std::thread m_managementThread;               // Thread that manages socket creation and server connections.
+        Event m_event;                                // Event to notify the management thread.
 
         /**
          * @brief Set a new commanded address.
@@ -1228,14 +1204,9 @@ class TCPClientService {
 class TCPClientServiceManager {
     public:
         /**
-         * @brief Construct a new TCP client service manager.
-         */
-        TCPClientServiceManager();
-
-        /**
          * @brief Destroy the TCP client service manager.
          */
-        ~TCPClientServiceManager();
+        ~TCPClientServiceManager(){ ClearAllServices(); }
 
         /**
          * @brief Add a new TCP client service for a TCP client block.
@@ -1247,7 +1218,7 @@ class TCPClientServiceManager {
 
         /**
          * @brief Clear all TCP client services.
-         * @details This will remove all @ref services.
+         * @details This will remove all @ref m_services.
          */
         void ClearAllServices(void);
 
@@ -1279,14 +1250,14 @@ class TCPClientServiceManager {
          * <2> A flag indicating that connection has been established.
          * @details Keeps returning {-1,.,false} as long as connection has not been established.
          */
-        std::tuple<int32_t, int32_t, bool> Receive(int32_t id, Address serverAddress, bool manageConnection, uint8_t *bytes, int32_t maxSize);
+        std::tuple<int32_t, int32_t, bool> Receive(int32_t id, Address serverAddress, bool manageConnection, uint8_t* bytes, int32_t maxSize);
 
     private:
         struct entry {
-            int32_t id = 0;
-            TCPClientService* service = nullptr;
+            int32_t m_id{0};
+            TCPClientService* m_service{nullptr};
         };
-        std::vector<entry> services;   // Internal database of TCP client services.
+        std::vector<entry> m_services;   // Internal database of TCP client services.
 };
 
 

@@ -16,7 +16,7 @@ namespace gt {
 
 
 /**
- * @brief This class represents the main application of the generic target framework. It initializes all modules
+ * @brief Represents the main application of the generic target. It initializes all modules
  * and starts the scheduler. This class also handles the application socket.
  */
 class GenericTarget {
@@ -32,34 +32,34 @@ class GenericTarget {
          * @note Call only after the first model task tick and while the scheduler is running; calls before the first tick
          * or concurrent with scheduler start/restart may race with initialization of the start timepoint.
          */
-        static double GetModelExecutionTime(void){ return scheduler.GetModelExecutionTime(); }
+        static double GetModelExecutionTime(void){ return m_scheduler.GetModelExecutionTime(); }
 
         /**
          * @brief Get the number of CPU overloads that have been occurred since the start of the base-rate scheduler.
          * @return The number of CPU overloads.
          */
-        static uint64_t GetNumCPUOverloads(void){ return scheduler.GetNumCPUOverloads(); }
+        static uint64_t GetNumCPUOverloads(void){ return m_scheduler.GetNumCPUOverloads(); }
 
         /**
          * @brief Get the number of lost ticks that have been occurred since the start of the base-rate scheduler.
          * @return The number of lost ticks.
          */
-        static uint64_t GetNumLostTicks(void){ return scheduler.GetNumLostTicks(); }
+        static uint64_t GetNumLostTicks(void){ return m_scheduler.GetNumLostTicks(); }
 
         /**
          * @brief Get the latest task execution time for a task.
          * @param[in] taskID The ID of the task from which to obtain the latest task execution time.
-         * @return The latest task execution time in seconds or a negative value if the taskID is invalid.
+         * @return The latest task execution time in seconds or -1.0 if the taskID is invalid.
          * @details The task execution time is the computation time required by the step function of the model.
          */
-        static double GetTaskExecutionTime(const uint32_t taskID){ return scheduler.GetTaskExecutionTime(taskID); }
+        static double GetTaskExecutionTime(const uint32_t taskID){ return m_scheduler.GetTaskExecutionTime(taskID); }
 
         /**
          * @brief Get the number of task overloads for a task.
          * @param[in] taskID The ID of the task from which to obtain the latest number of task overloads.
          * @return The latest task overload counter or zero if the taskID is invalid.
          */
-        static uint64_t GetNumTaskOverloads(const uint32_t taskID){ return scheduler.GetNumTaskOverloads(taskID); }
+        static uint64_t GetNumTaskOverloads(const uint32_t taskID){ return m_scheduler.GetNumTaskOverloads(taskID); }
 
         /**
          * @brief Call this function if the generic target application is to be terminated.
@@ -79,10 +79,10 @@ class GenericTarget {
         static int Run(int argc, char** argv);
 
     private:
-        static sem_t semaphoreTerminate;                 // A semaphore to signal a termination of the application.
-        static std::atomic<bool> semaphoreInitialized;   // True if semaphore is initialized, false otherwise.
-        static AppSocket appSocket;                      // The application socket to ensure only one application instance is running on the machine.
-        static BaseRateScheduler scheduler;              // The scheduler for the simulink model.
+        static sem_t m_semaphoreTerminate;                 // A semaphore to signal a termination of the application.
+        static std::atomic<bool> m_semaphoreInitialized;   // True if semaphore is initialized, false otherwise.
+        static AppSocket m_appSocket;                      // The application socket to ensure only one application instance is running on the machine.
+        static BaseRateScheduler m_scheduler;              // The scheduler for the simulink model.
 
         /**
          * @brief Initialize the generic target application.
@@ -115,29 +115,19 @@ class GenericTarget {
         static void TerminateHandler(void);
 
         /**
-         * @brief Print the application header.
-         */
-        static void PrintHeader(void);
-
-        /**
          * @brief Print initial information to the console output.
          */
         static void PrintInfo(void);
 
         /**
+         * @brief Print the application header.
+         */
+        static void PrintHeader(void);
+
+        /**
          * @brief Print the application footer.
          */
         static void PrintFooter(void);
-
-        /**
-         * @brief Print additional operating system information.
-         */
-        static void PrintOperatingSystemInfo(void);
-
-        /**
-         * @brief Print network information.
-         */
-        static void PrintNetworkInfo(void);
 };
 
 

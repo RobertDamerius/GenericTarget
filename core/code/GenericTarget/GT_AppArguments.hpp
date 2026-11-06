@@ -7,6 +7,9 @@
 namespace gt {
 
 
+/**
+ * @brief Represents the arguments passed to the application.
+ */
 class AppArguments {
     public:
         std::vector<std::string> args;   // List of all arguments passed to the application.

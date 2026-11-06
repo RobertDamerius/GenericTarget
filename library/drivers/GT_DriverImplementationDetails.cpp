@@ -86,158 +86,139 @@ template <typename... Args> void gt_driver_simulink_print_error(const char* file
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Event::Event(){
     #if defined(__linux__)
-    sem_init(&sem, 0, 0);
+    sem_init(&m_sem, 0, 0);
     #endif
 }
 
 Event::~Event(){
     #if defined(__linux__)
-    sem_destroy(&sem);
+    sem_destroy(&m_sem);
     #endif
 }
 
 void Event::Notify(void){
     #if defined(_WIN32)
-    std::unique_lock<std::mutex> lock(mtx);
-    notified = true;
-    cv.notify_one();
+    std::unique_lock<std::mutex> lock(m_mtx);
+    m_notified = true;
+    m_cv.notify_one();
     #elif defined(__linux__)
-    sem_post(&sem);
+    sem_post(&m_sem);
     #endif
 }
 
 void Event::Wait(void){
     #if defined(_WIN32)
-    std::unique_lock<std::mutex> lock(mtx);
-    cv.wait(lock, [this](){ return this->notified; });
-    notified = false;
+    std::unique_lock<std::mutex> lock(m_mtx);
+    m_cv.wait(lock, [this](){ return this->m_notified; });
+    m_notified = false;
     #elif defined(__linux__)
-    while(sem_wait(&sem) == -1){
+    while(sem_wait(&m_sem) == -1){
         if(errno != EINTR){
             return;
         }
     }
-    while(sem_trywait(&sem) == 0);
+    while(sem_trywait(&m_sem) == 0);
     #endif
 }
 
 void Event::Clear(void){
     #if defined(_WIN32)
-    std::unique_lock<std::mutex> lock(mtx);
-    notified = false;
+    std::unique_lock<std::mutex> lock(m_mtx);
+    m_notified = false;
     #elif defined(__linux__)
-    while(sem_trywait(&sem) == 0);
+    while(sem_trywait(&m_sem) == 0);
     #endif
 }
 
-DataRecorderBase::DataRecorderBase(){
-    numSamplesPerFile = 0;
-    numSignals = 0;
-    numBytesPerSample = 0;
-    labels = "";
-    dimensions = "";
-    dataTypes = "";
-    started = false;
-    filename = "";
-    terminate = false;
-    currentFileNumber = 0;
-    numSamplesWritten = 0;
-    currentFileStarted = false;
-}
-
-DataRecorderBase::~DataRecorderBase(){
-    Stop();
-}
-
 void DataRecorderBase::SetNumSamplesPerFile(uint32_t numSamplesPerFile){
-    if(!started){
-        this->numSamplesPerFile = static_cast<size_t>(numSamplesPerFile);
+    if(!m_started){
+        this->m_numSamplesPerFile = static_cast<size_t>(numSamplesPerFile);
     }
 }
 
 void DataRecorderBase::SetNumSignals(uint32_t numSignals){
-    if(!started){
-        this->numSignals = numSignals;
+    if(!m_started){
+        this->m_numSignals = numSignals;
     }
 }
 
 void DataRecorderBase::SetNumBytesPerSample(uint32_t numBytesPerSample){
-    if(!started){
-        this->numBytesPerSample = numBytesPerSample;
+    if(!m_started){
+        this->m_numBytesPerSample = numBytesPerSample;
     }
 }
 
 void DataRecorderBase::SetLabels(std::string labels){
-    if(!started){
-        this->labels = labels;
+    if(!m_started){
+        this->m_labels = labels;
     }
 }
 
 void DataRecorderBase::SetDimensions(std::string dimensions){
-    if(!started){
-        this->dimensions = dimensions;
+    if(!m_started){
+        this->m_dimensions = dimensions;
     }
 }
 
 void DataRecorderBase::SetDataTypes(std::string dataTypes){
-    if(!started){
-        this->dataTypes = dataTypes;
+    if(!m_started){
+        this->m_dataTypes = dataTypes;
     }
 }
 
 bool DataRecorderBase::Start(std::string filename, int32_t threadPriority){
     Stop();
-    this->filename = filename;
-    threadDataRecorder = std::thread(&DataRecorderBase::ThreadDataRecorder, this);
+    this->m_filename = filename;
+    m_threadDataRecorder = std::thread(&DataRecorderBase::ThreadDataRecorder, this);
     struct sched_param param;
-    param.sched_priority = std::clamp(int(threadPriority), sched_get_priority_min(SCHED_FIFO), sched_get_priority_max(SCHED_FIFO));
-    if(0 != pthread_setschedparam(threadDataRecorder.native_handle(), SCHED_FIFO, &param)){
+    param.sched_priority = std::clamp(static_cast<int>(threadPriority), sched_get_priority_min(SCHED_FIFO), sched_get_priority_max(SCHED_FIFO));
+    if(0 != pthread_setschedparam(m_threadDataRecorder.native_handle(), SCHED_FIFO, &param)){
         GENERIC_TARGET_PRINT_ERROR("Failed to set thread priority {} for data recorder thread!\n", threadPriority);
         #if defined(GENERIC_TARGET_IMPLEMENTATION) && !defined(DEBUG) && !defined(_WIN32)
         Stop();
         return false;
         #endif
     }
-    return (started = true);
+    return (m_started = true);
 }
 
 void DataRecorderBase::Stop(void){
-    terminate = true;
-    event.Notify();
-    if(threadDataRecorder.joinable()){
-        threadDataRecorder.join();
+    m_terminate = true;
+    m_event.Notify();
+    if(m_threadDataRecorder.joinable()){
+        m_threadDataRecorder.join();
     }
-    terminate = false;
-    event.Clear();
-    if(started){
+    m_terminate = false;
+    m_event.Clear();
+    if(m_started){
         if(!FlushBuffer()){
             std::string currentFileName = GetCurrentFilename();
             GENERIC_TARGET_PRINT_WARNING("Remaining signal data is in the buffer but could not be written to the data file \"{}\"!\n", currentFileName);
         }
     }
-    started = false;
-    currentFileNumber = 0;
-    numSamplesWritten = 0;
-    currentFileStarted = false;
+    m_started = false;
+    m_currentFileNumber = 0;
+    m_numSamplesWritten = 0;
+    m_currentFileStarted = false;
 }
 
 std::string DataRecorderBase::GetCurrentFilename(void){
-    return filename + std::string("_") + std::to_string(currentFileNumber);
+    return m_filename + std::string("_") + std::to_string(m_currentFileNumber);
 }
 
 void DataRecorderScalarDoubles::Write(double timestamp, void* data, uint32_t numValues){
-    if(numSignals == numValues){
-        const LockGuard lock(mtxBuffer);
+    if(m_numSignals == numValues){
+        const LockGuard lock(m_mtxBuffer);
         double* values = static_cast<double*>(data);
-        buffer.push_back(timestamp);
-        buffer.insert(buffer.end(), &values[0], &values[0] + numSignals);
+        m_buffer.push_back(timestamp);
+        m_buffer.insert(m_buffer.end(), &values[0], &values[0] + m_numSignals);
     }
-    event.Notify();
+    m_event.Notify();
 }
 
 bool DataRecorderScalarDoubles::WriteHeader(std::string name){
     // open file
-    FILE *file = fopen(name.c_str(), "wb");
+    FILE* file = fopen(name.c_str(), "wb");
     if(!file){
         GENERIC_TARGET_PRINT_ERROR("Failed to write file \"{}\"!\n", name);
         return false;
@@ -249,22 +230,22 @@ bool DataRecorderScalarDoubles::WriteHeader(std::string name){
 
     // zero-based offset to SampleData (4 bytes)
     uint8_t bytes[4];
-    uint32_t offset = 15 + uint32_t(labels.length());
+    uint32_t offset = 15 + uint32_t(m_labels.length());
     bytes[0] = uint8_t((offset >> 24) & 0x000000FF);
     bytes[1] = uint8_t((offset >> 16) & 0x000000FF);
     bytes[2] = uint8_t((offset >> 8) & 0x000000FF);
     bytes[3] = uint8_t(offset & 0x000000FF);
     fwrite(&bytes[0], 1, 4, file);
 
-    // numSignals (4 bytes)
-    bytes[0] = uint8_t((numSignals >> 24) & 0x000000FF);
-    bytes[1] = uint8_t((numSignals >> 16) & 0x000000FF);
-    bytes[2] = uint8_t((numSignals >> 8) & 0x000000FF);
-    bytes[3] = uint8_t(numSignals & 0x000000FF);
+    // m_numSignals (4 bytes)
+    bytes[0] = uint8_t((m_numSignals >> 24) & 0x000000FF);
+    bytes[1] = uint8_t((m_numSignals >> 16) & 0x000000FF);
+    bytes[2] = uint8_t((m_numSignals >> 8) & 0x000000FF);
+    bytes[3] = uint8_t(m_numSignals & 0x000000FF);
     fwrite(&bytes[0], 1, 4, file);
 
-    // labels + 0x00 (L + 1 bytes)
-    fwrite(&labels[0], 1, labels.length(), file);
+    // m_labels + 0x00 (L + 1 bytes)
+    fwrite(&m_labels[0], 1, m_labels.length(), file);
     bytes[0] = 0;
     fwrite(&bytes[0], 1, 1, file);
 
@@ -287,59 +268,62 @@ void DataRecorderScalarDoubles::WriteBufferToDataFiles(std::vector<double>& valu
         std::string currentFileName = GetCurrentFilename();
 
         // check if new file should be started
-        if(!currentFileStarted){
+        if(!m_currentFileStarted){
             if(!WriteHeader(currentFileName)){
                 return;
             }
-            currentFileStarted = true;
-            numSamplesWritten = 0;
+            m_currentFileStarted = true;
+            m_numSamplesWritten = 0;
             GENERIC_TARGET_PRINT_INFO("Created data recording file \"{}\"\n", currentFileName);
         }
 
         // started file: write samples
-        size_t numSamplesToWrite = values.size() / static_cast<size_t>(1 + numSignals);
-        if(numSamplesPerFile){
-            numSamplesToWrite = std::min(numSamplesToWrite, numSamplesPerFile);
+        size_t numSamplesToWrite = values.size() / static_cast<size_t>(1 + m_numSignals);
+        if(m_numSamplesPerFile){
+            numSamplesToWrite = std::min(numSamplesToWrite, m_numSamplesPerFile);
         }
         if(!numSamplesToWrite){
             return;
         }
-        size_t numValuesToWrite = numSamplesToWrite * static_cast<size_t>(1 + numSignals);
+        size_t numValuesToWrite = numSamplesToWrite * static_cast<size_t>(1 + m_numSignals);
         std::fstream fs(currentFileName, std::ios::out | std::ios::app | std::ios::binary);
         if(!fs.is_open()){
             return;
         }
         fs.write(reinterpret_cast<const char*>(&values[0]), numValuesToWrite * 8);
+        if(!fs){
+            return;
+        }
         fs.close();
-        numSamplesWritten += numSamplesToWrite;
+        m_numSamplesWritten += numSamplesToWrite;
         values.erase(values.begin(), values.begin() + numValuesToWrite);
 
         // file has been finished successfully, set markers to indicate that a new file should be started
-        if(numSamplesPerFile && (numSamplesWritten >= numSamplesPerFile)){
-            currentFileStarted = false;
-            currentFileNumber++;
+        if(m_numSamplesPerFile && (m_numSamplesWritten >= m_numSamplesPerFile)){
+            m_currentFileStarted = false;
+            m_currentFileNumber++;
         }
     }
 }
 
 void DataRecorderBus::Write(double timestamp, void* data, uint32_t numBytes){
-    if(numBytesPerSample == numBytes){
-        const LockGuard lock(mtxBuffer);
+    if(m_numBytesPerSample == numBytes){
+        const LockGuard lock(m_mtxBuffer);
         uint8_t* bytes = static_cast<uint8_t*>(data);
         union {
             double d;
             uint8_t bytes[8];
         } un;
         un.d = timestamp;
-        buffer.insert(buffer.end(), &un.bytes[0], &un.bytes[0] + 8);
-        buffer.insert(buffer.end(), &bytes[0], &bytes[0] + numBytesPerSample);
+        m_buffer.insert(m_buffer.end(), &un.bytes[0], &un.bytes[0] + 8);
+        m_buffer.insert(m_buffer.end(), &bytes[0], &bytes[0] + m_numBytesPerSample);
     }
-    event.Notify();
+    m_event.Notify();
 }
 
 bool DataRecorderBus::WriteHeader(std::string name){
     // open file
-    FILE *file = fopen(name.c_str(), "wb");
+    FILE* file = fopen(name.c_str(), "wb");
     if(!file){
         GENERIC_TARGET_PRINT_ERROR("Failed to write file \"{}\"!\n", name);
         return false;
@@ -351,32 +335,32 @@ bool DataRecorderBus::WriteHeader(std::string name){
 
     // zero-based offset to SampleData (4 bytes)
     uint8_t bytes[4];
-    uint32_t offset = 17 + uint32_t(labels.length() + dimensions.length() + dataTypes.length());
+    uint32_t offset = 17 + uint32_t(m_labels.length() + m_dimensions.length() + m_dataTypes.length());
     bytes[0] = uint8_t((offset >> 24) & 0x000000FF);
     bytes[1] = uint8_t((offset >> 16) & 0x000000FF);
     bytes[2] = uint8_t((offset >> 8) & 0x000000FF);
     bytes[3] = uint8_t(offset & 0x000000FF);
     fwrite(&bytes[0], 1, 4, file);
 
-    // numBytesPerSample without timestamp (4 bytes)
-    bytes[0] = uint8_t((numBytesPerSample >> 24) & 0x000000FF);
-    bytes[1] = uint8_t((numBytesPerSample >> 16) & 0x000000FF);
-    bytes[2] = uint8_t((numBytesPerSample >> 8) & 0x000000FF);
-    bytes[3] = uint8_t(numBytesPerSample & 0x000000FF);
+    // m_numBytesPerSample without timestamp (4 bytes)
+    bytes[0] = uint8_t((m_numBytesPerSample >> 24) & 0x000000FF);
+    bytes[1] = uint8_t((m_numBytesPerSample >> 16) & 0x000000FF);
+    bytes[2] = uint8_t((m_numBytesPerSample >> 8) & 0x000000FF);
+    bytes[3] = uint8_t(m_numBytesPerSample & 0x000000FF);
     fwrite(&bytes[0], 1, 4, file);
 
-    // labels + 0x00 (L + 1 bytes)
-    fwrite(&labels[0], 1, labels.length(), file);
+    // m_labels + 0x00 (L + 1 bytes)
+    fwrite(&m_labels[0], 1, m_labels.length(), file);
     bytes[0] = 0;
     fwrite(&bytes[0], 1, 1, file);
 
-    // dimensions + 0x00 (D + 1 bytes)
-    fwrite(&dimensions[0], 1, dimensions.length(), file);
+    // m_dimensions + 0x00 (D + 1 bytes)
+    fwrite(&m_dimensions[0], 1, m_dimensions.length(), file);
     bytes[0] = 0;
     fwrite(&bytes[0], 1, 1, file);
 
     // data types + 0x00 (T + 1 bytes)
-    fwrite(&dataTypes[0], 1, dataTypes.length(), file);
+    fwrite(&m_dataTypes[0], 1, m_dataTypes.length(), file);
     bytes[0] = 0;
     fwrite(&bytes[0], 1, 1, file);
 
@@ -399,45 +383,42 @@ void DataRecorderBus::WriteBufferToDataFiles(std::vector<uint8_t>& bytes){
         std::string currentFileName = GetCurrentFilename();
 
         // check if new file should be started
-        if(!currentFileStarted){
+        if(!m_currentFileStarted){
             if(!WriteHeader(currentFileName)){
                 return;
             }
-            currentFileStarted = true;
-            numSamplesWritten = 0;
+            m_currentFileStarted = true;
+            m_numSamplesWritten = 0;
             GENERIC_TARGET_PRINT_INFO("Created data recording file \"{}\"\n", currentFileName);
         }
 
         // we have a started file, write samples
-        size_t numSamplesToWrite = bytes.size() / (size_t)(8 + numBytesPerSample);
-        if(numSamplesPerFile){
-            numSamplesToWrite = std::min(numSamplesToWrite, numSamplesPerFile);
+        size_t numSamplesToWrite = bytes.size() / (size_t)(8 + m_numBytesPerSample);
+        if(m_numSamplesPerFile){
+            numSamplesToWrite = std::min(numSamplesToWrite, m_numSamplesPerFile);
         }
         if(!numSamplesToWrite){
             return;
         }
-        size_t numBytesToWrite = numSamplesToWrite * (size_t)(8 + numBytesPerSample);
+        size_t numBytesToWrite = numSamplesToWrite * (size_t)(8 + m_numBytesPerSample);
         std::fstream fs(currentFileName, std::ios::out | std::ios::app | std::ios::binary);
         if(!fs.is_open()){
             return;
         }
         fs.write((const char*)&bytes[0], numBytesToWrite);
+        if(!fs){
+            return;
+        }
         fs.close();
-        numSamplesWritten += numSamplesToWrite;
+        m_numSamplesWritten += numSamplesToWrite;
         bytes.erase(bytes.begin(), bytes.begin() + numBytesToWrite);
 
         // file has been finished successfully, set markers to indicate that a new file should be started
-        if(numSamplesPerFile && (numSamplesWritten >= numSamplesPerFile)){
-            currentFileStarted = false;
-            currentFileNumber++;
+        if(m_numSamplesPerFile && (m_numSamplesWritten >= m_numSamplesPerFile)){
+            m_currentFileStarted = false;
+            m_currentFileNumber++;
         }
     }
-}
-
-DataRecorderManager::DataRecorderManager(){}
-
-DataRecorderManager::~DataRecorderManager(){
-    ClearAllDataRecorders();
 }
 
 bool DataRecorderManager::AddDataRecorderScalarDoubles(const uint8_t* idCharacters, uint32_t numIDCharacters, const uint8_t* signalNames, uint32_t numCharacters, uint32_t numSignals, uint32_t numSamplesPerFile, int32_t threadPriority){
@@ -449,24 +430,24 @@ bool DataRecorderManager::AddDataRecorderScalarDoubles(const uint8_t* idCharacte
 
     // get ID, labels (only use printable characters)
     std::string signalLabels = ConvertToPrintableString(signalNames, numCharacters);
-    std::string id = ConvertToPrintableString(idCharacters, numIDCharacters);
+    std::string id = ConvertToValidID(idCharacters, numIDCharacters);
 
     // check if this data recorder is already in the list
     bool success = false;
     bool found = false;
-    for(auto&& rec : dataRecorders){
-        if((found = !rec.id.compare(id))){
+    for(auto&& rec : m_dataRecorders){
+        if((found = !rec.m_id.compare(id))){
             GENERIC_TARGET_PRINT_ERROR("Data recorder with ID \"{}\" has already been registered!\n", id);
             break;
         }
     }
     if(!found){
-        entry e { .id = id, .dataRecorder = reinterpret_cast<DataRecorderBase*>(new DataRecorderScalarDoubles()) };
-        e.dataRecorder->SetNumSamplesPerFile(numSamplesPerFile);
-        e.dataRecorder->SetNumSignals(numSignals);
-        e.dataRecorder->SetLabels(signalLabels);
-        success = e.dataRecorder->Start((pathToDataDirectory / id).string(), threadPriority);
-        dataRecorders.push_back(e);
+        entry e { .m_id = id, .m_dataRecorder = reinterpret_cast<DataRecorderBase*>(new DataRecorderScalarDoubles()) };
+        e.m_dataRecorder->SetNumSamplesPerFile(numSamplesPerFile);
+        e.m_dataRecorder->SetNumSignals(numSignals);
+        e.m_dataRecorder->SetLabels(signalLabels);
+        success = e.m_dataRecorder->Start((m_pathToDataDirectory / id).string(), threadPriority);
+        m_dataRecorders.push_back(e);
     }
 
     // (re-)write index file
@@ -475,10 +456,10 @@ bool DataRecorderManager::AddDataRecorderScalarDoubles(const uint8_t* idCharacte
 }
 
 void DataRecorderManager::WriteScalarDoubles(const uint8_t* idCharacters, uint32_t numIDCharacters, double timestamp, double* values, uint32_t numValues){
-    std::string id = ConvertToPrintableString(idCharacters, numIDCharacters);
-    for(auto&& rec : dataRecorders){
-        if(!rec.id.compare(id)){
-            rec.dataRecorder->Write(timestamp, static_cast<void*>(values), numValues);
+    std::string id = ConvertToValidID(idCharacters, numIDCharacters);
+    for(auto&& rec : m_dataRecorders){
+        if(!rec.m_id.compare(id)){
+            rec.m_dataRecorder->Write(timestamp, static_cast<void*>(values), numValues);
             break;
         }
     }
@@ -492,7 +473,7 @@ bool DataRecorderManager::AddDataRecorderBus(const uint8_t* idCharacters, uint32
     }
 
     // get ID, labels, dimensions, datatypes (only use printable characters)
-    std::string id = ConvertToPrintableString(idCharacters, numIDCharacters);
+    std::string id = ConvertToValidID(idCharacters, numIDCharacters);
     std::string signalLabels = ConvertToPrintableString(signalNames, strlenSignalNames);
     std::string strDimensions = ConvertToPrintableString(dimensions, strlenDimensions);
     std::string strDataTypes = ConvertToPrintableString(dataTypes, strlenDataTypes);
@@ -500,21 +481,21 @@ bool DataRecorderManager::AddDataRecorderBus(const uint8_t* idCharacters, uint32
     // check if this signal object is already in the list
     bool success = false;
     bool found = false;
-    for(auto&& rec : dataRecorders){
-        if((found = !rec.id.compare(id))){
+    for(auto&& rec : m_dataRecorders){
+        if((found = !rec.m_id.compare(id))){
             GENERIC_TARGET_PRINT_ERROR("Data recorder with ID \"{}\" has already been registered!\n", id);
             break;
         }
     }
     if(!found){
-        entry e { .id = id, .dataRecorder = reinterpret_cast<DataRecorderBase*>(new DataRecorderBus()) };
-        e.dataRecorder->SetNumSamplesPerFile(numSamplesPerFile);
-        e.dataRecorder->SetNumBytesPerSample(numBytesPerSample);
-        e.dataRecorder->SetLabels(signalLabels);
-        e.dataRecorder->SetDimensions(strDimensions);
-        e.dataRecorder->SetDataTypes(strDataTypes);
-        success = e.dataRecorder->Start((pathToDataDirectory / id).string(), threadPriority);
-        dataRecorders.push_back(e);
+        entry e { .m_id = id, .m_dataRecorder = reinterpret_cast<DataRecorderBase*>(new DataRecorderBus()) };
+        e.m_dataRecorder->SetNumSamplesPerFile(numSamplesPerFile);
+        e.m_dataRecorder->SetNumBytesPerSample(numBytesPerSample);
+        e.m_dataRecorder->SetLabels(signalLabels);
+        e.m_dataRecorder->SetDimensions(strDimensions);
+        e.m_dataRecorder->SetDataTypes(strDataTypes);
+        success = e.m_dataRecorder->Start((m_pathToDataDirectory / id).string(), threadPriority);
+        m_dataRecorders.push_back(e);
     }
 
     // (re-)write index file
@@ -523,36 +504,36 @@ bool DataRecorderManager::AddDataRecorderBus(const uint8_t* idCharacters, uint32
 }
 
 void DataRecorderManager::WriteBus(const uint8_t* idCharacters, uint32_t numIDCharacters, double timestamp, uint8_t* bytes, uint32_t numBytesPerSample){
-    std::string id = ConvertToPrintableString(idCharacters, numIDCharacters);
-    for(auto&& rec : dataRecorders){
-        if(!rec.id.compare(id)){
-            rec.dataRecorder->Write(timestamp, static_cast<void*>(bytes), numBytesPerSample);
+    std::string id = ConvertToValidID(idCharacters, numIDCharacters);
+    for(auto&& rec : m_dataRecorders){
+        if(!rec.m_id.compare(id)){
+            rec.m_dataRecorder->Write(timestamp, static_cast<void*>(bytes), numBytesPerSample);
             break;
         }
     }
 }
 
 void DataRecorderManager::ClearAllDataRecorders(void){
-    for(auto&& rec : dataRecorders){
-        rec.dataRecorder->Stop();
-        delete rec.dataRecorder;
+    for(auto&& rec : m_dataRecorders){
+        rec.m_dataRecorder->Stop();
+        delete rec.m_dataRecorder;
     }
-    dataRecorders.clear();
-    pathToDataDirectory.clear();
+    m_dataRecorders.clear();
+    m_pathToDataDirectory.clear();
 }
 
 void DataRecorderManager::SetPathAndTimeIfNotSet(void){
-    if(pathToDataDirectory.empty()){
+    if(m_pathToDataDirectory.empty()){
         #if defined(GENERIC_TARGET_IMPLEMENTATION)
         std::filesystem::path pathToApplication = gt::GenericTarget::absoluteApplicationPath;
         auto startTimepoint = gt::GenericTarget::appStartTimepoint.GetUTC();
-        utc.year = 1900 + startTimepoint.year;
-        utc.month = 1 + startTimepoint.month;
-        utc.day = startTimepoint.mday;
-        utc.hour = startTimepoint.hour;
-        utc.minute = startTimepoint.minute;
-        utc.second = startTimepoint.second;
-        utc.millisecond = startTimepoint.nanoseconds / 1000000;
+        m_utc.year = 1900 + startTimepoint.year;
+        m_utc.month = 1 + startTimepoint.month;
+        m_utc.day = startTimepoint.mday;
+        m_utc.hour = startTimepoint.hour;
+        m_utc.minute = startTimepoint.minute;
+        m_utc.second = startTimepoint.second;
+        m_utc.millisecond = startTimepoint.nanoseconds / 1000000;
         std::string utcString = gt::GenericTarget::appStartTimepoint.GetUTCString();
         #else
         std::filesystem::path pathToApplication;
@@ -565,33 +546,38 @@ void DataRecorderManager::SetPathAndTimeIfNotSet(void){
             std::tm* gmTime = ::gmtime_r(&systemTime, &gmTimeStruct);
         #endif
         if(gmTime == nullptr){
-            utc.year = 1900;
-            utc.month = 1;
-            utc.day = 1;
-            utc.hour = 0;
-            utc.minute = 0;
-            utc.second = 0;
-            utc.millisecond = 0;
+            m_utc.year = 1900;
+            m_utc.month = 1;
+            m_utc.day = 1;
+            m_utc.hour = 0;
+            m_utc.minute = 0;
+            m_utc.second = 0;
+            m_utc.millisecond = 0;
         }
         else{
-            utc.year = 1900 + static_cast<int32_t>(gmTime->tm_year);
-            utc.month = 1 + static_cast<int32_t>(gmTime->tm_mon);
-            utc.day = static_cast<int32_t>(gmTime->tm_mday);
-            utc.hour = static_cast<int32_t>(gmTime->tm_hour);
-            utc.minute = static_cast<int32_t>(gmTime->tm_min);
-            utc.second = static_cast<int32_t>(gmTime->tm_sec);
+            m_utc.year = 1900 + static_cast<int32_t>(gmTime->tm_year);
+            m_utc.month = 1 + static_cast<int32_t>(gmTime->tm_mon);
+            m_utc.day = static_cast<int32_t>(gmTime->tm_mday);
+            m_utc.hour = static_cast<int32_t>(gmTime->tm_hour);
+            m_utc.minute = static_cast<int32_t>(gmTime->tm_min);
+            m_utc.second = static_cast<int32_t>(gmTime->tm_sec);
             auto duration = timePoint.time_since_epoch();
             auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
             duration -= seconds;
-            utc.millisecond = static_cast<int32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count());
+            m_utc.millisecond = static_cast<int32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count());
         }
-        char buffer[64];
-        snprintf(buffer, sizeof(buffer), "%u%02u%02u_%02u%02u%02u%03u", utc.year, utc.month, utc.day, utc.hour, utc.minute, utc.second, utc.millisecond);
-        std::string utcString = std::string(buffer);
+        std::string utcString = std::format("{:04d}{:02d}{:02d}_{:02d}{:02d}{:02d}{:03d}",
+            m_utc.year,
+            m_utc.month,
+            m_utc.day,
+            m_utc.hour,
+            m_utc.minute,
+            m_utc.second,
+            m_utc.millisecond);
         #endif
 
         // set absolute path for data recording directory
-        pathToDataDirectory = pathToApplication / "data" / utcString;
+        m_pathToDataDirectory = pathToApplication / "data" / utcString;
     }
 }
 
@@ -605,14 +591,28 @@ std::string DataRecorderManager::ConvertToPrintableString(const uint8_t* data, u
     return result;
 }
 
+std::string DataRecorderManager::ConvertToValidID(const uint8_t* data, uint32_t numCharacters){
+    std::string result;
+    result.reserve(numCharacters);
+    for(uint32_t n = 0; n < numCharacters; ++n){
+        const uint8_t c = data[n];
+        const bool valid = (c >= 'A' && c <= 'Z') ||
+                           (c >= 'a' && c <= 'z') ||
+                           (c >= '0' && c <= '9') ||
+                           c == '_' || c == '-';
+        result.push_back(valid ? static_cast<char>(c) : '_');
+    }
+    return result;
+}
+
 bool DataRecorderManager::MakeDataDirectory(void){
     try{
-        if(std::filesystem::create_directories(pathToDataDirectory)){
-            GENERIC_TARGET_PRINT_INFO("Created data recording directory \"{}\"\n", pathToDataDirectory.string());
+        if(std::filesystem::create_directories(m_pathToDataDirectory)){
+            GENERIC_TARGET_PRINT_INFO("Created data recording directory \"{}\"\n", m_pathToDataDirectory.string());
         }
     }
     catch(...){
-        GENERIC_TARGET_PRINT_ERROR("Failed to create data record directory \"{}\"!\n", pathToDataDirectory.string());
+        GENERIC_TARGET_PRINT_ERROR("Failed to create data record directory \"{}\"!\n", m_pathToDataDirectory.string());
         return false;
     }
     return true;
@@ -621,8 +621,10 @@ bool DataRecorderManager::MakeDataDirectory(void){
 std::string DataRecorderManager::GetOSInfo(void){
     std::string result;
     #if __linux__
-    struct utsname info;
-    (void) uname(&info);
+    struct utsname info{};
+    if(uname(&info) < 0){
+        return "unavailable";
+    }
     result += std::string("sysname=[") + std::string(info.sysname) + std::string("]");
     result += std::string(",nodename=[") + std::string(info.nodename) + std::string("]");
     result += std::string(",release=[") + std::string(info.release) + std::string("]");
@@ -647,9 +649,9 @@ std::string DataRecorderManager::GetOSInfo(void){
 
 bool DataRecorderManager::WriteIndexFile(void){
     // open index file
-    std::string filename = (pathToDataDirectory / "index").string();
+    std::string filename = (m_pathToDataDirectory / "index").string();
     GENERIC_TARGET_PRINT_INFO("Writing data record index file \"{}\"\n", filename);
-    FILE *file = fopen(filename.c_str(), "wb");
+    FILE* file = fopen(filename.c_str(), "wb");
     if(!file){
         GENERIC_TARGET_PRINT_ERROR("Failed to write data record index file \"{}\"\n", filename);
         return false;
@@ -661,21 +663,21 @@ bool DataRecorderManager::WriteIndexFile(void){
 
     // date
     uint8_t bytes[11];
-    bytes[0] = static_cast<uint8_t>((utc.year >> 24) & 0x000000FF);
-    bytes[1] = static_cast<uint8_t>((utc.year >> 16) & 0x000000FF);
-    bytes[2] = static_cast<uint8_t>((utc.year >> 8) & 0x000000FF);
-    bytes[3] = static_cast<uint8_t>(utc.year & 0x000000FF);
-    bytes[4] = static_cast<uint8_t>(utc.month);
-    bytes[5] = static_cast<uint8_t>(utc.day);
-    bytes[6] = static_cast<uint8_t>(utc.hour);
-    bytes[7] = static_cast<uint8_t>(utc.minute);
-    bytes[8] = static_cast<uint8_t>(utc.second);
-    bytes[9] = static_cast<uint8_t>((utc.millisecond >> 8) & 0x00FF);
-    bytes[10] = static_cast<uint8_t>(utc.millisecond & 0x00FF);
+    bytes[0] = static_cast<uint8_t>((m_utc.year >> 24) & 0x000000FF);
+    bytes[1] = static_cast<uint8_t>((m_utc.year >> 16) & 0x000000FF);
+    bytes[2] = static_cast<uint8_t>((m_utc.year >> 8) & 0x000000FF);
+    bytes[3] = static_cast<uint8_t>(m_utc.year & 0x000000FF);
+    bytes[4] = static_cast<uint8_t>(m_utc.month);
+    bytes[5] = static_cast<uint8_t>(m_utc.day);
+    bytes[6] = static_cast<uint8_t>(m_utc.hour);
+    bytes[7] = static_cast<uint8_t>(m_utc.minute);
+    bytes[8] = static_cast<uint8_t>(m_utc.second);
+    bytes[9] = static_cast<uint8_t>((m_utc.millisecond >> 8) & 0x00FF);
+    bytes[10] = static_cast<uint8_t>(m_utc.millisecond & 0x00FF);
     fwrite(&bytes[0], 1, 11, file);
 
     // number of data recorders (4 bytes)
-    uint32_t num = (uint32_t)dataRecorders.size();
+    uint32_t num = (uint32_t)m_dataRecorders.size();
     bytes[0] = static_cast<uint8_t>((num >> 24) & 0x000000FF);
     bytes[1] = static_cast<uint8_t>((num >> 16) & 0x000000FF);
     bytes[2] = static_cast<uint8_t>((num >> 8) & 0x000000FF);
@@ -683,9 +685,9 @@ bool DataRecorderManager::WriteIndexFile(void){
     fwrite(&bytes[0], 1, 4, file);
 
     // for all data records, write information
-    for(auto&& rec : dataRecorders){
+    for(auto&& rec : m_dataRecorders){
         // ID (string) + 0x00
-        fwrite(&rec.id[0], 1, rec.id.size(), file);
+        fwrite(&rec.m_id[0], 1, rec.m_id.size(), file);
         bytes[0] = 0;
         fwrite(&bytes[0], 1, 1, file);
     }
@@ -751,7 +753,7 @@ Address::Address(std::array<uint8_t,4> ip, uint16_t port){
     this->port = port;
 }
 
-std::string Address::ToString(void) {
+std::string Address::ToString(void){
     std::stringstream text;
     text << static_cast<int32_t>(ip[0]) << "." << static_cast<int32_t>(ip[1]) << "." << static_cast<int32_t>(ip[2]) << "." << static_cast<int32_t>(ip[3]) << ":" << static_cast<int32_t>(port);
     return text.str();
@@ -761,18 +763,12 @@ bool Address::operator==(const Address& rhs) const{
     return (ip == rhs.ip) && (port == rhs.port);
 }
 
-SocketBase::SocketBase():_socket(-1){}
-
-SocketBase::~SocketBase(){
-    Close();
-}
-
 bool SocketBase::IsOpen(void){
-    return (_socket >= 0);
+    return (m_socket >= 0);
 }
 
 void SocketBase::Close(void){
-    int fd = _socket.exchange(-1);
+    int fd = m_socket.exchange(-1);
     if(fd >= 0){
         #ifdef _WIN32
         (void) shutdown(fd, SD_BOTH);
@@ -784,19 +780,19 @@ void SocketBase::Close(void){
     }
 }
 
-int32_t SocketBase::SetOption(int level, int optname, const void *optval, int optlen){
+int32_t SocketBase::SetOption(int level, int optname, const void* optval, int optlen){
     #ifdef _WIN32
-    return static_cast<int32_t>(setsockopt(_socket, level, optname, reinterpret_cast<const char*>(optval), optlen));
+    return static_cast<int32_t>(setsockopt(m_socket, level, optname, reinterpret_cast<const char*>(optval), optlen));
     #else
-    return static_cast<int32_t>(setsockopt(_socket, level, optname, optval, static_cast<socklen_t>(optlen)));
+    return static_cast<int32_t>(setsockopt(m_socket, level, optname, optval, static_cast<socklen_t>(optlen)));
     #endif
 }
 
-int32_t SocketBase::GetOption(int level, int optname, void *optval, int *optlen){
+int32_t SocketBase::GetOption(int level, int optname, void* optval, int* optlen){
     #ifdef _WIN32
-    return static_cast<int32_t>(getsockopt(_socket, level, optname, reinterpret_cast<char*>(optval), optlen));
+    return static_cast<int32_t>(getsockopt(m_socket, level, optname, reinterpret_cast<char*>(optval), optlen));
     #else
-    return static_cast<int32_t>(getsockopt(_socket, level, optname, optval, reinterpret_cast<socklen_t*>(optlen)));
+    return static_cast<int32_t>(getsockopt(m_socket, level, optname, optval, reinterpret_cast<socklen_t*>(optlen)));
     #endif
 }
 
@@ -858,9 +854,9 @@ int32_t SocketBase::AllowBroadcast(bool allow){
 bool SocketBase::EnableNonBlockingMode(void){
     #ifdef _WIN32
     unsigned long nonBlockingMode = 1;
-    return ioctlsocket(_socket, FIONBIO, &nonBlockingMode) == 0;
+    return ioctlsocket(m_socket, FIONBIO, &nonBlockingMode) == 0;
     #else
-    int fd = _socket.load();
+    int fd = m_socket.load();
     int flags = fcntl(fd, F_GETFL, 0);
     return fcntl(fd, F_SETFL, flags | O_NONBLOCK) != -1;
     #endif
@@ -917,7 +913,7 @@ void SocketBase::ResetLastError(void){
 
 int32_t SocketBinding::Bind(uint16_t port, std::array<uint8_t,4> ipInterface){
     // convert interface ip to a string pointer, where nullptr means any interface (INADDR_ANY)
-    char *ip = nullptr;
+    char* ip = nullptr;
     char strIP[16];
     snprintf(&strIP[0], sizeof(strIP), "%u.%u.%u.%u", ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]);
     if(ipInterface[0] || ipInterface[1] || ipInterface[2] || ipInterface[3]){
@@ -929,7 +925,7 @@ int32_t SocketBinding::Bind(uint16_t port, std::array<uint8_t,4> ipInterface){
     addr_this.sin_addr.s_addr = ip ? inet_addr(ip) : htonl(INADDR_ANY);
     addr_this.sin_family = AF_INET;
     addr_this.sin_port = htons(port);
-    int fd = _socket.load();
+    int fd = m_socket.load();
     return static_cast<int32_t>(bind(fd, (struct sockaddr *)&addr_this, sizeof(struct sockaddr_in)));
 }
 
@@ -949,7 +945,7 @@ int32_t SocketBinding::BindToDevice(std::string deviceName){
 uint16_t SocketBinding::GetPort(void){
     struct sockaddr_in addr_this;
     socklen_t len = sizeof(addr_this);
-    if(getsockname(_socket, (struct sockaddr *)&addr_this, &len) == -1){
+    if(getsockname(m_socket, (struct sockaddr *)&addr_this, &len) == -1){
         return 0;
     }
     return static_cast<uint16_t>(ntohs(addr_this.sin_port));
@@ -960,7 +956,7 @@ bool TCPSocketBase::Open(void){
     if(new_fd < 0){
         return false;
     }
-    int old_fd = _socket.exchange(new_fd);
+    int old_fd = m_socket.exchange(new_fd);
     if(old_fd >= 0){
         #ifdef _WIN32
         (void) shutdown(old_fd, SD_BOTH);
@@ -973,8 +969,11 @@ bool TCPSocketBase::Open(void){
     return true;
 }
 
-int32_t TCPSocketBase::Send(uint8_t *bytes, int32_t size){
-    int fd = _socket.load();
+int32_t TCPSocketBase::Send(uint8_t* bytes, int32_t size){
+    if(size < 0){
+        return -1;
+    }
+    int fd = m_socket.load();
     if(fd < 0){
         return -1;
     }
@@ -985,8 +984,11 @@ int32_t TCPSocketBase::Send(uint8_t *bytes, int32_t size){
     #endif
 }
 
-int32_t TCPSocketBase::Receive(uint8_t *bytes, int32_t maxSize){
-    int fd = _socket.load();
+int32_t TCPSocketBase::Receive(uint8_t* bytes, int32_t maxSize){
+    if(maxSize < 0){
+        return -1;
+    }
+    int fd = m_socket.load();
     if(fd < 0){
         return -1;
     }
@@ -994,13 +996,13 @@ int32_t TCPSocketBase::Receive(uint8_t *bytes, int32_t maxSize){
 }
 
 TCPClientConnection::TCPClientConnection(int clientSocket, Address clientAddress){
-    _socket.store(clientSocket);
+    m_socket.store(clientSocket);
     ip = clientAddress.ip;
     port = clientAddress.port;
 }
 
 int32_t TCPClientSocket::Connect(Address serverAddress){
-    int fd = _socket.load();
+    int fd = m_socket.load();
     if(fd < 0){
         return -1;
     }
@@ -1008,12 +1010,16 @@ int32_t TCPClientSocket::Connect(Address serverAddress){
     addr.sin_family = AF_INET;
     memset((void*) &addr.sin_zero[0], 0, 8);
     GT_DRIVER_ADDRESS_PORT(addr) = htons(serverAddress.port);
-    GT_DRIVER_ADDRESS_IP(addr) = htonl((0xFF000000 & (serverAddress.ip[0] << 24)) | (0x00FF0000 & (serverAddress.ip[1] << 16)) | (0x0000FF00 & (serverAddress.ip[2] << 8)) | (0x000000FF & serverAddress.ip[3]));
+    const uint32_t ip = (static_cast<uint32_t>(serverAddress.ip[0]) << 24) |
+                        (static_cast<uint32_t>(serverAddress.ip[1]) << 16) |
+                        (static_cast<uint32_t>(serverAddress.ip[2]) << 8) |
+                        static_cast<uint32_t>(serverAddress.ip[3]);
+    GT_DRIVER_ADDRESS_IP(addr) = htonl(ip);
     return static_cast<int32_t>(connect(fd, reinterpret_cast<const struct sockaddr*>(&addr), sizeof(addr)));
 }
 
 int32_t TCPServerSocket::Listen(int backlog){
-    int fd = _socket.load();
+    int fd = m_socket.load();
     if(fd < 0){
         return -1;
     }
@@ -1026,8 +1032,11 @@ TCPClientConnection TCPServerSocket::Accept(void){
     #else
     int sin_size = sizeof(sockaddr_in);
     #endif
-    sockaddr_in client_addr;
-    int32_t clientSocket = static_cast<int32_t>(accept(_socket, (sockaddr*)&client_addr , &sin_size));
+    sockaddr_in client_addr{};
+    int32_t clientSocket = static_cast<int32_t>(accept(m_socket, (sockaddr*)&client_addr , &sin_size));
+    if(clientSocket < 0){
+        return TCPClientConnection(clientSocket, Address{});
+    }
     auto addr = ntohl(GT_DRIVER_ADDRESS_IP(client_addr));
     Address clientAddress(((addr >> 24) & 0x000000FF), ((addr >> 16) & 0x000000FF), ((addr >> 8) & 0x000000FF), (addr & 0x000000FF), ntohs(client_addr.sin_port));
     return TCPClientConnection(clientSocket, clientAddress);
@@ -1046,7 +1055,7 @@ bool UDPSocket::Open(void){
     WSAIoctl(new_fd, _WSAIOW(IOC_VENDOR, 12), &bNewBehavior, sizeof(bNewBehavior), NULL, 0, &dwBytesReturned, NULL, NULL);
     #endif
 
-    int old_fd = _socket.exchange(new_fd);
+    int old_fd = m_socket.exchange(new_fd);
     if(old_fd >= 0){
         #ifdef _WIN32
         (void) shutdown(old_fd, SD_BOTH);
@@ -1060,8 +1069,11 @@ bool UDPSocket::Open(void){
     return true;
 }
 
-int32_t UDPSocket::SendTo(Address destination, uint8_t *bytes, int32_t size){
-    int fd = _socket.load();
+int32_t UDPSocket::SendTo(Address destination, uint8_t* bytes, int32_t size){
+    if(size < 0){
+        return -1;
+    }
+    int fd = m_socket.load();
     if(fd < 0){
         return -1;
     }
@@ -1073,12 +1085,15 @@ int32_t UDPSocket::SendTo(Address destination, uint8_t *bytes, int32_t size){
                   (static_cast<uint32_t>(destination.ip[1]) << 16) |
                   (static_cast<uint32_t>(destination.ip[2]) << 8)  |
                   (static_cast<uint32_t>(destination.ip[3]));
-    GT_DRIVER_ADDRESS_IP(addr) = htonl(ip);GT_DRIVER_ADDRESS_IP(addr) = htonl((0xFF000000 & (destination.ip[0] << 24)) | (0x00FF0000 & (destination.ip[1] << 16)) | (0x0000FF00 & (destination.ip[2] << 8)) | (0x000000FF & destination.ip[3]));
+    GT_DRIVER_ADDRESS_IP(addr) = htonl(ip);
     return static_cast<int32_t>(sendto(fd, reinterpret_cast<const char*>(bytes), size, 0, reinterpret_cast<const struct sockaddr*>(&addr), sizeof(addr)));
 }
 
-int32_t UDPSocket::ReceiveFrom(Address& source, uint8_t *bytes, int32_t maxSize){
-    int fd = _socket.load();
+int32_t UDPSocket::ReceiveFrom(Address& source, uint8_t* bytes, int32_t maxSize){
+    if(maxSize < 0){
+        return -1;
+    }
+    int fd = m_socket.load();
     if(fd < 0){
         return -1;
     }
@@ -1221,10 +1236,6 @@ int32_t UDPSocket::win32_if_nametoindex(std::string name){
 }
 #endif
 
-UDPServiceConfiguration::UDPServiceConfiguration(){
-    Reset();
-}
-
 void UDPServiceConfiguration::Reset(void){
     port = 0;
     deviceName.clear();
@@ -1267,100 +1278,96 @@ UDPService::UDPService(){
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
     pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
-    pthread_mutex_init(&mtxSocket, &attr);
+    pthread_mutex_init(&m_mtxSocket, &attr);
     pthread_mutexattr_destroy(&attr);
-    latestErrorCode = 0;
-    attemptToBindStatus = 0;
-    activeConfSet = false;
-    isBound = false;
 }
 
 UDPService::~UDPService(){
     Destroy();
-    pthread_mutex_destroy(&mtxSocket);
+    pthread_mutex_destroy(&m_mtxSocket);
 }
 
 bool UDPService::Create(UDPServiceConfiguration desiredConf){
     {
-        const LockGuard lock(mtxSocket);
-        if(!activeConfSet){
-            activeConf = desiredConf;
-            activeConfSet = true;
+        const LockGuard lock(m_mtxSocket);
+        if(!m_activeConfSet){
+            m_activeConf = desiredConf;
+            m_activeConfSet = true;
         }
-        if(!(activeConf == desiredConf)){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous UDP socket configuration! The desired configuration is {{{}}} but this socket has already been configured with {{{}}}!\n", desiredConf.ToString(), activeConf.ToString());
+        if(!(m_activeConf == desiredConf)){
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous UDP socket configuration! The desired configuration is {{{}}} but this socket has already been configured with {{{}}}!\n", desiredConf.ToString(), m_activeConf.ToString());
             return false;
         }
-        if(!udpSocket.IsOpen()){
-            udpSocket.ResetLastError();
-            if(!udpSocket.Open()){
-                auto [errorCode, errorString] = udpSocket.GetLastError();
-                latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Failed to open UDP socket {{{}}}! {}\n", activeConf.ToString(), errorString);
+        if(!m_udpSocket.IsOpen()){
+            m_udpSocket.ResetLastError();
+            if(!m_udpSocket.Open()){
+                auto [errorCode, errorString] = m_udpSocket.GetLastError();
+                m_latestErrorCode = errorCode;
+                GENERIC_TARGET_PRINT_ERROR("Failed to open UDP socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
                 return false;
             }
-            udpSocket.ResetLastError();
-            if(udpSocket.ReusePort(true) < 0){
-                auto [errorCode, errorString] = udpSocket.GetLastError();
-                latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEPORT option for UDP socket {{{}}}! {}\n", activeConf.ToString(), errorString);
-                udpSocket.Close();
+            m_udpSocket.ResetLastError();
+            if(m_udpSocket.ReusePort(true) < 0){
+                auto [errorCode, errorString] = m_udpSocket.GetLastError();
+                m_latestErrorCode = errorCode;
+                GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEPORT option for UDP socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
+                m_udpSocket.Close();
                 return false;
             }
-            udpSocket.ResetLastError();
-            if(udpSocket.ReuseAddress(true) < 0){
-                auto [errorCode, errorString] = udpSocket.GetLastError();
-                latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEADDR option for UDP socket {{{}}}! {}\n", activeConf.ToString(), errorString);
-                udpSocket.Close();
+            m_udpSocket.ResetLastError();
+            if(m_udpSocket.ReuseAddress(true) < 0){
+                auto [errorCode, errorString] = m_udpSocket.GetLastError();
+                m_latestErrorCode = errorCode;
+                GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEADDR option for UDP socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
+                m_udpSocket.Close();
                 return false;
             }
-            udpSocket.ResetLastError();
-            if(!udpSocket.EnableNonBlockingMode()){
-                auto [errorCode, errorString] = udpSocket.GetLastError();
-                latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Failed to enable non-blocking mode for UDP socket {{{}}}! {}\n", activeConf.ToString(), errorString);
-                udpSocket.Close();
+            m_udpSocket.ResetLastError();
+            if(!m_udpSocket.EnableNonBlockingMode()){
+                auto [errorCode, errorString] = m_udpSocket.GetLastError();
+                m_latestErrorCode = errorCode;
+                GENERIC_TARGET_PRINT_ERROR("Failed to enable non-blocking mode for UDP socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
+                m_udpSocket.Close();
                 return false;
             }
-            udpSocket.ResetLastError();
-            if(udpSocket.SetSocketPriority(activeConf.socketPriority) < 0){
-                auto [errorCode, errorString] = udpSocket.GetLastError();
-                latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Failed to set SO_PRIORITY option for UDP socket {{{}}}! {}\n", activeConf.ToString(), errorString);
-                udpSocket.Close();
+            m_udpSocket.ResetLastError();
+            if(m_udpSocket.SetSocketPriority(m_activeConf.socketPriority) < 0){
+                auto [errorCode, errorString] = m_udpSocket.GetLastError();
+                m_latestErrorCode = errorCode;
+                GENERIC_TARGET_PRINT_ERROR("Failed to set SO_PRIORITY option for UDP socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
+                m_udpSocket.Close();
                 return false;
             }
-            udpSocket.ResetLastError();
-            if(udpSocket.AllowBroadcast(activeConf.allowBroadcast) < 0){
-                auto [errorCode, errorString] = udpSocket.GetLastError();
-                latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Failed to set SO_BROADCAST option for UDP socket {{{}}}! {}\n", activeConf.ToString(), errorString);
-                udpSocket.Close();
+            m_udpSocket.ResetLastError();
+            if(m_udpSocket.AllowBroadcast(m_activeConf.allowBroadcast) < 0){
+                auto [errorCode, errorString] = m_udpSocket.GetLastError();
+                m_latestErrorCode = errorCode;
+                GENERIC_TARGET_PRINT_ERROR("Failed to set SO_BROADCAST option for UDP socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
+                m_udpSocket.Close();
                 return false;
             }
-            udpSocket.ResetLastError();
-            if(udpSocket.SetMulticastAll(activeConf.multicastAll) < 0){
-                auto [errorCode, errorString] = udpSocket.GetLastError();
-                latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Failed to set IP_MULTICAST_ALL option for UDP socket {{{}}}! {}\n", activeConf.ToString(), errorString);
-                udpSocket.Close();
+            m_udpSocket.ResetLastError();
+            if(m_udpSocket.SetMulticastAll(m_activeConf.multicastAll) < 0){
+                auto [errorCode, errorString] = m_udpSocket.GetLastError();
+                m_latestErrorCode = errorCode;
+                GENERIC_TARGET_PRINT_ERROR("Failed to set IP_MULTICAST_ALL option for UDP socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
+                m_udpSocket.Close();
                 return false;
             }
-            udpSocket.ResetLastError();
-            if(udpSocket.SetMulticastLoop(activeConf.multicastLoop) < 0){
-                auto [errorCode, errorString] = udpSocket.GetLastError();
-                latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Failed to set IP_MULTICAST_LOOP option for UDP socket {{{}}}! {}\n", activeConf.ToString(), errorString);
-                udpSocket.Close();
+            m_udpSocket.ResetLastError();
+            if(m_udpSocket.SetMulticastLoop(m_activeConf.multicastLoop) < 0){
+                auto [errorCode, errorString] = m_udpSocket.GetLastError();
+                m_latestErrorCode = errorCode;
+                GENERIC_TARGET_PRINT_ERROR("Failed to set IP_MULTICAST_LOOP option for UDP socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
+                m_udpSocket.Close();
                 return false;
             }
-            udpSocket.ResetLastError();
-            if(udpSocket.SetMulticastTTL(activeConf.multicastTTL) < 0){
-                auto [errorCode, errorString] = udpSocket.GetLastError();
-                latestErrorCode = errorCode;
-                GENERIC_TARGET_PRINT_ERROR("Failed to set IP_MULTICAST_TTL option for UDP socket {{{}}}! {}\n", activeConf.ToString(), errorString);
-                udpSocket.Close();
+            m_udpSocket.ResetLastError();
+            if(m_udpSocket.SetMulticastTTL(m_activeConf.multicastTTL) < 0){
+                auto [errorCode, errorString] = m_udpSocket.GetLastError();
+                m_latestErrorCode = errorCode;
+                GENERIC_TARGET_PRINT_ERROR("Failed to set IP_MULTICAST_TTL option for UDP socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
+                m_udpSocket.Close();
                 return false;
             }
         }
@@ -1370,89 +1377,87 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
 }
 
 void UDPService::Destroy(void){
-    const LockGuard lock(mtxSocket);
-    if(udpSocket.IsOpen()){
-        for(auto&& groupIP : currentlyJoinedGroups){
-            (void) udpSocket.LeaveMulticastGroup(groupIP, activeConf.deviceName, activeConf.multicastInterfaceAddress);
+    const LockGuard lock(m_mtxSocket);
+    if(m_udpSocket.IsOpen()){
+        for(auto&& groupIP : m_currentlyJoinedGroups){
+            (void) m_udpSocket.LeaveMulticastGroup(groupIP, m_activeConf.deviceName, m_activeConf.multicastInterfaceAddress);
         }
-        udpSocket.Close();
-        GENERIC_TARGET_PRINT_INFO("Closed UDP socket {{{}}}\n", activeConf.ToString());
+        m_udpSocket.Close();
+        GENERIC_TARGET_PRINT_INFO("Closed UDP socket {{{}}}\n", m_activeConf.ToString());
     }
-    currentlyJoinedGroups.clear();
-    latestErrorCode = 0;
-    isBound = false;
-    attemptToBindStatus = 0;
-    activeConf.Reset();
+    m_currentlyJoinedGroups.clear();
+    m_latestErrorCode = 0;
+    m_isBound = false;
+    m_attemptToBindStatus = 0;
+    m_activeConf.Reset();
 }
 
-std::tuple<int32_t, int32_t> UDPService::SendTo(Address destination, uint8_t *bytes, int32_t size){
+std::tuple<int32_t, int32_t> UDPService::SendTo(Address destination, uint8_t* bytes, int32_t size){
     int32_t tx = -1;
-    int32_t code = latestErrorCode;
-    if(isBound){
+    int32_t code = m_latestErrorCode;
+    if(m_isBound && (size >= 0)){
         tx = 0;
-        bool enableTransmission = (size > 0) || ((0 == size) && activeConf.allowZeroLengthMessage);
+        bool enableTransmission = (size > 0) || ((0 == size) && m_activeConf.allowZeroLengthMessage);
         if(enableTransmission){
-            const LockGuard lock(mtxSocket);
-            udpSocket.ResetLastError();
-            tx = udpSocket.SendTo(destination, bytes, size);
-            latestErrorCode = code = udpSocket.GetLastErrorCode();
+            const LockGuard lock(m_mtxSocket);
+            m_udpSocket.ResetLastError();
+            tx = m_udpSocket.SendTo(destination, bytes, size);
+            m_latestErrorCode = code = m_udpSocket.GetLastErrorCode();
         }
     }
     return std::make_tuple(tx, code);
 }
 
-std::tuple<Address, int32_t, int32_t> UDPService::ReceiveFrom(uint8_t *bytes, int32_t maxSize, std::vector<std::array<uint8_t,4>> multicastGroups){
+std::tuple<Address, int32_t, int32_t> UDPService::ReceiveFrom(uint8_t* bytes, int32_t maxSize, std::vector<std::array<uint8_t,4>> multicastGroups){
     Address source;
     int32_t rx = -1;
-    int32_t code = latestErrorCode;
-    if(isBound){
+    int32_t code = m_latestErrorCode;
+    if(m_isBound && (maxSize >= 0)){
+        const LockGuard lock(m_mtxSocket);
         UpdateMulticastGroups(multicastGroups);
-        {
-            const LockGuard lock(mtxSocket);
-            udpSocket.ResetLastError();
-            rx = udpSocket.ReceiveFrom(source, bytes, maxSize);
-            latestErrorCode = code = udpSocket.GetLastErrorCode();
-        }
+        m_udpSocket.ResetLastError();
+        rx = m_udpSocket.ReceiveFrom(source, bytes, maxSize);
+        m_latestErrorCode = code = m_udpSocket.GetLastErrorCode();
     }
     return std::make_tuple(source, rx, code);
 }
 
 bool UDPService::AttemptToBind(void){
-    if(!isBound){
-        const LockGuard lock(mtxSocket);
+    if(!m_isBound){
+        const LockGuard lock(m_mtxSocket);
 
         // bind port
-        if(attemptToBindStatus < 1){
-            uint16_t port = static_cast<uint16_t>(std::clamp(activeConf.port, 0, 65535));
-            udpSocket.ResetLastError();
-            if(udpSocket.Bind(port) < 0){
-                auto [errorCode, errorString] = udpSocket.GetLastError();
-                if(errorCode != latestErrorCode){
-                    GENERIC_TARGET_PRINT_ERROR("Failed to bind port for UDP socket {{{}}}! {}\n", activeConf.ToString(), errorString);
+        if(m_attemptToBindStatus < 1){
+            uint16_t port = static_cast<uint16_t>(std::clamp(m_activeConf.port, 0, 65535));
+            m_udpSocket.ResetLastError();
+            if(m_udpSocket.Bind(port) < 0){
+                auto [errorCode, errorString] = m_udpSocket.GetLastError();
+                if(errorCode != m_latestErrorCode){
+                    GENERIC_TARGET_PRINT_ERROR("Failed to bind port for UDP socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
                 }
-                latestErrorCode = errorCode;
+                m_latestErrorCode = errorCode;
                 return false;
             }
-            attemptToBindStatus = 1;
+            m_attemptToBindStatus = 1;
         }
 
         // bind to device
-        if(attemptToBindStatus < 2){
-            udpSocket.ResetLastError();
-            if(udpSocket.BindToDevice(activeConf.deviceName) < 0){
-                auto [errorCode, errorString] = udpSocket.GetLastError();
-                if(errorCode != latestErrorCode){
-                    GENERIC_TARGET_PRINT_ERROR("Failed to bind UDP socket to a device {{{}}}! {}\n", activeConf.ToString(), errorString);
+        if(m_attemptToBindStatus < 2){
+            m_udpSocket.ResetLastError();
+            if(m_udpSocket.BindToDevice(m_activeConf.deviceName) < 0){
+                auto [errorCode, errorString] = m_udpSocket.GetLastError();
+                if(errorCode != m_latestErrorCode){
+                    GENERIC_TARGET_PRINT_ERROR("Failed to bind UDP socket to a device {{{}}}! {}\n", m_activeConf.ToString(), errorString);
                 }
-                latestErrorCode = errorCode;
+                m_latestErrorCode = errorCode;
                 return false;
             }
-            attemptToBindStatus = 2;
+            m_attemptToBindStatus = 2;
         }
 
         // success
-        isBound = true;
-        GENERIC_TARGET_PRINT_INFO("UDP socket operational {{{}}}\n", activeConf.ToString());
+        m_isBound = true;
+        GENERIC_TARGET_PRINT_INFO("UDP socket operational {{{}}}\n", m_activeConf.ToString());
     }
     return true;
 }
@@ -1464,7 +1469,7 @@ void UDPService::UpdateMulticastGroups(std::vector<std::array<uint8_t,4>> multic
     std::vector<std::array<uint8_t,4>> joinedGroups;
 
     // leave groups that should be no longer joined
-    for(auto&& currentlyJoinedGroup : currentlyJoinedGroups){
+    for(auto&& currentlyJoinedGroup : m_currentlyJoinedGroups){
         bool keepJoined = false;
         for(auto&& desiredJoinedGroup : multicastGroups){
             keepJoined = (currentlyJoinedGroup == desiredJoinedGroup);
@@ -1473,8 +1478,7 @@ void UDPService::UpdateMulticastGroups(std::vector<std::array<uint8_t,4>> multic
             }
         }
         if(!keepJoined){
-            const LockGuard lock(mtxSocket);
-            keepJoined = (udpSocket.LeaveMulticastGroup(currentlyJoinedGroup, activeConf.deviceName, activeConf.multicastInterfaceAddress) < 0);
+            keepJoined = (m_udpSocket.LeaveMulticastGroup(currentlyJoinedGroup, m_activeConf.deviceName, m_activeConf.multicastInterfaceAddress) < 0);
         }
         if(keepJoined){
             joinedGroups.push_back(currentlyJoinedGroup);
@@ -1484,18 +1488,17 @@ void UDPService::UpdateMulticastGroups(std::vector<std::array<uint8_t,4>> multic
     // join groups that are not currently joined
     for(auto&& desiredJoinedGroup : multicastGroups){
         bool alreadyJoined = false;
-        for(auto&& currentlyJoinedGroup : currentlyJoinedGroups){
+        for(auto&& currentlyJoinedGroup : m_currentlyJoinedGroups){
             alreadyJoined = (currentlyJoinedGroup == desiredJoinedGroup);
             if(alreadyJoined){
                 break;
             }
         }
         if(!alreadyJoined){
-            const LockGuard lock(mtxSocket);
             #ifdef _WIN32
-            (void) udpSocket.SetMulticastInterface(desiredJoinedGroup, activeConf.deviceName, activeConf.multicastInterfaceAddress);
+            (void) m_udpSocket.SetMulticastInterface(desiredJoinedGroup, m_activeConf.deviceName, m_activeConf.multicastInterfaceAddress);
             #endif
-            alreadyJoined = (udpSocket.JoinMulticastGroup(desiredJoinedGroup, activeConf.deviceName, activeConf.multicastInterfaceAddress) >= 0);
+            alreadyJoined = (m_udpSocket.JoinMulticastGroup(desiredJoinedGroup, m_activeConf.deviceName, m_activeConf.multicastInterfaceAddress) >= 0);
         }
         if(alreadyJoined){
             joinedGroups.push_back(desiredJoinedGroup);
@@ -1504,7 +1507,7 @@ void UDPService::UpdateMulticastGroups(std::vector<std::array<uint8_t,4>> multic
 
     // remember unique list of joined group addresses
     MakeUnique(joinedGroups);
-    currentlyJoinedGroups.swap(joinedGroups);
+    m_currentlyJoinedGroups.swap(joinedGroups);
 }
 
 void UDPService::RemoveInvalidGroupAddresses(std::vector<std::array<uint8_t,4>>& groupAddresses) const {
@@ -1531,35 +1534,26 @@ void UDPService::MakeUnique(std::vector<std::array<uint8_t,4>>& groupAddresses) 
     }
 }
 
-UDPServiceManager::UDPServiceManager(){
-    terminate = false;
-    threadStarted = false;
-}
-
-UDPServiceManager::~UDPServiceManager(){
-    ClearAllServices();
-}
-
 bool UDPServiceManager::AddService(int32_t id, UDPServiceConfiguration conf){
     bool success = false;
     bool found = false;
-    for(auto&& s : services){
-        if((found = (id == s.id))){
-            success = s.service->Create(conf);
+    for(auto&& s : m_services){
+        if((found = (id == s.m_id))){
+            success = s.m_service->Create(conf);
             break;
         }
     }
     if(!found){
-        entry e { .id = id, .service = new UDPService() };
-        success = e.service->Create(conf);
-        services.push_back(e);
+        entry e { .m_id = id, .m_service = new UDPService() };
+        success = e.m_service->Create(conf);
+        m_services.push_back(e);
     }
-    if(!threadStarted && success){
-        threadStarted = true;
-        managementThread = std::thread(&UDPServiceManager::ManagementThread, this);
+    if(!m_threadStarted && success){
+        m_threadStarted = true;
+        m_managementThread = std::thread(&UDPServiceManager::ManagementThread, this);
         struct sched_param param;
         param.sched_priority = std::clamp(21, sched_get_priority_min(SCHED_FIFO), sched_get_priority_max(SCHED_FIFO));
-        if(0 != pthread_setschedparam(managementThread.native_handle(), SCHED_FIFO, &param)){
+        if(0 != pthread_setschedparam(m_managementThread.native_handle(), SCHED_FIFO, &param)){
             GENERIC_TARGET_PRINT_WARNING("Failed to set thread priority 21 for UDP service management thread!\n");
         }
     }
@@ -1568,47 +1562,47 @@ bool UDPServiceManager::AddService(int32_t id, UDPServiceConfiguration conf){
 
 void UDPServiceManager::ClearAllServices(void){
     // stop management thread
-    terminate = true;
-    event.Notify();
-    if(managementThread.joinable()){
-        managementThread.join();
+    m_terminate = true;
+    m_event.Notify();
+    if(m_managementThread.joinable()){
+        m_managementThread.join();
     }
-    terminate = false;
-    event.Clear();
-    threadStarted = false;
+    m_terminate = false;
+    m_event.Clear();
+    m_threadStarted = false;
 
-    // destroy all services
-    for(auto&& s : services){
-        s.service->Destroy();
-        delete s.service;
+    // destroy all m_services
+    for(auto&& s : m_services){
+        s.m_service->Destroy();
+        delete s.m_service;
     }
-    services.clear();
+    m_services.clear();
 }
 
 std::tuple<int32_t, int32_t> UDPServiceManager::SendTo(int32_t id, Address destination, uint8_t* bytes, int32_t size){
-    if(threadStarted){
-        threadStarted = false;
-        event.Notify();
+    if(m_threadStarted){
+        m_threadStarted = false;
+        m_event.Notify();
     }
     std::tuple<int32_t, int32_t> result(0, 0);
-    for(auto&& s : services){
-        if(id == s.id){
-            result = s.service->SendTo(destination, bytes, size);
+    for(auto&& s : m_services){
+        if(id == s.m_id){
+            result = s.m_service->SendTo(destination, bytes, size);
             break;
         }
     }
     return result;
 }
 
-std::tuple<Address, int32_t, int32_t> UDPServiceManager::ReceiveFrom(int32_t id, uint8_t *bytes, int32_t maxSize, std::vector<std::array<uint8_t,4>> multicastGroups){
-    if(threadStarted){
-        threadStarted = false;
-        event.Notify();
+std::tuple<Address, int32_t, int32_t> UDPServiceManager::ReceiveFrom(int32_t id, uint8_t* bytes, int32_t maxSize, std::vector<std::array<uint8_t,4>> multicastGroups){
+    if(m_threadStarted){
+        m_threadStarted = false;
+        m_event.Notify();
     }
     std::tuple<Address, int32_t, int32_t> result(Address(0, 0, 0, 0, 0), 0, 0);
-    for(auto&& s : services){
-        if(id == s.id){
-            result = s.service->ReceiveFrom(bytes, maxSize, multicastGroups);
+    for(auto&& s : m_services){
+        if(id == s.m_id){
+            result = s.m_service->ReceiveFrom(bytes, maxSize, multicastGroups);
             break;
         }
     }
@@ -1616,11 +1610,11 @@ std::tuple<Address, int32_t, int32_t> UDPServiceManager::ReceiveFrom(int32_t id,
 }
 
 void UDPServiceManager::ManagementThread(void){
-    event.Wait();
-    while(!terminate){
+    m_event.Wait();
+    while(!m_terminate){
         bool allBound = true;
-        for(auto&& s : services){
-            allBound &= s.service->AttemptToBind();
+        for(auto&& s : m_services){
+            allBound &= s.m_service->AttemptToBind();
         }
         if(allBound){
             GENERIC_TARGET_PRINT_INFO("All UDP sockets are ready for operation\n");
@@ -1628,10 +1622,6 @@ void UDPServiceManager::ManagementThread(void){
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-}
-
-TCPClientServiceConfiguration::TCPClientServiceConfiguration(){
-    Reset();
 }
 
 void TCPClientServiceConfiguration::Reset(void){
@@ -1658,65 +1648,61 @@ TCPClientService::TCPClientService(){
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
     pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
-    pthread_mutex_init(&mtxIO, &attr);
+    pthread_mutex_init(&m_mtxIO, &attr);
     pthread_mutexattr_destroy(&attr);
-    terminate = false;
-    isCreated = false;
-    isConnected = false;
-    latestErrorCode = 0;
 }
 
 TCPClientService::~TCPClientService(){
     Destroy();
-    pthread_mutex_destroy(&mtxIO);
+    pthread_mutex_destroy(&m_mtxIO);
 }
 
 bool TCPClientService::Create(TCPClientServiceConfiguration conf){
-    if(isCreated){
-        bool equalConf = (conf == activeConf);
+    if(m_isCreated){
+        bool equalConf = (conf == m_activeConf);
         if(!equalConf){
-            GENERIC_TARGET_PRINT_ERROR("Ambiguous TCP client socket configuration! The desired configuration is {{{}}} but this socket has already been configured with {{{}}}!\n", conf.ToString(), activeConf.ToString());
+            GENERIC_TARGET_PRINT_ERROR("Ambiguous TCP client socket configuration! The desired configuration is {{{}}} but this socket has already been configured with {{{}}}!\n", conf.ToString(), m_activeConf.ToString());
         }
         return equalConf;
     }
-    activeConf = conf;
-    managementThread = std::thread(&TCPClientService::ManagementThread, this);
+    m_activeConf = conf;
+    m_managementThread = std::thread(&TCPClientService::ManagementThread, this);
     struct sched_param param;
     param.sched_priority = std::clamp(21, sched_get_priority_min(SCHED_FIFO), sched_get_priority_max(SCHED_FIFO));
-    if(0 != pthread_setschedparam(managementThread.native_handle(), SCHED_FIFO, &param)){
+    if(0 != pthread_setschedparam(m_managementThread.native_handle(), SCHED_FIFO, &param)){
         GENERIC_TARGET_PRINT_WARNING("Failed to set thread priority 21 for TCP client service management thread!\n");
     }
-    isCreated = true;
+    m_isCreated = true;
     return true;
 }
 
 void TCPClientService::Destroy(void){
-    terminate = true;
+    m_terminate = true;
     Disconnect();
-    event.Notify();
-    if(managementThread.joinable()){
-        managementThread.join();
+    m_event.Notify();
+    if(m_managementThread.joinable()){
+        m_managementThread.join();
     }
-    terminate = false;
-    isCreated = false;
-    latestErrorCode = 0;
-    event.Clear();
-    activeConf.Reset();
-    commandedAddress.ip.fill(0);
-    commandedAddress.port = 0;
+    m_terminate = false;
+    m_isCreated = false;
+    m_latestErrorCode = 0;
+    m_event.Clear();
+    m_activeConf.Reset();
+    m_commandedAddress.ip.fill(0);
+    m_commandedAddress.port = 0;
 }
 
 std::tuple<int32_t, int32_t, bool> TCPClientService::Send(Address serverAddress, bool manageConnection, uint8_t* bytes, int32_t size){
-    const LockGuard lock(mtxIO);
+    const LockGuard lock(m_mtxIO);
     int32_t tx = -1;
-    int32_t code = latestErrorCode;
+    int32_t code = m_latestErrorCode;
     if(manageConnection && SetNewAddressCommand(serverAddress)){
-        event.Notify();
+        m_event.Notify();
     }
-    if(isConnected){
-        tcpSocket.ResetLastError();
-        tx = tcpSocket.Send(bytes, size);
-        latestErrorCode = code = tcpSocket.GetLastErrorCode();
+    if(m_isConnected && (size >= 0)){
+        m_tcpSocket.ResetLastError();
+        tx = m_tcpSocket.Send(bytes, size);
+        m_latestErrorCode = code = m_tcpSocket.GetLastErrorCode();
         bool connectionClosed = (tx < 0) && (
         #if defined(_WIN32)
             code == WSAECONNRESET ||
@@ -1732,24 +1718,24 @@ std::tuple<int32_t, int32_t, bool> TCPClientService::Send(Address serverAddress,
         #endif
         );
         if(connectionClosed){
-            isConnected = false;
-            event.Notify();
+            m_isConnected = false;
+            m_event.Notify();
         }
     }
-    return std::make_tuple(tx, code, isConnected);
+    return std::make_tuple(tx, code, m_isConnected);
 }
 
-std::tuple<int32_t, int32_t, bool> TCPClientService::Receive(Address serverAddress, bool manageConnection, uint8_t *bytes, int32_t maxSize){
-    const LockGuard lock(mtxIO);
+std::tuple<int32_t, int32_t, bool> TCPClientService::Receive(Address serverAddress, bool manageConnection, uint8_t* bytes, int32_t maxSize){
+    const LockGuard lock(m_mtxIO);
     int32_t rx = -1;
-    int32_t code = latestErrorCode;
+    int32_t code = m_latestErrorCode;
     if(manageConnection && SetNewAddressCommand(serverAddress)){
-        event.Notify();
+        m_event.Notify();
     }
-    if(isConnected){
-        tcpSocket.ResetLastError();
-        rx = tcpSocket.Receive(bytes, maxSize);
-        latestErrorCode = code = tcpSocket.GetLastErrorCode();
+    if(m_isConnected && (maxSize >= 0)){
+        m_tcpSocket.ResetLastError();
+        rx = m_tcpSocket.Receive(bytes, maxSize);
+        m_latestErrorCode = code = m_tcpSocket.GetLastErrorCode();
         bool connectionClosed = !rx || ((rx < 0) && (
         #if defined(_WIN32)
             code == WSAECONNRESET ||
@@ -1766,16 +1752,16 @@ std::tuple<int32_t, int32_t, bool> TCPClientService::Receive(Address serverAddre
         #endif
         ));
         if(connectionClosed){
-            isConnected = false;
-            event.Notify();
+            m_isConnected = false;
+            m_event.Notify();
         }
     }
-    return std::make_tuple(rx, code, isConnected);
+    return std::make_tuple(rx, code, m_isConnected);
 }
 
 bool TCPClientService::SetNewAddressCommand(Address serverAddress){
-    bool changed = !(commandedAddress == serverAddress);
-    commandedAddress = serverAddress;
+    bool changed = !(m_commandedAddress == serverAddress);
+    m_commandedAddress = serverAddress;
     return changed;
 }
 
@@ -1783,20 +1769,20 @@ void TCPClientService::ManagementThread(void){
     Address destination;
     bool destinationChanged = false;
     bool notConnected = true;
-    while(!terminate){
+    while(!m_terminate){
         // get commanded server address, check for local changes
         {
-            const LockGuard lock(mtxIO);
-            destinationChanged = !(destination == commandedAddress);
-            destination = commandedAddress;
-            notConnected = !isConnected;
+            const LockGuard lock(m_mtxIO);
+            destinationChanged = !(destination == m_commandedAddress);
+            destination = m_commandedAddress;
+            notConnected = !m_isConnected;
         }
 
         // manage connection
         if(notConnected || destinationChanged){
             Disconnect();
             if(IsConnectCommand(destination) && !Connect(destination, destinationChanged)){
-                if(!terminate){
+                if(!m_terminate){
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 }
                 continue;
@@ -1804,7 +1790,7 @@ void TCPClientService::ManagementThread(void){
         }
 
         // wait for next command
-        event.Wait();
+        m_event.Wait();
     }
     Disconnect();
 }
@@ -1815,164 +1801,158 @@ bool TCPClientService::IsConnectCommand(Address addr){
 
 bool TCPClientService::Connect(Address destination, bool destinationChanged){
     // open TCP socket
-    tcpSocket.ResetLastError();
-    if(!tcpSocket.Open()){
-        auto [errorCode, errorString] = tcpSocket.GetLastError();
-        if(errorCode != latestErrorCode){
-            GENERIC_TARGET_PRINT_ERROR("Failed to open TCP client socket {{{}}}! {}\n", activeConf.ToString(), errorString);
+    m_tcpSocket.ResetLastError();
+    if(!m_tcpSocket.Open()){
+        auto [errorCode, errorString] = m_tcpSocket.GetLastError();
+        if(errorCode != m_latestErrorCode){
+            GENERIC_TARGET_PRINT_ERROR("Failed to open TCP client socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
         }
-        latestErrorCode = errorCode;
+        m_latestErrorCode = errorCode;
         return false;
     }
 
     // reuse port
-    tcpSocket.ResetLastError();
-    if(tcpSocket.ReusePort(true) < 0){
-        auto [errorCode, errorString] = tcpSocket.GetLastError();
-        if(errorCode != latestErrorCode){
-            GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEPORT option for TCP client socket {{{}}}! {}\n", activeConf.ToString(), errorString);
+    m_tcpSocket.ResetLastError();
+    if(m_tcpSocket.ReusePort(true) < 0){
+        auto [errorCode, errorString] = m_tcpSocket.GetLastError();
+        if(errorCode != m_latestErrorCode){
+            GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEPORT option for TCP client socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
         }
-        latestErrorCode = errorCode;
-        tcpSocket.Close();
+        m_latestErrorCode = errorCode;
+        m_tcpSocket.Close();
         return false;
     }
 
     // reuse address
-    tcpSocket.ResetLastError();
-    if(tcpSocket.ReuseAddress(true) < 0){
-        auto [errorCode, errorString] = tcpSocket.GetLastError();
-        if(errorCode != latestErrorCode){
-            GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEADDR option for TCP client socket {{{}}}! {}\n", activeConf.ToString(), errorString);
+    m_tcpSocket.ResetLastError();
+    if(m_tcpSocket.ReuseAddress(true) < 0){
+        auto [errorCode, errorString] = m_tcpSocket.GetLastError();
+        if(errorCode != m_latestErrorCode){
+            GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEADDR option for TCP client socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
         }
-        latestErrorCode = errorCode;
-        tcpSocket.Close();
+        m_latestErrorCode = errorCode;
+        m_tcpSocket.Close();
         return false;
     }
 
     // set socket priority
-    tcpSocket.ResetLastError();
-    if(tcpSocket.SetSocketPriority(activeConf.socketPriority) < 0){
-        auto [errorCode, errorString] = tcpSocket.GetLastError();
-        if(errorCode != latestErrorCode){
-            GENERIC_TARGET_PRINT_ERROR("Failed to set SO_PRIORITY option for TCP client socket {{{}}}! {}\n", activeConf.ToString(), errorString);
+    m_tcpSocket.ResetLastError();
+    if(m_tcpSocket.SetSocketPriority(m_activeConf.socketPriority) < 0){
+        auto [errorCode, errorString] = m_tcpSocket.GetLastError();
+        if(errorCode != m_latestErrorCode){
+            GENERIC_TARGET_PRINT_ERROR("Failed to set SO_PRIORITY option for TCP client socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
         }
-        latestErrorCode = errorCode;
-        tcpSocket.Close();
+        m_latestErrorCode = errorCode;
+        m_tcpSocket.Close();
         return false;
     }
 
     // bind port
-    uint16_t port = static_cast<uint16_t>(std::clamp(activeConf.port, 0, 65535));
-    tcpSocket.ResetLastError();
-    if(tcpSocket.Bind(port) < 0){
-        auto [errorCode, errorString] = tcpSocket.GetLastError();
-        if(errorCode != latestErrorCode){
-            GENERIC_TARGET_PRINT_ERROR("Failed to bind port for TCP client socket {{{}}}! {}\n", activeConf.ToString(), errorString);
+    uint16_t port = static_cast<uint16_t>(std::clamp(m_activeConf.port, 0, 65535));
+    m_tcpSocket.ResetLastError();
+    if(m_tcpSocket.Bind(port) < 0){
+        auto [errorCode, errorString] = m_tcpSocket.GetLastError();
+        if(errorCode != m_latestErrorCode){
+            GENERIC_TARGET_PRINT_ERROR("Failed to bind port for TCP client socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
         }
-        latestErrorCode = errorCode;
-        tcpSocket.Close();
+        m_latestErrorCode = errorCode;
+        m_tcpSocket.Close();
         return false;
     }
 
     // bind to device
-    tcpSocket.ResetLastError();
-    if(tcpSocket.BindToDevice(activeConf.deviceName) < 0){
-        auto [errorCode, errorString] = tcpSocket.GetLastError();
-        if(errorCode != latestErrorCode){
-            GENERIC_TARGET_PRINT_ERROR("Failed to bind TCP client socket to a device {{{}}}! {}\n", activeConf.ToString(), errorString);
+    m_tcpSocket.ResetLastError();
+    if(m_tcpSocket.BindToDevice(m_activeConf.deviceName) < 0){
+        auto [errorCode, errorString] = m_tcpSocket.GetLastError();
+        if(errorCode != m_latestErrorCode){
+            GENERIC_TARGET_PRINT_ERROR("Failed to bind TCP client socket to a device {{{}}}! {}\n", m_activeConf.ToString(), errorString);
         }
-        latestErrorCode = errorCode;
-        tcpSocket.Close();
+        m_latestErrorCode = errorCode;
+        m_tcpSocket.Close();
         return false;
     }
 
     // connect to server
-    tcpSocket.ResetLastError();
-    if(tcpSocket.Connect(destination) < 0){
-        auto [errorCode, errorString] = tcpSocket.GetLastError();
-        if(errorCode != latestErrorCode || destinationChanged){
-            GENERIC_TARGET_PRINT_ERROR("Failed to connect TCP client socket {{{}}} to {}! {}\n", activeConf.ToString(), destination.ToString(), errorString);
+    m_tcpSocket.ResetLastError();
+    if(m_tcpSocket.Connect(destination) < 0){
+        auto [errorCode, errorString] = m_tcpSocket.GetLastError();
+        if(errorCode != m_latestErrorCode || destinationChanged){
+            GENERIC_TARGET_PRINT_ERROR("Failed to connect TCP client socket {{{}}} to {}! {}\n", m_activeConf.ToString(), destination.ToString(), errorString);
         }
-        latestErrorCode = errorCode;
+        m_latestErrorCode = errorCode;
         return false;
     }
 
     // enable non-blocking mode
-    tcpSocket.ResetLastError();
-    if(!tcpSocket.EnableNonBlockingMode()){
-        auto [errorCode, errorString] = tcpSocket.GetLastError();
-        if(errorCode != latestErrorCode){
-            GENERIC_TARGET_PRINT_ERROR("Failed to enable non-blocking mode for TCP client socket {{{}}}! {}\n", activeConf.ToString(), errorString);
+    m_tcpSocket.ResetLastError();
+    if(!m_tcpSocket.EnableNonBlockingMode()){
+        auto [errorCode, errorString] = m_tcpSocket.GetLastError();
+        if(errorCode != m_latestErrorCode){
+            GENERIC_TARGET_PRINT_ERROR("Failed to enable non-blocking mode for TCP client socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
         }
-        latestErrorCode = errorCode;
-        tcpSocket.Close();
+        m_latestErrorCode = errorCode;
+        m_tcpSocket.Close();
         return false;
     }
 
     // success
-    GENERIC_TARGET_PRINT_INFO("TCP client socket {{{}}} connected to {}\n", activeConf.ToString(), destination.ToString());
+    GENERIC_TARGET_PRINT_INFO("TCP client socket {{{}}} connected to {}\n", m_activeConf.ToString(), destination.ToString());
     {
-        const LockGuard lock(mtxIO);
-        isConnected = true;
+        const LockGuard lock(m_mtxIO);
+        m_isConnected = true;
     }
     return true;
 }
 
 void TCPClientService::Disconnect(void){
-    const LockGuard lock(mtxIO);
-    if(tcpSocket.IsOpen()){
-        tcpSocket.Close();
+    const LockGuard lock(m_mtxIO);
+    if(m_tcpSocket.IsOpen()){
+        m_tcpSocket.Close();
     }
-    isConnected = false;
-}
-
-TCPClientServiceManager::TCPClientServiceManager(){}
-
-TCPClientServiceManager::~TCPClientServiceManager(){
-    ClearAllServices();
+    m_isConnected = false;
 }
 
 bool TCPClientServiceManager::AddService(int32_t id, TCPClientServiceConfiguration conf){
     bool success = false;
     bool found = false;
-    for(auto&& s : services){
-        if((found = (id == s.id))){
-            success = s.service->Create(conf);
+    for(auto&& s : m_services){
+        if((found = (id == s.m_id))){
+            success = s.m_service->Create(conf);
             break;
         }
     }
     if(!found){
-        entry e { .id = id, .service = new TCPClientService() };
-        success = e.service->Create(conf);
-        services.push_back(e);
+        entry e { .m_id = id, .m_service = new TCPClientService() };
+        success = e.m_service->Create(conf);
+        m_services.push_back(e);
     }
     return success;
 }
 
 void TCPClientServiceManager::ClearAllServices(void){
-    for(auto&& s : services){
-        s.service->Destroy();
-        delete s.service;
+    for(auto&& s : m_services){
+        s.m_service->Destroy();
+        delete s.m_service;
     }
-    services.clear();
+    m_services.clear();
 }
 
 std::tuple<int32_t, int32_t, bool> TCPClientServiceManager::Send(int32_t id, Address serverAddress, bool manageConnection, uint8_t* bytes, int32_t size){
     std::tuple<int32_t, int32_t, bool> result(0, 0, false);
-    for(auto&& s : services){
-        if(id == s.id){
-            result = s.service->Send(serverAddress, manageConnection, bytes, size);
+    for(auto&& s : m_services){
+        if(id == s.m_id){
+            result = s.m_service->Send(serverAddress, manageConnection, bytes, size);
             break;
         }
     }
     return result;
 }
 
-std::tuple<int32_t, int32_t, bool> TCPClientServiceManager::Receive(int32_t id, Address serverAddress, bool manageConnection, uint8_t *bytes, int32_t maxSize){
+std::tuple<int32_t, int32_t, bool> TCPClientServiceManager::Receive(int32_t id, Address serverAddress, bool manageConnection, uint8_t* bytes, int32_t maxSize){
     std::tuple<int32_t, int32_t, bool> result(0, 0, false);
-    for(auto&& s : services){
-        if(id == s.id){
-            result = s.service->Receive(serverAddress, manageConnection, bytes, maxSize);
+    for(auto&& s : m_services){
+        if(id == s.m_id){
+            result = s.m_service->Receive(serverAddress, manageConnection, bytes, maxSize);
             break;
         }
     }

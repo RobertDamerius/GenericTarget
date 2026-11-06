@@ -10,17 +10,22 @@ namespace gt {
 
 
 /**
- * @brief The baserate scheduler runs a realtime-priority master thread and manages all worker threads of the model.
+ * @brief Runs a realtime-priority master thread and manages all worker threads of the model.
  */
 class BaseRateScheduler {
     public:
         /**
-         * @brief Construct a new base-rate scheduler object.
+         * @brief Construct a base-rate scheduler.
          */
         BaseRateScheduler();
 
         /**
-         * @brief Start or restart the base-rate scheduler.
+         * @brief Destroy the base-rate scheduler.
+         */
+        ~BaseRateScheduler(){ Stop(); }
+
+        /**
+         * @brief Start the base-rate scheduler.
          * @return True if success, false otherwise.
          */
         bool Start(void);
@@ -36,31 +41,31 @@ class BaseRateScheduler {
          * @note Call only after the first model task tick and while the scheduler is running; calls before the first tick
          * or concurrent with scheduler start/restart may race with initialization of the start timepoint.
          */
-        double GetModelExecutionTime(void){ return std::chrono::duration<double>(std::chrono::steady_clock::now() - timeOfStart).count(); }
+        double GetModelExecutionTime(void){ return std::chrono::duration<double>(std::chrono::steady_clock::now() - m_timeOfStart).count(); }
 
         /**
          * @brief Get the number of CPU overloads that have been occurred since the start of the base-rate scheduler.
          * @return The number of CPU overloads.
          */
-        uint64_t GetNumCPUOverloads(void){ return masterClock.GetNumCPUOverloads(); }
+        uint64_t GetNumCPUOverloads(void){ return m_masterClock.GetNumCPUOverloads(); }
 
         /**
          * @brief Get the number of lost ticks that have been occurred since the start of the base-rate scheduler.
          * @return The number of lost ticks.
          */
-        uint64_t GetNumLostTicks(void){ return masterClock.GetNumLostTicks(); }
+        uint64_t GetNumLostTicks(void){ return m_masterClock.GetNumLostTicks(); }
 
         /**
          * @brief Get the latest task execution time for a task.
          * @param[in] taskID The ID of the task from which to obtain the latest task execution time.
-         * @return The latest task execution time in seconds or a negative value if the taskID is invalid.
+         * @return The latest task execution time in seconds or -1.0 if the taskID is invalid.
          * @details The task execution time is the computation time required by the step function of the model.
          * @note Call only while the scheduler is running; calls concurrent with start or stop may race with task-vector changes.
          */
         double GetTaskExecutionTime(const uint32_t taskID){
-            if(taskID >= (uint32_t)tasks.size())
+            if(taskID >= static_cast<uint32_t>(m_tasks.size()))
                 return -1.0;
-            return tasks[taskID]->GetTaskExecutionTime();
+            return m_tasks[taskID]->GetTaskExecutionTime();
         }
 
         /**
@@ -70,17 +75,18 @@ class BaseRateScheduler {
          * @note Call only while the scheduler is running; calls concurrent with start or stop may race with task-vector changes.
          */
         uint64_t GetNumTaskOverloads(const uint32_t taskID){
-            if(taskID >= (uint32_t)tasks.size())
+            if(taskID >= static_cast<uint32_t>(m_tasks.size()))
                 return 0;
-            return tasks[taskID]->GetNumTaskOverloads();
+            return m_tasks[taskID]->GetNumTaskOverloads();
         }
 
     private:
-        std::thread masterThread;                                         // Thread object for the master thread.
-        std::atomic<bool> terminate;                                      // Termination flag: true if master thread is to be terminated, false otherwise.
-        std::vector<PeriodicTask*> tasks;                                 // A list of periodic worker tasks.
-        PeriodicTimer masterClock;                                        // A periodic timer that represents the master clock.
-        std::chrono::time_point<std::chrono::steady_clock> timeOfStart;   // Timepoint of the first master threads tick.
+        std::thread m_masterThread;                                         // Thread object for the master thread.
+        std::atomic<bool> m_terminate{false};                               // Termination flag: true if master thread is to be terminated, false otherwise.
+        bool m_started{false};                                              // Start flag: true if started, false otherwise.
+        std::vector<PeriodicTask*> m_tasks;                                 // A list of periodic worker tasks.
+        PeriodicTimer m_masterClock;                                        // A periodic timer that represents the master clock.
+        std::chrono::time_point<std::chrono::steady_clock> m_timeOfStart;   // Timepoint of the first master threads tick.
 
         /**
          * @brief Internal master thread function.

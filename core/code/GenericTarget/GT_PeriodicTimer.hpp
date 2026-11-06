@@ -15,12 +15,12 @@ class PeriodicTimer {
         /**
          * @brief Create a new periodic timer object.
          */
-        PeriodicTimer();
+        PeriodicTimer() = default;
 
         /**
          * @brief Destroy the periodic timer object.
          */
-        ~PeriodicTimer();
+        ~PeriodicTimer(){ Cancel(); Stop();}
 
         /* Do not allow copying */
         PeriodicTimer(const PeriodicTimer&) = delete;
@@ -55,22 +55,22 @@ class PeriodicTimer {
          * @brief Get the number of CPU overloads that have been occurred since the creation of this timer.
          * @return The number of CPU overloads.
          */
-        uint64_t GetNumCPUOverloads(void){ return numCPUOverloads; }
+        uint64_t GetNumCPUOverloads(void){ return m_numCPUOverloads; }
 
         /**
          * @brief Get the number of lost ticks that have been occurred since the creation of this timer.
          * @return The number of lost ticks.
          */
-        uint64_t GetNumLostTicks(void){ return numLostTicks; }
+        uint64_t GetNumLostTicks(void){ return m_numLostTicks; }
 
     private:
-        int epollFd{-1};                            // File descriptor for epoll.
-        int cancelFd{-1};                           // File descriptor for cancel events.
-        std::atomic<uint64_t> numCPUOverloads{0};   // Number of CPU overloads that have been occurred since @ref Create. If the timer is expired by more than one tick, this value is incremented by one.
-        std::atomic<uint64_t> numLostTicks{0};      // Number of lost ticks from the timer since @ref Create. If the timer is expired by more than one tick, this value is incremented by the number of additional expired ticks (lost ticks).
-        std::atomic<int> timerFd{-1};               // File descriptor of internal timer object.
-        std::atomic<bool> isRunning{false};         // True if timer is running, false otherwise.
-        bool isStarted{false};                      // True while the timer's file descriptors are allocated.
+        int m_epollFd{-1};                            // File descriptor for epoll.
+        int m_cancelFd{-1};                           // File descriptor for cancel events.
+        std::atomic<uint64_t> m_numCPUOverloads{0};   // Number of CPU overloads that have been occurred since @ref Create. If the timer is expired by more than one tick, this value is incremented by one.
+        std::atomic<uint64_t> m_numLostTicks{0};      // Number of lost ticks from the timer since @ref Create. If the timer is expired by more than one tick, this value is incremented by the number of additional expired ticks (lost ticks).
+        std::atomic<int> m_timerFd{-1};               // File descriptor of internal timer object.
+        std::atomic<bool> m_isRunning{false};         // True if timer is running, false otherwise.
+        bool m_isStarted{false};                      // True while the timer's file descriptors are allocated.
 };
 
 

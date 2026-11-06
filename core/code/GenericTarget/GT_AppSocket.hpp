@@ -8,15 +8,10 @@ namespace gt {
 
 
 /**
- * @brief This class represents the application socket for the target application.
+ * @brief Represents the application socket for the target application.
  */
 class AppSocket {
     public:
-        /**
-         * @brief Create a application socket object.
-         */
-        AppSocket();
-
         /**
          * @brief Destroy the application socket object.
          */
@@ -35,7 +30,7 @@ class AppSocket {
         void Close(void);
 
     private:
-        int lock_fd;
+        int m_fd{-1};   // File descriptor for the socket.
 };
 
 

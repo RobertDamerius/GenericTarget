@@ -18,14 +18,11 @@ void GT_DriverReadThermalZonesStep(uint32_t maxNumThermalZones, double* temperat
         temperatures[n] = std::numeric_limits<double>::quiet_NaN();
         std::ifstream tempFile("/sys/class/thermal/thermal_zone" + std::to_string(n) + "/temp");
         if(tempFile.good()){
-            int32_t temp_millidegree_celsius;
-            std::string line;
-            std::getline(tempFile, line);
-            std::stringstream ss(line);
-            ss >> temp_millidegree_celsius;
-            temperatures[n] = static_cast<double>(temp_millidegree_celsius) * 0.001;
+            int32_t temp_millidegree_celsius{};
+            if(tempFile >> temp_millidegree_celsius){
+                temperatures[n] = static_cast<double>(temp_millidegree_celsius) * 0.001;
+            }
         }
-        tempFile.close();
     }
     #endif
 }

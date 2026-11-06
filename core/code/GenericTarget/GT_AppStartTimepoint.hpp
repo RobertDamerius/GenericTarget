@@ -25,12 +25,12 @@ struct TimeInfo {
 
 
 /**
- * @brief This class stores the application start timepoint (system clock). The timepoint is set when this class is constructed.
+ * @brief Stores the application start timepoint (system clock). The timepoint is set during construction.
  */
 class AppStartTimepoint {
     public:
         /**
-         * @brief Construct a new app start timepoint object and set the timepoint based on the current time.
+         * @brief Construct a new app start timepoint and set the timepoint based on the current time.
          */
         AppStartTimepoint();
 
@@ -38,17 +38,17 @@ class AppStartTimepoint {
          * @brief Get the start timepoint (UTC).
          * @return Structure containing the start timepoint (UTC).
          */
-        TimeInfo GetUTC(void){ return startTimepoint; }
+        TimeInfo GetUTC(void){ return m_startTimepoint; }
 
         /**
          * @brief Get a string representing the start timepoint (UTC).
          * @return String representing the start timepoint (UTC), format: YYYYMMDD_hhmmssmmm.
          */
-        std::string GetUTCString(void){ return strStartTimepoint; }
+        std::string GetUTCString(void){ return m_strStartTimepoint; }
 
     private:
-        TimeInfo startTimepoint;         // UTC time indicating the timepoint when this class has been constructed.
-        std::string strStartTimepoint;   // String representing the @ref upTime, format: YYYYMMDD_hhmmssmmm.
+        TimeInfo m_startTimepoint;         // UTC time indicating the timepoint when this class has been constructed.
+        std::string m_strStartTimepoint;   // String representing the @ref upTime, format: YYYYMMDD_hhmmssmmm.
 };
 
 

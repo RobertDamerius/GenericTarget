@@ -2,22 +2,12 @@
 using namespace gt;
 
 
-PeriodicTimer::PeriodicTimer(){
-    numCPUOverloads = 0;
-    numLostTicks = 0;
-    isRunning = false;
-}
-
-PeriodicTimer::~PeriodicTimer(){
-    Stop();
-}
-
 bool PeriodicTimer::Start(double sampletime){
-    if(isStarted){
+    if(m_isStarted){
         GENERIC_TARGET_PRINT_ERROR("Cannot start timer because it has already been started!\n");
         return false;
     }
-    if(isRunning){
+    if(m_isRunning){
         GENERIC_TARGET_PRINT_ERROR("Cannot start timer because it is already running!\n");
         return false;
     }
@@ -97,22 +87,22 @@ bool PeriodicTimer::Start(double sampletime){
         return false;
     }
 
-    epollFd = localEpollFd;
-    cancelFd = localCancelFd;
-    timerFd.store(localTimerFd);
-    numCPUOverloads.store(0);
-    numLostTicks.store(0);
-    isStarted = true;
-    isRunning.store(true);
+    m_epollFd = localEpollFd;
+    m_cancelFd = localCancelFd;
+    m_timerFd.store(localTimerFd);
+    m_numCPUOverloads.store(0);
+    m_numLostTicks.store(0);
+    m_isStarted = true;
+    m_isRunning.store(true);
     return true;
 }
 
 void PeriodicTimer::Cancel(void){
-    if(isRunning.exchange(false)){
+    if(m_isRunning.exchange(false)){
         uint64_t wakeUpSignal = 1;
         ssize_t written;
         do {
-            written = write(cancelFd, &wakeUpSignal, sizeof(wakeUpSignal));
+            written = write(m_cancelFd, &wakeUpSignal, sizeof(wakeUpSignal));
         } while(written < 0 && errno == EINTR);
         if(written < 0 && errno != EAGAIN){
             const int error = errno;
@@ -122,10 +112,10 @@ void PeriodicTimer::Cancel(void){
 }
 
 void PeriodicTimer::Stop(void){
-    if(!isStarted) return;
+    if(!m_isStarted) return;
 
     // disarm the timer
-    int fd = timerFd.load();
+    int fd = m_timerFd.load();
     if(fd >= 0){
         struct itimerspec disarmed{};
         if(timerfd_settime(fd, 0, &disarmed, nullptr) < 0){
@@ -136,7 +126,7 @@ void PeriodicTimer::Stop(void){
     // clear any pending cancellation event, then close the per-run file descriptors
     uint64_t discard;
     for(int attempt = 0; attempt < 3; ++attempt){
-        ssize_t r = read(cancelFd, &discard, sizeof(discard));
+        ssize_t r = read(m_cancelFd, &discard, sizeof(discard));
         if(r == sizeof(discard) || (r < 0 && errno == EAGAIN)){
             break;
         }
@@ -149,36 +139,36 @@ void PeriodicTimer::Stop(void){
 
     // close timer, cancel event, and epoll file descriptors
     if(fd >= 0){
-        epoll_ctl(epollFd, EPOLL_CTL_DEL, fd, nullptr);
+        epoll_ctl(m_epollFd, EPOLL_CTL_DEL, fd, nullptr);
         close(fd);
-        timerFd.store(-1);
+        m_timerFd.store(-1);
     }
-    if(cancelFd >= 0){
-        epoll_ctl(epollFd, EPOLL_CTL_DEL, cancelFd, nullptr);
-        close(cancelFd);
-        cancelFd = -1;
+    if(m_cancelFd >= 0){
+        epoll_ctl(m_epollFd, EPOLL_CTL_DEL, m_cancelFd, nullptr);
+        close(m_cancelFd);
+        m_cancelFd = -1;
     }
-    if(epollFd >= 0){
-        close(epollFd);
-        epollFd = -1;
+    if(m_epollFd >= 0){
+        close(m_epollFd);
+        m_epollFd = -1;
     }
-    isStarted = false;
+    m_isStarted = false;
 }
 
 int32_t PeriodicTimer::WaitForTick(void){
-    if(!isRunning) return 0;
+    if(!m_isRunning) return 0;
 
-    int localTimerFd = timerFd.load();
+    int localTimerFd = m_timerFd.load();
     if(localTimerFd < 0){
         GENERIC_TARGET_PRINT_ERROR("Timer file descriptor is unavailable while waiting for a tick\n");
         return -1;
     }
 
     struct epoll_event events[2];
-    while(isRunning){
+    while(m_isRunning){
         // block here until either the timer ticks OR Cancel() writes to cancelFd
-        int nfds = epoll_wait(epollFd, events, 2, -1);
-        if(!isRunning) return 0;
+        int nfds = epoll_wait(m_epollFd, events, 2, -1);
+        if(!m_isRunning) return 0;
 
         if(nfds < 0){
             if(errno == EINTR) continue; // interrupted by system signal, retry
@@ -188,7 +178,7 @@ int32_t PeriodicTimer::WaitForTick(void){
         }
 
         for(int i = 0; i < nfds; ++i){
-            if(events[i].data.fd == cancelFd){
+            if(events[i].data.fd == m_cancelFd){
                 return 0;
             }
             if(events[i].data.fd == localTimerFd){
@@ -196,13 +186,13 @@ int32_t PeriodicTimer::WaitForTick(void){
                 ssize_t s = read(localTimerFd, &exp, sizeof(exp));
                 if(s == sizeof(exp)){
                     if(exp > 1){
-                        ++numCPUOverloads;
-                        numLostTicks += (exp - 1);
+                        ++m_numCPUOverloads;
+                        m_numLostTicks += (exp - 1);
                     }
-                    if(!isRunning) return 0;
+                    if(!m_isRunning) return 0;
                     return 1; // tick successful
                 }
-                if(!isRunning) return 0;
+                if(!m_isRunning) return 0;
                 if(s < 0 && errno == EINTR) continue;
                 const int error = (s < 0) ? errno : EIO;
                 GENERIC_TARGET_PRINT_ERROR("Failed to read timer event: {}\n", std::strerror(error));

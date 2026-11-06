@@ -4,17 +4,17 @@ using namespace gt;
 
 
 AppStartTimepoint GenericTarget::appStartTimepoint;
-AppArguments GenericTarget::appArguments;
+AppArguments GenericTarget::appArguments{};
 std::filesystem::path GenericTarget::absoluteApplicationPath;
-sem_t GenericTarget::semaphoreTerminate;
-std::atomic<bool> GenericTarget::semaphoreInitialized = ATOMIC_VAR_INIT(false);
-AppSocket GenericTarget::appSocket;
-BaseRateScheduler GenericTarget::scheduler;
+sem_t GenericTarget::m_semaphoreTerminate;
+std::atomic<bool> GenericTarget::m_semaphoreInitialized = ATOMIC_VAR_INIT(false);
+AppSocket GenericTarget::m_appSocket{};
+BaseRateScheduler GenericTarget::m_scheduler{};
 
 
 void GenericTarget::ShouldTerminate(void){
-    if(semaphoreInitialized){
-        sem_post(&semaphoreTerminate);
+    if(m_semaphoreInitialized){
+        sem_post(&m_semaphoreTerminate);
     }
 }
 
@@ -30,40 +30,35 @@ int GenericTarget::Run(int argc, char** argv){
     // set file mode creation mask (all users, groups, etc. are allowed to read/write data that is created by this application)
     umask(0000);
 
-    PrintHeader();
-    int result = 0;
-
     // initialize semaphore for termination
-    if(sem_init(&semaphoreTerminate, 0, 0) < 0){
+    if(sem_init(&m_semaphoreTerminate, 0, 0) < 0){
+        PrintHeader();
         GENERIC_TARGET_PRINT_ERROR("Failed to initialize semaphore!\n");
-        result = -1;
+        PrintFooter();
+        return -1;
     }
-    else{
-        semaphoreInitialized = true;
+    m_semaphoreInitialized = true;
 
-        if(Initialize(argc, argv)){
-            // wait for termination
-            while(sem_wait(&semaphoreTerminate) == -1){
-                if(errno != EINTR){
-                    GENERIC_TARGET_PRINT_ERROR("Failed to wait for termination signal: {}\n", std::strerror(errno));
-                    result = -1;
-                    break;
-                }
+    // run the main application
+    int result = -1;
+    PrintHeader();
+    if(Initialize(argc, argv)){
+        result = 0;
+        while(sem_wait(&m_semaphoreTerminate) == -1){ // wait for termination
+            if(errno != EINTR){
+                GENERIC_TARGET_PRINT_ERROR("Failed to wait for termination signal: {}\n", std::strerror(errno));
+                result = -1;
+                break;
             }
-            if(result == 0){
-                GENERIC_TARGET_PRINT_INFO("Received termination flag, application will be closed\n");
-            }
-            Terminate();
         }
-        else{
-            result = -1;
-        }
+        Terminate();
+    }
 
-        semaphoreInitialized = false;
-        if(sem_destroy(&semaphoreTerminate) < 0){
-            GENERIC_TARGET_PRINT_ERROR("Failed to destroy termination semaphore: {}\n", std::strerror(errno));
-            result = -1;
-        }
+    // destroy semaphore for termination
+    m_semaphoreInitialized = false;
+    if(sem_destroy(&m_semaphoreTerminate) < 0){
+        GENERIC_TARGET_PRINT_ERROR("Failed to destroy termination semaphore: {}\n", std::strerror(errno));
+        result = -1;
     }
 
     PrintFooter();
@@ -71,56 +66,52 @@ int GenericTarget::Run(int argc, char** argv){
 }
 
 bool GenericTarget::Initialize(int argc, char** argv){
-    // set handlers for signals from OS
     SetSignalHandlers();
 
     // get absolute path to application
     try {
         absoluteApplicationPath = std::filesystem::canonical("/proc/self/exe");
         absoluteApplicationPath.remove_filename();
-    }
-    catch(...){
+    } catch(...) {
         GENERIC_TARGET_PRINT_ERROR("Failed to get absolute path to application!\n");
         return false;
     }
 
-    // parse arguments
+    // parse command line arguments
     appArguments.Parse(argc, argv);
-
-    // print application info
     PrintInfo();
 
-    // check clock
-    if(!std::chrono::steady_clock::is_steady){
-        GENERIC_TARGET_PRINT_WARNING("Clock is not steady!\n");
-    }
-
-    // make sure this application runs only once
-    if(!appSocket.Open(SimulinkInterface::targetSocketName)){
+    // open application socket to ensure only one instance of the application is running
+    if(!m_appSocket.Open(SimulinkInterface::targetSocketName)){
         return false;
     }
 
-    // initialize model
+    // initialize the model
     GENERIC_TARGET_PRINT_INFO("Initializing model\n");
     SimulinkInterface::Initialize();
 
-    // start scheduler
+    // start the scheduler
     GENERIC_TARGET_PRINT_INFO("Starting scheduler\n");
-    if(!scheduler.Start()){
+    if(!m_scheduler.Start()){
         GENERIC_TARGET_PRINT_ERROR("Failed to start scheduler!\n");
         SimulinkInterface::Terminate();
-        appSocket.Close();
+        m_appSocket.Close();
         return false;
     }
     return true;
 }
 
 void GenericTarget::Terminate(void){
+    // stop the scheduler
     GENERIC_TARGET_PRINT_INFO("Stopping scheduler\n");
-    scheduler.Stop();
+    m_scheduler.Stop();
+
+    // terminate the model
     GENERIC_TARGET_PRINT_INFO("Terminating model\n");
     SimulinkInterface::Terminate();
-    appSocket.Close();
+
+    // close application socket
+    m_appSocket.Close();
 }
 
 void GenericTarget::SetSignalHandlers(void){
@@ -157,19 +148,40 @@ void GenericTarget::TerminateHandler(void){
     void* array[backtraceSize];
     int size(backtrace(array, backtraceSize));
     char** messages(backtrace_symbols(array, size));
-    GENERIC_TARGET_PRINT_ERROR("Backtrace:\n");
+    GENERIC_TARGET_PRINT_RAW("Backtrace:\n");
     for(int i = 0; (i < size) && (messages != nullptr); ++i){
-        GENERIC_TARGET_PRINT_ERROR("[{}]: {}\n", i, messages[i]);
+        GENERIC_TARGET_PRINT_RAW("[{}]: {}\n", i, messages[i]);
     }
-    GENERIC_TARGET_PRINT_ERROR("If DEBUG mode was enabled for the exectuable, convert a printed address to a corresponding code line by executing the command \"addr2line -e ./PRODUCT_NAME +0xABCDEF\" in the binary directory of the application, where 0xABCDEF is the printed address and PRODUCT_NAME is the name of the executable (default: GenericTarget).\n");
+    GENERIC_TARGET_PRINT_RAW("If DEBUG mode was enabled for the exectuable, convert a printed address to a corresponding code line by executing the command \"addr2line -e ./PRODUCT_NAME +0xABCDEF\" in the binary directory of the application, where 0xABCDEF is the printed address and PRODUCT_NAME is the name of the executable (default: GenericTarget).\n");
     free(messages);
     std::abort();
 }
 
 void GenericTarget::PrintInfo(void){
     TimeInfo upTime = appStartTimepoint.GetUTC();
-    PrintOperatingSystemInfo();
-    PrintNetworkInfo();
+    struct utsname info{};
+    if(uname(&info) < 0){
+        GENERIC_TARGET_PRINT_WARNING("Failed to get operating system information: {}\n", std::strerror(errno));
+        return;
+    }
+    GENERIC_TARGET_PRINT_RAW("sysname:                  {}\n", info.sysname);
+    GENERIC_TARGET_PRINT_RAW("nodename:                 {}\n", info.nodename);
+    GENERIC_TARGET_PRINT_RAW("release:                  {}\n", info.release);
+    GENERIC_TARGET_PRINT_RAW("version:                  {}\n", info.version);
+    GENERIC_TARGET_PRINT_RAW("machine:                  {}\n", info.machine);
+    #ifdef __USE_GNU
+    GENERIC_TARGET_PRINT_RAW("domainname:               {}\n", info.domainname);
+    #endif
+    struct if_nameindex *if_ni, *i;
+    if_ni = if_nameindex();
+    if(if_ni){
+        GENERIC_TARGET_PRINT_RAW("network interfaces:       ");
+        for(i = if_ni; !(i->if_index == 0 && i->if_name == nullptr); i++){
+            GENERIC_TARGET_PRINT_RAW("[{}]", i->if_name);
+        }
+        GENERIC_TARGET_PRINT_RAW("\n");
+        if_freenameindex(if_ni);
+    }
     GENERIC_TARGET_PRINT_RAW("\n");
     GENERIC_TARGET_PRINT_RAW("Generic Target Version:   {}\n", gt::version);
     GENERIC_TARGET_PRINT_RAW("Compiler Version:         {}\n", gt::compilerVersion);
@@ -198,43 +210,10 @@ void GenericTarget::PrintInfo(void){
 
 void GenericTarget::PrintHeader(void){
     auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
-    GENERIC_TARGET_PRINT_RAW("==========================================================================\n");
-    GENERIC_TARGET_PRINT_RAW("[{:%Y-%m-%d %H:%M:%S} UTC] >>> TARGET START (PID: {})\n", utc_time, getpid());
-    GENERIC_TARGET_PRINT_RAW("==========================================================================\n\n");
+    GENERIC_TARGET_PRINT_RAW("==========================================================================\n[{:%Y-%m-%d %H:%M:%S} UTC] >>> TARGET START (PID: {})\n==========================================================================\n\n", utc_time, getpid());
 }
 
 void GenericTarget::PrintFooter(void){
     auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
-    GENERIC_TARGET_PRINT_RAW("--------------------------------------------------------------------------\n");
-    GENERIC_TARGET_PRINT_RAW("[{:%Y-%m-%d %H:%M:%S} UTC] <<< TARGET STOP (PID: {})\n", utc_time, getpid());
-    GENERIC_TARGET_PRINT_RAW("==========================================================================\n");
-}
-
-void GenericTarget::PrintOperatingSystemInfo(void){
-    struct utsname info{};
-    if(uname(&info) < 0){
-        GENERIC_TARGET_PRINT_WARNING("Failed to get operating system information: {}\n", std::strerror(errno));
-        return;
-    }
-    GENERIC_TARGET_PRINT_RAW("sysname:                  {}\n", info.sysname);
-    GENERIC_TARGET_PRINT_RAW("nodename:                 {}\n", info.nodename);
-    GENERIC_TARGET_PRINT_RAW("release:                  {}\n", info.release);
-    GENERIC_TARGET_PRINT_RAW("version:                  {}\n", info.version);
-    GENERIC_TARGET_PRINT_RAW("machine:                  {}\n", info.machine);
-    #ifdef __USE_GNU
-    GENERIC_TARGET_PRINT_RAW("domainname:               {}\n", info.domainname);
-    #endif
-}
-
-void GenericTarget::PrintNetworkInfo(void){
-    struct if_nameindex *if_ni, *i;
-    if_ni = if_nameindex();
-    if(if_ni){
-        GENERIC_TARGET_PRINT_RAW("network interfaces:       ");
-        for(i = if_ni; !(i->if_index == 0 && i->if_name == nullptr); i++){
-            GENERIC_TARGET_PRINT_RAW("[{}]", i->if_name);
-        }
-        GENERIC_TARGET_PRINT_RAW("\n");
-        if_freenameindex(if_ni);
-    }
+    GENERIC_TARGET_PRINT_RAW("--------------------------------------------------------------------------\n[{:%Y-%m-%d %H:%M:%S} UTC] <<< TARGET STOP (PID: {})\n==========================================================================\n", utc_time, getpid());
 }

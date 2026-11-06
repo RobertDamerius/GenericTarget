@@ -12,6 +12,9 @@
 #define SIMULINK_INTERFACE_NUM_TIMINGS  ($NUM_TIMINGS$)
 
 
+/**
+ * @brief Represents the interface from the generic target core to the simulink model.
+ */
 class SimulinkInterface {
     public:
         constexpr static std::string_view modelName{"$NAME_OF_MODEL$"};                                                // A string indicating the model name (ASCII characters only).
