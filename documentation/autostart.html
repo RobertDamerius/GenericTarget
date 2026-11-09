@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autostart Target Application &middot; Generic Target Documentation</title>
+<link rel="icon" type="image/svg+xml" href="img/icon.svg">
+<link rel="stylesheet" href="assets/design.css">
+<script src="assets/theme.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="index.html" aria-label="Generic Target documentation home">
+      <img src="img/icon.svg" alt="Generic Target logo" width="34" height="34">
+      <span class="brand-name">Generic Target</span>
+    </a>
+    <span class="version-badge" title="Documentation version">v2.2.0</span>
+  </div>
+  <div class="header-actions">
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch theme">
+      <img class="icon-moon" src="assets/icons/moon-light.svg" alt="" width="16" height="16">
+      <img class="icon-sun" src="assets/icons/sun-dark.svg" alt="" width="16" height="16">
+      <span data-theme-label>Dark mode</span>
+    </button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="site-nav" aria-label="Documentation navigation">
+<span class="nav-group-label">Overview</span>
+<nav class="nav-group" aria-label="Overview">
+<ul class="nav-list">
+  <li><a class="nav-link" href="index.html">Overview</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Getting Started</span>
+<nav class="nav-group" aria-label="Getting Started">
+<ul class="nav-list">
+  <li><a class="nav-link" href="install_toolbox.html">Install the Toolbox</a></li>
+  <li><a class="nav-link" href="prepare_target.html">Prepare the Target Computer</a></li>
+  <li><a class="nav-link" href="create_and_deploy.html">Create and Deploy a Model</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Core Concepts</span>
+<nav class="nav-group" aria-label="Core Concepts">
+<ul class="nav-list">
+  <li><a class="nav-link" href="application.html">Application Overview</a></li>
+  <li><a class="nav-link" href="timingscheduling.html">Timing and Scheduling</a></li>
+  <li><a class="nav-link" href="datarecording.html">Data Recording</a></li>
+  <li><a class="nav-link" href="consoleoutput.html">Console Output</a></li>
+  <li><a class="nav-link" href="deployment.html">Deployment Process</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Examples</span>
+<nav class="nav-group" aria-label="Examples">
+<ul class="nav-list">
+  <li><a class="nav-link" href="example_udpreceiveloop.html">UDP Reception Loop</a></li>
+  <li><a class="nav-link" href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
+  <li><a class="nav-link active" href="autostart.html" aria-current="page">Autostart Target Application</a></li>
+  <li><a class="nav-link" href="example_debugging.html">Debugging with VSCode</a></li>
+  <li><a class="nav-link" href="example_crashreport.html">Analyzing Crash Reports</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Classes</span>
+<nav class="nav-group" aria-label="API Reference: Classes">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_generictarget.html">GT.GenericTarget</a></li>
+  <li><a class="nav-link" href="packages_gt_compilerflags.html">GT.CompilerFlags</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: GT Functions</span>
+<nav class="nav-group" aria-label="API Reference: GT Functions">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_builddrivers.html">GT.BuildDrivers</a></li>
+  <li><a class="nav-link" href="packages_gt_gettemplate.html">GT.GetTemplate</a></li>
+  <li><a class="nav-link" href="packages_gt_getversion.html">GT.GetVersion</a></li>
+  <li><a class="nav-link" href="packages_gt_opendocumentation.html">GT.OpenDocumentation</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatadirectory.html">GT.DecodeDataDirectory</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a></li>
+  <li><a class="nav-link" href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbecellstr.html">GT.mustBeCellStr</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbehexstring.html">GT.mustBeHexString</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbeunique.html">GT.mustBeUnique</a></li>
+  <li><a class="nav-link" href="packages_gt_mustendwith.html">GT.mustEndWith</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Simulink Library</span>
+<nav class="nav-group" aria-label="API Reference: Simulink Library">
+<ul class="nav-list">
+  <li><a class="nav-link" href="library_gt_interface_tcpclientsend.html">Interface / TCP Client Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_tcpclientreceive.html">Interface / TCP Client Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_applicationarguments.html">Target Stats / Application Arguments</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_readthermalzones.html">Target Stats / Read Thermal Zones</a></li>
+  <li><a class="nav-link" href="library_gt_time_modelexecutiontime.html">Time / Model Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_unixtime.html">Time / UNIX Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctime.html">Time / UTC Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_localtime.html">Time / Local Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskexecutiontime.html">Time / Task Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskoverloads.html">Time / Task Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_cpuoverloads.html">Time / CPU Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestamp.html">Time / UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_timetolatestutctimestamp.html">Time / Time To Latest UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
+</ul>
+</nav>
+  </nav>
+  <div class="content-main">
+    <main id="main-content">
+      <article>
+<h1>Autostart Target Application</h1>
+<p>
+  This page describes how to configure the target application so that it starts automatically every time the
+  computer boots, without manual intervention. The configuration is a <code>systemd</code> service file, which
+  also defines where the console output of the application is recorded.
+</p>
+<p>
+  Before proceeding, make sure the application has already been deployed to the target (see
+  <a href="create_and_deploy.html">Deployment</a>). All commands on this page are executed in a terminal on the
+  <strong>target computer</strong>. The steps are outlined below.
+</p>
+<ul>
+  <li><a href="#step1">Step 1: Create the systemd service file</a></li>
+  <li><a href="#step2">Step 2: Enable and start the service</a></li>
+  <li><a href="#verify">Verifying the setup</a></li>
+</ul>
+
+<h2 id="step1">Step 1: Create the systemd Service File</h2>
+<p>
+  On Linux, <code>systemd</code> is the system manager that starts and supervises programs. A service file in
+  <code>/etc/systemd/system/</code> describes how a program should be started; once enabled, the corresponding
+  service runs automatically at every boot. Create the service file with:
+</p>
+<pre>sudo nano /etc/systemd/system/generictarget.service</pre>
+<p>Paste the following configuration into the file:</p>
+<pre>[Unit]
+Description=GenericTarget
+After=network.target remote-fs.target
+
+[Service]
+Type=simple
+User=root
+
+# Optional: Add a brief startup delay if the boot storm causes overloads
+ExecStartPre=/bin/sleep 5
+
+# Ensure log file exists and is owned by your regular user before starting
+ExecStartPre=/bin/touch /home/UserName/PathToApplication/out.txt
+ExecStartPre=/bin/chown UserName:UserName /home/UserName/PathToApplication/out.txt
+
+# Run application
+ExecStart=/usr/bin/taskset 0x0f /home/UserName/PathToApplication/ApplicationName
+
+# Systemd native logging (append mode)
+StandardOutput=append:/home/UserName/PathToApplication/out.txt
+StandardError=inherit
+
+# Restart behavior in case of crashes
+Restart=no
+
+[Install]
+WantedBy=multi-user.target</pre>
+<p>Before saving, replace the placeholders with your own values:</p>
+<ul>
+  <li><code>UserName</code> — the user name on the target computer.</li>
+  <li><code>PathToApplication</code> — the path of the application directory in the user's home folder (default:
+      <code>GenericTarget</code>).</li>
+  <li><code>ApplicationName</code> — the name of the deployed executable as found in the application
+      directory (default: <code>GenericTarget</code>).</li>
+</ul>
+<h3>What the configuration does</h3>
+<p>The individual directives, in the order they appear in the file:</p>
+<ul>
+  <li><code>Description=GenericTarget</code> — human-readable name of the service, as shown by systemd status
+      commands.</li>
+  <li><code>After=network.target remote-fs.target</code> — start only after the network and all file systems are
+      available, so that no part of the system is still initializing when the application starts.</li>
+  <li><code>Type=simple</code> — standard service type: systemd considers the service started as soon as the
+      <code>ExecStart</code> command has been executed; the process does not fork into the background itself.</li>
+  <li><code>User=root</code> — run the application with root privileges, matching the manual startup (which is
+      performed via <code>sudo</code>).</li>
+  <li><code>ExecStartPre=/bin/sleep 5</code> — optional brief delay before startup. During boot, many services start
+      simultaneously; this burst of activity can cause CPU load spikes and timing overloads in the real-time
+      application. A few seconds of delay lets the system settle first. Remove or adjust this line if it is not
+      needed.</li>
+  <li><code>ExecStartPre=/bin/touch .../out.txt</code> — create the log file in advance so that it exists before the
+      application starts.</li>
+  <li><code>ExecStartPre=/bin/chown UserName:UserName .../out.txt</code> — set ownership of the log file to your
+      regular user, making it readable and writable from a non-root session (for example when reading logs over
+      SSH).</li>
+  <li><code>ExecStart=/usr/bin/taskset 0x0f ...</code> — start the application pinned to specific CPU cores. The
+      bitmask <code>0x0f</code> selects cores 0–3; adjust the mask according to the number of available or dedicated
+      cores, or remove <code>taskset</code> entirely if no pinning is required.</li>
+  <li><code>StandardOutput=append:.../out.txt</code> — append all console output to the log file instead of writing
+      it to a terminal (see <a href="consoleoutput.html">Console Output</a>).</li>
+  <li><code>StandardError=inherit</code> — route error output to the same destination as standard output, i.e., also
+      into <code>out.txt</code>.</li>
+  <li><code>Restart=no</code> — systemd does not restart the application if it terminates or crashes.</li>
+  <li><code>WantedBy=multi-user.target</code> — start the service during normal multi-user boot, i.e., when the
+      system has reached the state in which users can log in.</li>
+</ul>
+
+<aside class="callout callout-important">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/important-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/important-dark.svg" alt="" width="18" height="18">Important — Crash behavior</p>
+  <p>
+    With <code>Restart=no</code>, systemd does not restart the application after a crash. The console output —
+    including the crash report — is still written to <code>out.txt</code>; see
+    <a href="example_crashreport.html">Analyzing Crash Reports</a>. If you want the service to restart automatically,
+    set <code>Restart=on-failure</code>.
+  </p>
+</aside>
+
+<aside class="callout callout-tip">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/tip-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/tip-dark.svg" alt="" width="18" height="18">Tip — CPU core pinning</p>
+  <p>
+    The bitmask of <code>taskset</code> selects the cores on which the application runs: bit 0 is core 0, bit 1 is
+    core 1, and so on. For example, <code>0x0f</code> pins to cores 0–3. Choose a mask that matches the cores
+    available (or dedicated) on your target; for isolating cores from the operating system scheduler, see
+    <a href="prepare_target.html#isolating-cpu-cores">Isolating CPU cores</a>.
+  </p>
+</aside>
+
+<h2 id="step2">Step 2: Enable and Start the Service</h2>
+<p>
+  After saving the file, reload systemd so that it recognizes the new service, enable it for automatic startup at
+  boot, and start it immediately:
+</p>
+<pre>sudo systemctl daemon-reload
+sudo systemctl enable generictarget.service
+sudo systemctl start generictarget.service</pre>
+<ul>
+  <li><code>daemon-reload</code> — makes systemd re-read the unit files so that the new service is recognized.</li>
+  <li><code>enable</code> — registers the service with <code>multi-user.target</code>, so it starts automatically at
+      every boot.</li>
+  <li><code>start</code> — starts the service immediately, without rebooting the computer.</li>
+</ul>
+
+<h2 id="verify">Verifying the Setup</h2>
+<p>Check that the service is running:</p>
+<pre>systemctl status generictarget.service</pre>
+<p>
+  The output should show <code>active (running)</code>. The console output of the application is appended to
+  <code>out.txt</code>; display the most recent lines with:
+</p>
+<pre>tail -n 20 /home/UserName/PathToApplication/out.txt</pre>
+<p>To confirm that autostart works, reboot the target and check the service status again after boot.</p>
+      </article>
+      <footer class="site-footer">
+        <span>Generic Target Toolbox &mdash; offline documentation</span>
+        <span>Version 2.2.0</span>
+      </footer>
+    </main>
+  </div>
+</div>
+<button id="backToTop" type="button" aria-label="Back to top"><img class="icon-up" src="assets/icons/arrow-up.svg" alt="" width="20" height="20"></button>
+<script src="assets/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GT.GenericTarget &middot; Generic Target Documentation</title>
+<link rel="icon" type="image/svg+xml" href="img/icon.svg">
+<link rel="stylesheet" href="assets/design.css">
+<script src="assets/theme.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="index.html" aria-label="Generic Target documentation home">
+      <img src="img/icon.svg" alt="Generic Target logo" width="34" height="34">
+      <span class="brand-name">Generic Target</span>
+    </a>
+    <span class="version-badge" title="Documentation version">v2.2.0</span>
+  </div>
+  <div class="header-actions">
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch theme">
+      <img class="icon-moon" src="assets/icons/moon-light.svg" alt="" width="16" height="16">
+      <img class="icon-sun" src="assets/icons/sun-dark.svg" alt="" width="16" height="16">
+      <span data-theme-label>Dark mode</span>
+    </button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="site-nav" aria-label="Documentation navigation">
+<span class="nav-group-label">Overview</span>
+<nav class="nav-group" aria-label="Overview">
+<ul class="nav-list">
+  <li><a class="nav-link" href="index.html">Overview</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Getting Started</span>
+<nav class="nav-group" aria-label="Getting Started">
+<ul class="nav-list">
+  <li><a class="nav-link" href="install_toolbox.html">Install the Toolbox</a></li>
+  <li><a class="nav-link" href="prepare_target.html">Prepare the Target Computer</a></li>
+  <li><a class="nav-link" href="create_and_deploy.html">Create and Deploy a Model</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Core Concepts</span>
+<nav class="nav-group" aria-label="Core Concepts">
+<ul class="nav-list">
+  <li><a class="nav-link" href="application.html">Application Overview</a></li>
+  <li><a class="nav-link" href="timingscheduling.html">Timing and Scheduling</a></li>
+  <li><a class="nav-link" href="datarecording.html">Data Recording</a></li>
+  <li><a class="nav-link" href="consoleoutput.html">Console Output</a></li>
+  <li><a class="nav-link" href="deployment.html">Deployment Process</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Examples</span>
+<nav class="nav-group" aria-label="Examples">
+<ul class="nav-list">
+  <li><a class="nav-link" href="example_udpreceiveloop.html">UDP Reception Loop</a></li>
+  <li><a class="nav-link" href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
+  <li><a class="nav-link" href="autostart.html">Autostart Target Application</a></li>
+  <li><a class="nav-link" href="example_debugging.html">Debugging with VSCode</a></li>
+  <li><a class="nav-link" href="example_crashreport.html">Analyzing Crash Reports</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Classes</span>
+<nav class="nav-group" aria-label="API Reference: Classes">
+<ul class="nav-list">
+  <li><a class="nav-link active" href="packages_gt_generictarget.html" aria-current="page">GT.GenericTarget</a></li>
+  <li><a class="nav-link" href="packages_gt_compilerflags.html">GT.CompilerFlags</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: GT Functions</span>
+<nav class="nav-group" aria-label="API Reference: GT Functions">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_builddrivers.html">GT.BuildDrivers</a></li>
+  <li><a class="nav-link" href="packages_gt_gettemplate.html">GT.GetTemplate</a></li>
+  <li><a class="nav-link" href="packages_gt_getversion.html">GT.GetVersion</a></li>
+  <li><a class="nav-link" href="packages_gt_opendocumentation.html">GT.OpenDocumentation</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatadirectory.html">GT.DecodeDataDirectory</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a></li>
+  <li><a class="nav-link" href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbecellstr.html">GT.mustBeCellStr</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbehexstring.html">GT.mustBeHexString</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbeunique.html">GT.mustBeUnique</a></li>
+  <li><a class="nav-link" href="packages_gt_mustendwith.html">GT.mustEndWith</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Simulink Library</span>
+<nav class="nav-group" aria-label="API Reference: Simulink Library">
+<ul class="nav-list">
+  <li><a class="nav-link" href="library_gt_interface_tcpclientsend.html">Interface / TCP Client Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_tcpclientreceive.html">Interface / TCP Client Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_applicationarguments.html">Target Stats / Application Arguments</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_readthermalzones.html">Target Stats / Read Thermal Zones</a></li>
+  <li><a class="nav-link" href="library_gt_time_modelexecutiontime.html">Time / Model Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_unixtime.html">Time / UNIX Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctime.html">Time / UTC Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_localtime.html">Time / Local Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskexecutiontime.html">Time / Task Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskoverloads.html">Time / Task Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_cpuoverloads.html">Time / CPU Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestamp.html">Time / UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_timetolatestutctimestamp.html">Time / Time To Latest UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
+</ul>
+</nav>
+  </nav>
+  <div class="content-main">
+    <main id="main-content">
+      <article>
+<span class="api-badge">MATLAB class</span>
+<h1>GT.GenericTarget</h1>
+<p>
+  This class is the main interface to the target computer and the Generic Target application running on it.
+  Several <a href="#properties">properties</a> can be modified to adjust the behavior of the application and the
+  deployment process. The public <a href="#objectfunctions">object functions</a> are listed below.
+</p>
+
+<h2 id="construction">Construction</h2>
+<p>
+  <code>target = GT.GenericTarget()</code> creates a target object with all default property values.
+</p>
+<p>
+  <code>target = GT.GenericTarget(targetUsername, targetAddress)</code> creates a target object and sets the
+  properties <code>targetUsername</code> and <code>targetAddress</code>; all other properties keep their default
+  values.
+</p>
+
+<h2 id="properties">Properties</h2>
+<p>The properties of this class are summarized in the following table; detailed descriptions follow.</p>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Property</th><th>Data Type</th><th>Default Value</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><a href="#portSSH"><code>portSSH</code></a></td><td><code>uint16</code></td><td><code>22</code></td><td>The TCP port used for the SSH and SCP connection.</td></tr>
+      <tr><td><a href="#connectTimeout"><code>connectTimeout</code></a></td><td><code>uint32</code></td><td><code>3</code></td><td>Connection timeout in seconds for SSH and SCP.</td></tr>
+      <tr><td><a href="#targetAddress"><code>targetAddress</code></a></td><td><code>char array</code></td><td><code>''</code></td><td>IP address (or host name) of the target computer.</td></tr>
+      <tr><td><a href="#targetUsername"><code>targetUsername</code></a></td><td><code>char array</code></td><td><code>''</code></td><td>User name of the target computer, used to log in via SSH/SCP.</td></tr>
+      <tr><td><a href="#targetSoftwareDirectory"><code>targetSoftwareDirectory</code></a></td><td><code>char array</code></td><td><code>'~/GenericTarget/'</code></td><td>Directory for the software on the target. Must begin with <code>'~/'</code> and end with <code>'/'</code>.</td></tr>
+      <tr><td><a href="#targetProductName"><code>targetProductName</code></a></td><td><code>char array</code></td><td><code>'GenericTarget'</code></td><td>File name of the executable on the target.</td></tr>
+      <tr><td><a href="#targetSocketName"><code>targetSocketName</code></a></td><td><code>char array</code></td><td><code>'/run/generic-target/app.lock'</code></td><td>A system-wide unique socket name to be set for an abstract UNIX socket (without a leading null byte).</td></tr>
+      <tr><td><a href="#targetBitmaskCPUCores"><code>targetBitmaskCPUCores</code></a></td><td><code>char array</code></td><td><code>''</code></td><td>Hexadecimal bitmask selecting the CPU cores the application is pinned to. If the string is empty, all cores are available.</td></tr>
+      <tr><td><a href="#applicationArguments"><code>applicationArguments</code></a></td><td><code>char array</code></td><td><code>''</code></td><td>A string representing additional arguments passed to the application during a Start call.</td></tr>
+      <tr><td><a href="#customCode"><code>customCode</code></a></td><td><code>cell array</code></td><td><code>{}</code></td><td>Cell array of files or directories containing custom code to be uploaded along with the generated code.</td></tr>
+      <tr><td><a href="#additionalCompilerFlags"><code>additionalCompilerFlags</code></a></td><td><a href="packages_gt_compilerflags.html"><code>GT.CompilerFlags</code></a></td><td><code>GT.CompilerFlags()</code></td><td>An object of the <a href="packages_gt_compilerflags.html">GT.CompilerFlags</a> class with additional compiler flags applied during Makefile generation.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h3 id="portSSH">portSSH</h3>
+<p>
+  Commands are executed on the target via SSH; file transfer is done via SCP. Both protocols use port 22 by
+  default. This property adjusts the port, for example when the target computer is behind a router and port 22
+  cannot or should not be forwarded.
+</p>
+
+<h3 id="connectTimeout">connectTimeout</h3>
+<p>
+  All communication with the target is done via SCP and SSH. If the target is not reachable, the attempt to
+  establish a connection is aborted after this timeout (in seconds) so that the MATLAB functions do not block
+  indefinitely.
+</p>
+
+<h3 id="targetAddress">targetAddress</h3>
+<p>
+  The address of the target computer, as an IP address string or host name. It is used to establish the
+  network connection for deployment and control.
+</p>
+
+<h3 id="targetUsername">targetUsername</h3>
+<p>
+  The user name of the target computer. It is used to establish the SSH/SCP connection for deployment and
+  control.
+</p>
+
+<h3 id="targetSoftwareDirectory">targetSoftwareDirectory</h3>
+<p>
+  The directory on the target computer into which the real-time application is deployed. The directory must be
+  located inside the home directory. If several target applications run simultaneously on the target, each must
+  be deployed into a separate directory.
+</p>
+
+<h3 id="targetProductName">targetProductName</h3>
+<p>
+  The name of the executable on the target. The name must be a valid MATLAB variable name (see
+  <code>isvarname</code>).
+</p>
+
+<h3 id="targetSocketName">targetSocketName</h3>
+<p>
+  When the application is started, it binds to an abstract UNIX socket with the name set by this property.
+  Binding this socket acts as a lock that ensures the application runs only once. When the application
+  terminates, the socket is released. If several target applications are to run simultaneously on the same
+  computer, each application must use a distinct socket name.
+</p>
+
+<h3 id="targetBitmaskCPUCores">targetBitmaskCPUCores</h3>
+<p>
+  Optionally, the target application can be pinned to specific CPU cores. The bitmask is given as a hexadecimal
+  string; the application may run only on the cores whose bit is set to 1. For example, a bitmask of
+  <code>'0x0f'</code> restricts the application to cores 0 to 3. If the string is empty, all CPU cores are
+  available.
+</p>
+
+<h3 id="applicationArguments">applicationArguments</h3>
+<p>
+  Additional command-line arguments that are appended to the start command during a <a href="#Start">Start</a>
+  call.
+</p>
+
+<h3 id="customCode">customCode</h3>
+<p>
+  Additional source code to include in the target software. The given files and directories are uploaded along
+  with the generated code and compiled on the target together with the Generic Target Core.
+</p>
+
+<h3 id="additionalCompilerFlags">additionalCompilerFlags</h3>
+<p>
+  An object of the <a href="packages_gt_compilerflags.html">GT.CompilerFlags</a> class with additional compiler
+  flags that are applied when the Makefile is generated on the target.
+</p>
+
+<h2 id="objectfunctions">Object Functions</h2>
+<p>
+  The class provides the following public member functions for interacting with the target application and the
+  target computer:
+</p>
+<ul>
+  <li><a href="#Deploy"><code>Deploy</code></a> — deploys a Simulink model to a target</li>
+  <li><a href="#DeployGeneratedCode"><code>DeployGeneratedCode</code></a> — deploys the generated code to a target</li>
+  <li><a href="#DeployToHost"><code>DeployToHost</code></a> — deploys a Simulink model to the host</li>
+  <li><a href="#GenerateCode"><code>GenerateCode</code></a> — generates the code from a Simulink model</li>
+  <li><a href="#Start"><code>Start</code></a> — starts the real-time application on the target</li>
+  <li><a href="#Stop"><code>Stop</code></a> — stops the real-time application on the target</li>
+  <li><a href="#Reboot"><code>Reboot</code></a> — reboots the target computer</li>
+  <li><a href="#Shutdown"><code>Shutdown</code></a> — shuts down the target computer</li>
+  <li><a href="#ShowPID"><code>ShowPID</code></a> — shows the process ID of the real-time application on the target</li>
+  <li><a href="#ShowIsolatedCPUCores"><code>ShowIsolatedCPUCores</code></a> — shows the isolated CPU cores on the target computer</li>
+  <li><a href="#DownloadDataDirectory"><code>DownloadDataDirectory</code></a> — downloads a data recording directory from the target</li>
+  <li><a href="#DownloadAllData"><code>DownloadAllData</code></a> — downloads all data recording directories from the target</li>
+  <li><a href="#DeleteAllData"><code>DeleteAllData</code></a> — deletes all data recording directories from the target</li>
+  <li><a href="#GetTargetDataDirectoryName"><code>GetTargetDataDirectoryName</code></a> — returns the directory name of the data recording directory on the target</li>
+  <li><a href="#RunCommandOnTarget"><code>RunCommandOnTarget</code></a> — runs a command on the target</li>
+</ul>
+
+<h2 id="Deploy">Deploy</h2>
+<p class="api-signature"><code>commands = target.Deploy(modelName)</code></p>
+<p><code>target</code> is the <a href="#construction">GT.GenericTarget</a> object.</p>
+<p>
+  Deploys the target application. The code for the Simulink model is generated, and a Simulink interface class
+  is generated from the code information of the Simulink code generation process. The source code is compressed
+  and transferred to the target via SCP; an SSH connection is then used to unpack the archive and build the
+  target application on the target computer. The application is <strong>not started</strong> at the end of this
+  process — run <a href="#Start">Start</a> to start it.
+</p>
+<h3>Input Arguments</h3>
+<ul>
+  <li><strong>modelName</strong> — The name of the Simulink model to be deployed (excluding directory and file extension).</li>
+</ul>
+<h3>Output Arguments</h3>
+<ul>
+  <li><strong>commands</strong> — The commands that were executed on the host.</li>
+</ul>
+
+<h2 id="DeployGeneratedCode">DeployGeneratedCode</h2>
+<p class="api-signature"><code>commands = target.DeployGeneratedCode(zipFileName)</code></p>
+<p><code>target</code> is the <a href="#construction">GT.GenericTarget</a> object.</p>
+<p>
+  Deploys previously generated code to the target computer. The code must have been generated with the
+  <a href="#GenerateCode">GenerateCode</a> method. The archive is transferred to the target via SCP; an SSH
+  connection is then used to unpack it and build the target application. The application is <strong>not
+  started</strong> at the end of this process — run <a href="#Start">Start</a> to start it.
+</p>
+<h3>Input Arguments</h3>
+<ul>
+  <li><strong>zipFileName</strong> — The name of the zip file that contains the code generated with the <a href="#GenerateCode">GenerateCode</a> member function. The file extension must be <code>'.zip'</code>.</li>
+</ul>
+<h3>Output Arguments</h3>
+<ul>
+  <li><strong>commands</strong> — The commands that were executed on the host.</li>
+</ul>
+
+<h2 id="DeployToHost">DeployToHost</h2>
+<p class="api-signature"><code>target.DeployToHost(modelName, directory)</code></p>
+<p><code>target</code> is the <a href="#construction">GT.GenericTarget</a> object.</p>
+<p>
+  Deploys the target application to a directory on the host machine. The complete Generic Target framework,
+  including the generated code, is written into the specified directory. The software is <strong>not
+  compiled</strong> as part of this operation.
+</p>
+<h3>Input Arguments</h3>
+<ul>
+  <li><strong>modelName</strong> — The name of the Simulink model to be deployed (excluding directory and file extension).</li>
+  <li><strong>directory</strong> — Optional name of the directory where the generated target application code is saved (an absolute path is recommended). If no directory is specified, the current working directory (<code>pwd</code>) is used.</li>
+</ul>
+
+<h2 id="GenerateCode">GenerateCode</h2>
+<p class="api-signature"><code>target.GenerateCode(zipFileName, modelName)</code></p>
+<p><code>target</code> is the <a href="#construction">GT.GenericTarget</a> object.</p>
+<p>
+  Generates the code for the Simulink model and the Simulink interface class, which is derived from the code
+  information of the Simulink code generation process. The complete source code is compressed into a
+  <code>.zip</code> archive.
+</p>
+<h3>Input Arguments</h3>
+<ul>
+  <li><strong>zipFileName</strong> — The name of the zip file where to store the generated code. The file extension must be <code>'.zip'</code>.</li>
+  <li><strong>modelName</strong> — The name of the Simulink model to be code-generated (excluding directory and file extension). The value is forwarded to the <code>slbuild()</code> command.</li>
+</ul>
+
+<h2 id="Start">Start</h2>
+<p class="api-signature"><code>commands = target.Start()</code></p>
+<p><code>target</code> is the <a href="#construction">GT.GenericTarget</a> object.</p>
+<p>
+  Starts the target application over an SSH connection. If the application is already running, the call has no
+  effect. The application's <a href="consoleoutput.html">console output</a> is redirected to
+  <code>out.txt</code> in the target software directory.
+</p>
+<h3>Output Arguments</h3>
+<ul>
+  <li><strong>commands</strong> — The commands that were executed on the host.</li>
+</ul>
+
+<h2 id="Stop">Stop</h2>
+<p class="api-signature"><code>commands = target.Stop()</code></p>
+<p><code>target</code> is the <a href="#construction">GT.GenericTarget</a> object.</p>
+<p>
+  Stops the target application over an SSH connection. If no application is running, the call has no effect.
+</p>
+<h3>Output Arguments</h3>
+<ul>
+  <li><strong>commands</strong> — The commands that were executed on the host.</li>
+</ul>
+
+<h2 id="Reboot">Reboot</h2>
+<p class="api-signature"><code>commands = target.Reboot()</code></p>
+<p><code>target</code> is the <a href="#construction">GT.GenericTarget</a> object.</p>
+<p>Reboots the target computer. The reboot command is executed over an SSH connection.</p>
+<h3>Output Arguments</h3>
+<ul>
+  <li><strong>commands</strong> — The commands that were executed on the host.</li>
+</ul>
+
+<h2 id="Shutdown">Shutdown</h2>
+<p class="api-signature"><code>commands = target.Shutdown()</code></p>
+<p><code>target</code> is the <a href="#construction">GT.GenericTarget</a> object.</p>
+<p>Shuts down the target computer. The shutdown command is executed over an SSH connection.</p>
+<h3>Output Arguments</h3>
+<ul>
+  <li><strong>commands</strong> — The commands that were executed on the host.</li>
+</ul>
+
+<h2 id="ShowPID">ShowPID</h2>
+<p class="api-signature"><code>commands = target.ShowPID()</code></p>
+<p><code>target</code> is the <a href="#construction">GT.GenericTarget</a> object.</p>
+<p>
+  Prints the process IDs of all processes on the target whose name matches
+  <code>targetProductName</code>. This can be used to check whether the application is running; if no process
+  matches, the output is empty.
+</p>
+<h3>Output Arguments</h3>
+<ul>
+  <li><strong>commands</strong> — The commands that were executed on the host.</li>
+</ul>
+
+<h2 id="ShowIsolatedCPUCores">ShowIsolatedCPUCores</h2>
+<p class="api-signature"><code>commands = target.ShowIsolatedCPUCores()</code></p>
+<p><code>target</code> is the <a href="#construction">GT.GenericTarget</a> object.</p>
+<p>
+  Prints the isolated CPU cores on the target (see the <code>isolcpus</code> option in
+  <a href="prepare_target.html#step4">hardware tuning</a>). If no CPU cores are isolated, the output is empty.
+</p>
+<h3>Output Arguments</h3>
+<ul>
+  <li><strong>commands</strong> — The commands that were executed on the host.</li>
+</ul>
+
+<h2 id="DownloadDataDirectory">DownloadDataDirectory</h2>
+<p class="api-signature"><code>commands = target.DownloadDataDirectory(hostDirectory, targetDataDirectory)</code></p>
+<p><code>target</code> is the <a href="#construction">GT.GenericTarget</a> object.</p>
+<p>
+  Downloads a recorded data directory from the target and writes it to <code>hostDirectory</code>.
+</p>
+<h3>Input Arguments</h3>
+<ul>
+  <li><strong>hostDirectory</strong> — The destination directory on the host where the downloaded data is written (an absolute path is recommended). If the directory does not exist, it is created. If this argument is omitted, the current working directory is used.</li>
+  <li><strong>targetDataDirectory</strong> — Optional name of the data directory on the target to be downloaded, e.g., <code>"20261109_123456789"</code>. If this argument is omitted, all data directories on the target are listed and the user selects one interactively.</li>
+</ul>
+<h3>Output Arguments</h3>
+<ul>
+  <li><strong>commands</strong> — The commands that were executed on the host.</li>
+</ul>
+
+<h2 id="DownloadAllData">DownloadAllData</h2>
+<p class="api-signature"><code>commands = target.DownloadAllData(hostDirectory)</code></p>
+<p><code>target</code> is the <a href="#construction">GT.GenericTarget</a> object.</p>
+<p>
+  Downloads all recorded data directories from the target and writes them to <code>hostDirectory</code>.
+</p>
+<h3>Input Arguments</h3>
+<ul>
+  <li><strong>hostDirectory</strong> — The destination directory on the host where the downloaded data is written (an absolute path is recommended). If the directory does not exist, it is created. If this argument is omitted, the current working directory is used.</li>
+</ul>
+<h3>Output Arguments</h3>
+<ul>
+  <li><strong>commands</strong> — The commands that were executed on the host.</li>
+</ul>
+
+<h2 id="DeleteAllData">DeleteAllData</h2>
+<p class="api-signature"><code>commands = target.DeleteAllData()</code></p>
+<p><code>target</code> is the <a href="#construction">GT.GenericTarget</a> object.</p>
+<p>Deletes all recorded data on the target. If a target application is running, it is stopped first.</p>
+<h3>Output Arguments</h3>
+<ul>
+  <li><strong>commands</strong> — The commands that were executed on the host.</li>
+</ul>
+
+<h2 id="GetTargetDataDirectoryName">GetTargetDataDirectoryName</h2>
+<p class="api-signature"><code>dataDirectory = target.GetTargetDataDirectoryName()</code></p>
+<p><code>target</code> is the <a href="#construction">GT.GenericTarget</a> object.</p>
+<p>Returns the absolute path of the data directory on the target.</p>
+<h3>Output Arguments</h3>
+<ul>
+  <li><strong>dataDirectory</strong> — The absolute data directory on the target (the path ends with a separator <code>'/'</code>).</li>
+</ul>
+
+<h2 id="RunCommandOnTarget">RunCommandOnTarget</h2>
+<p class="api-signature"><code>[commands, cmdout] = target.RunCommandOnTarget(cmd)</code></p>
+<p><code>target</code> is the <a href="#construction">GT.GenericTarget</a> object.</p>
+<p>Runs an arbitrary command on the target computer via SSH.</p>
+<h3>Input Arguments</h3>
+<ul>
+  <li><strong>cmd</strong> — The command string to be executed on the target computer, e.g., <code>'ls'</code>.</li>
+</ul>
+<h3>Output Arguments</h3>
+<ul>
+  <li><strong>commands</strong> — The commands that were executed on the host.</li>
+  <li><strong>cmdout</strong> — The output returned by the command on the target.</li>
+</ul>
+
+      </article>
+      <footer class="site-footer">
+        <span>Generic Target Toolbox &mdash; offline documentation</span>
+        <span>Version 2.2.0</span>
+      </footer>
+    </main>
+  </div>
+</div>
+<button id="backToTop" type="button" aria-label="Back to top"><img class="icon-up" src="assets/icons/arrow-up.svg" alt="" width="20" height="20"></button>
+<script src="assets/script.js"></script>
+</body>
+</html>

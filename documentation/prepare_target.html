@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prepare the Target Computer &middot; Generic Target Documentation</title>
+<link rel="icon" type="image/svg+xml" href="img/icon.svg">
+<link rel="stylesheet" href="assets/design.css">
+<script src="assets/theme.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="index.html" aria-label="Generic Target documentation home">
+      <img src="img/icon.svg" alt="Generic Target logo" width="34" height="34">
+      <span class="brand-name">Generic Target</span>
+    </a>
+    <span class="version-badge" title="Documentation version">v2.2.0</span>
+  </div>
+  <div class="header-actions">
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch theme">
+      <img class="icon-moon" src="assets/icons/moon-light.svg" alt="" width="16" height="16">
+      <img class="icon-sun" src="assets/icons/sun-dark.svg" alt="" width="16" height="16">
+      <span data-theme-label>Dark mode</span>
+    </button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="site-nav" aria-label="Documentation navigation">
+<span class="nav-group-label">Overview</span>
+<nav class="nav-group" aria-label="Overview">
+<ul class="nav-list">
+  <li><a class="nav-link" href="index.html">Overview</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Getting Started</span>
+<nav class="nav-group" aria-label="Getting Started">
+<ul class="nav-list">
+  <li><a class="nav-link" href="install_toolbox.html">Install the Toolbox</a></li>
+  <li><a class="nav-link active" href="prepare_target.html" aria-current="page">Prepare the Target Computer</a></li>
+  <li><a class="nav-link" href="create_and_deploy.html">Create and Deploy a Model</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Core Concepts</span>
+<nav class="nav-group" aria-label="Core Concepts">
+<ul class="nav-list">
+  <li><a class="nav-link" href="application.html">Application Overview</a></li>
+  <li><a class="nav-link" href="timingscheduling.html">Timing and Scheduling</a></li>
+  <li><a class="nav-link" href="datarecording.html">Data Recording</a></li>
+  <li><a class="nav-link" href="consoleoutput.html">Console Output</a></li>
+  <li><a class="nav-link" href="deployment.html">Deployment Process</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Examples</span>
+<nav class="nav-group" aria-label="Examples">
+<ul class="nav-list">
+  <li><a class="nav-link" href="example_udpreceiveloop.html">UDP Reception Loop</a></li>
+  <li><a class="nav-link" href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
+  <li><a class="nav-link" href="autostart.html">Autostart Target Application</a></li>
+  <li><a class="nav-link" href="example_debugging.html">Debugging with VSCode</a></li>
+  <li><a class="nav-link" href="example_crashreport.html">Analyzing Crash Reports</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Classes</span>
+<nav class="nav-group" aria-label="API Reference: Classes">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_generictarget.html">GT.GenericTarget</a></li>
+  <li><a class="nav-link" href="packages_gt_compilerflags.html">GT.CompilerFlags</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: GT Functions</span>
+<nav class="nav-group" aria-label="API Reference: GT Functions">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_builddrivers.html">GT.BuildDrivers</a></li>
+  <li><a class="nav-link" href="packages_gt_gettemplate.html">GT.GetTemplate</a></li>
+  <li><a class="nav-link" href="packages_gt_getversion.html">GT.GetVersion</a></li>
+  <li><a class="nav-link" href="packages_gt_opendocumentation.html">GT.OpenDocumentation</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatadirectory.html">GT.DecodeDataDirectory</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a></li>
+  <li><a class="nav-link" href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbecellstr.html">GT.mustBeCellStr</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbehexstring.html">GT.mustBeHexString</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbeunique.html">GT.mustBeUnique</a></li>
+  <li><a class="nav-link" href="packages_gt_mustendwith.html">GT.mustEndWith</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Simulink Library</span>
+<nav class="nav-group" aria-label="API Reference: Simulink Library">
+<ul class="nav-list">
+  <li><a class="nav-link" href="library_gt_interface_tcpclientsend.html">Interface / TCP Client Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_tcpclientreceive.html">Interface / TCP Client Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_applicationarguments.html">Target Stats / Application Arguments</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_readthermalzones.html">Target Stats / Read Thermal Zones</a></li>
+  <li><a class="nav-link" href="library_gt_time_modelexecutiontime.html">Time / Model Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_unixtime.html">Time / UNIX Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctime.html">Time / UTC Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_localtime.html">Time / Local Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskexecutiontime.html">Time / Task Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskoverloads.html">Time / Task Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_cpuoverloads.html">Time / CPU Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestamp.html">Time / UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_timetolatestutctimestamp.html">Time / Time To Latest UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
+</ul>
+</nav>
+  </nav>
+  <div class="content-main">
+    <main id="main-content">
+      <article>
+<h1>Prepare the Target Computer</h1>
+<p>
+  Before using the Generic Target Toolbox, the target computer must run a
+  <strong>Linux-based operating system</strong>. Any distribution is supported, but
+  <strong>Debian is recommended</strong>: it is widely maintained and provides the real-time kernel as a
+  standard package. Because setup steps vary between distributions, the instructions below target Debian
+  specifically; users of other distributions may need to adapt them. In addition,
+  <strong>SSH key authentication</strong> must be configured so that the host computer can log in to the target
+  without an interactive password prompt. The steps are outlined in the list below.
+</p>
+<ul>
+  <li><a href="#step1">Step 1: Install Debian</a></li>
+  <li><a href="#step2">Step 2: Configure Debian</a></li>
+  <li><a href="#step3">Step 3: Configure passwordless SSH authentication</a></li>
+  <li><a href="#step4">Step 4: Optional hardware tuning and advanced options</a></li>
+</ul>
+
+<h2 id="step1">Step 1: Install Debian</h2>
+<p>To set up the target computer:</p>
+<ol>
+  <li><strong>Download</strong> the Debian ISO image from
+      <a href="https://www.debian.org" target="_blank" rel="noopener">www.debian.org</a>.</li>
+  <li><strong>Create a bootable USB stick</strong> using the ISO image and boot the target computer from it.</li>
+  <li><strong>Follow the installation instructions</strong>, selecting the <strong>minimal installation</strong>
+      option if available to keep the system lightweight.</li>
+  <li><strong>Enable the SSH server</strong> during the installation process; it is required for all automated
+      deployment commands.</li>
+</ol>
+<aside class="callout callout-note">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/note-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/note-dark.svg" alt="" width="18" height="18">Note</p>
+  <p>
+    A desktop environment (GUI) is <strong>not required</strong> for the Generic Target Toolbox. You may install
+    one if you prefer, but it is not necessary for functionality.
+  </p>
+</aside>
+
+<h2 id="step2">Step 2: Configure Debian</h2>
+<p>
+  After the operating system is installed, the required dependencies are installed and the system settings are
+  configured. The following two commands, executed in sequence, complete the full setup automatically.
+</p>
+
+<aside class="callout callout-note">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/note-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/note-dark.svg" alt="" width="18" height="18">Command 1</p>
+  <p>Open a terminal and run the following command:</p>
+  <pre>su -l -c "export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin &amp;&amp; adduser $USER sudo &amp;&amp; echo "$USER ALL=(ALL) NOPASSWD: ALL" &gt; ~/$USER-nopasswd &amp;&amp; chown root:root ~/$USER-nopasswd &amp;&amp; mv ~/$USER-nopasswd /etc/sudoers.d/ &amp;&amp; echo 'APT::Get::Always-Include-Phased-Updates "1";' &gt;&gt; /etc/apt/apt.conf.d/99always-include-phased-updates &amp;&amp; reboot"</pre>
+  <p>This command:</p>
+  <ul>
+    <li>adds <code>/sbin</code>, <code>/usr/sbin</code>, and <code>/usr/local/sbin</code> to the
+        <code>PATH</code></li>
+    <li>adds the current user to the <code>sudo</code> group</li>
+    <li>installs a sudoers rule that allows passwordless <code>sudo</code> for the current user</li>
+    <li>disables APT phased updates</li>
+    <li>reboots the target computer</li>
+  </ul>
+</aside>
+
+<aside class="callout callout-note">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/note-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/note-dark.svg" alt="" width="18" height="18">Command 2</p>
+  <p>Open a terminal and run the following command:</p>
+  <pre>sudo apt update &amp;&amp; sudo apt -y upgrade &amp;&amp; sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target &amp;&amp; echo -e "net.core.rmem_max=33554432\nnet.core.wmem_max=33554432" | sudo tee /etc/sysctl.d/99-custom-buffers.conf &amp;&amp; sudo sysctl --system &amp;&amp; sudo apt -y install linux-image-rt-amd64 g++ gdb make build-essential net-tools btop &amp;&amp; sudo reboot</pre>
+  <p>This command:</p>
+  <ul>
+    <li>updates all installed packages</li>
+    <li>masks the system sleep, suspend, and hibernate targets to disable energy-saving standby modes</li>
+    <li>increases the kernel network receive/send buffer limits to 32 MiB
+        (<code>net.core.rmem_max</code>, <code>net.core.wmem_max</code>)</li>
+    <li>installs the <code>PREEMPT_RT</code> real-time kernel</li>
+    <li>installs the C++ compiler, debugger, and build tools: <code>g++</code>, <code>gdb</code>,
+        <code>make</code>, <code>build-essential</code>, <code>net-tools</code>, <code>btop</code></li>
+    <li>reboots the target computer</li>
+  </ul>
+</aside>
+
+<p>
+  After the reboot, verify that the real-time kernel is active by running <code>uname -a</code> in a terminal.
+  The output should contain <code>SMP PREEMPT_RT</code>.
+</p>
+
+<aside class="callout callout-important">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/important-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/important-dark.svg" alt="" width="18" height="18">Important — Compiler requirements</p>
+  <p>
+    A <code>g++</code> compiler of version 13 or newer is required to build the target application, and it must
+    support the C++20 standard. Check the installed compiler version with <code>g++ --version</code>. To verify
+    C++20 support, run <code>g++ -std=c++20 -x c++ -fsyntax-only /dev/null</code>; the command should complete
+    without printing an error message.
+  </p>
+</aside>
+
+<h2 id="step3">Step 3: Configure Passwordless SSH Authentication</h2>
+<aside class="callout callout-important">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/important-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/important-dark.svg" alt="" width="18" height="18">Important</p>
+  <p>
+    On a Linux host this step is <strong>recommended</strong>. On a Windows host it is
+    <strong>required</strong>, since <code>ssh</code>/<code>scp</code> commands executed from the MATLAB console
+    cannot answer an interactive password prompt.
+  </p>
+</aside>
+<p>
+  When creating, starting, or stopping an application on the target computer with the <strong>Generic Target
+  Toolbox</strong>, commands are executed over <strong>SSH</strong>. By default, every SSH connection requires an
+  interactive password confirmation, which interrupts the automated deployment. By exchanging an
+  <strong>SSH key pair</strong> once, passwordless authentication between the host computer and the target is
+  established. The keys are stored in the <code>~/.ssh/</code> directory of the user's home folder; deleting this
+  directory removes all stored keys and known hosts.
+</p>
+<p>
+  Unless stated otherwise, the commands below are executed on the <strong>host computer</strong> (the SSH
+  client), which connects to the SSH server running on the target computer.
+</p>
+
+<h3>Linux host</h3>
+<p>The following description applies only to Linux host computers, since some commands are not available on Windows.</p>
+<p><strong>1. Generate the key.</strong></p>
+<p>
+  The command <code>ssh-keygen</code> generates an SSH key pair. You can specify the file under which the key is
+  stored; pressing <code>RETURN</code> accepts the default location. You are then asked for a passphrase that
+  protects the private key; pressing <code>RETURN</code> uses an empty passphrase. The same key can be used for
+  several target computers — when setting up additional targets, start with step 2.
+</p>
+<p><strong>2. Copy the public key to the target.</strong></p>
+<p>To copy the generated public key to a target computer, use the command:</p>
+<pre>ssh-copy-id -i ~/.ssh/id_ed25519.pub UserName@RemoteServer</pre>
+<p>
+  Replace <code>UserName</code> with the user name on the target and <code>RemoteServer</code> with its IP
+  address (or host name).
+</p>
+<p><strong>3. Add the private key.</strong></p>
+<p>All that remains is to add the private key:</p>
+<pre>ssh-add</pre>
+<p>
+  SSH connections should now be established without a password prompt. Verify this with
+  <code>ssh UserName@RemoteServer</code>.
+</p>
+
+<h3>Windows host</h3>
+<p><strong>1. Prepare.</strong></p>
+<p>Open PowerShell as an administrator and run:</p>
+<pre>Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0</pre>
+<p>
+  This installs the OpenSSH client. Close the elevated PowerShell; the remaining commands can be executed in a
+  regular Windows terminal.
+</p>
+<p><strong>2. Generate the key.</strong></p>
+<p>
+  The command <code>ssh-keygen</code> generates an SSH key pair. You can specify the file under which the key is
+  stored; pressing <code>RETURN</code> accepts the default location. You are then asked for a passphrase that
+  protects the private key; pressing <code>RETURN</code> uses an empty passphrase. It is recommended to leave the
+  passphrase empty, since a passphrase prompt would interrupt the automated deployment process. The same key can
+  be used for several target computers — when setting up additional targets, start with step 3.
+</p>
+<p><strong>3. Copy the public key to the target.</strong></p>
+<p>To copy the generated public key to a target computer, use the command:</p>
+<pre>scp C:\Users\HostName\.ssh\id_ed25519.pub UserName@RemoteServer:</pre>
+<p>
+  Here <code>HostName</code> is your user name on the host, and <code>UserName</code> and
+  <code>RemoteServer</code> are the user name and IP address of the target computer, respectively. Note the
+  trailing <code>:</code> character, which uploads the file into the user's home directory on the target.
+</p>
+<p><strong>4. Configure the key.</strong></p>
+<p>Log in to the target computer via SSH using:</p>
+<pre>ssh UserName@RemoteServer</pre>
+<p>The following commands are all executed <strong>on the target computer</strong>. First, make sure the <code>.ssh</code> directory exists; create it if it does not:</p>
+<pre>mkdir .ssh</pre>
+<p>Append the uploaded public key to the authorized keys:</p>
+<pre>cat id_ed25519.pub &gt;&gt; .ssh/authorized_keys</pre>
+<p>and delete the public key:</p>
+<pre>rm id_ed25519.pub</pre>
+<p>
+  SSH enforces strict permissions on the <code>.ssh</code> directory and the <code>authorized_keys</code> file;
+  set them explicitly:
+</p>
+<pre>chmod 700 ~/.ssh</pre>
+<pre>chmod 600 ~/.ssh/authorized_keys</pre>
+<p>Log out with:</p>
+<pre>exit</pre>
+<p>
+  For testing, make an SSH connection from the host PC to the target computer with
+  <code>ssh UserName@RemoteServer</code>.
+</p>
+
+<h2 id="step4">Step 4: Optional Hardware Tuning and Advanced Options</h2>
+<p>
+  Optional adjustments to the BIOS and the operating system can further improve performance and reduce the
+  worst-case latency. The following recommendations are a good starting point.
+</p>
+<p>In the BIOS, you may modify the following:</p>
+<ul>
+  <li><strong>Enable Turbo Boost</strong> if the system supports it, to increase the available clock frequency.</li>
+  <li><strong>Disable CPU C-states</strong> (the CPU power-saving sleep states).</li>
+  <li><strong>Disable Hyper-Threading</strong> to avoid shared virtual CPU cores.</li>
+</ul>
+
+<h3>Update the GRUB bootloader menu</h3>
+<p>
+  The GRUB configuration can be adjusted to reduce the bootloader timeout, which by default can delay every boot
+  by several seconds. To modify the configuration, open the GRUB defaults file with the <strong>nano</strong>
+  editor:
+</p>
+<pre>sudo nano /etc/default/grub</pre>
+<p>After the changes, regenerate the bootloader configuration with:</p>
+<pre>sudo update-grub</pre>
+<p>The exact boot options available depend on the GRUB version and the distribution.</p>
+
+<h3 id="isolating-cpu-cores">Isolating CPU cores</h3>
+<p>
+  The target application can be pinned to specific CPU cores (see
+  <a href="packages_gt_generictarget.html#targetBitmaskCPUCores">targetBitmaskCPUCores</a>). CPU cores can
+  additionally be isolated via the GRUB <code>isolcpus</code> option, which prevents the general-purpose
+  scheduler from placing operating system processes on those cores. This allows the operating system to be
+  restricted to certain cores while others are dedicated to the real-time application. For example, on an 8-core
+  system, cores 0 and 1 can be left to the operating system while cores 2 to 7 are isolated:
+</p>
+<pre>GRUB_CMDLINE_LINUX_DEFAULT="isolcpus=2-7"</pre>
+<p>
+  After any change to the GRUB configuration, run <code>sudo update-grub</code> and reboot the target for the
+  changes to take effect.
+</p>
+
+      </article>
+      <footer class="site-footer">
+        <span>Generic Target Toolbox &mdash; offline documentation</span>
+        <span>Version 2.2.0</span>
+      </footer>
+    </main>
+  </div>
+</div>
+<button id="backToTop" type="button" aria-label="Back to top"><img class="icon-up" src="assets/icons/arrow-up.svg" alt="" width="20" height="20"></button>
+<script src="assets/script.js"></script>
+</body>
+</html>

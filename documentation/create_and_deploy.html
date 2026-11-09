@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create and Deploy a Model &middot; Generic Target Documentation</title>
+<link rel="icon" type="image/svg+xml" href="img/icon.svg">
+<link rel="stylesheet" href="assets/design.css">
+<script src="assets/theme.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="index.html" aria-label="Generic Target documentation home">
+      <img src="img/icon.svg" alt="Generic Target logo" width="34" height="34">
+      <span class="brand-name">Generic Target</span>
+    </a>
+    <span class="version-badge" title="Documentation version">v2.2.0</span>
+  </div>
+  <div class="header-actions">
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch theme">
+      <img class="icon-moon" src="assets/icons/moon-light.svg" alt="" width="16" height="16">
+      <img class="icon-sun" src="assets/icons/sun-dark.svg" alt="" width="16" height="16">
+      <span data-theme-label>Dark mode</span>
+    </button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="site-nav" aria-label="Documentation navigation">
+<span class="nav-group-label">Overview</span>
+<nav class="nav-group" aria-label="Overview">
+<ul class="nav-list">
+  <li><a class="nav-link" href="index.html">Overview</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Getting Started</span>
+<nav class="nav-group" aria-label="Getting Started">
+<ul class="nav-list">
+  <li><a class="nav-link" href="install_toolbox.html">Install the Toolbox</a></li>
+  <li><a class="nav-link" href="prepare_target.html">Prepare the Target Computer</a></li>
+  <li><a class="nav-link active" href="create_and_deploy.html" aria-current="page">Create and Deploy a Model</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Core Concepts</span>
+<nav class="nav-group" aria-label="Core Concepts">
+<ul class="nav-list">
+  <li><a class="nav-link" href="application.html">Application Overview</a></li>
+  <li><a class="nav-link" href="timingscheduling.html">Timing and Scheduling</a></li>
+  <li><a class="nav-link" href="datarecording.html">Data Recording</a></li>
+  <li><a class="nav-link" href="consoleoutput.html">Console Output</a></li>
+  <li><a class="nav-link" href="deployment.html">Deployment Process</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Examples</span>
+<nav class="nav-group" aria-label="Examples">
+<ul class="nav-list">
+  <li><a class="nav-link" href="example_udpreceiveloop.html">UDP Reception Loop</a></li>
+  <li><a class="nav-link" href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
+  <li><a class="nav-link" href="autostart.html">Autostart Target Application</a></li>
+  <li><a class="nav-link" href="example_debugging.html">Debugging with VSCode</a></li>
+  <li><a class="nav-link" href="example_crashreport.html">Analyzing Crash Reports</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Classes</span>
+<nav class="nav-group" aria-label="API Reference: Classes">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_generictarget.html">GT.GenericTarget</a></li>
+  <li><a class="nav-link" href="packages_gt_compilerflags.html">GT.CompilerFlags</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: GT Functions</span>
+<nav class="nav-group" aria-label="API Reference: GT Functions">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_builddrivers.html">GT.BuildDrivers</a></li>
+  <li><a class="nav-link" href="packages_gt_gettemplate.html">GT.GetTemplate</a></li>
+  <li><a class="nav-link" href="packages_gt_getversion.html">GT.GetVersion</a></li>
+  <li><a class="nav-link" href="packages_gt_opendocumentation.html">GT.OpenDocumentation</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatadirectory.html">GT.DecodeDataDirectory</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a></li>
+  <li><a class="nav-link" href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbecellstr.html">GT.mustBeCellStr</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbehexstring.html">GT.mustBeHexString</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbeunique.html">GT.mustBeUnique</a></li>
+  <li><a class="nav-link" href="packages_gt_mustendwith.html">GT.mustEndWith</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Simulink Library</span>
+<nav class="nav-group" aria-label="API Reference: Simulink Library">
+<ul class="nav-list">
+  <li><a class="nav-link" href="library_gt_interface_tcpclientsend.html">Interface / TCP Client Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_tcpclientreceive.html">Interface / TCP Client Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_applicationarguments.html">Target Stats / Application Arguments</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_readthermalzones.html">Target Stats / Read Thermal Zones</a></li>
+  <li><a class="nav-link" href="library_gt_time_modelexecutiontime.html">Time / Model Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_unixtime.html">Time / UNIX Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctime.html">Time / UTC Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_localtime.html">Time / Local Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskexecutiontime.html">Time / Task Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskoverloads.html">Time / Task Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_cpuoverloads.html">Time / CPU Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestamp.html">Time / UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_timetolatestutctimestamp.html">Time / Time To Latest UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
+</ul>
+</nav>
+  </nav>
+  <div class="content-main">
+    <main id="main-content">
+      <article>
+<h1>Create and Deploy a Model</h1>
+<p>
+  Before starting, make sure you have <a href="install_toolbox.html">installed</a> the Generic Target toolbox
+  and <a href="prepare_target.html">prepared</a> the target computer. The toolbox ships with a pre-configured
+  Simulink template model that should be used as the basis for every new application: it already contains all
+  model settings required for correct code export. Open MATLAB and run
+  <a href="packages_gt_gettemplate.html">GT.GetTemplate</a> to generate the template in the current working
+  directory. The default base sample time of the model is 0.01 seconds and can be adjusted as needed. The stop
+  time of the simulation is irrelevant, because the deployed application runs indefinitely.
+</p>
+
+<h2>Evaluating the Target Latency</h2>
+<p>
+  The template model contains a simple test to evaluate the scheduling latency. It subtracts the expected
+  simulation time, provided by a digital clock, from the
+  <a href="library_gt_time_modelexecutiontime.html">model execution time</a>, which is the measured elapsed time
+  since the model start. The resulting difference is recorded and written to a file.
+</p>
+<figure class="figure">
+  <img src="img/GenericTargetTemplate.svg" alt="Screenshot of the GenericTargetTemplate Simulink model showing the latency evaluation test">
+  <figcaption>The Generic Target template model with a simple latency test.</figcaption>
+</figure>
+<p>
+  Perform this test once for each target to verify that the desired sample rate can be maintained. In the ideal
+  case the difference is zero; in practice, values in the microsecond range are typical. If the base sample time
+  is chosen too small, the real-time kernel may no longer be able to maintain it on the given target hardware.
+</p>
+
+<h2>Build the Model and Deploy to Hardware</h2>
+<p>
+  Source code is generated from the Simulink model and deployed to the target with the
+  <a href="packages_gt_generictarget.html">GT.GenericTarget</a> class of the MATLAB package. Writing a small
+  MATLAB script for the deployment process is recommended. A minimal script looks like this:
+</p>
+<pre>username = 'user';                   % Set username of target pc
+address  = '192.168.0.100';          % Set address of target pc
+model    = 'GenericTargetTemplate';  % Name of the Simulink model that is to be deployed
+
+target = GT.GenericTarget(username, address);
+target.Deploy(model);</pre>
+
+<aside class="callout callout-tip">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/tip-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/tip-dark.svg" alt="" width="18" height="18">Tip — Optional settings</p>
+  <p>
+    After a <code>GT.GenericTarget</code> object has been created, additional parameters can be configured.
+    Adjust the
+    <a href="packages_gt_generictarget.html#properties">properties</a> of the object before the
+    <a href="packages_gt_generictarget.html#Deploy">Deploy</a> method is called.
+  </p>
+</aside>
+
+<aside class="callout callout-note">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/note-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/note-dark.svg" alt="" width="18" height="18">Note — Alternative two-step deployment</p>
+  <p>
+    As an alternative, the code can be generated first and deployed to the target computer at a later time. The
+    object function <a href="packages_gt_generictarget.html#GenerateCode">GenerateCode</a> generates the code
+    only and packs it into a zip archive. This archive can then be copied to the target and compiled there with
+    the object function
+    <a href="packages_gt_generictarget.html#DeployGeneratedCode">DeployGeneratedCode</a>.
+  </p>
+</aside>
+
+<aside class="callout callout-warning">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/warning-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/warning-dark.svg" alt="" width="18" height="18">Warning — One model at a time</p>
+  <p>
+    Only one model must be code-generated at a time. Simulink code generation always writes its intermediate
+    results into a code folder with a fixed name, so generating multiple models in parallel — or with the same
+    code generation folder — causes the intermediate files to overwrite each other.
+  </p>
+</aside>
+
+<h2>Start and Stop the Application</h2>
+<p>
+  Once the model has been deployed successfully, start the application with <code>target.Start()</code> and stop
+  it with <code>target.Stop()</code>. If the application should run on specific CPU cores, set the
+  <a href="packages_gt_generictarget.html#targetBitmaskCPUCores">targetBitmaskCPUCores</a> property of the target
+  object before calling
+  <a href="packages_gt_generictarget.html#Start">Start</a>. For example, to pin the application to cores 0 to 5,
+  set <code>target.targetBitmaskCPUCores = '0x3f';</code>.
+</p>
+<p>
+  To stop the application from within the model — for example based on a runtime condition — use the
+  <a href="library_gt_interface_stopexecution.html">Stop Execution</a> block from the Simulink library.
+</p>
+
+<h2>Download Data</h2>
+<p>
+  Once the application has been stopped, download the recorded data with
+  <code>target.DownloadDataDirectory()</code>. You are asked which recording directory to download; the directory
+  names correspond to the UTC time of the application start. The downloaded data is read and decoded with
+  <a href="packages_gt_decodedatadirectory.html">GT.DecodeDataDirectory</a>. The binary file format of the
+  recordings is documented <a href="datarecording.html#protocol">here</a>.
+</p>
+<aside class="callout callout-note">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/note-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/note-dark.svg" alt="" width="18" height="18">Note — Return values</p>
+  <p>
+    All methods that access the target over the network invoke <code>ssh</code> or <code>scp</code> as a system
+    call. For traceability, each such method returns the exact command lines that were executed on the host.
+  </p>
+</aside>
+
+      </article>
+      <footer class="site-footer">
+        <span>Generic Target Toolbox &mdash; offline documentation</span>
+        <span>Version 2.2.0</span>
+      </footer>
+    </main>
+  </div>
+</div>
+<button id="backToTop" type="button" aria-label="Back to top"><img class="icon-up" src="assets/icons/arrow-up.svg" alt="" width="20" height="20"></button>
+<script src="assets/script.js"></script>
+</body>
+</html>

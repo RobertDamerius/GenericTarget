@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Write Bus To File &middot; Generic Target Documentation</title>
+<link rel="icon" type="image/svg+xml" href="img/icon.svg">
+<link rel="stylesheet" href="assets/design.css">
+<script src="assets/theme.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="index.html" aria-label="Generic Target documentation home">
+      <img src="img/icon.svg" alt="Generic Target logo" width="34" height="34">
+      <span class="brand-name">Generic Target</span>
+    </a>
+    <span class="version-badge" title="Documentation version">v2.2.0</span>
+  </div>
+  <div class="header-actions">
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch theme">
+      <img class="icon-moon" src="assets/icons/moon-light.svg" alt="" width="16" height="16">
+      <img class="icon-sun" src="assets/icons/sun-dark.svg" alt="" width="16" height="16">
+      <span data-theme-label>Dark mode</span>
+    </button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="site-nav" aria-label="Documentation navigation">
+<span class="nav-group-label">Overview</span>
+<nav class="nav-group" aria-label="Overview">
+<ul class="nav-list">
+  <li><a class="nav-link" href="index.html">Overview</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Getting Started</span>
+<nav class="nav-group" aria-label="Getting Started">
+<ul class="nav-list">
+  <li><a class="nav-link" href="install_toolbox.html">Install the Toolbox</a></li>
+  <li><a class="nav-link" href="prepare_target.html">Prepare the Target Computer</a></li>
+  <li><a class="nav-link" href="create_and_deploy.html">Create and Deploy a Model</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Core Concepts</span>
+<nav class="nav-group" aria-label="Core Concepts">
+<ul class="nav-list">
+  <li><a class="nav-link" href="application.html">Application Overview</a></li>
+  <li><a class="nav-link" href="timingscheduling.html">Timing and Scheduling</a></li>
+  <li><a class="nav-link" href="datarecording.html">Data Recording</a></li>
+  <li><a class="nav-link" href="consoleoutput.html">Console Output</a></li>
+  <li><a class="nav-link" href="deployment.html">Deployment Process</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Examples</span>
+<nav class="nav-group" aria-label="Examples">
+<ul class="nav-list">
+  <li><a class="nav-link" href="example_udpreceiveloop.html">UDP Reception Loop</a></li>
+  <li><a class="nav-link" href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
+  <li><a class="nav-link" href="autostart.html">Autostart Target Application</a></li>
+  <li><a class="nav-link" href="example_debugging.html">Debugging with VSCode</a></li>
+  <li><a class="nav-link" href="example_crashreport.html">Analyzing Crash Reports</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Classes</span>
+<nav class="nav-group" aria-label="API Reference: Classes">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_generictarget.html">GT.GenericTarget</a></li>
+  <li><a class="nav-link" href="packages_gt_compilerflags.html">GT.CompilerFlags</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: GT Functions</span>
+<nav class="nav-group" aria-label="API Reference: GT Functions">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_builddrivers.html">GT.BuildDrivers</a></li>
+  <li><a class="nav-link" href="packages_gt_gettemplate.html">GT.GetTemplate</a></li>
+  <li><a class="nav-link" href="packages_gt_getversion.html">GT.GetVersion</a></li>
+  <li><a class="nav-link" href="packages_gt_opendocumentation.html">GT.OpenDocumentation</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatadirectory.html">GT.DecodeDataDirectory</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a></li>
+  <li><a class="nav-link" href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbecellstr.html">GT.mustBeCellStr</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbehexstring.html">GT.mustBeHexString</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbeunique.html">GT.mustBeUnique</a></li>
+  <li><a class="nav-link" href="packages_gt_mustendwith.html">GT.mustEndWith</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Simulink Library</span>
+<nav class="nav-group" aria-label="API Reference: Simulink Library">
+<ul class="nav-list">
+  <li><a class="nav-link" href="library_gt_interface_tcpclientsend.html">Interface / TCP Client Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_tcpclientreceive.html">Interface / TCP Client Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
+  <li><a class="nav-link active" href="library_gt_interface_writebustofile.html" aria-current="page">Interface / Write Bus To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_applicationarguments.html">Target Stats / Application Arguments</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_readthermalzones.html">Target Stats / Read Thermal Zones</a></li>
+  <li><a class="nav-link" href="library_gt_time_modelexecutiontime.html">Time / Model Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_unixtime.html">Time / UNIX Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctime.html">Time / UTC Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_localtime.html">Time / Local Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskexecutiontime.html">Time / Task Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskoverloads.html">Time / Task Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_cpuoverloads.html">Time / CPU Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestamp.html">Time / UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_timetolatestutctimestamp.html">Time / Time To Latest UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
+</ul>
+</nav>
+  </nav>
+  <div class="content-main">
+    <main id="main-content">
+      <article>
+<span class="api-badge">Simulink block</span>
+<h1>Write Bus To File</h1>
+<p class="library-path">GenericTarget / Interface / Write Bus To File</p>
+<p>
+  Records a complete bus signal to a data file. The timestamp of each sample is taken from the model's digital
+  clock. The maximum number of samples per file can be specified; a sample consists of the timestamp and the
+  values of all signals in the bus at that sample time point.
+</p>
+
+<h2>Input Ports</h2>
+<h3>bus</h3>
+<p>
+  A bus signal. The bus may consist of nested buses and built-in data types supported by Simulink byte pack
+  blocks, such as <code>boolean, uint8, int8, uint16, int16, uint32, int32, single, double</code>. All bus and
+  signal names must be valid MATLAB variable names.
+</p>
+
+<h2>Block Parameters</h2>
+<p>The following table shows all block parameters.</p>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Parameter Name</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>strID</code></td><td>Unique ID for this data recording; it is used in the file names.</td></tr>
+      <tr><td><code>numSamplesPerFile</code></td><td>Maximum number of samples per data recording file. A value of <code>0</code> disables file splitting.</td></tr>
+      <tr><td><code>threadPriority</code></td><td>Priority of the data recording thread, in the range <code>[1 (lowest), 99 (highest)]</code>. The default value is <code>30</code>.</td></tr>
+      <tr><td><code>writeFilesDuringSimulation</code></td><td>Enables data recording during simulation in Simulink.</td></tr>
+      <tr><td><code>SampleTime</code></td><td>Sample time of the block.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>Further Notes</h2>
+<h3>Bus Signal</h3>
+<p>
+  When the Update button in the block mask is clicked, the input bus signal is analyzed: the Simulink model is
+  compiled once to determine the data types and dimensions of all signals (the model must therefore be
+  error-free). The block then configures itself to select and serialize all signals of the bus according to the
+  reconstructed structure.
+</p>
+<aside class="callout callout-important">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/important-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/important-dark.svg" alt="" width="18" height="18">Important</p>
+  <p>If the structure of the bus is changed, this block must be updated again via the block mask.</p>
+</aside>
+
+<h3>Unique ID</h3>
+<p>
+  Each recording is identified by a unique ID set in the block mask. The ID is a string that is also used in
+  the names of the recording files. An ID may occur only once in the model; if an ID is duplicated, the
+  initialization of the target application fails.
+</p>
+
+<h3>Data Recorder</h3>
+<p>
+  A dedicated thread takes over the actual writing of the data into the recording files; one thread is created
+  per ID. The priority of each recording thread can be adjusted via the <code>threadPriority</code> parameter in
+  the block mask. The <code>numSamplesPerFile</code> parameter defines how many samples are written to a file
+  before a new file is opened. Each sample contains the timestamp, which corresponds to the simulation time
+  (digital clock), as well as all values of the bus at that sample time point. When the application terminates,
+  any samples that are still buffered are written to the data files.
+</p>
+
+<h3>Write Files during Simulation</h3>
+<p>
+  If the <code>writeFilesDuringSimulation</code> checkbox is enabled, data is also recorded during simulation in
+  Simulink; a data directory is created in the current working directory. Note that a data directory is created
+  whenever the initialization callback of the driver block is executed — this may also happen during a model
+  compilation, for example when the Update button in the block mask is clicked.
+</p>
+
+      </article>
+      <footer class="site-footer">
+        <span>Generic Target Toolbox &mdash; offline documentation</span>
+        <span>Version 2.2.0</span>
+      </footer>
+    </main>
+  </div>
+</div>
+<button id="backToTop" type="button" aria-label="Back to top"><img class="icon-up" src="assets/icons/arrow-up.svg" alt="" width="20" height="20"></button>
+<script src="assets/script.js"></script>
+</body>
+</html>

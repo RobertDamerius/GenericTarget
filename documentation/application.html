@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Application Overview &middot; Generic Target Documentation</title>
+<link rel="icon" type="image/svg+xml" href="img/icon.svg">
+<link rel="stylesheet" href="assets/design.css">
+<script src="assets/theme.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="index.html" aria-label="Generic Target documentation home">
+      <img src="img/icon.svg" alt="Generic Target logo" width="34" height="34">
+      <span class="brand-name">Generic Target</span>
+    </a>
+    <span class="version-badge" title="Documentation version">v2.2.0</span>
+  </div>
+  <div class="header-actions">
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch theme">
+      <img class="icon-moon" src="assets/icons/moon-light.svg" alt="" width="16" height="16">
+      <img class="icon-sun" src="assets/icons/sun-dark.svg" alt="" width="16" height="16">
+      <span data-theme-label>Dark mode</span>
+    </button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="site-nav" aria-label="Documentation navigation">
+<span class="nav-group-label">Overview</span>
+<nav class="nav-group" aria-label="Overview">
+<ul class="nav-list">
+  <li><a class="nav-link" href="index.html">Overview</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Getting Started</span>
+<nav class="nav-group" aria-label="Getting Started">
+<ul class="nav-list">
+  <li><a class="nav-link" href="install_toolbox.html">Install the Toolbox</a></li>
+  <li><a class="nav-link" href="prepare_target.html">Prepare the Target Computer</a></li>
+  <li><a class="nav-link" href="create_and_deploy.html">Create and Deploy a Model</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Core Concepts</span>
+<nav class="nav-group" aria-label="Core Concepts">
+<ul class="nav-list">
+  <li><a class="nav-link active" href="application.html" aria-current="page">Application Overview</a></li>
+  <li><a class="nav-link" href="timingscheduling.html">Timing and Scheduling</a></li>
+  <li><a class="nav-link" href="datarecording.html">Data Recording</a></li>
+  <li><a class="nav-link" href="consoleoutput.html">Console Output</a></li>
+  <li><a class="nav-link" href="deployment.html">Deployment Process</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Examples</span>
+<nav class="nav-group" aria-label="Examples">
+<ul class="nav-list">
+  <li><a class="nav-link" href="example_udpreceiveloop.html">UDP Reception Loop</a></li>
+  <li><a class="nav-link" href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
+  <li><a class="nav-link" href="autostart.html">Autostart Target Application</a></li>
+  <li><a class="nav-link" href="example_debugging.html">Debugging with VSCode</a></li>
+  <li><a class="nav-link" href="example_crashreport.html">Analyzing Crash Reports</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Classes</span>
+<nav class="nav-group" aria-label="API Reference: Classes">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_generictarget.html">GT.GenericTarget</a></li>
+  <li><a class="nav-link" href="packages_gt_compilerflags.html">GT.CompilerFlags</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: GT Functions</span>
+<nav class="nav-group" aria-label="API Reference: GT Functions">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_builddrivers.html">GT.BuildDrivers</a></li>
+  <li><a class="nav-link" href="packages_gt_gettemplate.html">GT.GetTemplate</a></li>
+  <li><a class="nav-link" href="packages_gt_getversion.html">GT.GetVersion</a></li>
+  <li><a class="nav-link" href="packages_gt_opendocumentation.html">GT.OpenDocumentation</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatadirectory.html">GT.DecodeDataDirectory</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a></li>
+  <li><a class="nav-link" href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbecellstr.html">GT.mustBeCellStr</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbehexstring.html">GT.mustBeHexString</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbeunique.html">GT.mustBeUnique</a></li>
+  <li><a class="nav-link" href="packages_gt_mustendwith.html">GT.mustEndWith</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Simulink Library</span>
+<nav class="nav-group" aria-label="API Reference: Simulink Library">
+<ul class="nav-list">
+  <li><a class="nav-link" href="library_gt_interface_tcpclientsend.html">Interface / TCP Client Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_tcpclientreceive.html">Interface / TCP Client Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_applicationarguments.html">Target Stats / Application Arguments</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_readthermalzones.html">Target Stats / Read Thermal Zones</a></li>
+  <li><a class="nav-link" href="library_gt_time_modelexecutiontime.html">Time / Model Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_unixtime.html">Time / UNIX Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctime.html">Time / UTC Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_localtime.html">Time / Local Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskexecutiontime.html">Time / Task Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskoverloads.html">Time / Task Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_cpuoverloads.html">Time / CPU Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestamp.html">Time / UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_timetolatestutctimestamp.html">Time / Time To Latest UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
+</ul>
+</nav>
+  </nav>
+  <div class="content-main">
+    <main id="main-content">
+      <article>
+<h1>Application Overview</h1>
+<p>
+  The Generic Target application is a standalone executable that runs on the target computer. The name of the
+  executable is set with the property
+  <a href="packages_gt_generictarget.html#targetProductName">targetProductName</a>; the directory to which the
+  application is deployed is set with
+  <a href="packages_gt_generictarget.html#targetSoftwareDirectory">targetSoftwareDirectory</a>. By default, the
+  application is located at <code>~/GenericTarget/GenericTarget</code>.
+</p>
+
+<h2 id="directory">Application Directory</h2>
+<p>The directory in which the application is located has the following structure:</p>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Directory / File</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>.vscode</code></td><td>Metadata for VSCode that enables <a href="example_debugging.html">debugging</a> the application with VSCode.</td></tr>
+      <tr><td><code>build</code></td><td>Created during the compilation process. Object files and dependency files are first created from the source files, which are then linked together into the application. The dependency files ensure that when a source or header file changes, only those source files that depend on the changed files are recompiled.</td></tr>
+      <tr><td><code>code</code></td><td>Source code of the application, including the Generic Target Core, the generated code from Simulink, and optional custom code.</td></tr>
+      <tr><td><code>data</code></td><td>Created by the application to store <a href="datarecording.html">data recording files</a>, if data recording is used, i.e., if there are Write To File blocks in the model.</td></tr>
+      <tr><td><code>GenericTarget</code></td><td>The executable. The name can be changed via the property <a href="packages_gt_generictarget.html#targetProductName">targetProductName</a>.</td></tr>
+      <tr><td><code>Makefile</code></td><td>On the target computer, the software is compiled with the <code>g++</code> compiler using the <code>make</code> tool, which executes the commands from the Makefile. The Makefile compiles all source files in the <code>code/</code> directory.</td></tr>
+      <tr><td><code>README.md</code></td><td>A readme file with additional information about the application.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 id="arguments">Application Arguments</h2>
+<p>
+  Arguments passed to the application at start-up are printed as part of the application information and are also
+  accessible at runtime through the
+  <a href="library_gt_targetstats_applicationarguments.html">Target Stats / Application Arguments</a> block.
+</p>
+
+<h2 id="flowchart">Application Flowchart</h2>
+<p>
+  The application follows a simple lifecycle: after an
+  <a href="#initialize">initialization phase</a>, the <a href="#mainloop">main loop</a> runs until a termination
+  signal is received, after which the <a href="#terminate">termination phase</a> is executed. All three phases
+  are described in detail below.
+</p>
+<figure class="figure">
+  <img src="img/ApplicationOverview.svg" alt="Flowchart of the Generic Target application showing initialization, the main loop, and termination">
+  <figcaption>Basic flow of the Generic Target application.</figcaption>
+</figure>
+
+<h2 id="initialize">Initialization</h2>
+<p>
+  After the application is started, the initialization phase is executed. Its steps are described below.
+</p>
+<figure class="figure">
+  <img src="img/ApplicationInitialize.svg" alt="Flowchart of the initialization phase: parse arguments, print application information, open AppSocket, initialize the Simulink model, and start the scheduler">
+  <figcaption>Initialization phase.</figcaption>
+</figure>
+
+<h3>1. Parse Arguments (arg)</h3>
+<p>The <a href="#arguments">arguments</a> passed to the application at start-up are parsed and evaluated.</p>
+
+<h3>2. Print Application Information</h3>
+<p>
+  Basic information about the system and the application is printed, for example the Generic Target version, the
+  compiler version, and the configured tasks and sample rates. All output is written to the standard error
+  stream; when the application is started with <code>GT.GenericTarget.Start</code>, the stream is redirected
+  to a log file in the target software directory.
+</p>
+
+<h3>3. Open AppSocket (abstract UNIX socket)</h3>
+<p>
+  The Generic Target application uses an abstract UNIX socket, called AppSocket, whose system-wide unique name
+  is set via the
+  <a href="packages_gt_generictarget.html#targetSocketName">targetSocketName</a> property. Binding this socket
+  acts as a lock and ensures that only one instance of the application runs on the system.
+</p>
+
+<h3>4. SimulinkInterface::Initialize()</h3>
+<p>
+  The Simulink model is initialized; all initialization callbacks of the model and its driver blocks are
+  invoked. If an error occurs during initialization, it is reported on the
+  <a href="consoleoutput.html">standard error stream</a> and the application terminates.
+</p>
+
+<h3>5. Start Scheduler</h3>
+<p>
+  Finally, the <a href="timingscheduling.html">scheduler</a> is started. It runs in a high-priority master
+  thread and ensures that all <code>step()</code> methods of the Simulink model are invoked with their correct
+  sample times.
+</p>
+
+<h2 id="mainloop">Main Loop</h2>
+<p>
+  After the initialization phase, the main loop is entered. It runs in the main thread and waits for a
+  termination signal, for example <code>SIGINT</code> or <code>SIGTERM</code> sent by the operating system, which
+  interrupts the loop and triggers the termination phase.
+</p>
+
+<h2 id="terminate">Termination</h2>
+<p>
+  During the termination phase, all open files are closed and dynamically allocated memory is released. The
+  individual steps are:
+</p>
+<figure class="figure">
+  <img src="img/ApplicationTerminate.svg" alt="Flowchart of the termination phase: stop the scheduler, terminate the Simulink model, and close the AppSocket">
+  <figcaption>Termination phase.</figcaption>
+</figure>
+
+<h3>1. Stop Scheduler</h3>
+<p>
+  The scheduler is stopped. <code>step()</code> calls that are already in flight are allowed to complete, but no
+  new <code>step()</code> calls are started.
+</p>
+
+<h3>2. SimulinkInterface::Terminate()</h3>
+<p>
+  The termination function of the Simulink model is called. All termination callbacks of the driver blocks are
+  invoked as well.
+</p>
+
+<h3>3. Close AppSocket</h3>
+<p>The AppSocket is closed and the Generic Target application terminates.</p>
+
+      </article>
+      <footer class="site-footer">
+        <span>Generic Target Toolbox &mdash; offline documentation</span>
+        <span>Version 2.2.0</span>
+      </footer>
+    </main>
+  </div>
+</div>
+<button id="backToTop" type="button" aria-label="Back to top"><img class="icon-up" src="assets/icons/arrow-up.svg" alt="" width="20" height="20"></button>
+<script src="assets/script.js"></script>
+</body>
+</html>

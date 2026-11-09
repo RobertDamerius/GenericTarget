@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Console Output &middot; Generic Target Documentation</title>
+<link rel="icon" type="image/svg+xml" href="img/icon.svg">
+<link rel="stylesheet" href="assets/design.css">
+<script src="assets/theme.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="index.html" aria-label="Generic Target documentation home">
+      <img src="img/icon.svg" alt="Generic Target logo" width="34" height="34">
+      <span class="brand-name">Generic Target</span>
+    </a>
+    <span class="version-badge" title="Documentation version">v2.2.0</span>
+  </div>
+  <div class="header-actions">
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch theme">
+      <img class="icon-moon" src="assets/icons/moon-light.svg" alt="" width="16" height="16">
+      <img class="icon-sun" src="assets/icons/sun-dark.svg" alt="" width="16" height="16">
+      <span data-theme-label>Dark mode</span>
+    </button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="site-nav" aria-label="Documentation navigation">
+<span class="nav-group-label">Overview</span>
+<nav class="nav-group" aria-label="Overview">
+<ul class="nav-list">
+  <li><a class="nav-link" href="index.html">Overview</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Getting Started</span>
+<nav class="nav-group" aria-label="Getting Started">
+<ul class="nav-list">
+  <li><a class="nav-link" href="install_toolbox.html">Install the Toolbox</a></li>
+  <li><a class="nav-link" href="prepare_target.html">Prepare the Target Computer</a></li>
+  <li><a class="nav-link" href="create_and_deploy.html">Create and Deploy a Model</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Core Concepts</span>
+<nav class="nav-group" aria-label="Core Concepts">
+<ul class="nav-list">
+  <li><a class="nav-link" href="application.html">Application Overview</a></li>
+  <li><a class="nav-link" href="timingscheduling.html">Timing and Scheduling</a></li>
+  <li><a class="nav-link" href="datarecording.html">Data Recording</a></li>
+  <li><a class="nav-link active" href="consoleoutput.html" aria-current="page">Console Output</a></li>
+  <li><a class="nav-link" href="deployment.html">Deployment Process</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Examples</span>
+<nav class="nav-group" aria-label="Examples">
+<ul class="nav-list">
+  <li><a class="nav-link" href="example_udpreceiveloop.html">UDP Reception Loop</a></li>
+  <li><a class="nav-link" href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
+  <li><a class="nav-link" href="autostart.html">Autostart Target Application</a></li>
+  <li><a class="nav-link" href="example_debugging.html">Debugging with VSCode</a></li>
+  <li><a class="nav-link" href="example_crashreport.html">Analyzing Crash Reports</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Classes</span>
+<nav class="nav-group" aria-label="API Reference: Classes">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_generictarget.html">GT.GenericTarget</a></li>
+  <li><a class="nav-link" href="packages_gt_compilerflags.html">GT.CompilerFlags</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: GT Functions</span>
+<nav class="nav-group" aria-label="API Reference: GT Functions">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_builddrivers.html">GT.BuildDrivers</a></li>
+  <li><a class="nav-link" href="packages_gt_gettemplate.html">GT.GetTemplate</a></li>
+  <li><a class="nav-link" href="packages_gt_getversion.html">GT.GetVersion</a></li>
+  <li><a class="nav-link" href="packages_gt_opendocumentation.html">GT.OpenDocumentation</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatadirectory.html">GT.DecodeDataDirectory</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a></li>
+  <li><a class="nav-link" href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbecellstr.html">GT.mustBeCellStr</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbehexstring.html">GT.mustBeHexString</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbeunique.html">GT.mustBeUnique</a></li>
+  <li><a class="nav-link" href="packages_gt_mustendwith.html">GT.mustEndWith</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Simulink Library</span>
+<nav class="nav-group" aria-label="API Reference: Simulink Library">
+<ul class="nav-list">
+  <li><a class="nav-link" href="library_gt_interface_tcpclientsend.html">Interface / TCP Client Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_tcpclientreceive.html">Interface / TCP Client Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_applicationarguments.html">Target Stats / Application Arguments</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_readthermalzones.html">Target Stats / Read Thermal Zones</a></li>
+  <li><a class="nav-link" href="library_gt_time_modelexecutiontime.html">Time / Model Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_unixtime.html">Time / UNIX Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctime.html">Time / UTC Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_localtime.html">Time / Local Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskexecutiontime.html">Time / Task Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskoverloads.html">Time / Task Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_cpuoverloads.html">Time / CPU Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestamp.html">Time / UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_timetolatestutctimestamp.html">Time / Time To Latest UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
+</ul>
+</nav>
+  </nav>
+  <div class="content-main">
+    <main id="main-content">
+      <article>
+<h1>Console Output</h1>
+<p>
+  The console output provides a time-stamped log of the target application: informational events about the
+  system and the application, as well as warnings and error messages. Each log message carries an absolute UTC
+  timestamp.
+</p>
+
+<h2>Example Console Output</h2>
+<p>A typical console output is shown below:</p>
+<pre>==========================================================================
+[2026-11-05 16:52:15.256437671 UTC] &gt;&gt;&gt; TARGET START (PID: 1228)
+==========================================================================
+
+sysname:                  Linux
+nodename:                 debian
+release:                  6.12.115+deb13.1-rt-amd64
+version:                  #1 SMP PREEMPT_RT Debian 6.12.115-2 (2026-11-01)
+machine:                  x86_64
+domainname:               (none)
+network interfaces:       [lo][enp5s0][enp4s0][wlo1]
+
+Generic Target Version:   2.2.0
+Compiler Version:         14.2.0
+Built (local):            Nov  5 2026 17:51:19
+Date (UTC):               2026-11-05 16:52:15.250
+Application Path:         /home/target/GenericTarget/
+Arguments:                [/home/target/GenericTarget/GenericTarget]
+Maximum thread priority:  99
+Minimum thread priority:  1
+
+modelName:                model
+targetSocketName:         /run/generic-target/app.lock
+baseSampleTime:           0.010000 s
+basePriority:             49
+tasks:                    [0]: name="D1", sampleTicks=1, sampleOffset=0
+                          [1]: name="D2", sampleTicks=100, sampleOffset=0
+
+[2026-11-05 16:52:15.259534570 UTC] [INFO] Initializing model
+[2026-11-05 16:52:15.260748711 UTC] [INFO] UDP socket operational {port=0, deviceName="", socketPriority=6, allowBroadcast=0, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
+[2026-11-05 16:52:15.261974973 UTC] [INFO] Created data recording directory "/home/target/GenericTarget/data/20261105_165215250"
+[2026-11-05 16:52:15.263109445 UTC] [INFO] Writing data record index file "/home/target/GenericTarget/data/20261105_165215250/index"
+[2026-11-05 16:52:15.264303447 UTC] [INFO] Writing data record index file "/home/target/GenericTarget/data/20261105_165215250/index"
+[2026-11-05 16:52:15.264371303 UTC] [INFO] UDP socket operational {port=-1, deviceName="", socketPriority=6, allowBroadcast=1, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
+[2026-11-05 16:52:15.264386084 UTC] [INFO] UDP socket operational {port=1900, deviceName="", socketPriority=6, allowBroadcast=0, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
+[2026-11-05 16:52:15.264389679 UTC] [INFO] Starting scheduler
+[2026-11-05 16:52:15.267988593 UTC] [INFO] All UDP sockets are ready for operation
+[2026-11-05 16:52:15.268603915 UTC] [INFO] Created data recording file "/home/target/GenericTarget/data/20261105_165215250/scalar_doubles_0"
+[2026-11-05 16:52:15.268627682 UTC] [INFO] Created data recording file "/home/target/GenericTarget/data/20261105_165215250/bus_0"
+[2026-11-05 16:52:25.268281821 UTC] [INFO] Stopping scheduler
+[2026-11-05 16:52:25.269950236 UTC] [INFO] Terminating model
+[2026-11-05 16:52:25.287807246 UTC] [INFO] Closed UDP socket {port=0, deviceName="", socketPriority=6, allowBroadcast=0, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
+[2026-11-05 16:52:25.287870592 UTC] [INFO] Closed UDP socket {port=-1, deviceName="", socketPriority=6, allowBroadcast=1, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
+[2026-11-05 16:52:25.287981234 UTC] [INFO] Closed UDP socket {port=1900, deviceName="", socketPriority=6, allowBroadcast=0, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
+--------------------------------------------------------------------------
+[2026-11-05 16:52:25.291539003 UTC] &lt;&lt;&lt; TARGET STOP (PID: 1228)
+==========================================================================</pre>
+
+<h2>Log Format</h2>
+<p>
+  The output consists of a header marking the start of the application, descriptive information about the system
+  and the application, the time-stamped log messages, and a footer marking the stop of the application. Each log
+  message is prefixed with an absolute UTC timestamp and a severity level: <code>[INFO]</code>,
+  <code>[WARNING]</code>, or <code>[ERROR]</code>.
+  The log is written to the standard error stream. When the application is started with
+  <code>GT.GenericTarget.Start</code>, this stream is redirected to <code>out.txt</code> in the
+  <a href="application.html#directory">target software directory</a>.
+</p>
+
+      </article>
+      <footer class="site-footer">
+        <span>Generic Target Toolbox &mdash; offline documentation</span>
+        <span>Version 2.2.0</span>
+      </footer>
+    </main>
+  </div>
+</div>
+<button id="backToTop" type="button" aria-label="Back to top"><img class="icon-up" src="assets/icons/arrow-up.svg" alt="" width="20" height="20"></button>
+<script src="assets/script.js"></script>
+</body>
+</html>

@@ -1,6 +1,14 @@
 # Generic Target
 
-<div align="center"><img src="documentation/img/icon.svg" alt="Generic Target Logo" width="20%"><br><br></div>
+<div align="center">
+  <img src="documentation/img/icon.svg" alt="Generic Target Logo" width="20%">
+  <br><br>
+  <a href="https://github.com/RobertDamerius/GenericTarget/releases/latest"><img src="https://img.shields.io/github/v/release/RobertDamerius/GenericTarget?include_prereleases&label=release" alt="Latest release" /></a>
+  <a href="https://github.com/RobertDamerius/GenericTarget/blob/main/LICENSE"><img src="https://img.shields.io/github/license/RobertDamerius/GenericTarget" alt="MIT License" /></a>
+  <a href="readme.html"><img src="https://img.shields.io/badge/docs-offline%20HTML-blue" alt="Offline documentation" /></a>
+  <a href="https://mathworks.com/products/simulink.html"><img src="https://img.shields.io/badge/MATLAB-R2025b%2B-orange" alt="MATLAB R2025b+" /></a>
+  <br><br>
+</div>
 
 Generic Target deploys MATLAB/Simulink models as real-time applications on Linux. It can run on any hardware capable of running Linux; real-time operation requires a **PREEMPT_RT** kernel. The toolbox is designed for applications that communicate with external devices over network interfaces, with support for protocols such as UDP and TCP.
 

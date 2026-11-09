@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GT.CompilerFlags &middot; Generic Target Documentation</title>
+<link rel="icon" type="image/svg+xml" href="img/icon.svg">
+<link rel="stylesheet" href="assets/design.css">
+<script src="assets/theme.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="index.html" aria-label="Generic Target documentation home">
+      <img src="img/icon.svg" alt="Generic Target logo" width="34" height="34">
+      <span class="brand-name">Generic Target</span>
+    </a>
+    <span class="version-badge" title="Documentation version">v2.2.0</span>
+  </div>
+  <div class="header-actions">
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch theme">
+      <img class="icon-moon" src="assets/icons/moon-light.svg" alt="" width="16" height="16">
+      <img class="icon-sun" src="assets/icons/sun-dark.svg" alt="" width="16" height="16">
+      <span data-theme-label>Dark mode</span>
+    </button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="site-nav" aria-label="Documentation navigation">
+<span class="nav-group-label">Overview</span>
+<nav class="nav-group" aria-label="Overview">
+<ul class="nav-list">
+  <li><a class="nav-link" href="index.html">Overview</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Getting Started</span>
+<nav class="nav-group" aria-label="Getting Started">
+<ul class="nav-list">
+  <li><a class="nav-link" href="install_toolbox.html">Install the Toolbox</a></li>
+  <li><a class="nav-link" href="prepare_target.html">Prepare the Target Computer</a></li>
+  <li><a class="nav-link" href="create_and_deploy.html">Create and Deploy a Model</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Core Concepts</span>
+<nav class="nav-group" aria-label="Core Concepts">
+<ul class="nav-list">
+  <li><a class="nav-link" href="application.html">Application Overview</a></li>
+  <li><a class="nav-link" href="timingscheduling.html">Timing and Scheduling</a></li>
+  <li><a class="nav-link" href="datarecording.html">Data Recording</a></li>
+  <li><a class="nav-link" href="consoleoutput.html">Console Output</a></li>
+  <li><a class="nav-link" href="deployment.html">Deployment Process</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Examples</span>
+<nav class="nav-group" aria-label="Examples">
+<ul class="nav-list">
+  <li><a class="nav-link" href="example_udpreceiveloop.html">UDP Reception Loop</a></li>
+  <li><a class="nav-link" href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
+  <li><a class="nav-link" href="autostart.html">Autostart Target Application</a></li>
+  <li><a class="nav-link" href="example_debugging.html">Debugging with VSCode</a></li>
+  <li><a class="nav-link" href="example_crashreport.html">Analyzing Crash Reports</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Classes</span>
+<nav class="nav-group" aria-label="API Reference: Classes">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_generictarget.html">GT.GenericTarget</a></li>
+  <li><a class="nav-link active" href="packages_gt_compilerflags.html" aria-current="page">GT.CompilerFlags</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: GT Functions</span>
+<nav class="nav-group" aria-label="API Reference: GT Functions">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_builddrivers.html">GT.BuildDrivers</a></li>
+  <li><a class="nav-link" href="packages_gt_gettemplate.html">GT.GetTemplate</a></li>
+  <li><a class="nav-link" href="packages_gt_getversion.html">GT.GetVersion</a></li>
+  <li><a class="nav-link" href="packages_gt_opendocumentation.html">GT.OpenDocumentation</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatadirectory.html">GT.DecodeDataDirectory</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a></li>
+  <li><a class="nav-link" href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbecellstr.html">GT.mustBeCellStr</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbehexstring.html">GT.mustBeHexString</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbeunique.html">GT.mustBeUnique</a></li>
+  <li><a class="nav-link" href="packages_gt_mustendwith.html">GT.mustEndWith</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Simulink Library</span>
+<nav class="nav-group" aria-label="API Reference: Simulink Library">
+<ul class="nav-list">
+  <li><a class="nav-link" href="library_gt_interface_tcpclientsend.html">Interface / TCP Client Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_tcpclientreceive.html">Interface / TCP Client Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_applicationarguments.html">Target Stats / Application Arguments</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_readthermalzones.html">Target Stats / Read Thermal Zones</a></li>
+  <li><a class="nav-link" href="library_gt_time_modelexecutiontime.html">Time / Model Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_unixtime.html">Time / UNIX Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctime.html">Time / UTC Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_localtime.html">Time / Local Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskexecutiontime.html">Time / Task Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskoverloads.html">Time / Task Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_cpuoverloads.html">Time / CPU Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestamp.html">Time / UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_timetolatestutctimestamp.html">Time / Time To Latest UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
+</ul>
+</nav>
+  </nav>
+  <div class="content-main">
+    <main id="main-content">
+      <article>
+<span class="api-badge">MATLAB class</span>
+<h1>GT.CompilerFlags</h1>
+<p>
+  This class represents additional compiler and linker flags for the
+  <a href="packages_gt_generictarget.html">GT.GenericTarget</a> class. The
+  <a href="#properties">properties</a> are applied when the Makefile is generated during deployment.
+</p>
+
+<h2 id="construction">Construction</h2>
+<p><code>flags = GT.CompilerFlags()</code> creates a CompilerFlags object with default properties.</p>
+
+<h2 id="properties">Properties</h2>
+<p>The properties of this class are summarized in the following table; detailed descriptions follow.</p>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Property</th><th>Data Type</th><th>Default Value</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><a href="#DEBUG_MODE"><code>DEBUG_MODE</code></a></td><td><code>logical</code></td><td><code>false</code></td><td><code>true</code> if DEBUG mode is to be enabled when compiling the target software, <code>false</code> otherwise.</td></tr>
+      <tr><td><a href="#LD_LIBS"><code>LD_LIBS</code></a></td><td><code>cell array</code></td><td><code>{}</code></td><td>Additional libraries to link against.</td></tr>
+      <tr><td><a href="#CC_SYMBOLS"><code>CC_SYMBOLS</code></a></td><td><code>cell array</code></td><td><code>{}</code></td><td>Additional symbols to be set when compiling.</td></tr>
+      <tr><td><a href="#CC_FLAGS"><code>CC_FLAGS</code></a></td><td><code>cell array</code></td><td><code>{}</code></td><td>Additional flags to be set when compiling C source files.</td></tr>
+      <tr><td><a href="#CPP_FLAGS"><code>CPP_FLAGS</code></a></td><td><code>cell array</code></td><td><code>{}</code></td><td>Additional flags to be set when compiling C++ source files.</td></tr>
+      <tr><td><a href="#LD_FLAGS"><code>LD_FLAGS</code></a></td><td><code>cell array</code></td><td><code>{}</code></td><td>Additional flags to be set when linking the application.</td></tr>
+      <tr><td><a href="#INCLUDE_PATHS"><code>INCLUDE_PATHS</code></a></td><td><code>cell array</code></td><td><code>{}</code></td><td>Additional include paths to be set when compiling source files.</td></tr>
+      <tr><td><a href="#LIBRARY_PATHS"><code>LIBRARY_PATHS</code></a></td><td><code>cell array</code></td><td><code>{}</code></td><td>Additional library paths to be set when linking the application.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h3 id="DEBUG_MODE">DEBUG_MODE</h3>
+<p>
+  This flag specifies whether the target application is compiled in debug mode. In debug mode, compiler
+  optimizations are disabled, the symbol <code>DEBUG</code> is defined, and the compiler flag
+  <code>-ggdb</code> is added. The application then no longer requires root privileges and does not terminate if
+  thread priorities cannot be set. If this flag is <code>false</code>, the optimization level
+  <code>-O3</code> is used and the debug symbols are not included in the application.
+</p>
+
+<h3 id="LD_LIBS">LD_LIBS</h3>
+<p>
+  Additional libraries that are linked into the application. The complete library list used by the linker is:
+</p>
+<pre>-lstdc++ -lstdc++fs -lpthread -latomic $TARGET_MAKEFILE_LD_LIBS$</pre>
+<p>in which the placeholder <code>$TARGET_MAKEFILE_LD_LIBS$</code> is replaced by the additional libraries.</p>
+
+<h3 id="CC_SYMBOLS">CC_SYMBOLS</h3>
+<p>Additional preprocessor symbols that are defined when compiling the target application. The complete symbol list is:</p>
+<pre>-DGENERIC_TARGET_IMPLEMENTATION $TARGET_MAKEFILE_CC_SYMBOLS$</pre>
+<p>in which the placeholder <code>$TARGET_MAKEFILE_CC_SYMBOLS$</code> is replaced by the additional symbols.</p>
+<aside class="callout callout-note">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/note-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/note-dark.svg" alt="" width="18" height="18">C/C++ macros</p>
+  <p>
+    The <code>GENERIC_TARGET_IMPLEMENTATION</code> macro can be used to guard areas of C/C++ code that are only
+    compiled when the flag <code>-DGENERIC_TARGET_IMPLEMENTATION</code> is set.
+  </p>
+</aside>
+
+<h3 id="CC_FLAGS">CC_FLAGS</h3>
+<p>
+  Additional compiler flags that are applied when compiling C source files. The complete flag set is:
+</p>
+<pre>-Wall -Wextra -Wno-format-security -mtune=native $TARGET_MAKEFILE_CC_FLAGS$</pre>
+<p>in which the placeholder <code>$TARGET_MAKEFILE_CC_FLAGS$</code> is replaced by the additional flags.</p>
+
+<h3 id="CPP_FLAGS">CPP_FLAGS</h3>
+<p>
+  Additional compiler flags that are applied when compiling C++ source files. The complete flag set is:
+</p>
+<pre>-std=c++20 -Wall -Wextra -Wno-format-security -mtune=native $TARGET_MAKEFILE_CPP_FLAGS$</pre>
+<p>in which the placeholder <code>$TARGET_MAKEFILE_CPP_FLAGS$</code> is replaced by the additional flags.</p>
+
+<h3 id="LD_FLAGS">LD_FLAGS</h3>
+<p>
+  Additional linker flags that are applied when the target application is linked. The complete flag set is:
+</p>
+<pre>-Wall -Wextra -Wno-format-security -mtune=native $TARGET_MAKEFILE_LD_FLAGS$</pre>
+<p>in which the placeholder <code>$TARGET_MAKEFILE_LD_FLAGS$</code> is replaced by the additional linker flags.</p>
+
+<h3 id="INCLUDE_PATHS">INCLUDE_PATHS</h3>
+<p>
+  Additional include paths that are added when compiling source files. The complete include list is:
+</p>
+<pre>-I/usr/local/include $TARGET_MAKEFILE_INCLUDE_PATHS$</pre>
+<p>in which the placeholder <code>$TARGET_MAKEFILE_INCLUDE_PATHS$</code> is replaced by the additional paths.</p>
+
+<h3 id="LIBRARY_PATHS">LIBRARY_PATHS</h3>
+<p>
+  Additional library search paths that are added when the target application is linked. The complete path list
+  is:
+</p>
+<pre>-L/usr/local/lib $TARGET_MAKEFILE_LIBRARY_PATHS$</pre>
+<p>in which the placeholder <code>$TARGET_MAKEFILE_LIBRARY_PATHS$</code> is replaced by the additional paths.</p>
+
+      </article>
+      <footer class="site-footer">
+        <span>Generic Target Toolbox &mdash; offline documentation</span>
+        <span>Version 2.2.0</span>
+      </footer>
+    </main>
+  </div>
+</div>
+<button id="backToTop" type="button" aria-label="Back to top"><img class="icon-up" src="assets/icons/arrow-up.svg" alt="" width="20" height="20"></button>
+<script src="assets/script.js"></script>
+</body>
+</html>

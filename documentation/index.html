@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overview &middot; Generic Target Documentation</title>
+<link rel="icon" type="image/svg+xml" href="img/icon.svg">
+<link rel="stylesheet" href="assets/design.css">
+<script src="assets/theme.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="index.html" aria-label="Generic Target documentation home">
+      <img src="img/icon.svg" alt="Generic Target logo" width="34" height="34">
+      <span class="brand-name">Generic Target</span>
+    </a>
+    <span class="version-badge" title="Documentation version">v2.2.0</span>
+  </div>
+  <div class="header-actions">
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch theme">
+      <img class="icon-moon" src="assets/icons/moon-light.svg" alt="" width="16" height="16">
+      <img class="icon-sun" src="assets/icons/sun-dark.svg" alt="" width="16" height="16">
+      <span data-theme-label>Dark mode</span>
+    </button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="site-nav" aria-label="Documentation navigation">
+<span class="nav-group-label">Overview</span>
+<nav class="nav-group" aria-label="Overview">
+<ul class="nav-list">
+  <li><a class="nav-link active" href="index.html" aria-current="page">Overview</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Getting Started</span>
+<nav class="nav-group" aria-label="Getting Started">
+<ul class="nav-list">
+  <li><a class="nav-link" href="install_toolbox.html">Install the Toolbox</a></li>
+  <li><a class="nav-link" href="prepare_target.html">Prepare the Target Computer</a></li>
+  <li><a class="nav-link" href="create_and_deploy.html">Create and Deploy a Model</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Core Concepts</span>
+<nav class="nav-group" aria-label="Core Concepts">
+<ul class="nav-list">
+  <li><a class="nav-link" href="application.html">Application Overview</a></li>
+  <li><a class="nav-link" href="timingscheduling.html">Timing and Scheduling</a></li>
+  <li><a class="nav-link" href="datarecording.html">Data Recording</a></li>
+  <li><a class="nav-link" href="consoleoutput.html">Console Output</a></li>
+  <li><a class="nav-link" href="deployment.html">Deployment Process</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Examples</span>
+<nav class="nav-group" aria-label="Examples">
+<ul class="nav-list">
+  <li><a class="nav-link" href="example_udpreceiveloop.html">UDP Reception Loop</a></li>
+  <li><a class="nav-link" href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
+  <li><a class="nav-link" href="autostart.html">Autostart Target Application</a></li>
+  <li><a class="nav-link" href="example_debugging.html">Debugging with VSCode</a></li>
+  <li><a class="nav-link" href="example_crashreport.html">Analyzing Crash Reports</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Classes</span>
+<nav class="nav-group" aria-label="API Reference: Classes">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_generictarget.html">GT.GenericTarget</a></li>
+  <li><a class="nav-link" href="packages_gt_compilerflags.html">GT.CompilerFlags</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: GT Functions</span>
+<nav class="nav-group" aria-label="API Reference: GT Functions">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_builddrivers.html">GT.BuildDrivers</a></li>
+  <li><a class="nav-link" href="packages_gt_gettemplate.html">GT.GetTemplate</a></li>
+  <li><a class="nav-link" href="packages_gt_getversion.html">GT.GetVersion</a></li>
+  <li><a class="nav-link" href="packages_gt_opendocumentation.html">GT.OpenDocumentation</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatadirectory.html">GT.DecodeDataDirectory</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a></li>
+  <li><a class="nav-link" href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbecellstr.html">GT.mustBeCellStr</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbehexstring.html">GT.mustBeHexString</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbeunique.html">GT.mustBeUnique</a></li>
+  <li><a class="nav-link" href="packages_gt_mustendwith.html">GT.mustEndWith</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Simulink Library</span>
+<nav class="nav-group" aria-label="API Reference: Simulink Library">
+<ul class="nav-list">
+  <li><a class="nav-link" href="library_gt_interface_tcpclientsend.html">Interface / TCP Client Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_tcpclientreceive.html">Interface / TCP Client Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_applicationarguments.html">Target Stats / Application Arguments</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_readthermalzones.html">Target Stats / Read Thermal Zones</a></li>
+  <li><a class="nav-link" href="library_gt_time_modelexecutiontime.html">Time / Model Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_unixtime.html">Time / UNIX Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctime.html">Time / UTC Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_localtime.html">Time / Local Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskexecutiontime.html">Time / Task Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskoverloads.html">Time / Task Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_cpuoverloads.html">Time / CPU Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestamp.html">Time / UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_timetolatestutctimestamp.html">Time / Time To Latest UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
+</ul>
+</nav>
+  </nav>
+  <div class="content-main">
+    <main id="main-content">
+      <article>
+<h1>Overview</h1>
+<p>
+  The <strong>Generic Target Toolbox</strong> executes MATLAB/Simulink models in real time on a target computer.
+  Conventional Simulink real-time target libraries are typically bound to specific hardware, which constrains
+  flexibility in application development: many supported platforms provide serial interfaces, digital I/O,
+  AD/DA converters, or CAN buses, but they are limited in computing power. Many applications, however, require
+  only network interfaces. For such applications, the Generic Target Toolbox provides hardware-agnostic
+  real-time execution of MATLAB/Simulink models.
+</p>
+<p>
+  Any computer can serve as the target system as long as it runs a Linux operating system with the
+  <strong>PREEMPT_RT</strong> kernel patch applied. The use of Linux also simplifies the integration of
+  additional software libraries, since standard POSIX tooling is available.
+</p>
+
+<h2>Components</h2>
+<div class="component-grid">
+  <div class="component-card">
+    <img src="img/MATLABPackage.svg" alt="Diagram of the GT MATLAB package showing the GT.GenericTarget class and data decoding functions">
+    <h3>MATLAB Package</h3>
+    <p>
+      The MATLAB package (<code>GT</code>) provides the
+      <a href="packages_gt_generictarget.html">GT.GenericTarget</a> class, which generates the source code for
+      the Generic Target application from a Simulink model and deploys it to the target. It is also used to
+      start and stop the application and to download recorded data. The package additionally provides functions
+      to decode the recorded data back into MATLAB.
+    </p>
+  </div>
+  <div class="component-card">
+    <img src="img/SimulinkLibrary.svg" alt="Diagram of the GenericTarget Simulink library with Interface, Target Stats, and Time blocks">
+    <h3>Simulink Library</h3>
+    <p>
+      The Simulink library contains the driver blocks used to develop a target application. Most of these blocks
+      also work during simulation, although some have limitations (see the
+      <a href="install_toolbox.html#simulinksupport">Simulink support overview</a>).
+    </p>
+  </div>
+  <div class="component-card">
+    <img src="img/TemplateModel.svg" alt="Diagram of the Simulink template model generated by GT.GetTemplate">
+    <h3>Template Model</h3>
+    <p>
+      A Simulink template model is generated with the MATLAB package. The software for the Generic Target
+      application is developed on the basis of this model, which is pre-configured with all settings required
+      for the automated code generation and deployment process.
+    </p>
+  </div>
+  <div class="component-card">
+    <img src="img/GenericTargetCore.svg" alt="Diagram of the Generic Target Core with its build tools and source code">
+    <h3>Generic Target Core</h3>
+    <p>
+      The toolbox ships with the build tools and the source code of the Generic Target Core, the core of the
+      real-time application deployed to the target computer. The core source code is compiled on the target
+      together with the code generated from the Simulink model.
+    </p>
+  </div>
+</div>
+
+<h2>How It Works</h2>
+<p>
+  A Simulink model is created on the basis of the provided
+  <a href="packages_gt_gettemplate.html">template model</a>. In general, all standard blocks that generate
+  generic C/C++ code can be used. For real-time specific functionality, the Generic Target Toolbox provides a
+  dedicated Simulink library with driver blocks.
+</p>
+<p>
+  Deployment is performed with the MATLAB class
+  <a href="packages_gt_generictarget.html">GT.GenericTarget</a>. During code generation, Simulink produces
+  generic C/C++ code that consists primarily of a class with the following methods:
+</p>
+<ul>
+  <li><code>initialize()</code> — executed once at startup</li>
+  <li><code>step()</code> — executed periodically at the defined sampling rate</li>
+  <li><code>terminate()</code> — executed when the application stops</li>
+</ul>
+<p>
+  In addition, the <code>codeInfo.mat</code> file is generated, containing metadata such as sample rates and
+  function names. This information is used to generate a Simulink interface class that implements a standardized
+  programming interface and integrates the generated code with the Generic Target Core.
+</p>
+<figure class="figure">
+  <img src="img/Overview.svg" alt="End-to-end overview: a Simulink model is deployed from the host MATLAB environment to the target computer, where the Generic Target Core executes the generated code">
+  <figcaption>Deployment and execution overview.</figcaption>
+</figure>
+<p>
+  During deployment, both the generated model code and the Generic Target Core source code are transferred to
+  the target computer via SCP, and the deployment commands are sent via SSH. The target computer then compiles
+  all sources. At runtime, the Generic Target Core manages the execution of the <code>initialize()</code>,
+  <code>step()</code>, and <code>terminate()</code> functions. If the model contains multiple sample rates,
+  multiple <code>step()</code> methods are generated (for example, <code>step0()</code>, <code>step1()</code>,
+  <code>step2()</code>). These run concurrently in separate threads, prioritized by sample rate — the smaller the
+  sample time, the higher the thread priority.
+</p>
+
+<h2>Notes for Software Development</h2>
+<p>
+  When developing a target application from a Simulink model, several points must be observed. Some may seem
+  trivial, but others are not immediately obvious and can cause failures during code generation or compilation on
+  the target. Keep the following guidelines in mind.
+</p>
+
+<aside class="callout callout-important">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/important-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/important-dark.svg" alt="" width="18" height="18">Important — Use the Simulink template model</p>
+  <p>
+    The MATLAB command <a href="packages_gt_gettemplate.html">GT.GetTemplate</a> generates a Simulink model in
+    the current working directory. In this template, all necessary settings are configured so that code
+    generation produces code that works correctly in the automated deployment process. If settings that affect
+    code generation are modified afterwards, the deployment process may no longer work correctly.
+  </p>
+  <p>
+    Different sample rates are executed in parallel threads on the target computer. Therefore, the option
+    <strong>Allow tasks to execute concurrently on target</strong> must be enabled in the Simulink configuration
+    parameters, and the system target file must be set to <strong>ert.tlc</strong>.
+  </p>
+</aside>
+
+<aside class="callout callout-important">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/important-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/important-dark.svg" alt="" width="18" height="18">Important — Rate transition block</p>
+  <p>
+    Different sample rates in the model are connected by rate transition blocks. On the target computer, the
+    corresponding threads run concurrently. To ensure data integrity, the option
+    <strong>Ensure data integrity during data transfer</strong> must be enabled in the mask of every rate
+    transition block.
+  </p>
+</aside>
+
+<aside class="callout callout-note">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/note-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/note-dark.svg" alt="" width="18" height="18">Note — Multiple applications</p>
+  <p>
+    If several applications are to run on the same target computer, each application must use a distinct target
+    socket name and a separate software directory; otherwise, the software directory of one application is
+    overwritten when another application is deployed. Both parameters can be set
+    with the <a href="packages_gt_generictarget.html#targetSocketName">targetSocketName</a> and
+    <a href="packages_gt_generictarget.html#targetSoftwareDirectory">targetSoftwareDirectory</a> properties of
+    the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> class.
+  </p>
+</aside>
+
+<aside class="callout callout-warning">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/warning-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/warning-dark.svg" alt="" width="18" height="18">Warning — Avoid the keyword "DEBUG"</p>
+  <p>
+    If the application is built in DEBUG mode, the C macro <code>DEBUG</code> is defined. Therefore, avoid block
+    and signal names that produce function or variable names containing <code>DEBUG</code> in the generated code.
+  </p>
+</aside>
+
+<aside class="callout callout-note">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/note-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/note-dark.svg" alt="" width="18" height="18">Note — Legacy Code Tool and custom code: use globally unique file names</p>
+  <p>
+    The Legacy Code Tool can be used to generate a Simulink block directly from existing C/C++ code; most of
+    the blocks in the Generic Target library were generated this way. During code generation, all code files
+    belonging to such blocks are copied into a single directory. If two blocks use the same file name, the
+    corresponding files overwrite each other. Use globally unique file names and make sure the function names
+    within the code files are unambiguous. The same applies to additional source files added as custom code. For
+    reference, all C functions of the toolbox blocks carry the prefix <code>GT_</code>.
+  </p>
+</aside>
+
+      </article>
+      <footer class="site-footer">
+        <span>Generic Target Toolbox &mdash; offline documentation</span>
+        <span>Version 2.2.0</span>
+      </footer>
+    </main>
+  </div>
+</div>
+<button id="backToTop" type="button" aria-label="Back to top"><img class="icon-up" src="assets/icons/arrow-up.svg" alt="" width="20" height="20"></button>
+<script src="assets/script.js"></script>
+</body>
+</html>

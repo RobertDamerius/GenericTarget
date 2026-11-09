@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UDP Send &middot; Generic Target Documentation</title>
+<link rel="icon" type="image/svg+xml" href="img/icon.svg">
+<link rel="stylesheet" href="assets/design.css">
+<script src="assets/theme.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="index.html" aria-label="Generic Target documentation home">
+      <img src="img/icon.svg" alt="Generic Target logo" width="34" height="34">
+      <span class="brand-name">Generic Target</span>
+    </a>
+    <span class="version-badge" title="Documentation version">v2.2.0</span>
+  </div>
+  <div class="header-actions">
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch theme">
+      <img class="icon-moon" src="assets/icons/moon-light.svg" alt="" width="16" height="16">
+      <img class="icon-sun" src="assets/icons/sun-dark.svg" alt="" width="16" height="16">
+      <span data-theme-label>Dark mode</span>
+    </button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="site-nav" aria-label="Documentation navigation">
+<span class="nav-group-label">Overview</span>
+<nav class="nav-group" aria-label="Overview">
+<ul class="nav-list">
+  <li><a class="nav-link" href="index.html">Overview</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Getting Started</span>
+<nav class="nav-group" aria-label="Getting Started">
+<ul class="nav-list">
+  <li><a class="nav-link" href="install_toolbox.html">Install the Toolbox</a></li>
+  <li><a class="nav-link" href="prepare_target.html">Prepare the Target Computer</a></li>
+  <li><a class="nav-link" href="create_and_deploy.html">Create and Deploy a Model</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Core Concepts</span>
+<nav class="nav-group" aria-label="Core Concepts">
+<ul class="nav-list">
+  <li><a class="nav-link" href="application.html">Application Overview</a></li>
+  <li><a class="nav-link" href="timingscheduling.html">Timing and Scheduling</a></li>
+  <li><a class="nav-link" href="datarecording.html">Data Recording</a></li>
+  <li><a class="nav-link" href="consoleoutput.html">Console Output</a></li>
+  <li><a class="nav-link" href="deployment.html">Deployment Process</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Examples</span>
+<nav class="nav-group" aria-label="Examples">
+<ul class="nav-list">
+  <li><a class="nav-link" href="example_udpreceiveloop.html">UDP Reception Loop</a></li>
+  <li><a class="nav-link" href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
+  <li><a class="nav-link" href="autostart.html">Autostart Target Application</a></li>
+  <li><a class="nav-link" href="example_debugging.html">Debugging with VSCode</a></li>
+  <li><a class="nav-link" href="example_crashreport.html">Analyzing Crash Reports</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Classes</span>
+<nav class="nav-group" aria-label="API Reference: Classes">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_generictarget.html">GT.GenericTarget</a></li>
+  <li><a class="nav-link" href="packages_gt_compilerflags.html">GT.CompilerFlags</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: GT Functions</span>
+<nav class="nav-group" aria-label="API Reference: GT Functions">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_builddrivers.html">GT.BuildDrivers</a></li>
+  <li><a class="nav-link" href="packages_gt_gettemplate.html">GT.GetTemplate</a></li>
+  <li><a class="nav-link" href="packages_gt_getversion.html">GT.GetVersion</a></li>
+  <li><a class="nav-link" href="packages_gt_opendocumentation.html">GT.OpenDocumentation</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatadirectory.html">GT.DecodeDataDirectory</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a></li>
+  <li><a class="nav-link" href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbecellstr.html">GT.mustBeCellStr</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbehexstring.html">GT.mustBeHexString</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbeunique.html">GT.mustBeUnique</a></li>
+  <li><a class="nav-link" href="packages_gt_mustendwith.html">GT.mustEndWith</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Simulink Library</span>
+<nav class="nav-group" aria-label="API Reference: Simulink Library">
+<ul class="nav-list">
+  <li><a class="nav-link" href="library_gt_interface_tcpclientsend.html">Interface / TCP Client Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_tcpclientreceive.html">Interface / TCP Client Receive</a></li>
+  <li><a class="nav-link active" href="library_gt_interface_udpsend.html" aria-current="page">Interface / UDP Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_applicationarguments.html">Target Stats / Application Arguments</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_readthermalzones.html">Target Stats / Read Thermal Zones</a></li>
+  <li><a class="nav-link" href="library_gt_time_modelexecutiontime.html">Time / Model Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_unixtime.html">Time / UNIX Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctime.html">Time / UTC Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_localtime.html">Time / Local Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskexecutiontime.html">Time / Task Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskoverloads.html">Time / Task Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_cpuoverloads.html">Time / CPU Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestamp.html">Time / UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_timetolatestutctimestamp.html">Time / Time To Latest UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
+</ul>
+</nav>
+  </nav>
+  <div class="content-main">
+    <main id="main-content">
+      <article>
+<span class="api-badge">Simulink block</span>
+<h1>UDP Send</h1>
+<p class="library-path">GenericTarget / Interface / UDP Send</p>
+<p>
+  Sends a UDP message to the destination address and port specified via the destination inputs. By default,
+  messages of zero length are not sent; this can be changed in the Advanced tab.
+</p>
+<p>
+  Internally, the target application uses one socket per local UDP port. If a UDP Send block and a
+  <a href="library_gt_interface_udpreceive.html">UDP Receive</a> block share the same local port, they access
+  the same socket in the background. Their mask settings must therefore be identical; otherwise, the
+  initialization phase of the target application fails.
+</p>
+<p>
+  A local port value less than 1 can also be selected in the block mask; in that case, the operating system
+  assigns the actual UDP port randomly. All UDP Send and Receive blocks that share the same local port value must
+  nevertheless have identical mask settings: for example, several blocks with the local port <code>-3</code>
+  share a single background socket whose port is assigned randomly by the operating system.
+</p>
+
+<h2>Input Ports</h2>
+<h3>destinationAddress</h3>
+<p>A vector of 4 elements indicating the destination IPv4 address.</p>
+<p><strong>Data Type:</strong> <code>uint8</code></p>
+
+<h3>destinationPort</h3>
+<p>The destination port.</p>
+<p><strong>Data Type:</strong> <code>uint16</code></p>
+
+<h3>bytes</h3>
+<p>A vector containing the message that should be sent.</p>
+<p><strong>Data Type:</strong> <code>uint8</code></p>
+
+<h3>length</h3>
+<p>The number of bytes to send. The value must not be greater than 65507.</p>
+<p><strong>Data Type:</strong> <code>int32</code></p>
+
+<h2>Output Ports</h2>
+<h3>details</h3>
+<p>
+  This output port is available when the <strong>Show details output port</strong> option is enabled in the block
+  mask.
+</p>
+<p><strong>Data Type:</strong> <code>Bus</code></p>
+<p>The bus contains the following values:</p>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Parameter Name</th><th>Data Type</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>result</code></td><td><code>int32</code></td><td>Result of the socket sendto function call: the number of bytes that have been sent, or a negative value in case of errors.</td></tr>
+      <tr><td><code>lastErrorCode</code></td><td><code>int32</code></td><td>The value indicates the last socket error code from sending a message. 0 means no error. The actual meaning of non-zero values depends on the operating system.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>Block Parameters</h2>
+<p>The following table shows all block parameters.</p>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Parameter Name</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>showDetails</code></td><td>Enables the details output port.</td></tr>
+      <tr><td><code>localPort</code></td><td>Local port (Socket tab).</td></tr>
+      <tr><td><code>deviceName</code></td><td>Network device name (Socket tab).</td></tr>
+      <tr><td><code>multicastTTL</code></td><td>Time-to-live value for outgoing multicast traffic (Multicast tab).</td></tr>
+      <tr><td><code>multicastInterfaceAddress</code></td><td>IP address of the interface to be used for multicast traffic (Multicast tab).</td></tr>
+      <tr><td><code>multicastAll</code></td><td>Enables the <code>IP_MULTICAST_ALL</code> socket option (Multicast tab).</td></tr>
+      <tr><td><code>multicastLoop</code></td><td>Enables the <code>IP_MULTICAST_LOOP</code> socket option (Multicast tab).</td></tr>
+      <tr><td><code>socketPriority</code></td><td>Socket priority (Advanced tab).</td></tr>
+      <tr><td><code>allowBroadcast</code></td><td>Allows broadcast transmission (Advanced tab).</td></tr>
+      <tr><td><code>allowZeroLengthMessage</code></td><td>Allows sending zero-length messages (Advanced tab).</td></tr>
+      <tr><td><code>SampleTime</code></td><td>Sample time of the block.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>Further Notes</h2>
+<h3>Socket</h3>
+<p>
+  A socket is the interface between an application and the network. During model initialization, all UDP sockets
+  are created and their socket options are set. Binding to the local port and to a specific network device is
+  performed in a separate network management thread, which also ensures that the application starts correctly
+  even if the network interface is not yet available. The socket options <code>SO_REUSEPORT</code> and
+  <code>SO_REUSEADDR</code> are enabled after socket creation, which allows multiple sockets (for example,
+  multiple blocks) to bind to the same port and device.
+</p>
+
+<h3>Port Range</h3>
+<p>Port numbers are commonly categorized as follows:</p>
+<ul>
+  <li><strong>System Ports (1–1023):</strong> reserved for system processes and should not be used.</li>
+  <li><strong>User Ports (1024–49151):</strong> available for general use.</li>
+  <li><strong>Dynamic Ports (49152–65536):</strong> typically assigned dynamically, but availability may vary depending on the operating system.</li>
+</ul>
+<p>
+  Ports in the dynamic range may be restricted by the operating system. If a port cannot be bound, it is either
+  already in use or blocked by system policies. Setting the local port to a value below 1 in the block mask lets
+  the Generic Target request a random local port, usually from the dynamic range.
+</p>
+
+<h3>Socket Priority</h3>
+<p>
+  This value must be between <strong>0 and 6</strong>. It sets the IP type-of-service priority for the packets
+  of this socket; Linux uses this value in its network queue management, so that higher-priority traffic is
+  scheduled first according to the active queuing discipline.
+</p>
+
+<h3>Multicast Interface Address</h3>
+<p>
+  When joining or leaving a multicast group, a multicast interface address can be specified to determine which
+  network interface is used for multicast communication. If no interface is specified (e.g.,
+  <code>[0,0,0,0]</code>), the kernel selects an appropriate interface automatically. On systems with multiple
+  network interfaces, the desired interface should be set explicitly in the block mask. If a
+  <code>deviceName</code> is given in the Socket tab, it is used as the multicast interface address; if the
+  device name is not set or cannot be found, the kernel falls back to the interface defined by the
+  <code>multicastInterfaceAddress</code> parameter.
+</p>
+
+<h3>Allow Broadcast</h3>
+<p>
+  If broadcasting is disabled, sending a broadcast message results in an error (a negative
+  <code>result</code> output). To enable broadcast transmission, select the corresponding checkbox in the block
+  mask.
+</p>
+
+<h3>Allow Zero-length Messages</h3>
+<p>
+  By default, UDP messages with an empty payload (zero-length) are not sent. To send such messages, enable the
+  corresponding checkbox in the block mask.
+</p>
+
+<h3>Time-to-Live (TTL)</h3>
+<p>
+  When sending multicast messages, the <strong>TTL (Time-to-Live)</strong> value acts as a hop counter: each
+  multicast routing device that forwards a packet decreases the TTL by 1, and discards the packet if the TTL
+  reaches zero.
+</p>
+
+      </article>
+      <footer class="site-footer">
+        <span>Generic Target Toolbox &mdash; offline documentation</span>
+        <span>Version 2.2.0</span>
+      </footer>
+    </main>
+  </div>
+</div>
+<button id="backToTop" type="button" aria-label="Back to top"><img class="icon-up" src="assets/icons/arrow-up.svg" alt="" width="20" height="20"></button>
+<script src="assets/script.js"></script>
+</body>
+</html>

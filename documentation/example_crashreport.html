@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analyzing Crash Reports &middot; Generic Target Documentation</title>
+<link rel="icon" type="image/svg+xml" href="img/icon.svg">
+<link rel="stylesheet" href="assets/design.css">
+<script src="assets/theme.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="index.html" aria-label="Generic Target documentation home">
+      <img src="img/icon.svg" alt="Generic Target logo" width="34" height="34">
+      <span class="brand-name">Generic Target</span>
+    </a>
+    <span class="version-badge" title="Documentation version">v2.2.0</span>
+  </div>
+  <div class="header-actions">
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch theme">
+      <img class="icon-moon" src="assets/icons/moon-light.svg" alt="" width="16" height="16">
+      <img class="icon-sun" src="assets/icons/sun-dark.svg" alt="" width="16" height="16">
+      <span data-theme-label>Dark mode</span>
+    </button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="site-nav" aria-label="Documentation navigation">
+<span class="nav-group-label">Overview</span>
+<nav class="nav-group" aria-label="Overview">
+<ul class="nav-list">
+  <li><a class="nav-link" href="index.html">Overview</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Getting Started</span>
+<nav class="nav-group" aria-label="Getting Started">
+<ul class="nav-list">
+  <li><a class="nav-link" href="install_toolbox.html">Install the Toolbox</a></li>
+  <li><a class="nav-link" href="prepare_target.html">Prepare the Target Computer</a></li>
+  <li><a class="nav-link" href="create_and_deploy.html">Create and Deploy a Model</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Core Concepts</span>
+<nav class="nav-group" aria-label="Core Concepts">
+<ul class="nav-list">
+  <li><a class="nav-link" href="application.html">Application Overview</a></li>
+  <li><a class="nav-link" href="timingscheduling.html">Timing and Scheduling</a></li>
+  <li><a class="nav-link" href="datarecording.html">Data Recording</a></li>
+  <li><a class="nav-link" href="consoleoutput.html">Console Output</a></li>
+  <li><a class="nav-link" href="deployment.html">Deployment Process</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Examples</span>
+<nav class="nav-group" aria-label="Examples">
+<ul class="nav-list">
+  <li><a class="nav-link" href="example_udpreceiveloop.html">UDP Reception Loop</a></li>
+  <li><a class="nav-link" href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
+  <li><a class="nav-link" href="autostart.html">Autostart Target Application</a></li>
+  <li><a class="nav-link" href="example_debugging.html">Debugging with VSCode</a></li>
+  <li><a class="nav-link active" href="example_crashreport.html" aria-current="page">Analyzing Crash Reports</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Classes</span>
+<nav class="nav-group" aria-label="API Reference: Classes">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_generictarget.html">GT.GenericTarget</a></li>
+  <li><a class="nav-link" href="packages_gt_compilerflags.html">GT.CompilerFlags</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: GT Functions</span>
+<nav class="nav-group" aria-label="API Reference: GT Functions">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_builddrivers.html">GT.BuildDrivers</a></li>
+  <li><a class="nav-link" href="packages_gt_gettemplate.html">GT.GetTemplate</a></li>
+  <li><a class="nav-link" href="packages_gt_getversion.html">GT.GetVersion</a></li>
+  <li><a class="nav-link" href="packages_gt_opendocumentation.html">GT.OpenDocumentation</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatadirectory.html">GT.DecodeDataDirectory</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a></li>
+  <li><a class="nav-link" href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbecellstr.html">GT.mustBeCellStr</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbehexstring.html">GT.mustBeHexString</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbeunique.html">GT.mustBeUnique</a></li>
+  <li><a class="nav-link" href="packages_gt_mustendwith.html">GT.mustEndWith</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Simulink Library</span>
+<nav class="nav-group" aria-label="API Reference: Simulink Library">
+<ul class="nav-list">
+  <li><a class="nav-link" href="library_gt_interface_tcpclientsend.html">Interface / TCP Client Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_tcpclientreceive.html">Interface / TCP Client Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_applicationarguments.html">Target Stats / Application Arguments</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_readthermalzones.html">Target Stats / Read Thermal Zones</a></li>
+  <li><a class="nav-link" href="library_gt_time_modelexecutiontime.html">Time / Model Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_unixtime.html">Time / UNIX Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctime.html">Time / UTC Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_localtime.html">Time / Local Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskexecutiontime.html">Time / Task Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskoverloads.html">Time / Task Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_cpuoverloads.html">Time / CPU Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestamp.html">Time / UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_timetolatestutctimestamp.html">Time / Time To Latest UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
+</ul>
+</nav>
+  </nav>
+  <div class="content-main">
+    <main id="main-content">
+      <article>
+<h1>Analyzing Crash Reports</h1>
+<p>
+  If the target application crashes, a backtrace is written to the
+  <a href="consoleoutput.html">console output</a>. The backtrace identifies the location in the code that caused
+  the crash. To get meaningful results, it is strongly recommended to compile the application with DEBUG mode
+  enabled: optimizations are disabled and the symbol table is retained in the executable. The binary is slightly
+  larger and task execution may be a bit slower. In some cases, DEBUG mode can also reveal
+  <a href="timingscheduling.html#taskoverload">task overloads</a> or
+  <a href="timingscheduling.html#cpuoverload">CPU overloads</a> that might otherwise remain hidden when all
+  optimizations are enabled.
+</p>
+<p>
+  DEBUG mode can be enabled in two ways: redeploy the application with the compiler flag
+  <a href="packages_gt_compilerflags.html#DEBUG_MODE">additionalCompilerFlags.DEBUG_MODE</a>, or modify the
+  Makefile on the target and recompile manually — the latter is especially useful if code generation takes a
+  long time.
+</p>
+
+<h2>Variant 1: Set DEBUG Mode before Deployment</h2>
+<p>
+  To enable DEBUG mode during deployment, set the flag on the target object before calling the
+  <a href="packages_gt_generictarget.html#Deploy">Deploy</a> method:
+</p>
+<pre>target = GT.GenericTarget(username, address);
+target.additionalCompilerFlags.DEBUG_MODE = true;
+target.Deploy(modelName);</pre>
+
+<h2>Variant 2: Modify DEBUG Mode and Recompile Manually</h2>
+<p>
+  Navigate to the <a href="application.html#directory">application directory</a> on the target and open the
+  Makefile. Near the beginning, find the line that starts with <code>DEBUG_MODE :=</code> and set it to:
+</p>
+<pre>DEBUG_MODE := 1</pre>
+<p>
+  Save the Makefile and open a terminal in the same directory. Rebuild the application from scratch by clearing
+  the build cache and compiling with 8 parallel jobs:
+</p>
+<pre>make clean &amp;&amp; make -j8</pre>
+<p>
+  The compilation is successful if the last message reads <code>[APP] &gt; GenericTarget</code> and no errors
+  were reported.
+</p>
+
+<h2>Viewing the Output</h2>
+<p>A crash report is printed to the console output and looks like this:</p>
+<pre>==========================================================================
+CRASH DETECTED: SIGSEGV (Segmentation fault)
+==========================================================================
+
+./GenericTarget(+0x4b2ec) [0x5573dd31b2ec]
+/lib/x86_64-linux-gnu/libc.so.6(+0x3fd70) [0x7fa66b595d70]
+./GenericTarget(+0x6debf) [0x5573dd33debf]
+./GenericTarget(+0x51950) [0x5573dd321950]
+./GenericTarget(+0x4ecbb) [0x5573dd31ecbb]
+./GenericTarget(+0x5030c) [0x5573dd32030c]
+./GenericTarget(+0x50277) [0x5573dd320277]
+./GenericTarget(+0x501e7) [0x5573dd3201e7]
+./GenericTarget(+0x501a0) [0x5573dd3201a0]
+./GenericTarget(+0x50184) [0x5573dd320184]
+/lib/x86_64-linux-gnu/libstdc++.so.6(+0xe1224) [0x7fa66b948224]
+/lib/x86_64-linux-gnu/libc.so.6(+0x928bb) [0x7fa66b5e88bb]
+/lib/x86_64-linux-gnu/libc.so.6(+0x110538) [0x7fa66b666538]
+
+==========================================================================</pre>
+<p>
+  The report shows the signal that caused the crash (here: <code>SIGSEGV</code>, a segmentation fault) and the
+  backtrace from the most recent call to the oldest. To map a printed address to a source file and line, run the
+  following command in the application directory:
+</p>
+<pre>addr2line -e ./PRODUCT_NAME +0xABCDEF</pre>
+<p>
+  Here, <code>0xABCDEF</code> is the printed address offset and <code>PRODUCT_NAME</code> the name of the
+  executable (default: <code>GenericTarget</code>).
+</p>
+<p>
+  Start at the top of the trace and work downward, skipping frames in system libraries. In the example above,
+  <code>addr2line -e ./GenericTarget +0x6debf</code> returns:
+</p>
+<pre>/home/target/GenericTarget/code/SimulinkCodeGeneration/test/model_ert_rtw/model.cpp:196</pre>
+<p>This identifies the file and line where the crash occurred.</p>
+<p>Alternatively, <a href="example_debugging.html">debug the application</a> using VSCode.</p>
+
+      </article>
+      <footer class="site-footer">
+        <span>Generic Target Toolbox &mdash; offline documentation</span>
+        <span>Version 2.2.0</span>
+      </footer>
+    </main>
+  </div>
+</div>
+<button id="backToTop" type="button" aria-label="Back to top"><img class="icon-up" src="assets/icons/arrow-up.svg" alt="" width="20" height="20"></button>
+<script src="assets/script.js"></script>
+</body>
+</html>

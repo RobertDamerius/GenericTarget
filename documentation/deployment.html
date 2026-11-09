@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deployment Overview &middot; Generic Target Documentation</title>
+<link rel="icon" type="image/svg+xml" href="img/icon.svg">
+<link rel="stylesheet" href="assets/design.css">
+<script src="assets/theme.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="index.html" aria-label="Generic Target documentation home">
+      <img src="img/icon.svg" alt="Generic Target logo" width="34" height="34">
+      <span class="brand-name">Generic Target</span>
+    </a>
+    <span class="version-badge" title="Documentation version">v2.2.0</span>
+  </div>
+  <div class="header-actions">
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch theme">
+      <img class="icon-moon" src="assets/icons/moon-light.svg" alt="" width="16" height="16">
+      <img class="icon-sun" src="assets/icons/sun-dark.svg" alt="" width="16" height="16">
+      <span data-theme-label>Dark mode</span>
+    </button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="site-nav" aria-label="Documentation navigation">
+<span class="nav-group-label">Overview</span>
+<nav class="nav-group" aria-label="Overview">
+<ul class="nav-list">
+  <li><a class="nav-link" href="index.html">Overview</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Getting Started</span>
+<nav class="nav-group" aria-label="Getting Started">
+<ul class="nav-list">
+  <li><a class="nav-link" href="install_toolbox.html">Install the Toolbox</a></li>
+  <li><a class="nav-link" href="prepare_target.html">Prepare the Target Computer</a></li>
+  <li><a class="nav-link" href="create_and_deploy.html">Create and Deploy a Model</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Core Concepts</span>
+<nav class="nav-group" aria-label="Core Concepts">
+<ul class="nav-list">
+  <li><a class="nav-link" href="application.html">Application Overview</a></li>
+  <li><a class="nav-link" href="timingscheduling.html">Timing and Scheduling</a></li>
+  <li><a class="nav-link" href="datarecording.html">Data Recording</a></li>
+  <li><a class="nav-link" href="consoleoutput.html">Console Output</a></li>
+  <li><a class="nav-link active" href="deployment.html" aria-current="page">Deployment Process</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Examples</span>
+<nav class="nav-group" aria-label="Examples">
+<ul class="nav-list">
+  <li><a class="nav-link" href="example_udpreceiveloop.html">UDP Reception Loop</a></li>
+  <li><a class="nav-link" href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
+  <li><a class="nav-link" href="autostart.html">Autostart Target Application</a></li>
+  <li><a class="nav-link" href="example_debugging.html">Debugging with VSCode</a></li>
+  <li><a class="nav-link" href="example_crashreport.html">Analyzing Crash Reports</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Classes</span>
+<nav class="nav-group" aria-label="API Reference: Classes">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_generictarget.html">GT.GenericTarget</a></li>
+  <li><a class="nav-link" href="packages_gt_compilerflags.html">GT.CompilerFlags</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: GT Functions</span>
+<nav class="nav-group" aria-label="API Reference: GT Functions">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_builddrivers.html">GT.BuildDrivers</a></li>
+  <li><a class="nav-link" href="packages_gt_gettemplate.html">GT.GetTemplate</a></li>
+  <li><a class="nav-link" href="packages_gt_getversion.html">GT.GetVersion</a></li>
+  <li><a class="nav-link" href="packages_gt_opendocumentation.html">GT.OpenDocumentation</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatadirectory.html">GT.DecodeDataDirectory</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a></li>
+  <li><a class="nav-link" href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbecellstr.html">GT.mustBeCellStr</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbehexstring.html">GT.mustBeHexString</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbeunique.html">GT.mustBeUnique</a></li>
+  <li><a class="nav-link" href="packages_gt_mustendwith.html">GT.mustEndWith</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Simulink Library</span>
+<nav class="nav-group" aria-label="API Reference: Simulink Library">
+<ul class="nav-list">
+  <li><a class="nav-link" href="library_gt_interface_tcpclientsend.html">Interface / TCP Client Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_tcpclientreceive.html">Interface / TCP Client Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_applicationarguments.html">Target Stats / Application Arguments</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_readthermalzones.html">Target Stats / Read Thermal Zones</a></li>
+  <li><a class="nav-link" href="library_gt_time_modelexecutiontime.html">Time / Model Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_unixtime.html">Time / UNIX Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctime.html">Time / UTC Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_localtime.html">Time / Local Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskexecutiontime.html">Time / Task Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskoverloads.html">Time / Task Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_cpuoverloads.html">Time / CPU Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestamp.html">Time / UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_timetolatestutctimestamp.html">Time / Time To Latest UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
+</ul>
+</nav>
+  </nav>
+  <div class="content-main">
+    <main id="main-content">
+      <article>
+<h1>Deployment Overview</h1>
+<p>
+  A Simulink model is created on the basis of the provided template model. Using the
+  <a href="packages_gt_generictarget.html">GT.GenericTarget</a> MATLAB class, the model is then deployed to the
+  target computer. During code generation, Simulink produces generic C/C++ code that essentially consists of a
+  class with the methods <code>initialize()</code>, <code>step()</code>, and <code>terminate()</code>; the name
+  of the generated class is derived from the name of the Simulink model.
+</p>
+<p>
+  In addition to the generated code, the <code>codeInfo.mat</code> file is created during model code
+  generation. It contains metadata such as sample rates and function names. From this information and the
+  properties of the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> object, the Simulink interface
+  code is generated; the programming interface between the Generic Target Core and this interface class is
+  always the same. All source files are then transferred to the target via SCP and compiled on the target
+  computer.
+</p>
+<figure class="figure">
+  <img src="img/Overview.svg" alt="End-to-end overview of the deployment: code generation on the host, transfer via SCP, and compilation on the target">
+  <figcaption>Deployment and execution overview.</figcaption>
+</figure>
+
+<h2>Using the MATLAB Class GT.GenericTarget</h2>
+<p>
+  For a repeatable deployment process, a MATLAB script or function is recommended. First, a
+  <a href="packages_gt_generictarget.html">GT.GenericTarget</a> object is created:
+</p>
+<pre>target = GT.GenericTarget('username','hostname');</pre>
+<p>The target can be addressed by its IP address or by a host name.</p>
+<p>
+  Afterwards, the <a href="packages_gt_generictarget.html#properties">properties</a> of the object can be
+  adjusted as needed. The <a href="packages_gt_generictarget.html#Deploy">Deploy</a> method then generates the
+  code and transfers the application to the target computer:
+</p>
+<pre>target.Deploy('modelname');</pre>
+
+<h2>Deployment Process</h2>
+<p>
+  The deployment process consists of two phases: first, the complete source code of the real-time application
+  is generated on the host; then it is transferred to the target computer and compiled there. The generated zip
+  archive has the same name as the model; it is referred to as <code>MODELNAME.zip</code> in the steps below.
+</p>
+<figure class="figure">
+  <img src="img/BuildAndDeploy.svg" alt="Step-by-step flow of the deployment process from code generation on the host to building the application on the target">
+  <figcaption>The deployment process in 11 steps.</figcaption>
+</figure>
+
+<aside class="callout callout-note">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/note-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/note-dark.svg" alt="" width="18" height="18">Note on code generation</p>
+  <p>
+    If only the code is to be generated (blue area, steps 1 to 8), the
+    <a href="packages_gt_generictarget.html#GenerateCode">GenerateCode</a> member function can be used.
+  </p>
+</aside>
+
+<h3>1. Copy Generic Target Core</h3>
+<p>
+  A temporary code generation folder is created that will contain the complete application. The Generic Target
+  Core is copied into this folder first, and the Makefile is generated according to the properties of the
+  <a href="packages_gt_generictarget.html">GT.GenericTarget</a> object.
+</p>
+
+<h3>2. slbuild</h3>
+<p>
+  Generic C/C++ code is generated from the Simulink model. The model must be configured for the pack-and-go
+  functionality of MATLAB/Simulink. The generated code and all necessary Simulink libraries are packed into a
+  compressed zip archive (<code>PackNGo.zip</code>).
+</p>
+
+<h3>3. Unzip PackNGo.zip</h3>
+<p>The archive is unpacked into the temporary code generation folder.</p>
+
+<h3>4. Replace RTW Headers</h3>
+<p>
+  The header files <code>rtw_windows.h</code> and <code>rtw_linux.h</code> define how semaphores and mutexes
+  are used. They are replaced so that the generated code uses POSIX semaphores and mutexes. The corresponding
+  source files <code>rtw_windows.c</code> and <code>rtw_linux.c</code> are deleted.
+</p>
+<aside class="callout callout-caution">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/caution-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/caution-dark.svg" alt="" width="18" height="18">Caution</p>
+  <p>
+    Future MATLAB versions may generate different headers, or the code structure produced by the code
+    generation may change, which can affect this replacement step.
+  </p>
+</aside>
+
+<h3>5. Load codeInfo.mat</h3>
+<p>
+  The <code>codeInfo.mat</code> file created during the <code>slbuild</code> step is loaded. It contains
+  metadata about the generated code, such as sample rates and function names.
+</p>
+
+<h3>6. Generate Interface Code</h3>
+<p>
+  Based on the information in the <code>codeInfo.mat</code> file, the Simulink interface class is generated.
+  The properties of the <a href="packages_gt_generictarget.html">GT.GenericTarget</a> object are integrated into
+  the interface class as well. A template for the interface class is located in the <code>core/</code> directory
+  of the toolbox; placeholders marked with <code>$</code> characters are replaced by the corresponding values
+  during code generation.
+</p>
+
+<h3>7. Add Custom Code</h3>
+<p>
+  Additional code specified via the
+  <a href="packages_gt_generictarget.html#customCode">customCode</a> property is added to the temporary code
+  generation folder. All files and directories are copied as-is, without checking their content.
+</p>
+
+<h3>8. Compress to MODELNAME.zip</h3>
+<p>
+  The temporary code generation folder now contains the complete application source code. It is packed into the
+  zip archive <code>MODELNAME.zip</code>, which is ready to be transferred to the target.
+</p>
+
+<aside class="callout callout-note">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/note-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/note-dark.svg" alt="" width="18" height="18">SSH/SCP</p>
+  <p>
+    SSH and SCP commands are invoked with the MATLAB <code>system()</code> function; an SSH and SCP client must
+    therefore be available on the host computer. If only the source code should be transferred and compiled
+    (orange area, steps 9 to 11), the
+    <a href="packages_gt_generictarget.html#DeployGeneratedCode">DeployGeneratedCode</a> member function can be
+    used.
+  </p>
+</aside>
+
+<h3>9. SCP: Upload MODELNAME.zip</h3>
+<p>The archive <code>MODELNAME.zip</code> is uploaded to the user's home directory on the target computer.</p>
+
+<h3>10. SSH: Unzip</h3>
+<p>
+  The existing <code>code/</code> and <code>build/</code> directories of the
+  <a href="application.html#directory">Generic Target application</a> are deleted first, so that the new
+  deployment starts from a clean state. The uploaded archive is then unpacked.
+</p>
+
+<h3>11. SSH: Build Application</h3>
+<p>
+  The <code>make</code> tool compiles the software on the target, using 8 parallel jobs so that up to 8 source
+  files are compiled concurrently.
+</p>
+
+      </article>
+      <footer class="site-footer">
+        <span>Generic Target Toolbox &mdash; offline documentation</span>
+        <span>Version 2.2.0</span>
+      </footer>
+    </main>
+  </div>
+</div>
+<button id="backToTop" type="button" aria-label="Back to top"><img class="icon-up" src="assets/icons/arrow-up.svg" alt="" width="20" height="20"></button>
+<script src="assets/script.js"></script>
+</body>
+</html>

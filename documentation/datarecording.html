@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Recording &middot; Generic Target Documentation</title>
+<link rel="icon" type="image/svg+xml" href="img/icon.svg">
+<link rel="stylesheet" href="assets/design.css">
+<script src="assets/theme.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="index.html" aria-label="Generic Target documentation home">
+      <img src="img/icon.svg" alt="Generic Target logo" width="34" height="34">
+      <span class="brand-name">Generic Target</span>
+    </a>
+    <span class="version-badge" title="Documentation version">v2.2.0</span>
+  </div>
+  <div class="header-actions">
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch theme">
+      <img class="icon-moon" src="assets/icons/moon-light.svg" alt="" width="16" height="16">
+      <img class="icon-sun" src="assets/icons/sun-dark.svg" alt="" width="16" height="16">
+      <span data-theme-label>Dark mode</span>
+    </button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="site-nav" aria-label="Documentation navigation">
+<span class="nav-group-label">Overview</span>
+<nav class="nav-group" aria-label="Overview">
+<ul class="nav-list">
+  <li><a class="nav-link" href="index.html">Overview</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Getting Started</span>
+<nav class="nav-group" aria-label="Getting Started">
+<ul class="nav-list">
+  <li><a class="nav-link" href="install_toolbox.html">Install the Toolbox</a></li>
+  <li><a class="nav-link" href="prepare_target.html">Prepare the Target Computer</a></li>
+  <li><a class="nav-link" href="create_and_deploy.html">Create and Deploy a Model</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Core Concepts</span>
+<nav class="nav-group" aria-label="Core Concepts">
+<ul class="nav-list">
+  <li><a class="nav-link" href="application.html">Application Overview</a></li>
+  <li><a class="nav-link" href="timingscheduling.html">Timing and Scheduling</a></li>
+  <li><a class="nav-link active" href="datarecording.html" aria-current="page">Data Recording</a></li>
+  <li><a class="nav-link" href="consoleoutput.html">Console Output</a></li>
+  <li><a class="nav-link" href="deployment.html">Deployment Process</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Examples</span>
+<nav class="nav-group" aria-label="Examples">
+<ul class="nav-list">
+  <li><a class="nav-link" href="example_udpreceiveloop.html">UDP Reception Loop</a></li>
+  <li><a class="nav-link" href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
+  <li><a class="nav-link" href="autostart.html">Autostart Target Application</a></li>
+  <li><a class="nav-link" href="example_debugging.html">Debugging with VSCode</a></li>
+  <li><a class="nav-link" href="example_crashreport.html">Analyzing Crash Reports</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Classes</span>
+<nav class="nav-group" aria-label="API Reference: Classes">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_generictarget.html">GT.GenericTarget</a></li>
+  <li><a class="nav-link" href="packages_gt_compilerflags.html">GT.CompilerFlags</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: GT Functions</span>
+<nav class="nav-group" aria-label="API Reference: GT Functions">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_builddrivers.html">GT.BuildDrivers</a></li>
+  <li><a class="nav-link" href="packages_gt_gettemplate.html">GT.GetTemplate</a></li>
+  <li><a class="nav-link" href="packages_gt_getversion.html">GT.GetVersion</a></li>
+  <li><a class="nav-link" href="packages_gt_opendocumentation.html">GT.OpenDocumentation</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatadirectory.html">GT.DecodeDataDirectory</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a></li>
+  <li><a class="nav-link" href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbecellstr.html">GT.mustBeCellStr</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbehexstring.html">GT.mustBeHexString</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbeunique.html">GT.mustBeUnique</a></li>
+  <li><a class="nav-link" href="packages_gt_mustendwith.html">GT.mustEndWith</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Simulink Library</span>
+<nav class="nav-group" aria-label="API Reference: Simulink Library">
+<ul class="nav-list">
+  <li><a class="nav-link" href="library_gt_interface_tcpclientsend.html">Interface / TCP Client Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_tcpclientreceive.html">Interface / TCP Client Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_applicationarguments.html">Target Stats / Application Arguments</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_readthermalzones.html">Target Stats / Read Thermal Zones</a></li>
+  <li><a class="nav-link" href="library_gt_time_modelexecutiontime.html">Time / Model Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_unixtime.html">Time / UNIX Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctime.html">Time / UTC Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_localtime.html">Time / Local Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskexecutiontime.html">Time / Task Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskoverloads.html">Time / Task Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_cpuoverloads.html">Time / CPU Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestamp.html">Time / UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_timetolatestutctimestamp.html">Time / Time To Latest UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
+</ul>
+</nav>
+  </nav>
+  <div class="content-main">
+    <main id="main-content">
+      <article>
+<h1>Data Recording</h1>
+<p>
+  Data recording is performed with one of two blocks. The
+  <a href="library_gt_interface_writescalardoublestofile.html">Write Scalar Doubles To File</a> block records
+  buses whose signals and sub-signals are all scalar values of data type <code>double</code>. If a bus contains
+  multi-dimensional signals or data types other than <code>double</code>, the
+  <a href="library_gt_interface_writebustofile.html">Write Bus To File</a> block must be used instead; in that
+  case the bus structure must be defined in advance.
+</p>
+<p>
+  Recorded data is written to files automatically: each sample is first written to an internal buffer, and a
+  dedicated recording thread transfers the buffered samples to the data files. Every data recorder object is
+  identified by a unique ID, which is also used in the names of the recording files.
+</p>
+
+<h2>Initialization</h2>
+<p>
+  During initialization of the Simulink model, a new data directory is created whose name encodes the start time
+  in UTC. In addition, an index file is written that contains metadata about the recording and lists all
+  recording IDs; if the model contains multiple data recorder blocks, the index file is updated accordingly.
+</p>
+
+<h2>Termination</h2>
+<p>
+  During the termination phase, any samples that are still buffered are flushed to the data files, so that no
+  recorded data is lost.
+</p>
+
+<h2>Separate Data Recording Thread</h2>
+<p>
+  The dedicated recording thread of each data recorder object is responsible for writing the buffered samples to
+  the data files; its priority is set via the <code>threadPriority</code> parameter in the block mask. When the
+  number of written samples exceeds the <code>numSamplesPerFile</code> parameter set in the mask of the
+  corresponding Write To File block, the thread automatically opens a new data file and continues writing there.
+</p>
+
+<h2 id="protocol">File Format</h2>
+<p>
+  Separate data files are created for each recording ID. For an ID of <code>myData</code>, the first data file is
+  named <code>myData_0</code>. When the number of written samples exceeds the <code>numSamplesPerFile</code>
+  parameter, a new data file <code>myData_1</code> is created, and subsequent files are named
+  <code>myData_2</code>, <code>myData_3</code>, and so on.
+</p>
+<p>
+  Each file contains its own header and can therefore be decoded independently of the other files. The header
+  describes the recording, including the number of signals, the signal names, and the byte order; all recorded
+  samples are appended after the header. The size of a file is determined by the
+  <code>numSamplesPerFile</code> parameter. If this parameter is zero, no file splitting takes place and a
+  single data file is written, e.g., <code>myData_0</code>.
+</p>
+
+<h3>The Index File</h3>
+<p>
+  The index file is written during the initialization phase, before the model is started. It records when the
+  data recording was started, on which operating system the application is running, and which IDs are recorded.
+  The format of the index file is:
+</p>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Offset (Bytes)</th><th>Length (Bytes)</th><th>Name</th><th>Data Type</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>0</code></td><td><code>5</code></td><td><code>header</code></td><td><code>5 x uint8_t</code></td><td>Header identifier: contains the string "GTIDX" (<code>0x47 0x54 0x49 0x44 0x58</code>).</td></tr>
+      <tr><td><code>5</code></td><td><code>4</code></td><td><code>dateYear</code></td><td><code>uint32_t</code></td><td>The year according to the UTC time of the target.</td></tr>
+      <tr><td><code>9</code></td><td><code>1</code></td><td><code>dateMonth</code></td><td><code>uint8_t</code></td><td>The month according to the UTC time of the target.</td></tr>
+      <tr><td><code>10</code></td><td><code>1</code></td><td><code>dateMonthDay</code></td><td><code>uint8_t</code></td><td>The day of the month according to the UTC time of the target.</td></tr>
+      <tr><td><code>11</code></td><td><code>1</code></td><td><code>dateHour</code></td><td><code>uint8_t</code></td><td>The hour according to the UTC time of the target.</td></tr>
+      <tr><td><code>12</code></td><td><code>1</code></td><td><code>dateMinute</code></td><td><code>uint8_t</code></td><td>The minute according to the UTC time of the target.</td></tr>
+      <tr><td><code>13</code></td><td><code>1</code></td><td><code>dateSecond</code></td><td><code>uint8_t</code></td><td>The second according to the UTC time of the target.</td></tr>
+      <tr><td><code>14</code></td><td><code>2</code></td><td><code>dateMillisecond</code></td><td><code>uint16_t</code></td><td>The millisecond according to the UTC time of the target.</td></tr>
+      <tr><td><code>16</code></td><td><code>4</code></td><td><code>numObjects</code></td><td><code>uint32_t</code></td><td>Number of signal objects (corresponds to the number of Write To File blocks in the Simulink model).</td></tr>
+      <tr><td><code>20</code></td><td><code>N</code></td><td><strong>DataRecorderObjectData</strong></td><td><code>N x uint32_t</code></td><td>Contains <code>numObjects</code> signal objects. The data format for a signal object is shown in the following table.</td></tr>
+      <tr><td><code>20+N</code></td><td><code>V</code></td><td><code>version</code></td><td><code>V x char</code></td><td>String indicating the version of the Generic Target framework.</td></tr>
+      <tr><td><code>20+N+V</code></td><td><code>1</code></td><td><code>zeroTerminator</code></td><td><code>uint8_t</code></td><td>Zero-terminator for the preceding string. This value is always <code>0x00</code> and indicates the end of the string.</td></tr>
+      <tr><td><code>21+N+V</code></td><td><code>M</code></td><td><code>modelName</code></td><td><code>M x char</code></td><td>String indicating the model name (ASCII characters only).</td></tr>
+      <tr><td><code>21+N+V+M</code></td><td><code>1</code></td><td><code>zeroTerminator</code></td><td><code>uint8_t</code></td><td>Zero-terminator for the preceding string. This value is always <code>0x00</code> and indicates the end of the string.</td></tr>
+      <tr><td><code>22+N+V+M</code></td><td><code>D</code></td><td><code>dateOfCompilation</code></td><td><code>D x char</code></td><td>String indicating the time point (local time) when the application has been compiled on the target, e.g., <code>'Jul 14 2026 13:42:00'</code>.</td></tr>
+      <tr><td><code>22+N+V+M+D</code></td><td><code>1</code></td><td><code>zeroTerminator</code></td><td><code>uint8_t</code></td><td>Zero-terminator for the preceding string. This value is always <code>0x00</code> and indicates the end of the string.</td></tr>
+      <tr><td><code>23+N+V+M+D</code></td><td><code>C</code></td><td><code>compilerVersion</code></td><td><code>C x char</code></td><td>String indicating the GNU compiler version that was used to compile the application, e.g., <code>'12.2.0'</code>.</td></tr>
+      <tr><td><code>23+N+V+M+D+C</code></td><td><code>1</code></td><td><code>zeroTerminator</code></td><td><code>uint8_t</code></td><td>Zero-terminator for the preceding string. This value is always <code>0x00</code> and indicates the end of the string.</td></tr>
+      <tr><td><code>24+N+V+M+D+C</code></td><td><code>I</code></td><td><code>operatingSystemInfo</code></td><td><code>I x char</code></td><td>String providing additional information about the operating system. All values are separated by comma and have the syntax <code>name=[value]</code>, where the <code>name</code>/<code>value</code> pair depends on the operating system. <strong>Example:</strong> <code>'sysname=[Linux],nodename=[debian],release=[6.1.0-50-rt-amd64],version=[#1 SMP PREEMPT_RT Debian 6.1.176-1 (2026-07-02)],machine=[x86_64],domainname=[(none)]'</code>.</td></tr>
+      <tr><td><code>24+N+V+M+D+C+I</code></td><td><code>1</code></td><td><code>zeroTerminator</code></td><td><code>uint8_t</code></td><td>Zero-terminator for the preceding string. This value is always <code>0x00</code> and indicates the end of the string.</td></tr>
+    </tbody>
+  </table>
+</div>
+<p>
+  The data format for a <strong>DataRecorderObjectData</strong> in the index file is a list of zero-terminated
+  strings. The total number of strings is specified by the previous field <code>numObjects</code>.
+</p>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Offset (Bytes)</th><th>Length (Bytes)</th><th>Name</th><th>Data Type</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>0</code></td><td><code>N1</code></td><td><code>ID1</code></td><td><code>char</code></td><td>Unique ID of the first data recorder object.</td></tr>
+      <tr><td><code>N1</code></td><td><code>1</code></td><td><code>zeroTerminator</code></td><td><code>uint8_t</code></td><td>Zero-terminator for the preceding string. This value is always <code>0x00</code> and indicates the end of the string.</td></tr>
+      <tr><td><code>N1+1</code></td><td><code>N2</code></td><td><code>ID2</code></td><td><code>char</code></td><td>Unique ID of the second data recorder object.</td></tr>
+      <tr><td><code>N1+1+N2</code></td><td><code>1</code></td><td><code>zeroTerminator</code></td><td><code>uint8_t</code></td><td>Zero-terminator for the preceding string. This value is always <code>0x00</code> and indicates the end of the string.</td></tr>
+      <tr><td><code>N1+1+N2+1</code></td><td><code>...</code></td><td><code>...</code></td><td><code>...</code></td><td>Further zero-terminated strings, until all IDs are listed.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h3>The Doubles Data File (bus of scalar doubles)</h3>
+<p>
+  The naming of a data file is <code>ID_M</code> where <code>ID</code> denotes the unique ID of the data
+  recorder and <code>M</code> indicates the file number in ascending order. Each ID file contains a header to
+  allow a single ID file to be decoded separately. The header data of all ID data files for an ID are identical.
+  The actual sample data is appended after the header bytes.
+</p>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Offset (Bytes)</th><th>Length (Bytes)</th><th>Name</th><th>Data Type</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>0</code></td><td><code>5</code></td><td><code>header</code></td><td><code>5 x uint8_t</code></td><td>Header identifier: contains the string "GTDBL" (<code>0x47 0x54 0x44 0x42 0x4C</code>).</td></tr>
+      <tr><td><code>5</code></td><td><code>4</code></td><td><code>offsetSampleData</code></td><td><code>uint32_t</code></td><td>The zero-based offset to <strong>SampleData</strong>.</td></tr>
+      <tr><td><code>9</code></td><td><code>4</code></td><td><code>numSignals</code></td><td><code>uint32_t</code></td><td>The number of signals in the bus to be recorded.</td></tr>
+      <tr><td><code>13</code></td><td><code>L</code></td><td><code>labels</code></td><td><code>L x char</code></td><td>String specifying the signal names. All signals are separated by commas, e.g., <code>"value,nestedBus.value"</code>.</td></tr>
+      <tr><td><code>13+L</code></td><td><code>1</code></td><td><code>zeroTerminator</code></td><td><code>uint8_t</code></td><td>Zero-terminator for the preceding string. This value is always <code>0x00</code> and indicates the end of the string.</td></tr>
+      <tr><td><code>14+L</code></td><td><code>1</code></td><td><code>endian</code></td><td><code>uint8_t</code></td><td>Specifies the byte order. <code>0x01</code>: little endian, <code>0x80</code>: big endian. This byte order is used for all subsequent values.</td></tr>
+      <tr><td><code>15+L</code></td><td></td><td><strong>SampleData</strong></td><td></td><td>Contains <code>1 + numSignals</code> values of type <code>double</code>. Each sample data contains one <code>double</code>, which specifies the timestamp, followed by <code>numSignals</code> values of type <code>double</code> that indicate the bus signal data.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h3>The Bus Data File (complete bus object)</h3>
+<p>
+  The naming of a data file is <code>ID_M</code> where <code>ID</code> denotes the unique ID of the data
+  recorder and <code>M</code> indicates the file number in ascending order. Each ID file contains a header to
+  allow a single ID file to be decoded separately. The header data of all ID data files for an ID are identical.
+  The actual sample data is appended after the header bytes.
+</p>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Offset (Bytes)</th><th>Length (Bytes)</th><th>Name</th><th>Data Type</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>0</code></td><td><code>5</code></td><td><code>header</code></td><td><code>5 x uint8_t</code></td><td>Header identifier: contains the string "GTBUS" (<code>0x47 0x54 0x42 0x55 0x53</code>).</td></tr>
+      <tr><td><code>5</code></td><td><code>4</code></td><td><code>offsetSampleData</code></td><td><code>uint32_t</code></td><td>The zero-based offset to <strong>SampleData</strong>.</td></tr>
+      <tr><td><code>9</code></td><td><code>4</code></td><td><code>numBytesPerSample</code></td><td><code>uint32_t</code></td><td>The number of bytes per sample excluding the 8-byte timestamp.</td></tr>
+      <tr><td><code>13</code></td><td><code>L</code></td><td><code>labels</code></td><td><code>L x char</code></td><td>String specifying the signal names. All signals are separated by commas, e.g., <code>"value,nestedBus.value"</code>.</td></tr>
+      <tr><td><code>13+L</code></td><td><code>1</code></td><td><code>zeroTerminator</code></td><td><code>uint8_t</code></td><td>Zero-terminator for the preceding string. This value is always <code>0x00</code> and indicates the end of the string.</td></tr>
+      <tr><td><code>14+L</code></td><td><code>D</code></td><td><code>dimensions</code></td><td><code>D x char</code></td><td>String specifying the dimensions. A scalar followed by a 3-by-1 vector would be <code>"[1],[3 1]"</code>.</td></tr>
+      <tr><td><code>14+L+D</code></td><td><code>1</code></td><td><code>zeroTerminator</code></td><td><code>uint8_t</code></td><td>Zero-terminator for the preceding string. This value is always <code>0x00</code> and indicates the end of the string.</td></tr>
+      <tr><td><code>15+L+D</code></td><td><code>T</code></td><td><code>dataTypes</code></td><td><code>T x char</code></td><td>String specifying the data types. A <code>double</code> followed by an integer would be <code>"double,int32"</code>.</td></tr>
+      <tr><td><code>15+L+D+T</code></td><td><code>1</code></td><td><code>zeroTerminator</code></td><td><code>uint8_t</code></td><td>Zero-terminator for the preceding string. This value is always <code>0x00</code> and indicates the end of the string.</td></tr>
+      <tr><td><code>16+L+D+T</code></td><td><code>1</code></td><td><code>endian</code></td><td><code>uint8_t</code></td><td>Specifies the byte order. <code>0x01</code>: little endian, <code>0x80</code>: big endian. This byte order is used for all subsequent values.</td></tr>
+      <tr><td><code>17+L+D+T</code></td><td></td><td><strong>SampleData</strong></td><td></td><td>Contains <code>8 + numBytesPerSample</code> bytes. Each sample data contains one <code>double</code> at the beginning (first 8 bytes), which specifies the timestamp, followed by <code>numBytesPerSample</code> bytes that indicate the bus signal data. Dimension and data type are given by the two strings <code>dimensions</code> and <code>dataTypes</code>.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+      </article>
+      <footer class="site-footer">
+        <span>Generic Target Toolbox &mdash; offline documentation</span>
+        <span>Version 2.2.0</span>
+      </footer>
+    </main>
+  </div>
+</div>
+<button id="backToTop" type="button" aria-label="Back to top"><img class="icon-up" src="assets/icons/arrow-up.svg" alt="" width="20" height="20"></button>
+<script src="assets/script.js"></script>
+</body>
+</html>

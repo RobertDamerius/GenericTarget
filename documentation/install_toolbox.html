@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Install the Toolbox (MATLAB) &middot; Generic Target Documentation</title>
+<link rel="icon" type="image/svg+xml" href="img/icon.svg">
+<link rel="stylesheet" href="assets/design.css">
+<script src="assets/theme.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="index.html" aria-label="Generic Target documentation home">
+      <img src="img/icon.svg" alt="Generic Target logo" width="34" height="34">
+      <span class="brand-name">Generic Target</span>
+    </a>
+    <span class="version-badge" title="Documentation version">v2.2.0</span>
+  </div>
+  <div class="header-actions">
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch theme">
+      <img class="icon-moon" src="assets/icons/moon-light.svg" alt="" width="16" height="16">
+      <img class="icon-sun" src="assets/icons/sun-dark.svg" alt="" width="16" height="16">
+      <span data-theme-label>Dark mode</span>
+    </button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="site-nav" aria-label="Documentation navigation">
+<span class="nav-group-label">Overview</span>
+<nav class="nav-group" aria-label="Overview">
+<ul class="nav-list">
+  <li><a class="nav-link" href="index.html">Overview</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Getting Started</span>
+<nav class="nav-group" aria-label="Getting Started">
+<ul class="nav-list">
+  <li><a class="nav-link active" href="install_toolbox.html" aria-current="page">Install the Toolbox</a></li>
+  <li><a class="nav-link" href="prepare_target.html">Prepare the Target Computer</a></li>
+  <li><a class="nav-link" href="create_and_deploy.html">Create and Deploy a Model</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Core Concepts</span>
+<nav class="nav-group" aria-label="Core Concepts">
+<ul class="nav-list">
+  <li><a class="nav-link" href="application.html">Application Overview</a></li>
+  <li><a class="nav-link" href="timingscheduling.html">Timing and Scheduling</a></li>
+  <li><a class="nav-link" href="datarecording.html">Data Recording</a></li>
+  <li><a class="nav-link" href="consoleoutput.html">Console Output</a></li>
+  <li><a class="nav-link" href="deployment.html">Deployment Process</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">Examples</span>
+<nav class="nav-group" aria-label="Examples">
+<ul class="nav-list">
+  <li><a class="nav-link" href="example_udpreceiveloop.html">UDP Reception Loop</a></li>
+  <li><a class="nav-link" href="example_deploymultiplemodels.html">Deploy Multiple Models</a></li>
+  <li><a class="nav-link" href="autostart.html">Autostart Target Application</a></li>
+  <li><a class="nav-link" href="example_debugging.html">Debugging with VSCode</a></li>
+  <li><a class="nav-link" href="example_crashreport.html">Analyzing Crash Reports</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Classes</span>
+<nav class="nav-group" aria-label="API Reference: Classes">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_generictarget.html">GT.GenericTarget</a></li>
+  <li><a class="nav-link" href="packages_gt_compilerflags.html">GT.CompilerFlags</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: GT Functions</span>
+<nav class="nav-group" aria-label="API Reference: GT Functions">
+<ul class="nav-list">
+  <li><a class="nav-link" href="packages_gt_builddrivers.html">GT.BuildDrivers</a></li>
+  <li><a class="nav-link" href="packages_gt_gettemplate.html">GT.GetTemplate</a></li>
+  <li><a class="nav-link" href="packages_gt_getversion.html">GT.GetVersion</a></li>
+  <li><a class="nav-link" href="packages_gt_opendocumentation.html">GT.OpenDocumentation</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatadirectory.html">GT.DecodeDataDirectory</a></li>
+  <li><a class="nav-link" href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a></li>
+  <li><a class="nav-link" href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbecellstr.html">GT.mustBeCellStr</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbehexstring.html">GT.mustBeHexString</a></li>
+  <li><a class="nav-link" href="packages_gt_mustbeunique.html">GT.mustBeUnique</a></li>
+  <li><a class="nav-link" href="packages_gt_mustendwith.html">GT.mustEndWith</a></li>
+</ul>
+</nav>
+<span class="nav-group-label">API Reference: Simulink Library</span>
+<nav class="nav-group" aria-label="API Reference: Simulink Library">
+<ul class="nav-list">
+  <li><a class="nav-link" href="library_gt_interface_tcpclientsend.html">Interface / TCP Client Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_tcpclientreceive.html">Interface / TCP Client Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
+  <li><a class="nav-link" href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
+  <li><a class="nav-link" href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_applicationarguments.html">Target Stats / Application Arguments</a></li>
+  <li><a class="nav-link" href="library_gt_targetstats_readthermalzones.html">Target Stats / Read Thermal Zones</a></li>
+  <li><a class="nav-link" href="library_gt_time_modelexecutiontime.html">Time / Model Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_unixtime.html">Time / UNIX Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctime.html">Time / UTC Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_localtime.html">Time / Local Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskexecutiontime.html">Time / Task Execution Time</a></li>
+  <li><a class="nav-link" href="library_gt_time_taskoverloads.html">Time / Task Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_cpuoverloads.html">Time / CPU Overloads</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestamp.html">Time / UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_timetolatestutctimestamp.html">Time / Time To Latest UTC Timestamp</a></li>
+  <li><a class="nav-link" href="library_gt_time_utctimestampmovedon.html">Time / UTC Timestamp Moved On</a></li>
+</ul>
+</nav>
+  </nav>
+  <div class="content-main">
+    <main id="main-content">
+      <article>
+<h1>Install the Toolbox (MATLAB)</h1>
+<p>
+  Installing the Generic Target Toolbox consists of adding its directories to the MATLAB path. There are two
+  options: add the toolbox to the MATLAB path directly, or include it as a reference project in an existing
+  MATLAB project so that it is available on the project path. In both cases, the toolbox must be located in a
+  directory whose absolute path contains no special characters and no spaces.
+</p>
+
+<aside class="callout callout-note">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/note-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/note-dark.svg" alt="" width="18" height="18">Option 1 — Add to the MATLAB path</p>
+  <p>
+    Run the installation script <code>install.m</code>. The script adds the necessary directories to the MATLAB
+    path and rebuilds the Simulink library blocks.
+  </p>
+</aside>
+
+<aside class="callout callout-note">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/note-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/note-dark.svg" alt="" width="18" height="18">Option 2 — Add to the project path</p>
+  <p>
+    Add the project file <code>GenericTarget.prj</code> as a reference project to your existing MATLAB project.
+    The toolbox directories then become available on the project path of that project.
+  </p>
+</aside>
+
+<aside class="callout callout-caution">
+  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/caution-light.svg" alt="" width="18" height="18">
+      <img class="callout-icon callout-icon-dark" src="assets/icons/caution-dark.svg" alt="" width="18" height="18">Troubleshooting (Linux) — GLIBCXX conflict</p>
+  <p>
+    On Linux-based host systems, MATLAB bundles its own GCC runtime libraries to ensure compatibility on
+    distributions that lack them. Building the Generic Target driver blocks, however, links against the system
+    <code>libstdc++</code>. A version mismatch between the bundled and the system library can cause a
+    <strong>GLIBCXX conflict error</strong> when running Simulink models.
+  </p>
+  <p><strong>Solution:</strong> Navigate to the MATLAB installation directory <code>MATLAB/sys/os/glnxa64/</code>
+  and rename or delete all files that start with <code>libstdc++</code>. <strong>Restart MATLAB</strong>
+  afterwards to apply the changes.</p>
+</aside>
+
+<h2>Toolbox Directory Structure</h2>
+<p>The Generic Target Toolbox directory is structured as follows:</p>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Directory / File</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>core</code></td><td>Source code and template files for the Generic Target Core.</td></tr>
+      <tr><td><code>documentation</code></td><td>This HTML-based documentation.</td></tr>
+      <tr><td><code>library</code></td><td>The "GenericTarget" Simulink library, including S-functions and the mex binaries of the driver blocks.</td></tr>
+      <tr><td><code>packages</code></td><td>The MATLAB package <code>GT</code>.</td></tr>
+      <tr><td><code>resources</code></td><td>Project definition files for the MATLAB project.</td></tr>
+      <tr><td><code>GenericTarget.prj</code></td><td>The MATLAB project file.</td></tr>
+      <tr><td><code>install.m</code></td><td>MATLAB script that installs the Generic Target Toolbox and saves it to the MATLAB path.</td></tr>
+      <tr><td><code>readme.html</code></td><td>Entry point of the HTML-based documentation; open this file in a browser to view it.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>Rebuild Library Blocks (recommended)</h2>
+<p>
+  The toolbox is shipped with prebuilt library blocks for Windows and Ubuntu. It is recommended to build the
+  Simulink driver blocks for your own platform. Run <code>GT.BuildDrivers()</code> from the MATLAB command window
+  to generate all necessary driver files. A prerequisite is that a C/C++ compiler is configured in MATLAB
+  (<code>mex -setup</code>).
+</p>
+
+<aside class="callout callout-note" id="simulinksupport">
+  <p class="callout-title">Simulink support</p>
+  <p>
+    Run <code>GT.BuildDrivers()</code> to compile all driver blocks. Most of the blocks also work during
+    simulation in Simulink; the following table summarizes which blocks are supported and their behavior during
+    simulation.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Block</th><th>Simulink Support</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Interface / UDP Send</td><td class="simulink-support-ok"><span aria-hidden="true">✓</span> OK<sup>*</sup></td></tr>
+        <tr><td>Interface / UDP Receive</td><td class="simulink-support-ok"><span aria-hidden="true">✓</span> OK<sup>*</sup></td></tr>
+        <tr><td>Interface / Write Scalar Doubles To File</td><td class="simulink-support-ok"><span aria-hidden="true">✓</span> OK</td></tr>
+        <tr><td>Interface / Write Bus To File</td><td class="simulink-support-ok"><span aria-hidden="true">✓</span> OK</td></tr>
+        <tr><td>Interface / Stop Execution</td><td class="simulink-support-no"><span aria-hidden="true">✗</span> not supported</td></tr>
+        <tr><td>Target Stats / Application Arguments</td><td class="simulink-support-no"><span aria-hidden="true">✗</span> not supported</td></tr>
+        <tr><td>Target Stats / Read Thermal Zones</td><td class="simulink-support-ok"><span aria-hidden="true">✓</span> OK<sup>**</sup></td></tr>
+        <tr><td>Time / Model Execution Time</td><td class="simulink-support-ok"><span aria-hidden="true">✓</span> OK</td></tr>
+        <tr><td>Time / UNIX Time</td><td class="simulink-support-ok"><span aria-hidden="true">✓</span> OK</td></tr>
+        <tr><td>Time / UTC Time</td><td class="simulink-support-ok"><span aria-hidden="true">✓</span> OK</td></tr>
+        <tr><td>Time / Local Time</td><td class="simulink-support-ok"><span aria-hidden="true">✓</span> OK</td></tr>
+        <tr><td>Time / Task Execution Time</td><td class="simulink-support-no"><span aria-hidden="true">✗</span> not supported</td></tr>
+        <tr><td>Time / Task Overloads</td><td class="simulink-support-no"><span aria-hidden="true">✗</span> not supported</td></tr>
+        <tr><td>Time / CPU Overloads</td><td class="simulink-support-no"><span aria-hidden="true">✗</span> not supported</td></tr>
+        <tr><td>Time / UTC Timestamp</td><td class="simulink-support-ok"><span aria-hidden="true">✓</span> OK</td></tr>
+        <tr><td>Time / Time To Latest UTC Timestamp</td><td class="simulink-support-ok"><span aria-hidden="true">✓</span> OK</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    <sup>*</sup> These blocks behave differently during simulation with Simulink under the Windows operating
+    system. Some socket options are not available for Windows sockets or may have a different effect than on a
+    Linux target.<br>
+    <sup>**</sup> During simulation, these blocks only work under the Linux operating system.
+  </p>
+</aside>
+<p>
+  Building the driver blocks has been tested with the <strong>gcc</strong> toolchain (Linux) and
+  <strong>MSYS2/MinGW64</strong> (Windows). The GCC version must be 13 or newer.
+</p>
+
+<h2>Uninstall</h2>
+<p>
+  To uninstall the toolbox, remove its directories from the MATLAB path again (for example, with
+  <code>removepath</code>). The <code>install.m</code> script adds exactly three folders to the MATLAB path:
+  <code>library</code>, <code>library/drivers</code>, and <code>packages</code>. If the toolbox was added as a
+  reference project instead, simply detach the reference project in the project settings.
+</p>
+
+      </article>
+      <footer class="site-footer">
+        <span>Generic Target Toolbox &mdash; offline documentation</span>
+        <span>Version 2.2.0</span>
+      </footer>
+    </main>
+  </div>
+</div>
+<button id="backToTop" type="button" aria-label="Back to top"><img class="icon-up" src="assets/icons/arrow-up.svg" alt="" width="20" height="20"></button>
+<script src="assets/script.js"></script>
+</body>
+</html>
