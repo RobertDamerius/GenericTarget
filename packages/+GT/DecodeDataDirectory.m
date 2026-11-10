@@ -35,12 +35,15 @@ function [data,info] = DecodeDataDirectory(directory)
             % find the last underscore '_' in the name
             idxUnderscore = strfind(listing(j).name, '_');
             if(isempty(idxUnderscore))
-                continue; % actually cannot happen
+                continue;
             end
             idxLastUnderscore = idxUnderscore(end);
 
             % make sure that only digits appear after the last underscore
             sNum = listing(j).name((idxLastUnderscore + 1):end);
+            if(isempty(sNum))
+                continue;
+            end
             maskDigits = isstrprop(sNum, 'digit');
             if(sum(maskDigits) == numel(maskDigits))
                 k = k + 1;
