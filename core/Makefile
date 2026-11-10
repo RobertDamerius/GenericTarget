@@ -2,7 +2,7 @@
 #
 # Generic Makefile (g++)
 #
-# Version 20260623
+# Version 20261110
 # Copyright (c) Robert Damerius
 #
 #########################################################################
@@ -25,7 +25,7 @@ DIRECTORY_PRODUCT :=
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Libraries and symbols
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-LD_LIBS           := -lstdc++ -lpthread -latomic $TARGET_MAKEFILE_LD_LIBS$
+LD_LIBS           := -latomic $TARGET_MAKEFILE_LD_LIBS$
 CC_SYMBOLS         = -DGENERIC_TARGET_IMPLEMENTATION $TARGET_MAKEFILE_CC_SYMBOLS$
 
 
@@ -33,9 +33,9 @@ CC_SYMBOLS         = -DGENERIC_TARGET_IMPLEMENTATION $TARGET_MAKEFILE_CC_SYMBOLS
 # Flags
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Build Flags
-CC_FLAGS        = -Wall -Wextra -Wno-format-security -mtune=native $TARGET_MAKEFILE_CC_FLAGS$
-CPP_FLAGS       = -std=c++20 -Wall -Wextra -Wno-format-security -mtune=native $TARGET_MAKEFILE_CPP_FLAGS$
-LD_FLAGS        = -Wall -Wextra -Wno-format-security -mtune=native $TARGET_MAKEFILE_LD_FLAGS$
+CC_FLAGS        = -Wall -Wextra -Wno-format-security -mtune=native -pthread $TARGET_MAKEFILE_CC_FLAGS$
+CPP_FLAGS       = -std=c++20 -Wall -Wextra -Wno-format-security -mtune=native -pthread $TARGET_MAKEFILE_CPP_FLAGS$
+LD_FLAGS        = -Wall -Wextra -Wno-format-security -mtune=native -pthread $TARGET_MAKEFILE_LD_FLAGS$
 DEP_FLAGS       = -MT $@ -MMD -MP -MF $(DIRECTORY_BUILD)$*.Td
 POSTCOMPILE     = mv -f $(DIRECTORY_BUILD)$*.Td $(DIRECTORY_BUILD)$*.d
 
@@ -54,9 +54,7 @@ endif
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Toolset settings
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-CC      := g++
-CPP     := g++
-LD      := ld
+CXX     := g++
 RM      := rm -f -r
 MKDIR   := mkdir -p
 
@@ -112,23 +110,23 @@ clean:
 
 $(PRODUCT): $(OBJECTS_ALL)
 	@printf "[APP]  > $@\n"
-	@$(CC) $(LD_FLAGS) $(LIBRARY_PATHS) -o $@ $^ $(SHARED_OBJECTS) $(LD_LIBS)
+	@$(CXX) $(LD_FLAGS) $(LIBRARY_PATHS) -o $@ $^ $(SHARED_OBJECTS) $(LD_LIBS)
 
 $(DIRECTORY_BUILD)%.o: %.c
 $(DIRECTORY_BUILD)%.o: %.c $(DIRECTORY_BUILD)%.d
 	@printf "[C]    > $<\n"
-	@$(CC) $(INCLUDE_PATHS) $(CC_FLAGS) $(DEP_FLAGS) -o $@ -c $< $(CC_SYMBOLS)
+	@$(CXX) $(INCLUDE_PATHS) $(CC_FLAGS) $(DEP_FLAGS) -o $@ -c $< $(CC_SYMBOLS)
 	@$(POSTCOMPILE)
 
 $(DIRECTORY_BUILD)%.o: %.cpp
 $(DIRECTORY_BUILD)%.o: %.cpp $(DIRECTORY_BUILD)%.d
 	@printf "[CPP]  > $<\n"
-	@$(CPP) $(INCLUDE_PATHS) $(CPP_FLAGS) $(DEP_FLAGS) -o $@ -c $< $(CC_SYMBOLS)
+	@$(CXX) $(INCLUDE_PATHS) $(CPP_FLAGS) $(DEP_FLAGS) -o $@ -c $< $(CC_SYMBOLS)
 	@$(POSTCOMPILE)
 
 $(DIRECTORY_BUILD)%.o: %.bin
 	@printf "[BIN]  > $<\n"
-	@$(LD) -r -b binary -o $@ $<
+	@$(CXX) -r -b binary -o $@ $<
 
 $(DIRECTORY_BUILD)%.d: ;
 .PRECIOUS: $(DIRECTORY_BUILD)%.d
