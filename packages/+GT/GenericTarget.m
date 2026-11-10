@@ -9,7 +9,7 @@ classdef GenericTarget < handle
         targetSocketName {mustBeTextScalar, GT.mustBeChar} = '/run/generic-target/app.lock';
         targetBitmaskCPUCores {mustBeTextScalar, GT.mustBeChar, GT.mustBeHexString} = '';
         applicationArguments {mustBeTextScalar, GT.mustBeChar} = '';
-        customCode {mustBeText, GT.mustBeUnique, GT.mustBeCellStr} = cell.empty();
+        customCode {GT.mustBeUnique, GT.mustBeCellStr} = cell.empty();
         additionalCompilerFlags (1,1) GT.CompilerFlags = GT.CompilerFlags();
     end
     methods
