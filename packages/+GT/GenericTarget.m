@@ -348,11 +348,11 @@ classdef GenericTarget < handle
             coreDirectory = this.GetCoreDirectory();
             fprintf('[GENERIC TARGET] Copying framework from "%s" to release folder "%s"\n', coreDirectory, releaseFolder);
             srcDirectoryCode = fullfile(coreDirectory, 'code');
-            srcFileVSCode = fullfile(coreDirectory, '.vscode');
-            assert(exist(srcDirectoryCode, 'dir'), ['Missing files in Generic Target toolbox: ', srcDirectoryCode]);
-            assert(exist(srcFileVSCode, 'file'), ['Missing file in Generic Target toolbox: ', srcDirectoryCode]);
-            assert(copyfile(srcDirectoryCode, fullfile(releaseFolder, 'code'), 'f'), 'Failed to copy Generic Target core files!');
-            assert(copyfile(srcFileVSCode, fullfile(releaseFolder, '.vscode'), 'f'), 'Failed to copy Generic Target core files!');
+            srcDirectoryVSCode = fullfile(coreDirectory, '.vscode');
+            assert(exist(srcDirectoryCode, 'dir'), ['Missing directory in Generic Target toolbox: ', srcDirectoryCode]);
+            assert(exist(srcDirectoryVSCode, 'dir'), ['Missing directory in Generic Target toolbox: ', srcDirectoryVSCode]);
+            assert(copyfile(srcDirectoryCode, fullfile(releaseFolder, 'code'), 'f'), 'Failed to copy code directory!');
+            assert(copyfile(srcDirectoryVSCode, fullfile(releaseFolder, '.vscode'), 'f'), 'Failed to copy .vscode directory!');
 
             % generate files
             this.GenerateMakefile(releaseFolder);
