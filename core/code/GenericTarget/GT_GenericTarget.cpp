@@ -145,6 +145,7 @@ void GenericTarget::CrashHandler(int signal){
     const char banner[] = "\n==========================================================================\n";
     const char vline[] = "\n==========================================================================\n\n";
     const char* sigName = "UNKNOWN";
+    ssize_t discarded;
     switch (signal) {
         case SIGSEGV: sigName = "SIGSEGV (Segmentation fault)"; break;
         case SIGABRT: sigName = "SIGABRT (Aborted)"; break;
@@ -152,16 +153,17 @@ void GenericTarget::CrashHandler(int signal){
         case SIGILL:  sigName = "SIGILL (Illegal instruction)"; break;
         case SIGFPE:  sigName = "SIGFPE (Floating-point exception)"; break;
     }
-    write(STDERR_FILENO, banner, sizeof(banner) - 1);
-    write(STDERR_FILENO, "CRASH DETECTED: ", 16);
-    write(STDERR_FILENO, sigName, __builtin_strlen(sigName));
-    write(STDERR_FILENO, vline, sizeof(vline) - 1);
+    discarded = write(STDERR_FILENO, banner, sizeof(banner) - 1);
+    discarded = write(STDERR_FILENO, "CRASH DETECTED: ", 16);
+    discarded = write(STDERR_FILENO, sigName, __builtin_strlen(sigName));
+    discarded = write(STDERR_FILENO, vline, sizeof(vline) - 1);
 
     constexpr int backtraceSize = 64;
     void* frames[backtraceSize];
     int frameCount = backtrace(frames, backtraceSize);
     backtrace_symbols_fd(frames, frameCount, STDERR_FILENO);
-    write(STDERR_FILENO, banner, sizeof(banner) - 1);
+    discarded = write(STDERR_FILENO, banner, sizeof(banner) - 1);
+    (void) discarded;
     _Exit(128 + signal);
 }
 
