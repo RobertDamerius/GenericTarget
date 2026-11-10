@@ -25,7 +25,7 @@ DIRECTORY_PRODUCT :=
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Libraries and symbols
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-LD_LIBS           := -lstdc++ -lstdc++fs -lpthread -latomic $TARGET_MAKEFILE_LD_LIBS$
+LD_LIBS           := -lstdc++ -lpthread -latomic $TARGET_MAKEFILE_LD_LIBS$
 CC_SYMBOLS         = -DGENERIC_TARGET_IMPLEMENTATION $TARGET_MAKEFILE_CC_SYMBOLS$
 
 
