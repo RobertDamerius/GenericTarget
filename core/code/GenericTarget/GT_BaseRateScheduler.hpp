@@ -38,10 +38,8 @@ class BaseRateScheduler {
         /**
          * @brief Get the model execution time (steady clock), that is, the elapsed time to the start of the master clock.
          * @return Model execution time in seconds.
-         * @note Call only after the first model task tick and while the scheduler is running; calls before the first tick
-         * or concurrent with scheduler start/restart may race with initialization of the start timepoint.
          */
-        double GetModelExecutionTime(void){ return std::chrono::duration<double>(std::chrono::steady_clock::now() - m_timeOfStart).count(); }
+        double GetModelExecutionTime(void){ return std::chrono::duration<double>(std::chrono::steady_clock::now() - m_timeOfStart.load()).count(); }
 
         /**
          * @brief Get the number of CPU overloads that have been occurred since the start of the base-rate scheduler.
@@ -81,12 +79,12 @@ class BaseRateScheduler {
         }
 
     private:
-        std::thread m_masterThread;                                         // Thread object for the master thread.
-        std::atomic<bool> m_terminate{false};                               // Termination flag: true if master thread is to be terminated, false otherwise.
-        bool m_started{false};                                              // Start flag: true if started, false otherwise.
-        std::vector<PeriodicTask*> m_tasks;                                 // A list of periodic worker tasks.
-        PeriodicTimer m_masterClock;                                        // A periodic timer that represents the master clock.
-        std::chrono::time_point<std::chrono::steady_clock> m_timeOfStart;   // Timepoint of the first master threads tick.
+        std::thread m_masterThread;                                                      // Thread object for the master thread.
+        std::atomic<bool> m_terminate{false};                                            // Termination flag: true if master thread is to be terminated, false otherwise.
+        bool m_started{false};                                                           // Start flag: true if started, false otherwise.
+        std::vector<PeriodicTask*> m_tasks;                                              // A list of periodic worker tasks.
+        PeriodicTimer m_masterClock;                                                     // A periodic timer that represents the master clock.
+        std::atomic<std::chrono::time_point<std::chrono::steady_clock>> m_timeOfStart;   // Timepoint of the first master threads tick.
 
         /**
          * @brief Internal master thread function.

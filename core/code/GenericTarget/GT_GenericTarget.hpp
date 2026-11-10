@@ -29,8 +29,6 @@ class GenericTarget {
          * @brief Get the model execution time (steady clock), that is, the elapsed time to the start of the master clock.
          * @return Model execution time in seconds.
          * @details The master clock is started by the scheduler, which is started in the @ref MainLoop.
-         * @note Call only after the first model task tick and while the scheduler is running; calls before the first tick
-         * or concurrent with scheduler start/restart may race with initialization of the start timepoint.
          */
         static double GetModelExecutionTime(void){ return m_scheduler.GetModelExecutionTime(); }
 
