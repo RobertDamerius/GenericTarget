@@ -1,7 +1,7 @@
 #include <GT_DriverTCPClientSocket.hpp>
 #include <GT_DriverImplementationDetails.hpp>
 #if defined(GENERIC_TARGET_IMPLEMENTATION)
-#include <GenericTarget/GT_GenericTarget.hpp>
+#include <GenericTarget/GT_RuntimeEnvironment.hpp>
 #endif
 #if defined(_WIN32)
 #include <winsock2.h>
@@ -37,7 +37,7 @@ void GT_DriverTCPClientSocketInitialize(int32_t port, uint8_t* deviceName, uint3
     bool success = tcpClientServiceManager.AddService(port, conf);
     #if defined(GENERIC_TARGET_IMPLEMENTATION) && !defined(DEBUG) && !defined(_WIN32)
     if(!success){
-        gt::GenericTarget::ShouldTerminate();
+        gt::RuntimeEnvironment::RequestStop();
     }
     #else
     (void) success;

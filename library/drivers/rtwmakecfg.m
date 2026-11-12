@@ -2,7 +2,7 @@ function makeInfo = rtwmakecfg()
 %RTWMAKECFG adds include and source directories to the make files.
 %    makeInfo=
 %    Simulink version    : 25.2 (R2025b) 28-Jul-2025
-%    MATLAB file generated on : 06-Nov-2026 13:57:46
+%    MATLAB file generated on : 12-Nov-2026 18:02:35
 
 % Verify the Simulink version
 verify_simulink_version();
@@ -124,7 +124,7 @@ info(13).SourceFiles = {'GT_DriverStopExecution.cpp'};
 info(13).Language = 'C++';
 
 info(14).SFunctionName = 'SFunctionGTDriverReadThermalZones';
-info(14).SourceFiles = {'GT_DriverReadThermalZones.cpp'};
+info(14).SourceFiles = {'GT_DriverReadThermalZones.cpp', 'GT_DriverImplementationDetails.cpp'};
 info(14).Language = 'C++';
 
 %% ------------------------------------------------------------------------

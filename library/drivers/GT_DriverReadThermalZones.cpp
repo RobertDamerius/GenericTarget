@@ -1,28 +1,24 @@
 #include <GT_DriverReadThermalZones.hpp>
-#include <fstream>
-#include <sstream>
-#include <limits>
+#include <GT_DriverImplementationDetails.hpp>
 
 
-void GT_DriverReadThermalZonesInitialize(void){}
+void GT_DriverReadThermalZonesInitialize(void** workVector, uint32_t maxNumThermalZones, double pollingInterval){
+    gt::driver::AsyncThermalZoneReader* asyncReader = new gt::driver::AsyncThermalZoneReader(maxNumThermalZones, pollingInterval);
+    *workVector = reinterpret_cast<void*>(asyncReader);
+}
 
-void GT_DriverReadThermalZonesTerminate(void){}
+void GT_DriverReadThermalZonesTerminate(void* workVector){
+    gt::driver::AsyncThermalZoneReader* asyncReader = reinterpret_cast<gt::driver::AsyncThermalZoneReader*>(workVector);
+    delete asyncReader;
+}
 
-void GT_DriverReadThermalZonesStep(uint32_t maxNumThermalZones, double* temperatures){
+void GT_DriverReadThermalZonesStep(void* workVector, uint32_t maxNumThermalZones, double* temperatures){
     #if defined(_WIN32)
     for(uint32_t n = 0; n < maxNumThermalZones; ++n){
-        temperatures[n] = 0.0;
+        temperatures[n] = std::numeric_limits<double>::quiet_NaN();
     }
     #else
-    for(uint32_t n = 0; n < maxNumThermalZones; ++n){
-        temperatures[n] = std::numeric_limits<double>::quiet_NaN();
-        std::ifstream tempFile("/sys/class/thermal/thermal_zone" + std::to_string(n) + "/temp");
-        if(tempFile.good()){
-            int32_t temp_millidegree_celsius{};
-            if(tempFile >> temp_millidegree_celsius){
-                temperatures[n] = static_cast<double>(temp_millidegree_celsius) * 0.001;
-            }
-        }
-    }
+    gt::driver::AsyncThermalZoneReader* asyncReader = reinterpret_cast<gt::driver::AsyncThermalZoneReader*>(workVector);
+    asyncReader->ReadZones(temperatures, maxNumThermalZones);
     #endif
 }

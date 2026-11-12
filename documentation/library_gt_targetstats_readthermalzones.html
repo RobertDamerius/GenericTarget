@@ -121,8 +121,7 @@
   Reads the temperature values of the thermal zones exposed by the Linux kernel under
   <code>/sys/class/thermal/thermal_zone[i]/temp</code>, where <code>[i]</code> is the index of the thermal zone.
   The maximum number of thermal zones to read is specified via the mask parameter and determines the output
-  dimension. If a thermal zone does not exist, <code>NaN</code> is returned for the corresponding index. During
-  simulation, this block works only on Linux-based hosts.
+  dimension. If a thermal zone does not exist, <code>NaN</code> is returned for the corresponding index.
 </p>
 
 <h2>Output Ports</h2>
@@ -142,10 +141,19 @@
     </thead>
     <tbody>
       <tr><td><code>maxNumThermalZones</code></td><td>Maximum number of thermal zones to read; this value sets the output dimension.</td></tr>
+      <tr><td><code>pollingInterval</code></td><td>The polling interval in seconds (must be at least 0.001).</td></tr>
       <tr><td><code>SampleTime</code></td><td>Sample time of the block.</td></tr>
     </tbody>
   </table>
 </div>
+
+<h2>Further Notes</h2>
+<h3>Background Thread</h3>
+<p>
+  The actual data is obtained via file reads in a non-realtime background thread, which continuously reads the data with a polling
+  frequency specified via the block mask parameter <code>pollingInterval</code>. The simulink block fetches the latest value from
+  those polled temperature values.
+</p>
 
       </article>
       <footer class="site-footer">

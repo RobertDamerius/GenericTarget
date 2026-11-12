@@ -1,7 +1,7 @@
 #include <GT_DriverUDPSocket.hpp>
 #include <GT_DriverImplementationDetails.hpp>
 #if defined(GENERIC_TARGET_IMPLEMENTATION)
-#include <GenericTarget/GT_GenericTarget.hpp>
+#include <GenericTarget/GT_RuntimeEnvironment.hpp>
 #endif
 #if defined(_WIN32)
 #include <winsock2.h>
@@ -46,7 +46,7 @@ void GT_DriverUDPSocketInitialize(int32_t port, uint8_t* deviceName, uint32_t de
     bool success = udpServiceManager.AddService(port, conf);
     #if defined(GENERIC_TARGET_IMPLEMENTATION) && !defined(DEBUG) && !defined(_WIN32)
     if(!success){
-        gt::GenericTarget::ShouldTerminate();
+        gt::RuntimeEnvironment::RequestStop();
     }
     #else
     (void) success;

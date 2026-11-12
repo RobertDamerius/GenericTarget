@@ -141,7 +141,6 @@
     <tbody>
       <tr><td><code>strID</code></td><td>Unique ID for this data recording; it is used in the file names.</td></tr>
       <tr><td><code>numSamplesPerFile</code></td><td>Maximum number of samples per data recording file. A value of <code>0</code> disables file splitting.</td></tr>
-      <tr><td><code>threadPriority</code></td><td>Priority of the data recording thread, in the range <code>[1 (lowest), 99 (highest)]</code>. The default value is <code>30</code>.</td></tr>
       <tr><td><code>writeFilesDuringSimulation</code></td><td>Enables data recording during simulation in Simulink.</td></tr>
       <tr><td><code>SampleTime</code></td><td>Sample time of the block.</td></tr>
     </tbody>
@@ -163,11 +162,10 @@
   initialization of the target application fails.
 </p>
 
-<h3>Data Recorder</h3>
+<h3>Data Recording</h3>
 <p>
-  A dedicated thread takes over the actual writing of the data into the recording files; one thread is created
-  per ID. The priority of each recording thread can be adjusted via the <code>threadPriority</code> parameter in
-  the block mask. The <code>numSamplesPerFile</code> parameter defines how many samples are written to a file
+  A dedicated non-realtime background thread takes over the actual writing of the data into the recording files; one thread is created
+  per ID. The <code>numSamplesPerFile</code> parameter defines how many samples are written to a file
   before a new file is opened. Each sample contains the timestamp, which corresponds to the simulation time
   (digital clock), as well as all values of the bus at that sample time point. When the application terminates,
   any samples that are still buffered are written to the data files.

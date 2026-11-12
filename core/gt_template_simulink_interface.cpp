@@ -1,16 +1,18 @@
-/* Auto-generated code (Template Version 20260713) */
+/* Auto-generated code (Template Version 20261112) */
 #include <SimulinkCodeGeneration/SimulinkInterface.hpp>
 
 
-$NAME_OF_CLASS$ SimulinkInterface::_model;
-
+$NAME_OF_CLASS$& SimulinkInterface::GetModelInstance(void){
+    static $NAME_OF_CLASS$ instance;
+    return instance;
+}
 
 void SimulinkInterface::Initialize(void){
-    _model.$CODE_INFO_INITIALIZE$();
+    GetModelInstance().$CODE_INFO_INITIALIZE$();
 }
 
 void SimulinkInterface::Terminate(void){
-    _model.$CODE_INFO_TERMINATE$();
+    GetModelInstance().$CODE_INFO_TERMINATE$();
 }
 
 void SimulinkInterface::Step(int id){

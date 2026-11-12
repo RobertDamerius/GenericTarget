@@ -18,10 +18,9 @@
  * @param[in] strlenDimensions (Bus) Number of characters in the dimensions array.
  * @param[in] dataTypes (Bus) String representing all signal data types separated by comma.
  * @param[in] strlenDataTypes (Bus) Number of characters in the dataTypes array.
- * @param[in] threadPriority Priority to be set for the data recorder thread.
  * @param[in] writeFilesDuringSimulation Nonzero if files should be written during simulation.
  */
-extern void GT_DriverDataRecorderInitialize(uint8_t typeOfRecorder, const uint8_t* idCharacters, uint32_t numIDCharacters, uint32_t numSamplesPerFile, uint32_t numBytesPerSample, uint32_t numSignals, const uint8_t* signalNames, uint32_t strlenSignalNames, const uint8_t* dimensions, uint32_t strlenDimensions, const uint8_t* dataTypes, uint32_t strlenDataTypes, int32_t threadPriority, uint8_t writeFilesDuringSimulation);
+extern void GT_DriverDataRecorderInitialize(uint8_t typeOfRecorder, const uint8_t* idCharacters, uint32_t numIDCharacters, uint32_t numSamplesPerFile, uint32_t numBytesPerSample, uint32_t numSignals, const uint8_t* signalNames, uint32_t strlenSignalNames, const uint8_t* dimensions, uint32_t strlenDimensions, const uint8_t* dataTypes, uint32_t strlenDataTypes, uint8_t writeFilesDuringSimulation);
 
 /**
  * @brief Terminate the driver.

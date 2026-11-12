@@ -150,31 +150,31 @@
   <a href="library_gt_targetstats_applicationarguments.html">Target Stats / Application Arguments</a> block.
 </p>
 
-<h2 id="flowchart">Application Flowchart</h2>
+<h2 id="flowchart">Application Lifecycle</h2>
 <p>
   The application follows a simple lifecycle: after an
   <a href="#initialize">initialization phase</a>, the <a href="#mainloop">main loop</a> runs until a termination
   signal is received, after which the <a href="#terminate">termination phase</a> is executed. All three phases
   are described in detail below.
 </p>
-<figure class="figure">
-  <img src="img/ApplicationOverview.svg" alt="Flowchart of the Generic Target application showing initialization, the main loop, and termination">
-  <figcaption>Basic flow of the Generic Target application.</figcaption>
-</figure>
 
 <h2 id="initialize">Initialization</h2>
 <p>
   After the application is started, the initialization phase is executed. Its steps are described below.
 </p>
-<figure class="figure">
-  <img src="img/ApplicationInitialize.svg" alt="Flowchart of the initialization phase: parse arguments, print application information, open AppSocket, initialize the Simulink model, and start the scheduler">
-  <figcaption>Initialization phase.</figcaption>
-</figure>
 
-<h3>1. Parse Arguments (arg)</h3>
+<h3>1. Setup Runtime Environment</h3>
+<p>The runtime environment is set up as follows:</p>
+<ul>
+  <li>Lock memory pages to prevent swapping via <code>mlockall(MCL_CURRENT | MCL_FUTURE)</code>.</li>
+  <li>Set up signal handlers for handling <code>SIGINT</code>/<code>SIGTERM</code>, as well as a crash handler that creates backtrace logs.</li>
+  <li>Set the file mode creation mask globally via <code>umask(0000)</code>, such that all data recording files created have full user permissions.</li>
+</ul>
+
+<h3>2. Parse Arguments</h3>
 <p>The <a href="#arguments">arguments</a> passed to the application at start-up are parsed and evaluated.</p>
 
-<h3>2. Print Application Information</h3>
+<h3>3. Print Application Information</h3>
 <p>
   Basic information about the system and the application is printed, for example the Generic Target version, the
   compiler version, and the configured tasks and sample rates. All output is written to the standard error
@@ -182,7 +182,7 @@
   to a log file in the target software directory.
 </p>
 
-<h3>3. Open AppSocket (abstract UNIX socket)</h3>
+<h3>4. Open AppSocket (abstract UNIX socket)</h3>
 <p>
   The Generic Target application uses an abstract UNIX socket, called AppSocket, whose system-wide unique name
   is set via the
@@ -190,25 +190,33 @@
   acts as a lock and ensures that only one instance of the application runs on the system.
 </p>
 
-<h3>4. SimulinkInterface::Initialize()</h3>
+<h3>5. Create the Real-Time Scheduler</h3>
+<p>The scheduler is created as follows, but scheduling is not started yet:</p>
+<ul>
+  <li>Create the periodic timer.</li>
+  <li>Create all real-time threads, i.e., one worker thread per model task and the master thread.</li>
+  <li>Set the priorities of all threads with the <code>SCHED_FIFO</code> scheduling policy.</li>
+</ul>
+
+<h3>6. Initialize Simulink Model</h3>
 <p>
   The Simulink model is initialized; all initialization callbacks of the model and its driver blocks are
   invoked. If an error occurs during initialization, it is reported on the
   <a href="consoleoutput.html">standard error stream</a> and the application terminates.
 </p>
 
-<h3>5. Start Scheduler</h3>
+<h3>7. Start Real-Time Scheduler</h3>
 <p>
   Finally, the <a href="timingscheduling.html">scheduler</a> is started. It runs in a high-priority master
-  thread and ensures that all <code>step()</code> methods of the Simulink model are invoked with their correct
-  sample times.
+  thread that starts the periodic timer with the base sampletime of the model and ensures that all <code>step()</code>
+  methods of the Simulink model are invoked with their correct sample times.
 </p>
 
 <h2 id="mainloop">Main Loop</h2>
 <p>
   After the initialization phase, the main loop is entered. It runs in the main thread and waits for a
-  termination signal, for example <code>SIGINT</code> or <code>SIGTERM</code> sent by the operating system, which
-  interrupts the loop and triggers the termination phase.
+  stop request. A stop is requested if the application is interrupted, for example by <code>SIGINT</code> or <code>SIGTERM</code> sent by the operating system, or
+  when the <a href="library_gt_interface_stopexecution.html">Stop Execution</a> block is called with its input set to true.
 </p>
 
 <h2 id="terminate">Termination</h2>
@@ -216,25 +224,47 @@
   During the termination phase, all open files are closed and dynamically allocated memory is released. The
   individual steps are:
 </p>
-<figure class="figure">
-  <img src="img/ApplicationTerminate.svg" alt="Flowchart of the termination phase: stop the scheduler, terminate the Simulink model, and close the AppSocket">
-  <figcaption>Termination phase.</figcaption>
-</figure>
 
-<h3>1. Stop Scheduler</h3>
+<h3>1. Stop Real-Time Scheduler</h3>
 <p>
   The scheduler is stopped. <code>step()</code> calls that are already in flight are allowed to complete, but no
   new <code>step()</code> calls are started.
 </p>
 
-<h3>2. SimulinkInterface::Terminate()</h3>
+<h3>2. Terminate the Simulink Model</h3>
 <p>
   The termination function of the Simulink model is called. All termination callbacks of the driver blocks are
   invoked as well.
 </p>
 
-<h3>3. Close AppSocket</h3>
+<h3>3. Destroy the Real-Time Scheduler</h3>
+<p>The periodic timer and all real-time threads are stopped and destroyed.</p>
+
+<h3>4. Close AppSocket</h3>
 <p>The AppSocket is closed and the Generic Target application terminates.</p>
+
+<h2 id="exitcodes">Exit Codes</h2>
+<p>
+  The Generic Target application exits with specific return codes that indicate the outcome of startup or runtime.
+  These exit codes can be retrieved from the application's process exit status. The following table describes all
+  possible exit codes:
+</p>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Exit Code</th><th>Name</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>0</code></td><td><code>Success</code></td><td>The application started successfully and is running. The application terminates with this code only when requested normally (e.g., via a stop signal).</td></tr>
+      <tr><td><code>1</code></td><td><code>MemoryLockFailed</code></td><td>Failed to lock memory pages using <code>mlockall(MCL_CURRENT | MCL_FUTURE)</code>. This prevents the application from being swapped to disk, which is essential for real-time behavior.</td></tr>
+      <tr><td><code>2</code></td><td><code>SignalHandlerFailed</code></td><td>Failed to set up signal handlers for <code>SIGINT</code>, <code>SIGTERM</code>, or the crash handler. This typically indicates an error in installing the signal handling routines.</td></tr>
+      <tr><td><code>3</code></td><td><code>SemaphoreInitFailed</code></td><td>Failed to initialize a semaphore for the main thread. The Semaphore is used to wait for stop requests.</td></tr>
+      <tr><td><code>4</code></td><td><code>AppStartupFailed</code></td><td>A generic startup failure that occurred during the initialization phase.</td></tr>
+      <tr><td><code>5</code></td><td><code>SemaphoreWaitFailed</code></td><td>The main thread failed to wait for a stop request while running the main loop.</td></tr>
+    </tbody>
+  </table>
+</div>
 
       </article>
       <footer class="site-footer">

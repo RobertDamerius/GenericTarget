@@ -206,9 +206,9 @@ function BuildDrivers()
     fprintf('define driver: DataRecorder\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverDataRecorder';
-    def.StartFcnSpec     = 'void GT_DriverDataRecorderInitialize(uint8 p1, uint8 p2[], uint32 p3, uint32 p4, uint32 p5, uint32 p6, uint8 p7[], uint32 p8, uint8 p9[], uint32 p10, uint8 p11[], uint32 p12, int32 p13, uint8 p14)';
-    def.TerminateFcnSpec = 'void GT_DriverDataRecorderTerminate(uint8 p14)';
-    def.OutputFcnSpec    = 'void GT_DriverDataRecorderStep(uint8 p1, uint8 p2[], uint32 p3, double u1, double u2[p6], uint32 p6, uint8 u3[p5], uint32 p5, uint8 p14)';
+    def.StartFcnSpec     = 'void GT_DriverDataRecorderInitialize(uint8 p1, uint8 p2[], uint32 p3, uint32 p4, uint32 p5, uint32 p6, uint8 p7[], uint32 p8, uint8 p9[], uint32 p10, uint8 p11[], uint32 p12, uint8 p13)';
+    def.TerminateFcnSpec = 'void GT_DriverDataRecorderTerminate(uint8 p13)';
+    def.OutputFcnSpec    = 'void GT_DriverDataRecorderStep(uint8 p1, uint8 p2[], uint32 p3, double u1, double u2[p6], uint32 p6, uint8 u3[p5], uint32 p5, uint8 p13)';
     def.HeaderFiles      = {'GT_DriverDataRecorder.hpp'};
     def.SourceFiles      = {'GT_DriverDataRecorder.cpp','GT_DriverImplementationDetails.cpp'};
     def.IncPaths         = {''};
@@ -316,11 +316,11 @@ function BuildDrivers()
     fprintf('define driver: ReadThermalZones\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverReadThermalZones';
-    def.StartFcnSpec     = 'void GT_DriverReadThermalZonesInitialize()';
-    def.TerminateFcnSpec = 'void GT_DriverReadThermalZonesTerminate()';
-    def.OutputFcnSpec    = 'void GT_DriverReadThermalZonesStep(uint32 p1, double y1[p1])';
+    def.StartFcnSpec     = 'void GT_DriverReadThermalZonesInitialize(void** work1, uint32 p1, double p2)';
+    def.TerminateFcnSpec = 'void GT_DriverReadThermalZonesTerminate(void* work1)';
+    def.OutputFcnSpec    = 'void GT_DriverReadThermalZonesStep(void* work1, uint32 p1, double y1[p1])';
     def.HeaderFiles      = {'GT_DriverReadThermalZones.hpp'};
-    def.SourceFiles      = {'GT_DriverReadThermalZones.cpp'};
+    def.SourceFiles      = {'GT_DriverReadThermalZones.cpp','GT_DriverImplementationDetails.cpp'};
     def.IncPaths         = {''};
     def.SrcPaths         = {''};
     def.LibPaths         = {''};
@@ -341,10 +341,10 @@ function BuildDrivers()
     fprintf('done\n');
 
     % compile
-    cflags    = '';
-    cxxflags  = '-std=c++20';
-    ldflags   = '-std=c++20';
-    libraries = {'-L/usr/lib', '-L/usr/local/lib', '-lstdc++', '-lpthread'};
+    cflags    = '-pthread';
+    cxxflags  = '-std=c++20 -pthread';
+    ldflags   = '-std=c++20 -pthread';
+    libraries = {'-L/usr/lib', '-L/usr/local/lib'};
     if(ispc)
         libraries = [libraries, {'-lws2_32', '-lIphlpapi'}];
     end

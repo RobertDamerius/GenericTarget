@@ -564,11 +564,11 @@ classdef GenericTarget < handle
             strArraySampleTicks = sprintf('%d', sampleTicks(1));
             strArrayOffsetTicks = sprintf('%d', offsetTicks(1));
             strArrayTaskNames = sprintf('"%s"', taskNames(1));
-            strStepSwitch = sprintf('        case 0: _model.%s(); break;', stepPrototypes(1));
+            strStepSwitch = sprintf('        case 0: GetModelInstance().%s(); break;', stepPrototypes(1));
             for n = uint32(2):numTimings
                 strArraySampleTicks = strcat(strArraySampleTicks, sprintf(',%d', sampleTicks(n)));
                 strArrayOffsetTicks = strcat(strArrayOffsetTicks, sprintf(',%d', offsetTicks(n)));
-                strStepSwitch = append(strStepSwitch, sprintf('\n        case %d: _model.%s(); break;', uint32(n-1), stepPrototypes(n)));
+                strStepSwitch = append(strStepSwitch, sprintf('\n        case %d: GetModelInstance().%s(); break;', uint32(n-1), stepPrototypes(n)));
                 strArrayTaskNames = append(strArrayTaskNames, sprintf(', "%s"', taskNames(n)));
             end
 

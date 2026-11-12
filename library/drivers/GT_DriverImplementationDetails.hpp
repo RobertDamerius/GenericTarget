@@ -138,10 +138,9 @@ class DataRecorderBase {
         /**
          * @brief Start the data recorder.
          * @param[in] filename The absolute filename of the data record file.
-         * @param[in] threadPriority Priority to be set for the data recorder thread.
          * @return True if success, false otherwise.
          */
-        bool Start(std::string filename, int32_t threadPriority);
+        bool Start(std::string filename);
 
         /**
          * @brief Stop the data recorder.
@@ -173,6 +172,7 @@ class DataRecorderBase {
         uint32_t m_currentFileNumber{0};        // The current filenumber.
         size_t m_numSamplesWritten{0};          // Number of samples that have been written to the current file.
         bool m_currentFileStarted{false};       // True if header for current file has been written successfully, false otherwise.
+        size_t m_filePosition{0};               // Byte offset within the current file where the next sample will be written (start of SampleData after a new header).
 
         /**
          * @brief Get the current filename based on @ref m_filename and @ref m_currentFileNumber.
@@ -253,9 +253,9 @@ template <typename T> class DataRecorderTemplate: public DataRecorderBase {
          */
         void ThreadDataRecorder(void){
             std::vector<T> localBuffer;
-            while(!m_terminate){
+            while(!m_terminate.load(std::memory_order_relaxed)){
                 m_event.Wait();
-                if(m_terminate){
+                if(m_terminate.load(std::memory_order_relaxed)){
                     break;
                 }
                 {
@@ -357,10 +357,9 @@ class DataRecorderManager {
          * @param[in] numCharacters Number of characters in the signalNames array.
          * @param[in] numSignals Number of signals to record.
          * @param[in] numSamplesPerFile The number of samples per file or zero if all samples should be written to one file.
-         * @param[in] threadPriority Priority to be set for the data recorder thread.
          * @return True if success, false otherwise.
          */
-        bool AddDataRecorderScalarDoubles(const uint8_t* idCharacters, uint32_t numIDCharacters, const uint8_t* signalNames, uint32_t numCharacters, uint32_t numSignals, uint32_t numSamplesPerFile, int32_t threadPriority);
+        bool AddDataRecorderScalarDoubles(const uint8_t* idCharacters, uint32_t numIDCharacters, const uint8_t* signalNames, uint32_t numCharacters, uint32_t numSignals, uint32_t numSamplesPerFile);
 
         /**
          * @brief Write scalar doubles to file.
@@ -385,10 +384,9 @@ class DataRecorderManager {
          * @param[in] strlenDimensions Number of characters in the dimensions array.
          * @param[in] dataTypes String representing all signal data types separated by comma.
          * @param[in] strlenDataTypes Number of characters in the dataTypes array.
-         * @param[in] threadPriority Priority to be set for the data recorder thread.
          * @return True if success, false otherwise.
          */
-        bool AddDataRecorderBus(const uint8_t* idCharacters, uint32_t numIDCharacters, uint32_t numSamplesPerFile, uint32_t numBytesPerSample, const uint8_t* signalNames, uint32_t strlenSignalNames, const uint8_t* dimensions, uint32_t strlenDimensions, const uint8_t* dataTypes, uint32_t strlenDataTypes, int32_t threadPriority);
+        bool AddDataRecorderBus(const uint8_t* idCharacters, uint32_t numIDCharacters, uint32_t numSamplesPerFile, uint32_t numBytesPerSample, const uint8_t* signalNames, uint32_t strlenSignalNames, const uint8_t* dimensions, uint32_t strlenDimensions, const uint8_t* dataTypes, uint32_t strlenDataTypes);
 
         /**
          * @brief Write bus signals to file.
@@ -1050,11 +1048,11 @@ class UDPServiceManager {
             int32_t m_id{0};
             UDPService* m_service{nullptr};
         };
-        std::vector<entry> m_services;              // Internal database of UDP services.
-        std::thread m_managementThread;             // Thread that manages all @ref m_services.
-        std::atomic<bool> m_terminate{false};       // Flag for thread termination.
-        std::atomic<bool> m_threadStarted{false};   // True if management thread has been started and should be notified by @ref SendTo or @ref ReceiveFrom.
-        Event m_event;                              // Event to notify the management thread.
+        std::vector<entry> m_services;                // Internal database of UDP services.
+        std::thread m_managementThread;               // Thread that manages all @ref m_services.
+        std::atomic<bool> m_terminate{false};         // Flag for thread termination.
+        std::atomic<bool> m_doInitialWakeup{false};   // True if management thread has been started and should be notified by @ref SendTo or @ref ReceiveFrom.
+        Event m_event;                                // Event to notify the management thread.
 
         /**
          * @brief The management thread function.
@@ -1258,6 +1256,44 @@ class TCPClientServiceManager {
             TCPClientService* m_service{nullptr};
         };
         std::vector<entry> m_services;   // Internal database of TCP client services.
+};
+
+
+/**
+ * @brief This class reads the temperatures of the thermal zones asynchronously in a separate thread.
+ */
+class AsyncThermalZoneReader {
+    public:
+        /**
+         * @brief Construct an asynchronous thermal zone reader.
+         * @param[in] maxNumThermalZones The maximum number of thermal zones to read.
+         * @param[in] pollingInterval The interval in seconds at which to poll the thermal zones.
+         */
+        AsyncThermalZoneReader(const uint32_t maxNumThermalZones, double pollingInterval);
+
+        /**
+         * @brief Destroy the asynchronous thermal zone reader.
+         */
+        ~AsyncThermalZoneReader();
+
+        /**
+         * @brief Read the latest temperatures of the thermal zones.
+         * @param[out] temperatures Pointer to an array where the latest read temperatures will be stored.
+         * @param[in] numZones The number of thermal zones to read.
+         */
+        void ReadZones(double* temperatures, const uint32_t numZones);
+
+    private:
+        std::vector<std::atomic<double>> m_temperatures;   // The latest read temperatures of the thermal zones.
+        std::vector<std::string> m_filePaths;              // The file paths of the thermal zones.
+        std::atomic<bool> m_terminate{false};              // Flag for thread termination.
+        std::thread m_readThread;                          // Thread that reads the thermal zones.
+
+        /**
+         * @brief The thread function that reads the thermal zones and updates the latest read temperatures.
+         * @param[in] pollingInterval The interval in seconds at which to poll the thermal zones.
+         */
+        void ReadThread(double pollingInterval);
 };
 
 

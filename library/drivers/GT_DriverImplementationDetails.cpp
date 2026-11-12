@@ -1,6 +1,6 @@
 #include <GT_DriverImplementationDetails.hpp>
 #if defined(GENERIC_TARGET_IMPLEMENTATION)
-#include <GenericTarget/GT_GenericTarget.hpp>
+#include <GenericTarget/GT_RuntimeEnvironment.hpp>
 #include <SimulinkCodeGeneration/SimulinkInterface.hpp>
 #endif
 #include <fstream>
@@ -8,6 +8,7 @@
 #include <cstring>
 #include <algorithm>
 #include <sstream>
+#include <limits>
 #include <chrono>
 #include <format>
 #include <iostream>
@@ -131,74 +132,67 @@ void Event::Clear(void){
 }
 
 void DataRecorderBase::SetNumSamplesPerFile(uint32_t numSamplesPerFile){
-    if(!m_started){
+    if(!m_started.load(std::memory_order_relaxed)){
         this->m_numSamplesPerFile = static_cast<size_t>(numSamplesPerFile);
     }
 }
 
 void DataRecorderBase::SetNumSignals(uint32_t numSignals){
-    if(!m_started){
+    if(!m_started.load(std::memory_order_relaxed)){
         this->m_numSignals = numSignals;
     }
 }
 
 void DataRecorderBase::SetNumBytesPerSample(uint32_t numBytesPerSample){
-    if(!m_started){
+    if(!m_started.load(std::memory_order_relaxed)){
         this->m_numBytesPerSample = numBytesPerSample;
     }
 }
 
 void DataRecorderBase::SetLabels(std::string labels){
-    if(!m_started){
+    if(!m_started.load(std::memory_order_relaxed)){
         this->m_labels = labels;
     }
 }
 
 void DataRecorderBase::SetDimensions(std::string dimensions){
-    if(!m_started){
+    if(!m_started.load(std::memory_order_relaxed)){
         this->m_dimensions = dimensions;
     }
 }
 
 void DataRecorderBase::SetDataTypes(std::string dataTypes){
-    if(!m_started){
+    if(!m_started.load(std::memory_order_relaxed)){
         this->m_dataTypes = dataTypes;
     }
 }
 
-bool DataRecorderBase::Start(std::string filename, int32_t threadPriority){
+bool DataRecorderBase::Start(std::string filename){
     Stop();
     this->m_filename = filename;
     m_threadDataRecorder = std::thread(&DataRecorderBase::ThreadDataRecorder, this);
-    struct sched_param param;
-    param.sched_priority = std::clamp(static_cast<int>(threadPriority), sched_get_priority_min(SCHED_FIFO), sched_get_priority_max(SCHED_FIFO));
-    if(0 != pthread_setschedparam(m_threadDataRecorder.native_handle(), SCHED_FIFO, &param)){
-        GENERIC_TARGET_PRINT_ERROR("Failed to set thread priority {} for data recorder thread!\n", threadPriority);
-        #if defined(GENERIC_TARGET_IMPLEMENTATION) && !defined(DEBUG) && !defined(_WIN32)
-        Stop();
-        return false;
-        #endif
-    }
-    return (m_started = true);
+    m_started.store(true, std::memory_order_relaxed);
+    return true;
 }
 
 void DataRecorderBase::Stop(void){
-    m_terminate = true;
+    m_terminate.store(true, std::memory_order_relaxed);
     m_event.Notify();
     if(m_threadDataRecorder.joinable()){
         m_threadDataRecorder.join();
     }
-    m_terminate = false;
+    m_terminate.store(false, std::memory_order_relaxed);
     m_event.Clear();
-    if(m_started){
+    if(m_started.load(std::memory_order_relaxed)){
         if(!FlushBuffer()){
             std::string currentFileName = GetCurrentFilename();
             GENERIC_TARGET_PRINT_WARNING("Remaining signal data is in the buffer but could not be written to the data file \"{}\"!\n", currentFileName);
         }
     }
-    m_started = false;
+    m_started.store(false, std::memory_order_relaxed);
     m_currentFileNumber = 0;
     m_numSamplesWritten = 0;
+    m_filePosition = 0;
     m_currentFileStarted = false;
 }
 
@@ -274,6 +268,7 @@ void DataRecorderScalarDoubles::WriteBufferToDataFiles(std::vector<double>& valu
             }
             m_currentFileStarted = true;
             m_numSamplesWritten = 0;
+            m_filePosition = 15 + static_cast<size_t>(m_labels.length()); // start of SampleData: header "GTDBL" (5) + offset (4) + numSignals (4) + labels (L+1) + endianess (1)
             GENERIC_TARGET_PRINT_INFO("Created data recording file \"{}\"\n", currentFileName);
         }
 
@@ -286,15 +281,21 @@ void DataRecorderScalarDoubles::WriteBufferToDataFiles(std::vector<double>& valu
             return;
         }
         size_t numValuesToWrite = numSamplesToWrite * static_cast<size_t>(1 + m_numSignals);
-        std::fstream fs(currentFileName, std::ios::out | std::ios::app | std::ios::binary);
+        const size_t numBytesToWrite = numValuesToWrite * 8;
+        std::fstream fs(currentFileName, std::ios::in | std::ios::out | std::ios::binary);
         if(!fs.is_open()){
             return;
         }
-        fs.write(reinterpret_cast<const char*>(&values[0]), numValuesToWrite * 8);
+        fs.seekp(m_filePosition);
+        if(!fs){
+            return;
+        }
+        fs.write(reinterpret_cast<const char*>(&values[0]), numBytesToWrite);
         if(!fs){
             return;
         }
         fs.close();
+        m_filePosition += numBytesToWrite;
         m_numSamplesWritten += numSamplesToWrite;
         values.erase(values.begin(), values.begin() + numValuesToWrite);
 
@@ -389,6 +390,7 @@ void DataRecorderBus::WriteBufferToDataFiles(std::vector<uint8_t>& bytes){
             }
             m_currentFileStarted = true;
             m_numSamplesWritten = 0;
+            m_filePosition = 17 + static_cast<size_t>(m_labels.length() + m_dimensions.length() + m_dataTypes.length()); // start of SampleData: header "GTBUS" (5) + offset (4) + numBytesPerSample (4) + labels (L+1) + dimensions (D+1) + dataTypes (T+1) + endianess (1)
             GENERIC_TARGET_PRINT_INFO("Created data recording file \"{}\"\n", currentFileName);
         }
 
@@ -401,8 +403,12 @@ void DataRecorderBus::WriteBufferToDataFiles(std::vector<uint8_t>& bytes){
             return;
         }
         size_t numBytesToWrite = numSamplesToWrite * (size_t)(8 + m_numBytesPerSample);
-        std::fstream fs(currentFileName, std::ios::out | std::ios::app | std::ios::binary);
+        std::fstream fs(currentFileName, std::ios::in | std::ios::out | std::ios::binary);
         if(!fs.is_open()){
+            return;
+        }
+        fs.seekp(m_filePosition);
+        if(!fs){
             return;
         }
         fs.write((const char*)&bytes[0], numBytesToWrite);
@@ -410,6 +416,7 @@ void DataRecorderBus::WriteBufferToDataFiles(std::vector<uint8_t>& bytes){
             return;
         }
         fs.close();
+        m_filePosition += numBytesToWrite;
         m_numSamplesWritten += numSamplesToWrite;
         bytes.erase(bytes.begin(), bytes.begin() + numBytesToWrite);
 
@@ -421,7 +428,7 @@ void DataRecorderBus::WriteBufferToDataFiles(std::vector<uint8_t>& bytes){
     }
 }
 
-bool DataRecorderManager::AddDataRecorderScalarDoubles(const uint8_t* idCharacters, uint32_t numIDCharacters, const uint8_t* signalNames, uint32_t numCharacters, uint32_t numSignals, uint32_t numSamplesPerFile, int32_t threadPriority){
+bool DataRecorderManager::AddDataRecorderScalarDoubles(const uint8_t* idCharacters, uint32_t numIDCharacters, const uint8_t* signalNames, uint32_t numCharacters, uint32_t numSignals, uint32_t numSamplesPerFile){
     // make sure that the data directory has already been created
     SetPathAndTimeIfNotSet();
     if(!MakeDataDirectory()){
@@ -446,7 +453,7 @@ bool DataRecorderManager::AddDataRecorderScalarDoubles(const uint8_t* idCharacte
         e.m_dataRecorder->SetNumSamplesPerFile(numSamplesPerFile);
         e.m_dataRecorder->SetNumSignals(numSignals);
         e.m_dataRecorder->SetLabels(signalLabels);
-        success = e.m_dataRecorder->Start((m_pathToDataDirectory / id).string(), threadPriority);
+        success = e.m_dataRecorder->Start((m_pathToDataDirectory / id).string());
         m_dataRecorders.push_back(e);
     }
 
@@ -465,7 +472,7 @@ void DataRecorderManager::WriteScalarDoubles(const uint8_t* idCharacters, uint32
     }
 }
 
-bool DataRecorderManager::AddDataRecorderBus(const uint8_t* idCharacters, uint32_t numIDCharacters, uint32_t numSamplesPerFile, uint32_t numBytesPerSample, const uint8_t* signalNames, uint32_t strlenSignalNames, const uint8_t* dimensions, uint32_t strlenDimensions, const uint8_t* dataTypes, uint32_t strlenDataTypes, int32_t threadPriority){
+bool DataRecorderManager::AddDataRecorderBus(const uint8_t* idCharacters, uint32_t numIDCharacters, uint32_t numSamplesPerFile, uint32_t numBytesPerSample, const uint8_t* signalNames, uint32_t strlenSignalNames, const uint8_t* dimensions, uint32_t strlenDimensions, const uint8_t* dataTypes, uint32_t strlenDataTypes){
     // make sure that the data directory has already been created
     SetPathAndTimeIfNotSet();
     if(!MakeDataDirectory()){
@@ -494,7 +501,7 @@ bool DataRecorderManager::AddDataRecorderBus(const uint8_t* idCharacters, uint32
         e.m_dataRecorder->SetLabels(signalLabels);
         e.m_dataRecorder->SetDimensions(strDimensions);
         e.m_dataRecorder->SetDataTypes(strDataTypes);
-        success = e.m_dataRecorder->Start((m_pathToDataDirectory / id).string(), threadPriority);
+        success = e.m_dataRecorder->Start((m_pathToDataDirectory / id).string());
         m_dataRecorders.push_back(e);
     }
 
@@ -524,48 +531,35 @@ void DataRecorderManager::ClearAllDataRecorders(void){
 
 void DataRecorderManager::SetPathAndTimeIfNotSet(void){
     if(m_pathToDataDirectory.empty()){
-        #if defined(GENERIC_TARGET_IMPLEMENTATION)
-        std::filesystem::path pathToApplication = gt::GenericTarget::absoluteApplicationPath;
-        auto startTimepoint = gt::GenericTarget::appStartTimepoint.GetUTC();
-        m_utc.year = 1900 + startTimepoint.year;
-        m_utc.month = 1 + startTimepoint.month;
-        m_utc.day = startTimepoint.mday;
-        m_utc.hour = startTimepoint.hour;
-        m_utc.minute = startTimepoint.minute;
-        m_utc.second = startTimepoint.second;
-        m_utc.millisecond = startTimepoint.nanoseconds / 1000000;
-        std::string utcString = gt::GenericTarget::appStartTimepoint.GetUTCString();
-        #else
-        std::filesystem::path pathToApplication;
+        // get current UTC
         auto timePoint = std::chrono::system_clock::now();
         std::time_t systemTime = std::chrono::system_clock::to_time_t(timePoint);
         std::tm gmTimeStruct;
         #if defined(_WIN32) // #TODO: use std::gmtime_r when C++26 is fully supported
             std::tm* gmTime = gmtime_s(&gmTimeStruct, &systemTime) == 0 ? &gmTimeStruct : nullptr;
+            if(gmTime == nullptr){
+                throw std::runtime_error("Failed to get UTC timepoint: gmtime_s failed");
+            }
         #else
             std::tm* gmTime = ::gmtime_r(&systemTime, &gmTimeStruct);
+            if(gmTime == nullptr){
+                throw std::runtime_error("Failed to get UTC timepoint: gmtime_r failed");
+            }
         #endif
-        if(gmTime == nullptr){
-            m_utc.year = 1900;
-            m_utc.month = 1;
-            m_utc.day = 1;
-            m_utc.hour = 0;
-            m_utc.minute = 0;
-            m_utc.second = 0;
-            m_utc.millisecond = 0;
-        }
-        else{
-            m_utc.year = 1900 + static_cast<int32_t>(gmTime->tm_year);
-            m_utc.month = 1 + static_cast<int32_t>(gmTime->tm_mon);
-            m_utc.day = static_cast<int32_t>(gmTime->tm_mday);
-            m_utc.hour = static_cast<int32_t>(gmTime->tm_hour);
-            m_utc.minute = static_cast<int32_t>(gmTime->tm_min);
-            m_utc.second = static_cast<int32_t>(gmTime->tm_sec);
-            auto duration = timePoint.time_since_epoch();
-            auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
-            duration -= seconds;
-            m_utc.millisecond = static_cast<int32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count());
-        }
+
+        // store time
+        m_utc.year = 1900 + static_cast<int32_t>(gmTime->tm_year);
+        m_utc.month = 1 + static_cast<int32_t>(gmTime->tm_mon);
+        m_utc.day = static_cast<int32_t>(gmTime->tm_mday);
+        m_utc.hour = static_cast<int32_t>(gmTime->tm_hour);
+        m_utc.minute = static_cast<int32_t>(gmTime->tm_min);
+        m_utc.second = static_cast<int32_t>(gmTime->tm_sec);
+        auto duration = timePoint.time_since_epoch();
+        auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
+        duration -= seconds;
+        m_utc.millisecond = static_cast<int32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count());
+
+        // format to string
         std::string utcString = std::format("{:04d}{:02d}{:02d}_{:02d}{:02d}{:02d}{:03d}",
             m_utc.year,
             m_utc.month,
@@ -574,9 +568,14 @@ void DataRecorderManager::SetPathAndTimeIfNotSet(void){
             m_utc.minute,
             m_utc.second,
             m_utc.millisecond);
-        #endif
 
-        // set absolute path for data recording directory
+        // set the path for the data recording directory (absolute on target, relative during simulation)
+        #if defined(GENERIC_TARGET_IMPLEMENTATION)
+        std::filesystem::path pathToApplication = std::filesystem::canonical("/proc/self/exe");
+        pathToApplication.remove_filename();
+        #else
+        std::filesystem::path pathToApplication;
+        #endif
         m_pathToDataDirectory = pathToApplication / "data" / utcString;
     }
 }
@@ -874,25 +873,25 @@ int32_t SocketBase::SetSocketPriority(int32_t priority){
 
 std::string SocketBase::GetLastErrorString(void){
     #ifdef _WIN32
-    int err = static_cast<int>(WSAGetLastError());
+    int errorCode = static_cast<int>(WSAGetLastError());
     std::string errStr("");
     #else
-    int err = static_cast<int>(errno);
-    std::string errStr = std::string(strerror(err)) + std::string(" ");
+    int errorCode = static_cast<int>(errno);
+    std::string errStr = std::string(strerror(errorCode)) + std::string(" ");
     #endif
-    return errStr + std::string("(") + std::to_string(err) + std::string(")");
+    return errStr + std::string("(") + std::to_string(errorCode) + std::string(")");
 }
 
 std::tuple<int32_t, std::string> SocketBase::GetLastError(void){
     #ifdef _WIN32
-    int err = static_cast<int>(WSAGetLastError());
+    int errorCode = static_cast<int>(WSAGetLastError());
     std::string errStr("");
     #else
-    int err = static_cast<int>(errno);
-    std::string errStr = std::string(strerror(err)) + std::string(" ");
+    int errorCode = static_cast<int>(errno);
+    std::string errStr = std::string(strerror(errorCode)) + std::string(" ");
     #endif
-    errStr += std::string("(") + std::to_string(err) + std::string(")");
-    return std::make_tuple(static_cast<int32_t>(err), errStr);
+    errStr += std::string("(") + std::to_string(errorCode) + std::string(")");
+    return std::make_tuple(static_cast<int32_t>(errorCode), errStr);
 }
 
 int32_t SocketBase::GetLastErrorCode(void){
@@ -1387,7 +1386,7 @@ void UDPService::Destroy(void){
     }
     m_currentlyJoinedGroups.clear();
     m_latestErrorCode = 0;
-    m_isBound = false;
+    m_isBound.store(false, std::memory_order_relaxed);
     m_attemptToBindStatus = 0;
     m_activeConf.Reset();
 }
@@ -1395,7 +1394,7 @@ void UDPService::Destroy(void){
 std::tuple<int32_t, int32_t> UDPService::SendTo(Address destination, uint8_t* bytes, int32_t size){
     int32_t tx = -1;
     int32_t code = m_latestErrorCode;
-    if(m_isBound && (size >= 0)){
+    if((size >= 0) && m_isBound.load(std::memory_order_relaxed)){
         tx = 0;
         bool enableTransmission = (size > 0) || ((0 == size) && m_activeConf.allowZeroLengthMessage);
         if(enableTransmission){
@@ -1412,7 +1411,7 @@ std::tuple<Address, int32_t, int32_t> UDPService::ReceiveFrom(uint8_t* bytes, in
     Address source;
     int32_t rx = -1;
     int32_t code = m_latestErrorCode;
-    if(m_isBound && (maxSize >= 0)){
+    if((maxSize >= 0) && m_isBound.load(std::memory_order_relaxed)){
         const LockGuard lock(m_mtxSocket);
         UpdateMulticastGroups(multicastGroups);
         m_udpSocket.ResetLastError();
@@ -1423,7 +1422,7 @@ std::tuple<Address, int32_t, int32_t> UDPService::ReceiveFrom(uint8_t* bytes, in
 }
 
 bool UDPService::AttemptToBind(void){
-    if(!m_isBound){
+    if(!m_isBound.load(std::memory_order_relaxed)){
         const LockGuard lock(m_mtxSocket);
 
         // bind port
@@ -1456,7 +1455,7 @@ bool UDPService::AttemptToBind(void){
         }
 
         // success
-        m_isBound = true;
+        m_isBound.store(true, std::memory_order_relaxed);
         GENERIC_TARGET_PRINT_INFO("UDP socket operational {{{}}}\n", m_activeConf.ToString());
     }
     return true;
@@ -1548,28 +1547,22 @@ bool UDPServiceManager::AddService(int32_t id, UDPServiceConfiguration conf){
         success = e.m_service->Create(conf);
         m_services.push_back(e);
     }
-    if(!m_threadStarted && success){
-        m_threadStarted = true;
+    if(success && !m_doInitialWakeup.exchange(true, std::memory_order_relaxed)){
         m_managementThread = std::thread(&UDPServiceManager::ManagementThread, this);
-        struct sched_param param;
-        param.sched_priority = std::clamp(21, sched_get_priority_min(SCHED_FIFO), sched_get_priority_max(SCHED_FIFO));
-        if(0 != pthread_setschedparam(m_managementThread.native_handle(), SCHED_FIFO, &param)){
-            GENERIC_TARGET_PRINT_WARNING("Failed to set thread priority 21 for UDP service management thread!\n");
-        }
     }
     return success;
 }
 
 void UDPServiceManager::ClearAllServices(void){
     // stop management thread
-    m_terminate = true;
+    m_terminate.store(true, std::memory_order_relaxed);
     m_event.Notify();
     if(m_managementThread.joinable()){
         m_managementThread.join();
     }
-    m_terminate = false;
+    m_terminate.store(false, std::memory_order_relaxed);
     m_event.Clear();
-    m_threadStarted = false;
+    m_doInitialWakeup.store(false, std::memory_order_relaxed);
 
     // destroy all m_services
     for(auto&& s : m_services){
@@ -1580,9 +1573,10 @@ void UDPServiceManager::ClearAllServices(void){
 }
 
 std::tuple<int32_t, int32_t> UDPServiceManager::SendTo(int32_t id, Address destination, uint8_t* bytes, int32_t size){
-    if(m_threadStarted){
-        m_threadStarted = false;
-        m_event.Notify();
+    if(m_doInitialWakeup.load(std::memory_order_relaxed)){
+        if(m_doInitialWakeup.exchange(false, std::memory_order_relaxed)){
+            m_event.Notify();
+        }
     }
     std::tuple<int32_t, int32_t> result(0, 0);
     for(auto&& s : m_services){
@@ -1595,9 +1589,10 @@ std::tuple<int32_t, int32_t> UDPServiceManager::SendTo(int32_t id, Address desti
 }
 
 std::tuple<Address, int32_t, int32_t> UDPServiceManager::ReceiveFrom(int32_t id, uint8_t* bytes, int32_t maxSize, std::vector<std::array<uint8_t,4>> multicastGroups){
-    if(m_threadStarted){
-        m_threadStarted = false;
-        m_event.Notify();
+    if(m_doInitialWakeup.load(std::memory_order_relaxed)){
+        if(m_doInitialWakeup.exchange(false, std::memory_order_relaxed)){
+            m_event.Notify();
+        }
     }
     std::tuple<Address, int32_t, int32_t> result(Address(0, 0, 0, 0, 0), 0, 0);
     for(auto&& s : m_services){
@@ -1611,7 +1606,7 @@ std::tuple<Address, int32_t, int32_t> UDPServiceManager::ReceiveFrom(int32_t id,
 
 void UDPServiceManager::ManagementThread(void){
     m_event.Wait();
-    while(!m_terminate){
+    while(!m_terminate.load(std::memory_order_relaxed)){
         bool allBound = true;
         for(auto&& s : m_services){
             allBound &= s.m_service->AttemptToBind();
@@ -1667,23 +1662,18 @@ bool TCPClientService::Create(TCPClientServiceConfiguration conf){
     }
     m_activeConf = conf;
     m_managementThread = std::thread(&TCPClientService::ManagementThread, this);
-    struct sched_param param;
-    param.sched_priority = std::clamp(21, sched_get_priority_min(SCHED_FIFO), sched_get_priority_max(SCHED_FIFO));
-    if(0 != pthread_setschedparam(m_managementThread.native_handle(), SCHED_FIFO, &param)){
-        GENERIC_TARGET_PRINT_WARNING("Failed to set thread priority 21 for TCP client service management thread!\n");
-    }
     m_isCreated = true;
     return true;
 }
 
 void TCPClientService::Destroy(void){
-    m_terminate = true;
+    m_terminate.store(true, std::memory_order_relaxed);
     Disconnect();
     m_event.Notify();
     if(m_managementThread.joinable()){
         m_managementThread.join();
     }
-    m_terminate = false;
+    m_terminate.store(false, std::memory_order_relaxed);
     m_isCreated = false;
     m_latestErrorCode = 0;
     m_event.Clear();
@@ -1769,7 +1759,7 @@ void TCPClientService::ManagementThread(void){
     Address destination;
     bool destinationChanged = false;
     bool notConnected = true;
-    while(!m_terminate){
+    while(!m_terminate.load(std::memory_order_relaxed)){
         // get commanded server address, check for local changes
         {
             const LockGuard lock(m_mtxIO);
@@ -1782,7 +1772,7 @@ void TCPClientService::ManagementThread(void){
         if(notConnected || destinationChanged){
             Disconnect();
             if(IsConnectCommand(destination) && !Connect(destination, destinationChanged)){
-                if(!m_terminate){
+                if(!m_terminate.load(std::memory_order_relaxed)){
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 }
                 continue;
@@ -1957,4 +1947,51 @@ std::tuple<int32_t, int32_t, bool> TCPClientServiceManager::Receive(int32_t id, 
         }
     }
     return result;
+}
+
+AsyncThermalZoneReader::AsyncThermalZoneReader(const uint32_t maxNumThermalZones, double pollingInterval) : m_temperatures(maxNumThermalZones), m_filePaths(maxNumThermalZones) {
+    for(uint32_t i = 0; i < maxNumThermalZones; ++i){
+        m_temperatures[i].store(std::numeric_limits<double>::quiet_NaN(), std::memory_order_release);
+        m_filePaths[i] = "/sys/class/thermal/thermal_zone" + std::to_string(i) + "/temp";
+    }
+    m_readThread = std::thread(&AsyncThermalZoneReader::ReadThread, this, pollingInterval);
+}
+
+AsyncThermalZoneReader::~AsyncThermalZoneReader(void){
+    m_terminate.store(true, std::memory_order_release);
+    if(m_readThread.joinable()){
+        m_readThread.join();
+    }
+}
+
+void AsyncThermalZoneReader::ReadZones(double* temperatures, const uint32_t numZones){
+    for(uint32_t i = 0; i < numZones; ++i){
+        if(i < m_temperatures.size()){
+            temperatures[i] = m_temperatures[i].load(std::memory_order_acquire);
+        }
+        else{
+            temperatures[i] = std::numeric_limits<double>::quiet_NaN();
+        }
+    }
+}
+
+void AsyncThermalZoneReader::ReadThread(double pollingInterval){
+    pollingInterval = std::isfinite(pollingInterval) ? pollingInterval : 0.1;
+    std::chrono::milliseconds cycleDuration(static_cast<int32_t>(std::max(pollingInterval, 0.001) * 1000.0));
+    while(!m_terminate.load(std::memory_order_acquire)){
+        auto nextCycle = std::chrono::steady_clock::now() + cycleDuration;
+        for(size_t i = 0; i < m_temperatures.size(); ++i){
+            double tempData = std::numeric_limits<double>::quiet_NaN();
+            std::ifstream tempFile(m_filePaths[i]);
+            if(tempFile.good()){
+                int32_t temp_millidegree_celsius{};
+                if(tempFile >> temp_millidegree_celsius){
+                    tempData = static_cast<double>(temp_millidegree_celsius) * 0.001;
+                }
+                tempFile.close();
+            }
+            m_temperatures[i].store(tempData, std::memory_order_release);
+        }
+        std::this_thread::sleep_until(nextCycle);
+    }
 }

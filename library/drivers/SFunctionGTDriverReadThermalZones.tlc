@@ -4,17 +4,17 @@
 %%   Simulink Coder TLC Code Generation file for SFunctionGTDriverReadThermalZones
 %% 
 %% Simulink version      : 25.2 (R2025b) 28-Jul-2025
-%% TLC file generated on : 06-Nov-2026 13:57:46
+%% TLC file generated on : 12-Nov-2026 18:02:35
 
 /%
      %%%-MATLAB_Construction_Commands_Start
      def = legacy_code('initialize');
      def.SFunctionName = 'SFunctionGTDriverReadThermalZones';
-     def.OutputFcnSpec = 'void GT_DriverReadThermalZonesStep(uint32 p1, double y1[p1])';
-     def.StartFcnSpec = 'void GT_DriverReadThermalZonesInitialize()';
-     def.TerminateFcnSpec = 'void GT_DriverReadThermalZonesTerminate()';
+     def.OutputFcnSpec = 'void GT_DriverReadThermalZonesStep(void* work1, uint32 p1, double y1[p1])';
+     def.StartFcnSpec = 'void GT_DriverReadThermalZonesInitialize(void** work1, uint32 p1, double p2)';
+     def.TerminateFcnSpec = 'void GT_DriverReadThermalZonesTerminate(void* work1)';
      def.HeaderFiles = {'GT_DriverReadThermalZones.hpp'};
-     def.SourceFiles = {'GT_DriverReadThermalZones.cpp'};
+     def.SourceFiles = {'GT_DriverReadThermalZones.cpp', 'GT_DriverImplementationDetails.cpp'};
      def.SampleTime = 'parameterized';
      def.Options.useTlcWithAccel = false;
      def.Options.language = 'C++';
@@ -86,6 +86,7 @@
         %<LibAddToCommonIncludes("GT_DriverReadThermalZones.hpp")>
     %endif
     %<SLibAddToStaticSources("GT_DriverReadThermalZones.cpp")>
+    %<SLibAddToStaticSources("GT_DriverImplementationDetails.cpp")>
 %endfunction
 
 %% Function: BlockInstanceSetup ===========================================
@@ -107,9 +108,9 @@
         %<LibEmitPlatformTypeIncludes()>
         #endif
         
-        extern void SFunctionGTDriverReadThermalZones_wrapper_Start_%<sfunInstanceName>(void);
-        extern void SFunctionGTDriverReadThermalZones_wrapper_Output_%<sfunInstanceName>(const %<uint32Type> p1,  %<doubleType>* y1);
-        extern void SFunctionGTDriverReadThermalZones_wrapper_Terminate_%<sfunInstanceName>(void);
+        extern void SFunctionGTDriverReadThermalZones_wrapper_Start_%<sfunInstanceName>( void** work1, const %<uint32Type> p1, const %<doubleType> p2);
+        extern void SFunctionGTDriverReadThermalZones_wrapper_Output_%<sfunInstanceName>( void* work1, const %<uint32Type> p1,  %<doubleType>* y1);
+        extern void SFunctionGTDriverReadThermalZones_wrapper_Terminate_%<sfunInstanceName>( void* work1);
         
         #endif
         
@@ -131,8 +132,8 @@
         %if IsModelReferenceSimTarget() && !::GenCPP
         extern "C" {
         %endif
-        void SFunctionGTDriverReadThermalZones_wrapper_Start_%<sfunInstanceName>(void) {
-            GT_DriverReadThermalZonesInitialize();
+        void SFunctionGTDriverReadThermalZones_wrapper_Start_%<sfunInstanceName>( void** work1, const %<uint32Type> p1, const %<doubleType> p2) {
+            GT_DriverReadThermalZonesInitialize(work1, (%<uint32Type>)(p1), (%<doubleType>)(p2));
         }
         %if IsModelReferenceSimTarget() && !::GenCPP
         }
@@ -141,8 +142,8 @@
         %if IsModelReferenceSimTarget() && !::GenCPP
         extern "C" {
         %endif
-        void SFunctionGTDriverReadThermalZones_wrapper_Output_%<sfunInstanceName>(const %<uint32Type> p1,  %<doubleType>* y1) {
-            GT_DriverReadThermalZonesStep((%<uint32Type>)(p1), y1);
+        void SFunctionGTDriverReadThermalZones_wrapper_Output_%<sfunInstanceName>( void* work1, const %<uint32Type> p1,  %<doubleType>* y1) {
+            GT_DriverReadThermalZonesStep(work1, (%<uint32Type>)(p1), y1);
         }
         %if IsModelReferenceSimTarget() && !::GenCPP
         }
@@ -151,8 +152,8 @@
         %if IsModelReferenceSimTarget() && !::GenCPP
         extern "C" {
         %endif
-        void SFunctionGTDriverReadThermalZones_wrapper_Terminate_%<sfunInstanceName>(void) {
-            GT_DriverReadThermalZonesTerminate();
+        void SFunctionGTDriverReadThermalZones_wrapper_Terminate_%<sfunInstanceName>( void* work1) {
+            GT_DriverReadThermalZonesTerminate(work1);
         }
         %if IsModelReferenceSimTarget() && !::GenCPP
         }
@@ -174,52 +175,62 @@
 %% Function: Start ========================================================
 %function Start (block, system) Output
     %if IsModelReferenceSimTarget() || CodeFormat=="S-Function" || ::isRAccel
+        %assign work1_ptr = "&"+LibBlockPWork("", "", "", 0)
+        %assign p1_val = LibBlockParameter(p1, "", "", 0)
+        %assign p2_val = LibBlockParameter(p2, "", "", 0)
         %% 
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
         {
             %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", LibBlockIdentifier(block))
-            SFunctionGTDriverReadThermalZones_wrapper_Start_%<sfunInstanceName>();
+            SFunctionGTDriverReadThermalZones_wrapper_Start_%<sfunInstanceName>(%<work1_ptr>, %<p1_val>, %<p2_val>);
         
         }
     %else
+        %assign work1_ptr = "&"+LibBlockPWork("", "", "", 0)
+        %assign p1_val = LibBlockParameter(p1, "", "", 0)
+        %assign p2_val = LibBlockParameter(p2, "", "", 0)
         %% 
-        GT_DriverReadThermalZonesInitialize();
+        GT_DriverReadThermalZonesInitialize(%<work1_ptr>, %<p1_val>, %<p2_val>);
     %endif
 %endfunction
 
 %% Function: Outputs ======================================================
 %function Outputs (block, system) Output
     %if IsModelReferenceSimTarget() || CodeFormat=="S-Function" || ::isRAccel
+        %assign work1_val = LibBlockPWork("", "", "", 0)
         %assign p1_val = LibBlockParameter(p1, "", "", 0)
         %assign y1_ptr = LibBlockOutputSignalAddr(0, "", "", 0)
         %% 
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
         {
             %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", LibBlockIdentifier(block))
-            SFunctionGTDriverReadThermalZones_wrapper_Output_%<sfunInstanceName>(%<p1_val>, %<y1_ptr>);
+            SFunctionGTDriverReadThermalZones_wrapper_Output_%<sfunInstanceName>(%<work1_val>, %<p1_val>, %<y1_ptr>);
         
         }
     %else
+        %assign work1_val = LibBlockPWork("", "", "", 0)
         %assign p1_val = LibBlockParameter(p1, "", "", 0)
         %assign y1_ptr = LibBlockOutputSignalAddr(0, "", "", 0)
         %% 
-        GT_DriverReadThermalZonesStep(%<p1_val>, %<y1_ptr>);
+        GT_DriverReadThermalZonesStep(%<work1_val>, %<p1_val>, %<y1_ptr>);
     %endif
 %endfunction
 
 %% Function: Terminate ====================================================
 %function Terminate (block, system) Output
     %if IsModelReferenceSimTarget() || CodeFormat=="S-Function" || ::isRAccel
+        %assign work1_val = LibBlockPWork("", "", "", 0)
         %% 
         /* %<Type> (%<ParamSettings.FunctionName>): %<Name> */
         {
             %assign sfunInstanceName = FEVAL("matlab.lang.makeValidName", LibBlockIdentifier(block))
-            SFunctionGTDriverReadThermalZones_wrapper_Terminate_%<sfunInstanceName>();
+            SFunctionGTDriverReadThermalZones_wrapper_Terminate_%<sfunInstanceName>(%<work1_val>);
         
         }
     %else
+        %assign work1_val = LibBlockPWork("", "", "", 0)
         %% 
-        GT_DriverReadThermalZonesTerminate();
+        GT_DriverReadThermalZonesTerminate(%<work1_val>);
     %endif
 %endfunction
 

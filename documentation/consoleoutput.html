@@ -124,7 +124,7 @@
 <h2>Example Console Output</h2>
 <p>A typical console output is shown below:</p>
 <pre>==========================================================================
-[2026-11-05 16:52:15.256437671 UTC] &gt;&gt;&gt; TARGET START (PID: 1228)
+[2026-11-12 15:49:18.785277053 UTC] &gt;&gt;&gt; TARGET START (PID: 1228)
 ==========================================================================
 
 sysname:                  Linux
@@ -137,8 +137,7 @@ network interfaces:       [lo][enp5s0][enp4s0][wlo1]
 
 Generic Target Version:   2.2.0
 Compiler Version:         14.2.0
-Built (local):            Nov  5 2026 17:51:19
-Date (UTC):               2026-11-05 16:52:15.250
+Built (local):            Nov 12 2026 16:48:45
 Application Path:         /home/target/GenericTarget/
 Arguments:                [/home/target/GenericTarget/GenericTarget]
 Maximum thread priority:  99
@@ -151,24 +150,30 @@ basePriority:             49
 tasks:                    [0]: name="D1", sampleTicks=1, sampleOffset=0
                           [1]: name="D2", sampleTicks=100, sampleOffset=0
 
-[2026-11-05 16:52:15.259534570 UTC] [INFO] Initializing model
-[2026-11-05 16:52:15.260748711 UTC] [INFO] UDP socket operational {port=0, deviceName="", socketPriority=6, allowBroadcast=0, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
-[2026-11-05 16:52:15.261974973 UTC] [INFO] Created data recording directory "/home/target/GenericTarget/data/20261105_165215250"
-[2026-11-05 16:52:15.263109445 UTC] [INFO] Writing data record index file "/home/target/GenericTarget/data/20261105_165215250/index"
-[2026-11-05 16:52:15.264303447 UTC] [INFO] Writing data record index file "/home/target/GenericTarget/data/20261105_165215250/index"
-[2026-11-05 16:52:15.264371303 UTC] [INFO] UDP socket operational {port=-1, deviceName="", socketPriority=6, allowBroadcast=1, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
-[2026-11-05 16:52:15.264386084 UTC] [INFO] UDP socket operational {port=1900, deviceName="", socketPriority=6, allowBroadcast=0, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
-[2026-11-05 16:52:15.264389679 UTC] [INFO] Starting scheduler
-[2026-11-05 16:52:15.267988593 UTC] [INFO] All UDP sockets are ready for operation
-[2026-11-05 16:52:15.268603915 UTC] [INFO] Created data recording file "/home/target/GenericTarget/data/20261105_165215250/scalar_doubles_0"
-[2026-11-05 16:52:15.268627682 UTC] [INFO] Created data recording file "/home/target/GenericTarget/data/20261105_165215250/bus_0"
-[2026-11-05 16:52:25.268281821 UTC] [INFO] Stopping scheduler
-[2026-11-05 16:52:25.269950236 UTC] [INFO] Terminating model
-[2026-11-05 16:52:25.287807246 UTC] [INFO] Closed UDP socket {port=0, deviceName="", socketPriority=6, allowBroadcast=0, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
-[2026-11-05 16:52:25.287870592 UTC] [INFO] Closed UDP socket {port=-1, deviceName="", socketPriority=6, allowBroadcast=1, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
-[2026-11-05 16:52:25.287981234 UTC] [INFO] Closed UDP socket {port=1900, deviceName="", socketPriority=6, allowBroadcast=0, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
+[2026-11-12 15:49:18.789095901 UTC] [INFO] Creating application socket
+[2026-11-12 15:49:18.789103422 UTC] [INFO] Creating real-time scheduler
+[2026-11-12 15:49:18.792805748 UTC] [INFO] Initializing model
+[2026-11-12 15:49:18.794398509 UTC] [INFO] UDP socket operational {port=0, deviceName="", socketPriority=6, allowBroadcast=0, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
+[2026-11-12 15:49:18.801424732 UTC] [INFO] Created data recording directory "/mnt/d/Data/Repositories/GenericTarget/test/release/data/20261112_154918797"
+[2026-11-12 15:49:18.802835076 UTC] [INFO] Writing data record index file "/mnt/d/Data/Repositories/GenericTarget/test/release/data/20261112_154918797/index"
+[2026-11-12 15:49:18.806548031 UTC] [INFO] Writing data record index file "/mnt/d/Data/Repositories/GenericTarget/test/release/data/20261112_154918797/index"
+[2026-11-12 15:49:18.808605383 UTC] [INFO] UDP socket operational {port=-1, deviceName="", socketPriority=6, allowBroadcast=1, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
+[2026-11-12 15:49:18.808629627 UTC] [INFO] UDP socket operational {port=1900, deviceName="", socketPriority=6, allowBroadcast=0, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
+[2026-11-12 15:49:18.808642921 UTC] [INFO] Starting real-time scheduling
+[2026-11-12 15:49:18.808665336 UTC] [INFO] Real-time application running
+[2026-11-12 15:49:18.808944211 UTC] [INFO] All UDP sockets are ready for operation
+[2026-11-12 15:49:18.812965682 UTC] [INFO] Created data recording file "/mnt/d/Data/Repositories/GenericTarget/test/release/data/20261112_154918797/bus_0"
+[2026-11-12 15:49:18.815161539 UTC] [INFO] Created data recording file "/mnt/d/Data/Repositories/GenericTarget/test/release/data/20261112_154918797/scalar_doubles_0"
+[2026-11-12 15:49:28.808741066 UTC] [INFO] The application is interrupted by a stop request.
+[2026-11-12 15:49:28.808766203 UTC] [INFO] Stopping real-time scheduler
+[2026-11-12 15:49:28.808817811 UTC] [INFO] Terminating model
+[2026-11-12 15:49:28.828656678 UTC] [INFO] Closed UDP socket {port=0, deviceName="", socketPriority=6, allowBroadcast=0, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
+[2026-11-12 15:49:28.828732151 UTC] [INFO] Closed UDP socket {port=-1, deviceName="", socketPriority=6, allowBroadcast=1, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
+[2026-11-12 15:49:28.828834979 UTC] [INFO] Closed UDP socket {port=1900, deviceName="", socketPriority=6, allowBroadcast=0, allowZeroLengthMessage=0, multicastAll=1, multicastLoop=1, multicastTTL=1, multicastInterfaceAddress=0.0.0.0}
+[2026-11-12 15:49:28.911366694 UTC] [INFO] Destroying real-time scheduler
+[2026-11-12 15:49:28.914294072 UTC] [INFO] Destroying application socket
 --------------------------------------------------------------------------
-[2026-11-05 16:52:25.291539003 UTC] &lt;&lt;&lt; TARGET STOP (PID: 1228)
+[2026-11-12 15:49:28.914361532 UTC] &lt;&lt;&lt; TARGET STOP (PID: 1228)
 ==========================================================================</pre>
 
 <h2>Log Format</h2>

@@ -1,119 +1,109 @@
 #include <GenericTarget/GT_PeriodicTask.hpp>
-#include <GenericTarget/GT_GenericTarget.hpp>
 #include <SimulinkCodeGeneration/SimulinkInterface.hpp>
-static_assert(SIMULINK_INTERFACE_NUM_TIMINGS > 0, "SIMULINK_INTERFACE_NUM_TIMINGS must be greater than zero!");
 using namespace gt;
 
 
-PeriodicTask::~PeriodicTask(){
-    Stop();
-}
-
-bool PeriodicTask::Start(void){
-    if(m_started){
-        GENERIC_TARGET_PRINT_ERROR("Failed to start task \"{}\" because it is already started or its semaphore is still initialized!\n", SimulinkInterface::taskNames[taskID]);
-        return false;
-    }
-
-    // initialize semaphore
-    // pshared = 0 (shared between threads of this process)
-    // value = 0 (initial count is 0)
-    if(sem_init(&m_sem, 0, 0) < 0){
-        GENERIC_TARGET_PRINT_ERROR("Failed to initialize semaphore for task \"{}\" (sampletime={})!\n",
+PeriodicTask::PeriodicTask(const uint32_t taskID) : taskID(taskID), m_ticks(SimulinkInterface::sampleTicks[taskID]), m_offsetSamples(SimulinkInterface::offsetTicks[taskID]){
+    // check worker thread priority
+    int requestedPriority = static_cast<int>(gt::basePriority) - (taskID + 1);
+    if(requestedPriority < sched_get_priority_min(SCHED_FIFO) || requestedPriority > sched_get_priority_max(SCHED_FIFO)){
+        std::string msg = std::format("Requested priority {} of task \"{}\" is not in range [{},{}]\n",
+            requestedPriority,
             SimulinkInterface::taskNames[taskID],
-            SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]));
-        return false;
-    }
-    m_started = true;
-
-    // start thread
-    m_ticks = 1;
-    m_offsetSamples = SimulinkInterface::offsetTicks[taskID];
-    m_jobPendingOrRunning = false;
-    m_numTaskOverloads = 0;
-    m_thread = std::thread(&PeriodicTask::Thread, this);
-
-    // set priority
-    int32_t taskPriority = std::clamp(gt::basePriority - static_cast<int32_t>(taskID + 1), int32_t{1}, int32_t{99});
-    struct sched_param param;
-    param.sched_priority = std::clamp(static_cast<int>(taskPriority), sched_get_priority_min(SCHED_FIFO), sched_get_priority_max(SCHED_FIFO));
-    if(0 != pthread_setschedparam(m_thread.native_handle(), SCHED_FIFO, &param)){
-        GENERIC_TARGET_PRINT_ERROR("Failed to set thread priority {} for task \"{}\" (sampletime={})\n",
-            taskPriority,
-            SimulinkInterface::taskNames[taskID],
-            SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]));
-        #if !defined(DEBUG)
-        Stop();
-        return false;
+            sched_get_priority_min(SCHED_FIFO),
+            sched_get_priority_max(SCHED_FIFO));
+        #if defined(DEBUG)
+        GENERIC_TARGET_PRINT_ERROR("{}\n", msg);
+        #else
+        throw std::runtime_error(msg);
         #endif
     }
-    return true;
-}
 
-void PeriodicTask::Stop(void){
-    m_terminate = true;
-    if(m_started){
-        sem_post(&m_sem);
-        if(m_thread.joinable()){
-            m_thread.join();
-        }
-        if(sem_destroy(&m_sem) == 0){
-            m_started = false;
-        }
-        else{
-            GENERIC_TARGET_PRINT_ERROR("Failed to destroy semaphore for task \"{}\": {}\n", SimulinkInterface::taskNames[taskID], std::strerror(errno));
-        }
+    // start worker thread
+    m_numTaskOverloads.store(0, std::memory_order_relaxed);
+    m_jobPendingOrRunning.store(false, std::memory_order_relaxed);
+    m_terminate.store(false, std::memory_order_relaxed);
+    m_workerThread = std::thread(&PeriodicTask::WorkerThread, this);
+
+    // set worker thread priority
+    struct sched_param param;
+    param.sched_priority = requestedPriority;
+    if(0 != pthread_setschedparam(m_workerThread.native_handle(), SCHED_FIFO, &param)){
+        std::string msg = std::format("Failed to set thread priority {} of task \"{}\" (sampletime={})",
+            requestedPriority,
+            SimulinkInterface::taskNames[taskID],
+            SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]));
+        #if defined(DEBUG)
+        GENERIC_TARGET_PRINT_ERROR("{}\n", msg);
+        #else
+        StopWorkerThread();
+        throw std::runtime_error(msg);
+        #endif
     }
-    m_terminate = false;
 }
 
-void PeriodicTask::Notify(void){
-    // decrement sample offset, only continue if tick counter is less than zero
+PeriodicTask::~PeriodicTask(){
+    StopWorkerThread();
+
+    // check and print overloads
+    uint64_t taskOverloads = m_numTaskOverloads.load(std::memory_order_relaxed);
+    if(taskOverloads){
+        GENERIC_TARGET_PRINT_ERROR("Task \"{}\" (samplerate={}) stopped with overloads ({} task overloads)\n",
+            SimulinkInterface::taskNames[taskID],
+            SimulinkInterface::baseSampleTime*double(SimulinkInterface::sampleTicks[taskID]),
+            taskOverloads);
+    }
+}
+
+uint64_t PeriodicTask::GetNumTaskOverloads(void) const {
+    return m_numTaskOverloads.load(std::memory_order_acquire);
+}
+
+double PeriodicTask::GetTaskExecutionTime(void) const {
+    return m_taskExecutionTime.load(std::memory_order_acquire);
+}
+
+void PeriodicTask::Trigger(void){
+    // decrement sample offset counter
     if((--m_offsetSamples) < 0){
         m_offsetSamples = 0;
 
-        // decrement ticks, only signal thread if tick counter is zero (or less)
+        // decrement tick counter
         if((--m_ticks) < 1){
             // reset tick counter to specified model sample ticks
             m_ticks = SimulinkInterface::sampleTicks[taskID];
 
             // A queued or running job cannot accept another notification.
             bool expected = false;
-            if(!m_jobPendingOrRunning.compare_exchange_strong(expected, true)){
-                ++m_numTaskOverloads;
+            if(!m_jobPendingOrRunning.compare_exchange_strong(expected, true, std::memory_order_acq_rel, std::memory_order_relaxed)){
+                m_numTaskOverloads.fetch_add(1, std::memory_order_acq_rel);
                 return;
             }
 
-            // notify the actual thread
-            sem_post(&m_sem);
+            // trigger the actual thread
+            m_sem.Post();
         }
     }
 }
 
-bool PeriodicTask::WaitForNotification(void){
-    while(sem_wait(&m_sem) == -1){
-        if(errno != EINTR){
-            const int error = errno;
-            GENERIC_TARGET_PRINT_ERROR("Failed to wait for notification for task \"{}\": {}\n", SimulinkInterface::taskNames[taskID], std::strerror(error));
-            GenericTarget::ShouldTerminate();
-            return false;
-        }
+void PeriodicTask::StopWorkerThread(void){
+    m_terminate.store(true, std::memory_order_release);
+    m_sem.Post();
+    if(m_workerThread.joinable() && (std::this_thread::get_id() != m_workerThread.get_id())){
+        m_workerThread.join();
     }
-    return true;
 }
 
-void PeriodicTask::Thread(void){
-    for(;;){
-        if(!WaitForNotification()){
-            break;
-        }
-        if(m_terminate){
+void PeriodicTask::WorkerThread(void){
+    while(!m_terminate.load(std::memory_order_acquire)){
+        m_sem.Wait();
+        if(m_terminate.load(std::memory_order_acquire)){
             break;
         }
         auto t1 = std::chrono::steady_clock::now();
         SimulinkInterface::Step(taskID);
         auto t2 = std::chrono::steady_clock::now();
-        m_taskExecutionTime = std::chrono::duration<double>(t2 - t1).count();
-        m_jobPendingOrRunning = false;
+        m_taskExecutionTime.store(std::chrono::duration<double>(t2 - t1).count(), std::memory_order_release);
+        m_jobPendingOrRunning.store(false, std::memory_order_release);
     }
 }

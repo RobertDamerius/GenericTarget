@@ -27,6 +27,8 @@
 #include <format>
 #include <syncstream>
 #include <utility>
+#include <system_error>
+#include <memory>
 
 /* Linux-specific headers */
 #include <semaphore.h>
@@ -119,6 +121,19 @@ template <typename... Args> void print_raw(std::format_string<Args...> fmt, Args
     std::osyncstream synced_out(std::cerr);
     synced_out << std::format(fmt, std::forward<Args>(args)...);
 }
+
+
+/**
+ * @brief Exit codes of the target application.
+ */
+namespace exit_code {
+    constexpr int Success{0};
+    constexpr int MemoryLockFailed{1};
+    constexpr int SignalHandlerFailed{2};
+    constexpr int SemaphoreInitFailed{3};
+    constexpr int AppStartupFailed{4};
+    constexpr int SemaphoreWaitFailed{5};
+} /* namespace: exit_code*/
 
 
 } /* namespace: gt */
