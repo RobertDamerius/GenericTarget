@@ -554,32 +554,6 @@ class SocketBase {
         int32_t SetOption(int level, int optname, const void* optval, int optlen);
 
         /**
-         * @brief Get socket option using the getsockopt() function.
-         * @param[in] level The level at which the option is defined (for example, SOL_SOCKET).
-         * @param[in] optname The socket option for which the value is to be retrieved (for example, SO_ACCEPTCONN).
-         * @param[in] optval A pointer to the buffer in which the value for the requested option is to be returned.
-         * @param[in] optlen A pointer to the size, in bytes, of the optval buffer.
-         * @return If not error occurs, zero is returned.
-         */
-        int32_t GetOption(int level, int optname, void* optval, int* optlen);
-
-        /**
-         * @brief Set the receive timeout in seconds.
-         * @param[in] timeout The timeout in seconds (inf means no timeout). The resolution of the internal timer is 1 microsecond on linux and 1 millisecond on windows. Set this value to inf to clear the receive timeout.
-         * @return Result of the internal setsockopt() function call.
-         */
-        int32_t SetReceiveTimeout(double timeout);
-
-        /**
-         * @brief Set the socket priority (non-windows only).
-         * @param[in] socketPriority Set the protocol-defined priority for all packets to be sent on this socket. Linux uses this
-         * value to order the networking queues: packets with a higher priority may be processed first depending on the selected
-         * device queueing discipline. The range is limited to [0, 6].
-         * @return Result of the internal setsockopt() function call. On windows this function always returns zero.
-         */
-        int32_t SetPriority(int priority);
-
-        /**
          * @brief Set socket option to reuse the address.
          * @param[in] reuse True if address reuse should be enabled, false otherwise.
          * @return If no error occurs, zero is returned.
@@ -613,12 +587,6 @@ class SocketBase {
          * @return Result of the internal setsockopt() function call.
          */
         int32_t SetSocketPriority(int32_t priority);
-
-        /**
-         * @brief Get the string representing the last error value.
-         * @return A string representing the last error value.
-         */
-        std::string GetLastErrorString(void);
 
         /**
          * @brief Get the last error value.
@@ -661,12 +629,6 @@ class SocketBinding: public SocketBase {
          * @return Result of the internal setsockopt() function call. On windows, always zero is returned.
          */
         int32_t BindToDevice(std::string deviceName);
-
-        /**
-         * @brief Get the port bound to the socket.
-         * @return The port if success, 0 if failure.
-         */
-        uint16_t GetPort(void);
 };
 
 
@@ -700,25 +662,6 @@ class TCPSocketBase: public SocketBinding {
 
 
 /**
- * @brief The TCP socket for a TCP client that has been accepted by the TCP server.
- * @details If a new TCP client is accepted by the @ref TCPServerSocket, this instance can be used to handle the communication to that client.
- */
-class TCPClientConnection: public Address, public TCPSocketBase {
-    public:
-        /**
-         * @brief Create a new TCP client connection object.
-         * @param[in] clientSocket The internal socket value.
-         * @param[in] clientAddress The IPv4 address of the client that has been connected.
-         */
-        TCPClientConnection(int clientSocket, Address clientAddress);
-
-    private:
-        using TCPSocketBase::Open;   // Hide the open function.
-        using TCPSocketBase::Bind;   // Hide the bind function.
-};
-
-
-/**
  *  @brief Used to connect a client to a server.
  */
 class TCPClientSocket: public TCPSocketBase {
@@ -729,26 +672,6 @@ class TCPClientSocket: public TCPSocketBase {
          * @return Return value of the connect() function of the socket API.
          */
         int32_t Connect(Address serverAddress);
-};
-
-
-/**
- * @brief The TCP server, that listens and accepts clients. The communication to a client is handled via the @ref TCPClientConnection class.
- */
-class TCPServerSocket: public TCPSocketBase {
-    public:
-        /**
-         * @brief Listen for a connection request.
-         * @param[in] backlog The maximum length of the queue of pending connections.
-         * @return Return value of the connect() function of the socket API.
-         */
-        int32_t Listen(int backlog);
-
-        /**
-         * @brief Accept a client connection.
-         * @return The accepted TCP client connection. Use the @ref IsOpen member function to check if the client connection has indeed been accepted.
-         */
-        TCPClientConnection Accept(void);
 };
 
 

@@ -777,45 +777,6 @@ int32_t SocketBase::SetOption(int level, int optname, const void* optval, int op
     #endif
 }
 
-int32_t SocketBase::GetOption(int level, int optname, void* optval, int* optlen){
-    #ifdef _WIN32
-    return static_cast<int32_t>(getsockopt(m_socket, level, optname, reinterpret_cast<char*>(optval), optlen));
-    #else
-    return static_cast<int32_t>(getsockopt(m_socket, level, optname, optval, reinterpret_cast<socklen_t*>(optlen)));
-    #endif
-}
-
-int32_t SocketBase::SetReceiveTimeout(double timeout){
-    #ifdef _WIN32
-    timeout = std::max(0.001, timeout);
-    DWORD t = 0;
-    if(std::isfinite(timeout)){
-        t = static_cast<DWORD>(timeout * 1e3);
-    }
-    return SetOption(SOL_SOCKET, SO_RCVTIMEO, &t, sizeof(t));
-    #else
-    timeout = std::max(0.000001, timeout);
-    struct timeval tv;
-    tv.tv_sec = 0;
-    tv.tv_usec = 0;
-    if(std::isfinite(timeout)){
-        tv.tv_sec = static_cast<time_t>(std::floor(timeout));
-        tv.tv_usec = static_cast<suseconds_t>((timeout - static_cast<double>(tv.tv_sec)) * 1e6);
-    }
-    return SetOption(SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
-    #endif
-}
-
-int32_t SocketBase::SetPriority(int priority){
-    #ifndef _WIN32
-    priority = std::clamp(priority, 0, 6); // if std::clamp(x, U, L) is not available, replace by std::min(std::max(x, U), L)
-    return SetOption(SOL_SOCKET, SO_PRIORITY, &priority, static_cast<socklen_t>(sizeof(priority)));
-    #else
-    (void) priority;
-    #endif
-    return 0;
-}
-
 int32_t SocketBase::ReuseAddress(bool reuse){
     unsigned yes = (unsigned)reuse;
     return SetOption(SOL_SOCKET, SO_REUSEADDR, (const void*)&yes, sizeof(yes));
@@ -859,17 +820,6 @@ int32_t SocketBase::SetSocketPriority(int32_t priority){
     int value = static_cast<int>(priority);
     return SetOption(SOL_SOCKET, SO_PRIORITY, &value, sizeof(value));
     #endif
-}
-
-std::string SocketBase::GetLastErrorString(void){
-    #ifdef _WIN32
-    int errorCode = static_cast<int>(WSAGetLastError());
-    std::string errStr("");
-    #else
-    int errorCode = static_cast<int>(errno);
-    std::string errStr = std::string(strerror(errorCode)) + std::string(" ");
-    #endif
-    return errStr + std::string("(") + std::to_string(errorCode) + std::string(")");
 }
 
 std::tuple<int32_t, std::string> SocketBase::GetLastError(void){
@@ -931,15 +881,6 @@ int32_t SocketBinding::BindToDevice(std::string deviceName){
     #endif
 }
 
-uint16_t SocketBinding::GetPort(void){
-    struct sockaddr_in addr_this;
-    socklen_t len = sizeof(addr_this);
-    if(getsockname(m_socket, (struct sockaddr *)&addr_this, &len) == -1){
-        return 0;
-    }
-    return static_cast<uint16_t>(ntohs(addr_this.sin_port));
-}
-
 bool TCPSocketBase::Open(void){
     int new_fd = socket(AF_INET, SOCK_STREAM, 0);
     if(new_fd < 0){
@@ -984,12 +925,6 @@ int32_t TCPSocketBase::Receive(uint8_t* bytes, int32_t maxSize){
     return static_cast<int32_t>(recv(fd, reinterpret_cast<char*>(bytes), maxSize, 0));
 }
 
-TCPClientConnection::TCPClientConnection(int clientSocket, Address clientAddress){
-    m_socket.store(clientSocket);
-    ip = clientAddress.ip;
-    port = clientAddress.port;
-}
-
 int32_t TCPClientSocket::Connect(Address serverAddress){
     int fd = m_socket.load();
     if(fd < 0){
@@ -1005,30 +940,6 @@ int32_t TCPClientSocket::Connect(Address serverAddress){
                         static_cast<uint32_t>(serverAddress.ip[3]);
     GT_DRIVER_ADDRESS_IP(addr) = htonl(ip);
     return static_cast<int32_t>(connect(fd, reinterpret_cast<const struct sockaddr*>(&addr), sizeof(addr)));
-}
-
-int32_t TCPServerSocket::Listen(int backlog){
-    int fd = m_socket.load();
-    if(fd < 0){
-        return -1;
-    }
-    return static_cast<int32_t>(listen(fd, backlog));
-}
-
-TCPClientConnection TCPServerSocket::Accept(void){
-    #ifndef _WIN32
-    socklen_t sin_size = sizeof(sockaddr_in);
-    #else
-    int sin_size = sizeof(sockaddr_in);
-    #endif
-    sockaddr_in client_addr{};
-    int32_t clientSocket = static_cast<int32_t>(accept(m_socket, (sockaddr*)&client_addr , &sin_size));
-    if(clientSocket < 0){
-        return TCPClientConnection(clientSocket, Address{});
-    }
-    auto addr = ntohl(GT_DRIVER_ADDRESS_IP(client_addr));
-    Address clientAddress(((addr >> 24) & 0x000000FF), ((addr >> 16) & 0x000000FF), ((addr >> 8) & 0x000000FF), (addr & 0x000000FF), ntohs(client_addr.sin_port));
-    return TCPClientConnection(clientSocket, clientAddress);
 }
 
 bool UDPSocket::Open(void){
