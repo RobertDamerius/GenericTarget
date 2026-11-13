@@ -37,6 +37,7 @@ class Semaphore {
 
         /**
          * @brief Decrements (locks) the semaphore.
+         * @note The semaphore counter is cleared to zero.
          */
         void Wait(void){
             while(sem_wait(&m_sem) == -1){
@@ -44,6 +45,19 @@ class Semaphore {
                 if(errorCode != EINTR){
                     throw std::system_error(errorCode, std::generic_category(), "Failed to decrement (lock) semaphore");
                 }
+            }
+            while(true){
+                if(sem_trywait(&m_sem) == 0){
+                    continue;
+                }
+                const int errorCode = errno;
+                if(errorCode == EINTR){
+                    continue;
+                }
+                if(errorCode == EAGAIN){
+                    break;
+                }
+                throw std::system_error(errorCode, std::generic_category(), "Failed to clear semaphore counter");
             }
         }
 
