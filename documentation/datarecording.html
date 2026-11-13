@@ -145,10 +145,10 @@
 
 <h2>Separate Data Recording Thread</h2>
 <p>
-  The dedicated recording thread of each data recorder object is responsible for writing the buffered samples to
-  the data files; its priority is set via the <code>threadPriority</code> parameter in the block mask. When the
-  number of written samples exceeds the <code>numSamplesPerFile</code> parameter set in the mask of the
-  corresponding Write To File block, the thread automatically opens a new data file and continues writing there.
+  The dedicated non-realtime recording thread of each data recorder object is responsible for writing the
+  buffered samples to the data files. When the number of written samples exceeds the <code>numSamplesPerFile</code>
+  parameter set in the mask of the corresponding Write To File block, the thread automatically opens a new data
+  file and continues writing there.
 </p>
 
 <h2 id="protocol">File Format</h2>
@@ -187,7 +187,7 @@
       <tr><td><code>13</code></td><td><code>1</code></td><td><code>dateSecond</code></td><td><code>uint8_t</code></td><td>The second according to the UTC time of the target.</td></tr>
       <tr><td><code>14</code></td><td><code>2</code></td><td><code>dateMillisecond</code></td><td><code>uint16_t</code></td><td>The millisecond according to the UTC time of the target.</td></tr>
       <tr><td><code>16</code></td><td><code>4</code></td><td><code>numObjects</code></td><td><code>uint32_t</code></td><td>Number of signal objects (corresponds to the number of Write To File blocks in the Simulink model).</td></tr>
-      <tr><td><code>20</code></td><td><code>N</code></td><td><strong>DataRecorderObjectData</strong></td><td><code>N x uint32_t</code></td><td>Contains <code>numObjects</code> signal objects. The data format for a signal object is shown in the following table.</td></tr>
+      <tr><td><code>20</code></td><td><code>N</code></td><td><strong>DataRecorderObjectData</strong></td><td><code>N x char</code></td><td>Contains <code>numObjects</code> signal objects. The data format for a signal object is shown in the following table.</td></tr>
       <tr><td><code>20+N</code></td><td><code>V</code></td><td><code>version</code></td><td><code>V x char</code></td><td>String indicating the version of the Generic Target framework.</td></tr>
       <tr><td><code>20+N+V</code></td><td><code>1</code></td><td><code>zeroTerminator</code></td><td><code>uint8_t</code></td><td>Zero-terminator for the preceding string. This value is always <code>0x00</code> and indicates the end of the string.</td></tr>
       <tr><td><code>21+N+V</code></td><td><code>M</code></td><td><code>modelName</code></td><td><code>M x char</code></td><td>String indicating the model name (ASCII characters only).</td></tr>

@@ -210,7 +210,7 @@
 <p>
   A socket is the interface between an application and the network. The TCP client socket is created when
   connecting to the server and destroyed when the connection is closed. Socket creation and connection handling
-  are performed in a dedicated thread that runs with priority 21. The socket options <code>SO_REUSEPORT</code>
+  are performed in a dedicated non-realtime background thread. The socket options <code>SO_REUSEPORT</code>
   and <code>SO_REUSEADDR</code> are enabled after socket creation, which allows multiple sockets (for example,
   multiple blocks) to bind to the same port and device.
 </p>

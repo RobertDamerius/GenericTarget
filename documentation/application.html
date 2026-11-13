@@ -263,6 +263,7 @@
       <tr><td><code>3</code></td><td><code>SemaphoreInitFailed</code></td><td>Failed to initialize a semaphore for the main thread. The Semaphore is used to wait for stop requests.</td></tr>
       <tr><td><code>4</code></td><td><code>AppStartupFailed</code></td><td>A generic startup failure that occurred during the initialization phase.</td></tr>
       <tr><td><code>5</code></td><td><code>SemaphoreWaitFailed</code></td><td>The main thread failed to wait for a stop request while running the main loop.</td></tr>
+      <tr><td><code>128 + signal</code></td><td><code>CrashHandler</code></td><td>The application crashed with <code>signal</code> and printed a <a href="example_crashreport.html">backtrace</a> to the console output.</td></tr>
     </tbody>
   </table>
 </div>
