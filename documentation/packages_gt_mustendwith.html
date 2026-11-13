@@ -81,6 +81,7 @@
   <li><a class="nav-link" href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
   <li><a class="nav-link" href="packages_gt_mustbecellstr.html">GT.mustBeCellStr</a></li>
   <li><a class="nav-link" href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
+  <li><a class="nav-link" href="packages_gt_mustcontainnowhitespace.html">GT.mustContainNoWhitespace</a></li>
   <li><a class="nav-link" href="packages_gt_mustbehexstring.html">GT.mustBeHexString</a></li>
   <li><a class="nav-link" href="packages_gt_mustbeunique.html">GT.mustBeUnique</a></li>
   <li><a class="nav-link active" href="packages_gt_mustendwith.html" aria-current="page">GT.mustEndWith</a></li>
@@ -117,15 +118,14 @@
 <span class="api-badge">MATLAB function</span>
 <h1>GT.mustEndWith</h1>
 <p>
-  Argument validation function that checks whether the given string ends with a specific suffix. If the
-  condition is not met, an assertion error is raised.
+  Argument validation function to check whether the argument ends with a specific pattern.
 </p>
 
 <h2>Syntax</h2>
 <p class="api-signature"><code>GT.mustEndWith(x, s)</code></p>
 
 <h2>Description</h2>
-<p><code>GT.mustEndWith(x, s)</code> asserts that the string <code>x</code> ends with the suffix <code>s</code>.</p>
+<p><code>GT.mustEndWith(x, s)</code> reports an error if the string <code>x</code> does not end with the suffix <code>s</code>.</p>
 
       </article>
       <footer class="site-footer">

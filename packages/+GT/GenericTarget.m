@@ -2,11 +2,11 @@ classdef GenericTarget < handle
     properties
         portSSH (1,1) uint16 {mustBePositive} = 22;
         connectTimeout (1,1) uint32 {mustBePositive} = 3;
-        targetUsername {mustBeTextScalar, GT.mustBeChar} = '';
-        targetAddress {mustBeTextScalar, GT.mustBeChar} = '';
-        targetSoftwareDirectory {mustBeTextScalar, GT.mustBeChar, GT.mustEndWith(targetSoftwareDirectory,'/')} = '~/GenericTarget/';
+        targetUsername {mustBeTextScalar, GT.mustBeChar, GT.mustContainNoWhitespace} = '';
+        targetAddress {mustBeTextScalar, GT.mustBeChar, GT.mustContainNoWhitespace} = '';
+        targetSoftwareDirectory {mustBeTextScalar, GT.mustBeChar, GT.mustContainNoWhitespace, GT.mustEndWith(targetSoftwareDirectory,'/')} = '~/GenericTarget/';
         targetProductName {mustBeTextScalar, GT.mustBeChar, mustBeValidVariableName} = 'GenericTarget';
-        targetSocketName {mustBeTextScalar, GT.mustBeChar} = '/run/generic-target/app.lock';
+        targetSocketName {mustBeTextScalar, GT.mustBeChar, GT.mustContainNoWhitespace} = '/run/generic-target/app.lock';
         targetBitmaskCPUCores {mustBeTextScalar, GT.mustBeChar, GT.mustBeHexString} = '';
         applicationArguments {mustBeTextScalar, GT.mustBeChar} = '';
         customCode {GT.mustBeUnique, GT.mustBeCellStr} = cell.empty();

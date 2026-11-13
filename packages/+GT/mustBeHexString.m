@@ -1,9 +1,15 @@
 function mustBeHexString(x)
-    % Argument validation function to check whether the argument is a hexadecimal string if it's non-empty.
-    % If the condition is not met, an assertion fails.
-    if(~isempty(x))
-        assert(startsWith(x,'0x'), 'Value must start with "0x".');
-        i = isstrprop(x(3:end),'xdigit');
-        assert(numel(i) && (sum(i) == numel(i)), 'Value must be either an empty string or a hexadecimal string, e.g. "0xFF".');
+    % Argument validation function to check whether the argument is an empty text or a valid hexadecimal string.
+    if(0 == strlength(x))
+        return;
+    end
+    str = string(x);
+    if(~all(startsWith(str, "0x"), 'all'))
+        error('TextValidator:missingHexPrefix', 'Value must start with "0x".');
+    end
+    hexDigits = extractAfter(str, 2);
+    isValidHex = arrayfun(@(s) strlength(s) > 0 && all(isstrprop(s, 'xdigit')), hexDigits);
+    if(~all(isValidHex, 'all'))
+        error('TextValidator:invalidHexDigits', 'Value must be either empty or a valid hexadecimal string, e.g. "0xFF".');
     end
 end

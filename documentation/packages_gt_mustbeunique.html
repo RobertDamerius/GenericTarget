@@ -81,6 +81,7 @@
   <li><a class="nav-link" href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
   <li><a class="nav-link" href="packages_gt_mustbecellstr.html">GT.mustBeCellStr</a></li>
   <li><a class="nav-link" href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
+  <li><a class="nav-link" href="packages_gt_mustcontainnowhitespace.html">GT.mustContainNoWhitespace</a></li>
   <li><a class="nav-link" href="packages_gt_mustbehexstring.html">GT.mustBeHexString</a></li>
   <li><a class="nav-link active" href="packages_gt_mustbeunique.html" aria-current="page">GT.mustBeUnique</a></li>
   <li><a class="nav-link" href="packages_gt_mustendwith.html">GT.mustEndWith</a></li>
@@ -117,15 +118,14 @@
 <span class="api-badge">MATLAB function</span>
 <h1>GT.mustBeUnique</h1>
 <p>
-  Argument validation function that checks whether all elements of the given argument are unique. If the
-  condition is not met, an assertion error is raised.
+  Argument validation function to check whether the argument contains unique elements.
 </p>
 
 <h2>Syntax</h2>
 <p class="api-signature"><code>GT.mustBeUnique(x)</code></p>
 
 <h2>Description</h2>
-<p><code>GT.mustBeUnique(x)</code> asserts that all elements of <code>x</code> are unique.</p>
+<p><code>GT.mustBeUnique(x)</code> reports an error if elements of <code>x</code> are not unique.</p>
 
       </article>
       <footer class="site-footer">

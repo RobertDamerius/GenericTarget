@@ -81,6 +81,7 @@
   <li><a class="nav-link" href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
   <li><a class="nav-link" href="packages_gt_mustbecellstr.html">GT.mustBeCellStr</a></li>
   <li><a class="nav-link" href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
+  <li><a class="nav-link" href="packages_gt_mustcontainnowhitespace.html">GT.mustContainNoWhitespace</a></li>
   <li><a class="nav-link" href="packages_gt_mustbehexstring.html">GT.mustBeHexString</a></li>
   <li><a class="nav-link" href="packages_gt_mustbeunique.html">GT.mustBeUnique</a></li>
   <li><a class="nav-link" href="packages_gt_mustendwith.html">GT.mustEndWith</a></li>
@@ -142,11 +143,11 @@
     <tbody>
       <tr><td><a href="#portSSH"><code>portSSH</code></a></td><td><code>uint16</code></td><td><code>22</code></td><td>The TCP port used for the SSH and SCP connection.</td></tr>
       <tr><td><a href="#connectTimeout"><code>connectTimeout</code></a></td><td><code>uint32</code></td><td><code>3</code></td><td>Connection timeout in seconds for SSH and SCP.</td></tr>
-      <tr><td><a href="#targetAddress"><code>targetAddress</code></a></td><td><code>char array</code></td><td><code>''</code></td><td>IP address (or host name) of the target computer.</td></tr>
-      <tr><td><a href="#targetUsername"><code>targetUsername</code></a></td><td><code>char array</code></td><td><code>''</code></td><td>User name of the target computer, used to log in via SSH/SCP.</td></tr>
-      <tr><td><a href="#targetSoftwareDirectory"><code>targetSoftwareDirectory</code></a></td><td><code>char array</code></td><td><code>'~/GenericTarget/'</code></td><td>Directory for the software on the target. Must begin with <code>'~/'</code> and end with <code>'/'</code>.</td></tr>
+      <tr><td><a href="#targetAddress"><code>targetAddress</code></a></td><td><code>char array</code></td><td><code>''</code></td><td>IP address (or host name) of the target computer. Must not contain whitespaces.</td></tr>
+      <tr><td><a href="#targetUsername"><code>targetUsername</code></a></td><td><code>char array</code></td><td><code>''</code></td><td>User name of the target computer, used to log in via SSH/SCP. Must not contain whitespaces.</td></tr>
+      <tr><td><a href="#targetSoftwareDirectory"><code>targetSoftwareDirectory</code></a></td><td><code>char array</code></td><td><code>'~/GenericTarget/'</code></td><td>Directory for the software on the target. Must begin with <code>'~/'</code> and end with <code>'/'</code> and must not contain whitespaces.</td></tr>
       <tr><td><a href="#targetProductName"><code>targetProductName</code></a></td><td><code>char array</code></td><td><code>'GenericTarget'</code></td><td>File name of the executable on the target.</td></tr>
-      <tr><td><a href="#targetSocketName"><code>targetSocketName</code></a></td><td><code>char array</code></td><td><code>'/run/generic-target/app.lock'</code></td><td>A system-wide unique socket name to be set for an abstract UNIX socket (without a leading null byte).</td></tr>
+      <tr><td><a href="#targetSocketName"><code>targetSocketName</code></a></td><td><code>char array</code></td><td><code>'/run/generic-target/app.lock'</code></td><td>A system-wide unique socket name to be set for an abstract UNIX socket (without a leading null byte). Must not contain whitespaces.</td></tr>
       <tr><td><a href="#targetBitmaskCPUCores"><code>targetBitmaskCPUCores</code></a></td><td><code>char array</code></td><td><code>''</code></td><td>Hexadecimal bitmask selecting the CPU cores the application is pinned to. If the string is empty, all cores are available.</td></tr>
       <tr><td><a href="#applicationArguments"><code>applicationArguments</code></a></td><td><code>char array</code></td><td><code>''</code></td><td>A string representing additional arguments passed to the application during a Start call.</td></tr>
       <tr><td><a href="#customCode"><code>customCode</code></a></td><td><code>cell array</code></td><td><code>{}</code></td><td>Cell array of files or directories containing custom code to be uploaded along with the generated code.</td></tr>

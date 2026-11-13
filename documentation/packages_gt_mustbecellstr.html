@@ -81,6 +81,7 @@
   <li><a class="nav-link" href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
   <li><a class="nav-link active" href="packages_gt_mustbecellstr.html" aria-current="page">GT.mustBeCellStr</a></li>
   <li><a class="nav-link" href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
+  <li><a class="nav-link" href="packages_gt_mustcontainnowhitespace.html">GT.mustContainNoWhitespace</a></li>
   <li><a class="nav-link" href="packages_gt_mustbehexstring.html">GT.mustBeHexString</a></li>
   <li><a class="nav-link" href="packages_gt_mustbeunique.html">GT.mustBeUnique</a></li>
   <li><a class="nav-link" href="packages_gt_mustendwith.html">GT.mustEndWith</a></li>
@@ -117,15 +118,14 @@
 <span class="api-badge">MATLAB function</span>
 <h1>GT.mustBeCellStr</h1>
 <p>
-  Argument validation function that checks whether the given argument is a cell array of character vectors. If
-  the condition is not met, an assertion error is raised.
+  Argument validation function to check whether the argument is a cell array of character vectors.
 </p>
 
 <h2>Syntax</h2>
 <p class="api-signature"><code>GT.mustBeCellStr(x)</code></p>
 
 <h2>Description</h2>
-<p><code>GT.mustBeCellStr(x)</code> asserts that <code>x</code> is a cell array of character vectors.</p>
+<p><code>GT.mustBeCellStr(x)</code> reports an error if <code>x</code> is not a cell array of character vectors.</p>
 
       </article>
       <footer class="site-footer">

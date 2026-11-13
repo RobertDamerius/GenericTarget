@@ -81,6 +81,7 @@
   <li><a class="nav-link" href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
   <li><a class="nav-link" href="packages_gt_mustbecellstr.html">GT.mustBeCellStr</a></li>
   <li><a class="nav-link" href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
+  <li><a class="nav-link" href="packages_gt_mustcontainnowhitespace.html">GT.mustContainNoWhitespace</a></li>
   <li><a class="nav-link active" href="packages_gt_mustbehexstring.html" aria-current="page">GT.mustBeHexString</a></li>
   <li><a class="nav-link" href="packages_gt_mustbeunique.html">GT.mustBeUnique</a></li>
   <li><a class="nav-link" href="packages_gt_mustendwith.html">GT.mustEndWith</a></li>
@@ -117,15 +118,14 @@
 <span class="api-badge">MATLAB function</span>
 <h1>GT.mustBeHexString</h1>
 <p>
-  Argument validation function that checks whether the given argument is a hexadecimal string; an empty string
-  is accepted. If the condition is not met, an assertion error is raised.
+  Argument validation function to check whether the argument is an empty text or a valid hexadecimal string.
 </p>
 
 <h2>Syntax</h2>
 <p class="api-signature"><code>GT.mustBeHexString(x)</code></p>
 
 <h2>Description</h2>
-<p><code>GT.mustBeHexString(x)</code> asserts that <code>x</code> is a hexadecimal string (or empty).</p>
+<p><code>GT.mustBeHexString(x)</code> reports an error if <code>x</code> is not a hexadecimal or empty string. A hexadecimal string must begin with <code>0x</code>.</p>
 
       </article>
       <footer class="site-footer">
