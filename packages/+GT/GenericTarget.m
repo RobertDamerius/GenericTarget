@@ -332,7 +332,7 @@ classdef GenericTarget < handle
     end
     methods(Access=private)
         function stopCommand = GetStopCommand(this)
-            stopCommand = ['sudo ss -lpx src ''@', this.targetSocketName, ''' | grep -o ''pid=[0-9]\+'' | cut -d= -f2 | xargs -r sudo kill -2'];
+            stopCommand = ['sudo ss -lpx src ''@', this.targetSocketName, ''' | grep -o ''pid=[0-9]\+'' | cut -d= -f2 | xargs -r sudo kill -15'];
         end
         function directory = GetCoreDirectory(~)
             directory = fullfile(extractBefore(mfilename('fullpath'), strlength(mfilename('fullpath')) - strlength(mfilename) + 1), '..', '..', 'core');

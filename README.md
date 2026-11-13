@@ -1,7 +1,7 @@
 # Generic Target
 
 <div align="center">
-  <img src="documentation/img/icon.svg" alt="Generic Target Logo" width="20%">
+  <img src="documentation/img/icon.svg" alt="Generic Target Logo" width="30%">
   <br><br>
   <a href="https://github.com/RobertDamerius/GenericTarget/releases/latest"><img src="https://img.shields.io/github/v/release/RobertDamerius/GenericTarget?include_prereleases&label=release" alt="Latest release" /></a>
   <a href="https://github.com/RobertDamerius/GenericTarget/blob/main/LICENSE"><img src="https://img.shields.io/github/license/RobertDamerius/GenericTarget" alt="MIT License" /></a>
