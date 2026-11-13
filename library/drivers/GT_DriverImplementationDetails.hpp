@@ -68,6 +68,13 @@ class Event {
         void Wait(void);
 
         /**
+         * @brief Wait for a notification event up to a maximum duration.
+         * @param[in] sec Maximum time to wait in seconds (at most 86400.0).
+         * @return True if the event was notified, false if the timeout elapsed.
+         */
+        bool WaitFor(double sec);
+
+        /**
          * @brief Clear a notified event.
          */
         void Clear(void);
@@ -1199,6 +1206,10 @@ class AsyncThermalZoneReader {
          */
         ~AsyncThermalZoneReader();
 
+        /* Do not allow copying */
+        AsyncThermalZoneReader(const AsyncThermalZoneReader&) = delete;
+        AsyncThermalZoneReader& operator=(const AsyncThermalZoneReader&) = delete;
+
         /**
          * @brief Read the latest temperatures of the thermal zones.
          * @param[out] temperatures Pointer to an array where the latest read temperatures will be stored.
@@ -1208,8 +1219,9 @@ class AsyncThermalZoneReader {
 
     private:
         std::vector<std::atomic<double>> m_temperatures;   // The latest read temperatures of the thermal zones.
-        std::vector<std::string> m_filePaths;              // The file paths of the thermal zones.
+        std::vector<std::ifstream> m_tempFiles;            // Input streams for all thermal zone files.
         std::atomic<bool> m_terminate{false};              // Flag for thread termination.
+        Event m_event;                                     // Event to signal termination.
         std::thread m_readThread;                          // Thread that reads the thermal zones.
 
         /**

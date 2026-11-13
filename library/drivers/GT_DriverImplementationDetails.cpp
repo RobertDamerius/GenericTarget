@@ -10,6 +10,7 @@
 #include <sstream>
 #include <limits>
 #include <chrono>
+#include <ctime>
 #include <format>
 #include <iostream>
 #include <syncstream>
@@ -86,13 +87,18 @@ template <typename... Args> void gt_driver_simulink_print_error(const char* file
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Event::Event(){
     #if defined(__linux__)
-    sem_init(&m_sem, 0, 0);
+    if(sem_init(&m_sem, 0, 0) == -1){
+        throw std::system_error(errno, std::generic_category(), "Failed to initialize semaphore");
+    }
     #endif
 }
 
 Event::~Event(){
     #if defined(__linux__)
-    sem_destroy(&m_sem);
+    if(sem_destroy(&m_sem) == -1){
+        const int errorCode = errno;
+        GENERIC_TARGET_PRINT_ERROR("Failed to destroy semaphore: {}\n", errorCode);
+    }
     #endif
 }
 
@@ -102,7 +108,9 @@ void Event::Notify(void){
     m_notified = true;
     m_cv.notify_one();
     #elif defined(__linux__)
-    sem_post(&m_sem);
+    if(sem_post(&m_sem) == -1){
+        throw std::system_error(errno, std::generic_category(), "Failed to increment (unlock) semaphore");
+    }
     #endif
 }
 
@@ -113,11 +121,56 @@ void Event::Wait(void){
     m_notified = false;
     #elif defined(__linux__)
     while(sem_wait(&m_sem) == -1){
-        if(errno != EINTR){
-            return;
+        const int errorCode = errno;
+        if(errorCode != EINTR){
+            throw std::system_error(errorCode, std::generic_category(), "Failed to decrement (lock) semaphore");
         }
     }
-    while(sem_trywait(&m_sem) == 0);
+    Clear();
+    #endif
+}
+
+bool Event::WaitFor(double sec) {
+    constexpr double maxSec = 86400.0;
+    const double safeSec = (std::isfinite(sec) && sec > 0.0) ? std::min(sec, maxSec) : 0.0;
+
+    #if defined(_WIN32)
+    const auto duration = std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::duration<double>(safeSec));
+    std::unique_lock<std::mutex> lock(m_mtx);
+    if(!m_cv.wait_for(lock, duration, [this]() { return this->m_notified; })){
+        return false; // timed out
+    }
+    m_notified = false;
+    return true; // notified
+
+    #elif defined(__linux__)
+    struct timespec ts{};
+    if(clock_gettime(CLOCK_MONOTONIC, &ts) == -1){
+        throw std::system_error(errno, std::generic_category(), "Failed to get monotonic time");
+    }
+
+    const auto wholeSec = static_cast<time_t>(safeSec);
+    const auto nanoSec = static_cast<long>((safeSec - static_cast<double>(wholeSec)) * 1e9);
+
+    ts.tv_sec += wholeSec;
+    ts.tv_nsec += nanoSec;
+    if(ts.tv_nsec >= 1000000000L){
+        ts.tv_sec += 1;
+        ts.tv_nsec -= 1000000000L;
+    }
+
+    while(sem_clockwait(&m_sem, CLOCK_MONOTONIC, &ts) == -1){
+        const int errorCode = errno;
+        if(errorCode == EINTR){
+            continue;
+        }
+        if(errorCode == ETIMEDOUT){
+            return false; // timed out
+        }
+        throw std::system_error(errorCode, std::generic_category(), "Failed to wait on semaphore");
+    }
+    Clear();
+    return true;
     #endif
 }
 
@@ -126,7 +179,18 @@ void Event::Clear(void){
     std::unique_lock<std::mutex> lock(m_mtx);
     m_notified = false;
     #elif defined(__linux__)
-    while(sem_trywait(&m_sem) == 0);
+    while(true){
+        if(sem_trywait(&m_sem) == 0){
+            continue;
+        }
+        if(errno == EINTR){
+            continue;
+        }
+        if(errno == EAGAIN){
+            break;
+        }
+        throw std::system_error(errno, std::generic_category(), "Failed to clear semaphore counter");
+    }
     #endif
 }
 
@@ -1850,16 +1914,18 @@ std::tuple<int32_t, int32_t, bool> TCPClientServiceManager::Receive(int32_t id, 
     return result;
 }
 
-AsyncThermalZoneReader::AsyncThermalZoneReader(const uint32_t maxNumThermalZones, double pollingInterval) : m_temperatures(maxNumThermalZones), m_filePaths(maxNumThermalZones) {
+AsyncThermalZoneReader::AsyncThermalZoneReader(const uint32_t maxNumThermalZones, double pollingInterval) : m_temperatures(maxNumThermalZones), m_tempFiles(maxNumThermalZones) {
     for(uint32_t i = 0; i < maxNumThermalZones; ++i){
         m_temperatures[i].store(std::numeric_limits<double>::quiet_NaN(), std::memory_order_release);
-        m_filePaths[i] = "/sys/class/thermal/thermal_zone" + std::to_string(i) + "/temp";
+        m_tempFiles[i].rdbuf()->pubsetbuf(nullptr, 0);
+        m_tempFiles[i].open("/sys/class/thermal/thermal_zone" + std::to_string(i) + "/temp");
     }
     m_readThread = std::thread(&AsyncThermalZoneReader::ReadThread, this, pollingInterval);
 }
 
 AsyncThermalZoneReader::~AsyncThermalZoneReader(void){
     m_terminate.store(true, std::memory_order_release);
+    m_event.Notify();
     if(m_readThread.joinable()){
         m_readThread.join();
     }
@@ -1877,22 +1943,24 @@ void AsyncThermalZoneReader::ReadZones(double* temperatures, const uint32_t numZ
 }
 
 void AsyncThermalZoneReader::ReadThread(double pollingInterval){
-    pollingInterval = std::isfinite(pollingInterval) ? pollingInterval : 0.1;
-    std::chrono::milliseconds cycleDuration(static_cast<int32_t>(std::max(pollingInterval, 0.001) * 1000.0));
+    constexpr double minInterval = 0.01;
+    constexpr double maxInterval = 10.0;
+    pollingInterval = std::isfinite(pollingInterval) ? std::clamp(pollingInterval, minInterval, maxInterval) : minInterval;
     while(!m_terminate.load(std::memory_order_acquire)){
-        auto nextCycle = std::chrono::steady_clock::now() + cycleDuration;
         for(size_t i = 0; i < m_temperatures.size(); ++i){
             double tempData = std::numeric_limits<double>::quiet_NaN();
-            std::ifstream tempFile(m_filePaths[i]);
-            if(tempFile.good()){
-                int32_t temp_millidegree_celsius{};
-                if(tempFile >> temp_millidegree_celsius){
-                    tempData = static_cast<double>(temp_millidegree_celsius) * 0.001;
+            if(m_tempFiles[i].is_open()){
+                m_tempFiles[i].clear();
+                m_tempFiles[i].seekg(0, std::ios::beg);
+                int32_t tempMillidegree{};
+                if(m_tempFiles[i] >> tempMillidegree){
+                    tempData = static_cast<double>(tempMillidegree) * 0.001;
                 }
-                tempFile.close();
             }
             m_temperatures[i].store(tempData, std::memory_order_release);
         }
-        std::this_thread::sleep_until(nextCycle);
+        if(m_event.WaitFor(pollingInterval)){
+            break;
+        }
     }
 }

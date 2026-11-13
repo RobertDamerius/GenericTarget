@@ -142,7 +142,7 @@
     </thead>
     <tbody>
       <tr><td><code>maxNumThermalZones</code></td><td>Maximum number of thermal zones to read; this value sets the output dimension.</td></tr>
-      <tr><td><code>pollingInterval</code></td><td>The polling interval in seconds (must be at least 0.001).</td></tr>
+      <tr><td><code>pollingInterval</code></td><td>The polling interval in seconds; must be in range <code>[0.01, 10.0].</td></tr>
       <tr><td><code>SampleTime</code></td><td>Sample time of the block.</td></tr>
     </tbody>
   </table>
@@ -151,8 +151,8 @@
 <h2>Further Notes</h2>
 <h3>Background Thread</h3>
 <p>
-  The actual data is obtained via file reads in a non-realtime background thread, which continuously reads the data with a polling
-  frequency specified via the block mask parameter <code>pollingInterval</code>. The simulink block fetches the latest value from
+  The actual data is obtained via file reads in a non-realtime background thread, which continuously reads the data with a delayed
+  time specified via the block mask parameter <code>pollingInterval</code>. The simulink block fetches the latest value from
   those polled temperature values.
 </p>
 

@@ -5,8 +5,8 @@ using namespace gt;
 std::unique_ptr<App> RuntimeEnvironment::s_app{nullptr};
 
 
-gt::Semaphore& RuntimeEnvironment::GetTerminationSemaphore(void){
-    static gt::Semaphore instance;
+Semaphore& RuntimeEnvironment::GetTerminationSemaphore(void){
+    static Semaphore instance;
     return instance;
 }
 
