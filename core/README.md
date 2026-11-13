@@ -9,13 +9,13 @@ sudo ./$TARGET_README_PRODUCT_NAME$
 To redirect the output to a text file, run
 
 ```bash
-sudo ./$TARGET_README_PRODUCT_NAME$ >> out.txt 2>&1
+sudo ./$TARGET_README_PRODUCT_NAME$ >> output.log 2>&1
 ```
 
 If the application is to be started without waiting for termination in a console window, execute the following command:
 
 ```bash
-sudo nohup ./$TARGET_README_PRODUCT_NAME$ >> out.txt 2>&1 &
+sudo nohup ./$TARGET_README_PRODUCT_NAME$ >> output.log 2>&1 &
 ```
 
 ## How To Stop
@@ -57,14 +57,14 @@ User=root
 ExecStartPre=/bin/sleep 5
 
 # Ensure log file exists and is owned by your regular user before starting
-ExecStartPre=/bin/touch /home/UserName/PathToApplication/out.txt
-ExecStartPre=/bin/chown UserName:UserName /home/UserName/PathToApplication/out.txt
+ExecStartPre=/bin/touch /home/UserName/PathToApplication/output.log
+ExecStartPre=/bin/chown UserName:UserName /home/UserName/PathToApplication/output.log
 
 # Run application
 ExecStart=/usr/bin/taskset 0x0f /home/UserName/PathToApplication/$TARGET_README_PRODUCT_NAME$
 
 # Systemd native logging (append mode)
-StandardOutput=append:/home/UserName/PathToApplication/out.txt
+StandardOutput=append:/home/UserName/PathToApplication/output.log
 StandardError=inherit
 
 # Restart behavior in case of crashes

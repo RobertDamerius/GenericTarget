@@ -152,14 +152,14 @@ User=root
 ExecStartPre=/bin/sleep 5
 
 # Ensure log file exists and is owned by your regular user before starting
-ExecStartPre=/bin/touch /home/UserName/PathToApplication/out.txt
-ExecStartPre=/bin/chown UserName:UserName /home/UserName/PathToApplication/out.txt
+ExecStartPre=/bin/touch /home/UserName/PathToApplication/output.log
+ExecStartPre=/bin/chown UserName:UserName /home/UserName/PathToApplication/output.log
 
 # Run application
 ExecStart=/usr/bin/taskset 0x0f /home/UserName/PathToApplication/ApplicationName
 
 # Systemd native logging (append mode)
-StandardOutput=append:/home/UserName/PathToApplication/out.txt
+StandardOutput=append:/home/UserName/PathToApplication/output.log
 StandardError=inherit
 
 # Restart behavior in case of crashes
@@ -190,18 +190,18 @@ WantedBy=multi-user.target</pre>
       simultaneously; this burst of activity can cause CPU load spikes and timing overloads in the real-time
       application. A few seconds of delay lets the system settle first. Remove or adjust this line if it is not
       needed.</li>
-  <li><code>ExecStartPre=/bin/touch .../out.txt</code> — create the log file in advance so that it exists before the
+  <li><code>ExecStartPre=/bin/touch .../output.log</code> — create the log file in advance so that it exists before the
       application starts.</li>
-  <li><code>ExecStartPre=/bin/chown UserName:UserName .../out.txt</code> — set ownership of the log file to your
+  <li><code>ExecStartPre=/bin/chown UserName:UserName .../output.log</code> — set ownership of the log file to your
       regular user, making it readable and writable from a non-root session (for example when reading logs over
       SSH).</li>
   <li><code>ExecStart=/usr/bin/taskset 0x0f ...</code> — start the application pinned to specific CPU cores. The
       bitmask <code>0x0f</code> selects cores 0–3; adjust the mask according to the number of available or dedicated
       cores, or remove <code>taskset</code> entirely if no pinning is required.</li>
-  <li><code>StandardOutput=append:.../out.txt</code> — append all console output to the log file instead of writing
+  <li><code>StandardOutput=append:.../output.log</code> — append all console output to the log file instead of writing
       it to a terminal (see <a href="consoleoutput.html">Console Output</a>).</li>
   <li><code>StandardError=inherit</code> — route error output to the same destination as standard output, i.e., also
-      into <code>out.txt</code>.</li>
+      into <code>output.log</code>.</li>
   <li><code>Restart=no</code> — systemd does not restart the application if it terminates or crashes.</li>
   <li><code>WantedBy=multi-user.target</code> — start the service during normal multi-user boot, i.e., when the
       system has reached the state in which users can log in.</li>
@@ -212,7 +212,7 @@ WantedBy=multi-user.target</pre>
       <img class="callout-icon callout-icon-dark" src="assets/icons/important-dark.svg" alt="" width="18" height="18">Important — Crash behavior</p>
   <p>
     With <code>Restart=no</code>, systemd does not restart the application after a crash. The console output —
-    including the crash report — is still written to <code>out.txt</code>; see
+    including the crash report — is still written to <code>output.log</code>; see
     <a href="example_crashreport.html">Analyzing Crash Reports</a>. If you want the service to restart automatically,
     set <code>Restart=on-failure</code>.
   </p>
@@ -249,9 +249,9 @@ sudo systemctl start generictarget.service</pre>
 <pre>systemctl status generictarget.service</pre>
 <p>
   The output should show <code>active (running)</code>. The console output of the application is appended to
-  <code>out.txt</code>; display the most recent lines with:
+  <code>output.log</code>; display the most recent lines with:
 </p>
-<pre>tail -n 20 /home/UserName/PathToApplication/out.txt</pre>
+<pre>tail -n 20 /home/UserName/PathToApplication/output.log</pre>
 <p>To confirm that autostart works, reboot the target and check the service status again after boot.</p>
       </article>
       <footer class="site-footer">

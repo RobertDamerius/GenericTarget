@@ -180,7 +180,7 @@ classdef GenericTarget < handle
                 args = [' ', this.applicationArguments];
             end
             fprintf('[GENERIC TARGET] Starting target software on %s at %s\n', this.targetUsername, this.targetAddress);
-            commands = this.RunCommandOnTarget(['sudo nohup ' this.GetTasksetOption() this.targetSoftwareDirectory this.targetProductName args ' >> ' this.targetSoftwareDirectory 'out.txt 2>&1 &']);
+            commands = this.RunCommandOnTarget(['sudo nohup ' this.GetTasksetOption() this.targetSoftwareDirectory this.targetProductName args ' >> ' this.targetSoftwareDirectory 'output.log 2>&1 &']);
         end
         function commands = Stop(this)
             %GT.GenericTarget.Stop Stop the target application. An SSH connection will be established to stop the application.
