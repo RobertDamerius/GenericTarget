@@ -36,14 +36,14 @@ PeriodicTask::PeriodicTask(const uint32_t taskID) : taskID(taskID), m_ticks(Simu
         #if defined(DEBUG)
         GENERIC_TARGET_PRINT_ERROR("{}\n", msg);
         #else
-        StopWorkerThread();
+        Shutdown();
         throw std::runtime_error(msg);
         #endif
     }
 }
 
 PeriodicTask::~PeriodicTask(){
-    StopWorkerThread();
+    Shutdown();
 
     // check and print overloads
     uint64_t taskOverloads = m_numTaskOverloads.load(std::memory_order_relaxed);
@@ -52,6 +52,14 @@ PeriodicTask::~PeriodicTask(){
             SimulinkInterface::taskNames[taskID],
             SimulinkInterface::baseSampleTime*double(SimulinkInterface::sampleTicks[taskID]),
             taskOverloads);
+    }
+}
+
+void PeriodicTask::Shutdown(void){
+    m_terminate.store(true, std::memory_order_release);
+    m_sem.Post();
+    if(m_workerThread.joinable() && (std::this_thread::get_id() != m_workerThread.get_id())){
+        m_workerThread.join();
     }
 }
 
@@ -83,14 +91,6 @@ void PeriodicTask::Trigger(void){
             // trigger the actual thread
             m_sem.Post();
         }
-    }
-}
-
-void PeriodicTask::StopWorkerThread(void){
-    m_terminate.store(true, std::memory_order_release);
-    m_sem.Post();
-    if(m_workerThread.joinable() && (std::this_thread::get_id() != m_workerThread.get_id())){
-        m_workerThread.join();
     }
 }
 

@@ -34,6 +34,12 @@ class PeriodicTask {
         void Trigger(void);
 
         /**
+         * @brief Shutdown the real-time thread completely without destroying the periodic task.
+         * @note The periodic task cannot be started again!
+         */
+        void Shutdown(void);
+
+        /**
          * @brief Get the number of task overloads.
          * @return Number of task overloads.
          */
@@ -54,11 +60,6 @@ class PeriodicTask {
         std::atomic<uint64_t> m_numTaskOverloads{0};      // Total number of task overloads.
         std::atomic<double> m_taskExecutionTime{0.0};     // Task-execution time in seconds.
         std::thread m_workerThread;                       // Worker thread object.
-
-        /**
-         * @brief Stop the worker thread.
-         */
-        void StopWorkerThread(void);
 
         /**
          * @brief The worker thread function.

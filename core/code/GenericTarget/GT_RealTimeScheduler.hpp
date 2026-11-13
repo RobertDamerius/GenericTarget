@@ -37,7 +37,7 @@ class RealTimeScheduler {
         void Execute(void);
 
         /**
-         * @brief Shutdown the real-time scheduler completely without destroying it.
+         * @brief Shutdown the real-time scheduler (master thread and all worker threads) completely without destroying it.
          * @note The scheduler cannot be executed again!
          */
         void Shutdown(void);

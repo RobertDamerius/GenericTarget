@@ -70,6 +70,9 @@ void RealTimeScheduler::Shutdown(void){
     if(m_masterThread.joinable() && (std::this_thread::get_id() != m_masterThread.get_id())){
         m_masterThread.join();
     }
+    for(const auto& task : m_tasks){
+        task->Shutdown();
+    }
 }
 
 void RealTimeScheduler::MasterThread(void){
