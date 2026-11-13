@@ -21,10 +21,7 @@
 #endif
 
 
-namespace gt {
-
-
-namespace driver {
+namespace gt::driver {
 
 
 /**
@@ -1232,7 +1229,4 @@ class AsyncThermalZoneReader {
 };
 
 
-} /* namespace: driver */
-
-
-} /* namespace: gt */
+} /* namespace: gt::driver */
