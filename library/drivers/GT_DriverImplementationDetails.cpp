@@ -38,7 +38,6 @@ namespace {
 
 inline constexpr std::string_view gt_driver_version{"2.2.0"};
 inline constexpr std::string_view gt_driver_compilerVersion{__VERSION__};
-inline constexpr std::string_view gt_driver_builtTimestamp{__DATE__ " " __TIME__};
 const std::string_view gt_driver_modelName{""};
 
 template <typename... Args> void gt_driver_simulink_print_info(std::format_string<Args...> format, Args&&... args){
@@ -618,32 +617,32 @@ bool DataRecorderManager::MakeDataDirectory(void){
 }
 
 std::string DataRecorderManager::GetOSInfo(void){
-    std::string result;
+    std::string result = "{";
     #if __linux__
     struct utsname info{};
     if(uname(&info) < 0){
-        return "unavailable";
+        return "{}";
     }
-    result += std::string("sysname=[") + std::string(info.sysname) + std::string("]");
-    result += std::string(",nodename=[") + std::string(info.nodename) + std::string("]");
-    result += std::string(",release=[") + std::string(info.release) + std::string("]");
-    result += std::string(",version=[") + std::string(info.version) + std::string("]");
-    result += std::string(",machine=[") + std::string(info.machine) + std::string("]");
+    result += std::string("\"sysname\": \"") + std::string(info.sysname) + std::string("\"");
+    result += std::string(", \"nodename\": \"") + std::string(info.nodename) + std::string("\"");
+    result += std::string(", \"release\": \"") + std::string(info.release) + std::string("\"");
+    result += std::string(", \"version\": \"") + std::string(info.version) + std::string("\"");
+    result += std::string(", \"machine\": \"") + std::string(info.machine) + std::string("\"");
     #ifdef __USE_GNU
-    result += std::string(",domainname=[") + std::string(info.domainname) + std::string("]");
+    result += std::string(", \"domainname\": \"") + std::string(info.domainname) + std::string("\"");
     #endif
     #elif _WIN32
     OSVERSIONINFOA osvi;
     ZeroMemory(&osvi, sizeof(OSVERSIONINFOA));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOA);
     (void) GetVersionExA(&osvi);
-    result += std::string("dwBuildNumber=[") + std::to_string(osvi.dwBuildNumber) + std::string("]");
-    result += std::string(",dwMajorVersion=[") + std::to_string(osvi.dwMajorVersion) + std::string("]");
-    result += std::string(",dwMinorVersion=[") + std::to_string(osvi.dwMinorVersion) + std::string("]");
-    result += std::string(",dwPlatformId=[") + std::to_string(osvi.dwPlatformId) + std::string("]");
-    result += std::string(",szCSDVersion=[") + std::string(osvi.szCSDVersion) + std::string("]");
+    result += std::string("\"dwBuildNumber\": \"") + std::to_string(osvi.dwBuildNumber) + std::string("\"");
+    result += std::string(", \"dwMajorVersion\": \"") + std::to_string(osvi.dwMajorVersion) + std::string("\"");
+    result += std::string(", \"dwMinorVersion\": \"") + std::to_string(osvi.dwMinorVersion) + std::string("\"");
+    result += std::string(", \"dwPlatformId\": \"") + std::to_string(osvi.dwPlatformId) + std::string("\"");
+    result += std::string(", \"szCSDVersion\": \"") + std::string(osvi.szCSDVersion) + std::string("\"");
     #endif
-    return result;
+    return result + "}";
 }
 
 bool DataRecorderManager::WriteIndexFile(void){
@@ -705,15 +704,6 @@ bool DataRecorderManager::WriteIndexFile(void){
     fwrite(SimulinkInterface::modelName.data(), sizeof(char), SimulinkInterface::modelName.length(), file);
     #else
     fwrite(gt_driver_modelName.data(), sizeof(char), gt_driver_modelName.length(), file);
-    #endif
-    bytes[0] = 0;
-    fwrite(&bytes[0], 1, 1, file);
-
-    // compileDate + 0x00
-    #if defined(GENERIC_TARGET_IMPLEMENTATION)
-    fwrite(gt::builtTimestamp.data(), sizeof(char), gt::builtTimestamp.length(), file);
-    #else
-    fwrite(gt_driver_builtTimestamp.data(), sizeof(char), gt_driver_builtTimestamp.length(), file);
     #endif
     bytes[0] = 0;
     fwrite(&bytes[0], 1, 1, file);

@@ -168,7 +168,6 @@ void App::PrintInfo(void){
     GENERIC_TARGET_PRINT_RAW("\n");
     GENERIC_TARGET_PRINT_RAW("Generic Target Version:   {}\n", gt::version);
     GENERIC_TARGET_PRINT_RAW("Compiler Version:         {}\n", gt::compilerVersion);
-    GENERIC_TARGET_PRINT_RAW("Built (local):            {}\n", gt::builtTimestamp);
     GENERIC_TARGET_PRINT_RAW("Application Path:         {}\n", GetAbsoluteApplicationPath());
     GENERIC_TARGET_PRINT_RAW("Arguments:               "); for(size_t i = 0; i < args.size(); i++){ GENERIC_TARGET_PRINT_RAW(" [{}]", args[i]); } GENERIC_TARGET_PRINT_RAW("\n");
     GENERIC_TARGET_PRINT_RAW("Maximum thread priority:  {}\n", sched_get_priority_max(SCHED_FIFO));

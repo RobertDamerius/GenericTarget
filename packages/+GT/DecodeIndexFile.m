@@ -93,20 +93,6 @@ function info = DecodeIndexFile(filename)
         info.modelName = [info.modelName, char(byte)];
     end
 
-    % dateOfCompilation (zero-terminated string)
-    info.dateOfCompilation = char.empty();
-    while(true)
-        byte = uint8(fread(fp, 1));
-        if(1 ~= numel(byte))
-            fclose(fp);
-            error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!', numel(byte), filename);
-        end
-        if(~byte)
-            break;
-        end
-        info.dateOfCompilation = [info.dateOfCompilation, char(byte)];
-    end
-
     % compilerVersion (zero-terminated string)
     info.compilerVersion = char.empty();
     while(true)
