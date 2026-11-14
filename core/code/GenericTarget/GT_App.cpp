@@ -104,37 +104,38 @@ std::string App::GetAbsoluteApplicationPath(void){
 void App::OpenSocket(const std::string_view& socketName){
     // validate socket name length
     ::sockaddr_un addr{};
-    const std::size_t max_name_len = sizeof(addr.sun_path) - 1;
-    if(socketName.empty() || socketName.size() > max_name_len){
-        throw std::runtime_error(std::format("Invalid application socket name length: expected at most {} bytes, got {}\n", max_name_len, socketName.size()));
+    std::span<char> pathSpan{addr.sun_path};
+    if(socketName.empty() || ((socketName.size() + 2U) > pathSpan.size())){
+        throw std::runtime_error("Invalid socket name length\n");
     }
 
     // create abstract socket
     m_socket = ::socket(AF_UNIX, SOCK_STREAM, 0);
-    if(m_socket < 0){
+    if(m_socket == -1){
         throw std::system_error(errno, std::generic_category(), "Failed to create application socket");
     }
 
     // bind the socket to the specified name
     addr.sun_family = AF_UNIX;
-    addr.sun_path[0] = '\0';
-    std::memcpy(addr.sun_path + 1, socketName.data(), socketName.size());
-    socklen_t addr_len = static_cast<socklen_t>(offsetof(::sockaddr_un, sun_path) + 1 + socketName.size());
-    if(::bind(m_socket, reinterpret_cast<::sockaddr*>(&addr), addr_len) < 0){
+    addr.sun_path[0U] = '\0';
+    std::ranges::copy(socketName, pathSpan.subspan(1U).begin());
+    pathSpan[1U + socketName.size()] = '\0';
+    ::socklen_t addr_len = static_cast<::socklen_t>(offsetof(::sockaddr_un, sun_path) + 1U + socketName.size());
+    if(::bind(m_socket, reinterpret_cast<::sockaddr*>(&addr), addr_len) == -1){
         const int errorCode = errno;
+        static_cast<void>(::close(m_socket));
+        m_socket = -1;
         if(errorCode == EADDRINUSE){
             throw std::system_error(errorCode, std::generic_category(), "Another instance of this application is already running");
         }
-        else{
-            throw std::system_error(errorCode, std::generic_category(), "Failed to bind application socket");
-        }
+        throw std::system_error(errorCode, std::generic_category(), "Failed to bind application socket");
     }
 }
 
 void App::CloseSocket(void){
     if(m_socket >= 0){
         GENERIC_TARGET_PRINT_INFO("Destroying application socket\n");
-        if(::close(m_socket) < 0){
+        if(::close(m_socket) == -1){
             GENERIC_TARGET_PRINT_ERROR("Failed to close application socket: {}\n", std::strerror(errno));
         }
         m_socket = -1;
@@ -159,7 +160,7 @@ void App::PrintInfo(void){
     if_ni = ::if_nameindex();
     if(if_ni){
         GENERIC_TARGET_PRINT_RAW("network interfaces:       ");
-        for(i = if_ni; !(i->if_index == 0 && i->if_name == nullptr); i++){
+        for(i = if_ni; !((i->if_index == 0U) && (i->if_name == nullptr)); i++){
             GENERIC_TARGET_PRINT_RAW("[{}]", i->if_name);
         }
         GENERIC_TARGET_PRINT_RAW("\n");

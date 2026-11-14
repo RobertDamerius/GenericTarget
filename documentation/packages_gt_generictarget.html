@@ -200,7 +200,8 @@
   When the application is started, it binds to an abstract UNIX socket with the name set by this property.
   Binding this socket acts as a lock that ensures the application runs only once. When the application
   terminates, the socket is released. If several target applications are to run simultaneously on the same
-  computer, each application must use a distinct socket name.
+  computer, each application must use a distinct socket name. The maximum length of the socket name is usually
+  <code>106</code> characters, but could also be less (see <a href="https://man7.org/linux/man-pages/man7/unix.7.html" target="_blank">unix(7)</a>).
 </p>
 
 <h3 id="targetBitmaskCPUCores">targetBitmaskCPUCores</h3>
