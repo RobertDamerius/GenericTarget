@@ -143,35 +143,39 @@ bool RuntimeEnvironment::SetupSemaphore(void){
     return true;
 }
 
-void RuntimeEnvironment::SignalHandler(int signum){
+void RuntimeEnvironment::SignalHandler(const int signum) noexcept {
     RuntimeEnvironment::RequestStop();
     static_cast<void>(signum);
 }
 
-void RuntimeEnvironment::CrashHandler(int signal){
-    const char banner[] = "\n==========================================================================\n";
-    const char vline[] = "\n==========================================================================\n\n";
-    const char* sigName = "UNKNOWN";
-    ssize_t discarded;
+void RuntimeEnvironment::CrashHandler(const int signal) noexcept {
+    constexpr std::string_view banner{"\n==========================================================================\n"};
+    constexpr std::string_view vline{"\n==========================================================================\n\n"};
+    constexpr std::string_view prefix{"CRASH DETECTED: "};
+    std::string_view sigName{"UNKNOWN"};
     switch (signal) {
         case SIGSEGV: sigName = "SIGSEGV (Segmentation fault)"; break;
         case SIGABRT: sigName = "SIGABRT (Aborted)"; break;
         case SIGBUS:  sigName = "SIGBUS (Bus error)"; break;
         case SIGILL:  sigName = "SIGILL (Illegal instruction)"; break;
         case SIGFPE:  sigName = "SIGFPE (Floating-point exception)"; break;
+        default: break;
     }
-    discarded = write(STDERR_FILENO, banner, sizeof(banner) - 1);
-    discarded = write(STDERR_FILENO, "CRASH DETECTED: ", 16);
-    discarded = write(STDERR_FILENO, sigName, __builtin_strlen(sigName));
-    discarded = write(STDERR_FILENO, vline, sizeof(vline) - 1);
+    ssize_t discarded;
+    discarded = ::write(STDERR_FILENO, banner.data(), banner.size());
+    discarded = ::write(STDERR_FILENO, prefix.data(), prefix.size());
+    discarded = ::write(STDERR_FILENO, sigName.data(), sigName.size());
+    discarded = ::write(STDERR_FILENO, vline.data(), vline.size());
 
-    constexpr int backtraceSize = 64;
+    constexpr int backtraceSize{64};
     void* frames[backtraceSize];
-    int frameCount = backtrace(frames, backtraceSize);
-    backtrace_symbols_fd(frames, frameCount, STDERR_FILENO);
-    discarded = write(STDERR_FILENO, banner, sizeof(banner) - 1);
+    const int frameCount = ::backtrace(frames, backtraceSize);
+    if(frameCount > 0){
+        ::backtrace_symbols_fd(frames, frameCount, STDERR_FILENO);
+    }
+    discarded = ::write(STDERR_FILENO, banner.data(), banner.size());
     static_cast<void>(discarded);
-    _Exit(128 + signal);
+    ::_Exit(128 + signal);
 }
 
 void RuntimeEnvironment::PrintHeader(void){

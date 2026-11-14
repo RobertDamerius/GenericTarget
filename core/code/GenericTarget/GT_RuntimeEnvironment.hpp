@@ -94,8 +94,8 @@ class RuntimeEnvironment {
         static bool SetupSemaphore(void);
 
         /* signal and crash handlers */
-        static void SignalHandler(int signum);
-        static void CrashHandler(int signal);
+        static void SignalHandler(const int signum) noexcept;
+        static void CrashHandler(const int signal) noexcept;
 
         /* print helper functions */
         static void PrintHeader(void);
