@@ -135,7 +135,7 @@ bool RuntimeEnvironment::SetupSignalHandlers(void){
 
 bool RuntimeEnvironment::SetupSemaphore(void){
     try {
-        (void) GetTerminationSemaphore();
+        static_cast<void>(GetTerminationSemaphore());
     } catch(const std::exception& e) {
         GENERIC_TARGET_PRINT_ERROR("Failed to setup termination semaphore: {}\n", e.what());
         return false;
@@ -145,7 +145,7 @@ bool RuntimeEnvironment::SetupSemaphore(void){
 
 void RuntimeEnvironment::SignalHandler(int signum){
     RuntimeEnvironment::RequestStop();
-    (void) signum;
+    static_cast<void>(signum);
 }
 
 void RuntimeEnvironment::CrashHandler(int signal){
@@ -170,7 +170,7 @@ void RuntimeEnvironment::CrashHandler(int signal){
     int frameCount = backtrace(frames, backtraceSize);
     backtrace_symbols_fd(frames, frameCount, STDERR_FILENO);
     discarded = write(STDERR_FILENO, banner, sizeof(banner) - 1);
-    (void) discarded;
+    static_cast<void>(discarded);
     _Exit(128 + signal);
 }
 

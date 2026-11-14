@@ -698,7 +698,7 @@ std::string DataRecorderManager::GetOSInfo(void){
     OSVERSIONINFOA osvi;
     ZeroMemory(&osvi, sizeof(OSVERSIONINFOA));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOA);
-    (void) GetVersionExA(&osvi);
+    static_cast<void>(GetVersionExA(&osvi));
     result += std::string("\"dwBuildNumber\": \"") + std::to_string(osvi.dwBuildNumber) + std::string("\"");
     result += std::string(", \"dwMajorVersion\": \"") + std::to_string(osvi.dwMajorVersion) + std::string("\"");
     result += std::string(", \"dwMinorVersion\": \"") + std::to_string(osvi.dwMinorVersion) + std::string("\"");
@@ -823,11 +823,11 @@ void SocketBase::Close(void){
     int fd = m_socket.exchange(-1);
     if(fd >= 0){
         #ifdef _WIN32
-        (void) shutdown(fd, SD_BOTH);
-        (void) closesocket(fd);
+        static_cast<void>(shutdown(fd, SD_BOTH));
+        static_cast<void>(closesocket(fd));
         #else
-        (void) shutdown(fd, SHUT_RDWR);
-        (void) close(fd);
+        static_cast<void>(shutdown(fd, SHUT_RDWR));
+        static_cast<void>(close(fd));
         #endif
     }
 }
@@ -847,7 +847,7 @@ int32_t SocketBase::ReuseAddress(bool reuse){
 
 int32_t SocketBase::ReusePort(bool reuse){
     #ifdef _WIN32
-    (void) reuse;
+    static_cast<void>(reuse);
     return 0;
     #else
     unsigned yes = static_cast<unsigned>(reuse);
@@ -877,7 +877,7 @@ bool SocketBase::EnableNonBlockingMode(void){
 
 int32_t SocketBase::SetSocketPriority(int32_t priority){
     #ifdef _WIN32
-    (void)priority;
+    static_cast<void>(priority);
     return 0;
     #else
     int value = static_cast<int>(priority);
@@ -934,7 +934,7 @@ int32_t SocketBinding::Bind(uint16_t port, std::array<uint8_t,4> ipInterface){
 int32_t SocketBinding::BindToDevice(std::string deviceName){
     deviceName.erase(std::remove_if(deviceName.begin(), deviceName.end(), [](unsigned char c) { return c < 32 || c > 126; }), deviceName.end());
     #ifdef _WIN32
-    (void)deviceName;
+    static_cast<void>(deviceName);
     return 0;
     #else
     struct ifreq ifr;
@@ -952,11 +952,11 @@ bool TCPSocketBase::Open(void){
     int old_fd = m_socket.exchange(new_fd);
     if(old_fd >= 0){
         #ifdef _WIN32
-        (void) shutdown(old_fd, SD_BOTH);
-        (void) closesocket(old_fd);
+        static_cast<void>(shutdown(old_fd, SD_BOTH));
+        static_cast<void>(closesocket(old_fd));
         #else
-        (void) shutdown(old_fd, SHUT_RDWR);
-        (void) close(old_fd);
+        static_cast<void>(shutdown(old_fd, SHUT_RDWR));
+        static_cast<void>(close(old_fd));
         #endif
     }
     return true;
@@ -1021,11 +1021,11 @@ bool UDPSocket::Open(void){
     int old_fd = m_socket.exchange(new_fd);
     if(old_fd >= 0){
         #ifdef _WIN32
-        (void) shutdown(old_fd, SD_BOTH);
-        (void) closesocket(old_fd);
+        static_cast<void>(shutdown(old_fd, SD_BOTH));
+        static_cast<void>(closesocket(old_fd));
         #else
-        (void) shutdown(old_fd, SHUT_RDWR);
-        (void) close(old_fd);
+        static_cast<void>(shutdown(old_fd, SHUT_RDWR));
+        static_cast<void>(close(old_fd));
         #endif
     }
 
@@ -1112,7 +1112,7 @@ int32_t UDPSocket::SetMulticastTTL(uint8_t ttl){
 
 int32_t UDPSocket::SetMulticastAll(bool multicastAll){
     #ifdef _WIN32
-    (void) multicastAll;
+    static_cast<void>(multicastAll);
     return 0;
     #else
     int enable = multicastAll ? 1 : 0;
@@ -1335,7 +1335,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
             }
         }
     }
-    (void) AttemptToBind();
+    static_cast<void>(AttemptToBind());
     return true;
 }
 
@@ -1343,7 +1343,7 @@ void UDPService::Destroy(void){
     const LockGuard lock(m_mtxSocket);
     if(m_udpSocket.IsOpen()){
         for(auto&& groupIP : m_currentlyJoinedGroups){
-            (void) m_udpSocket.LeaveMulticastGroup(groupIP, m_activeConf.deviceName, m_activeConf.multicastInterfaceAddress);
+            static_cast<void>(m_udpSocket.LeaveMulticastGroup(groupIP, m_activeConf.deviceName, m_activeConf.multicastInterfaceAddress));
         }
         m_udpSocket.Close();
         GENERIC_TARGET_PRINT_INFO("Closed UDP socket {{{}}}\n", m_activeConf.ToString());
@@ -1459,7 +1459,7 @@ void UDPService::UpdateMulticastGroups(std::vector<std::array<uint8_t,4>> multic
         }
         if(!alreadyJoined){
             #ifdef _WIN32
-            (void) m_udpSocket.SetMulticastInterface(desiredJoinedGroup, m_activeConf.deviceName, m_activeConf.multicastInterfaceAddress);
+            static_cast<void>(m_udpSocket.SetMulticastInterface(desiredJoinedGroup, m_activeConf.deviceName, m_activeConf.multicastInterfaceAddress));
             #endif
             alreadyJoined = (m_udpSocket.JoinMulticastGroup(desiredJoinedGroup, m_activeConf.deviceName, m_activeConf.multicastInterfaceAddress) >= 0);
         }

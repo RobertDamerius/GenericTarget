@@ -40,7 +40,7 @@ void GT_DriverTCPClientSocketInitialize(int32_t port, uint8_t* deviceName, uint3
         gt::RuntimeEnvironment::RequestStop();
     }
     #else
-    (void) success;
+    static_cast<void>(success);
     #endif
 }
 
@@ -49,7 +49,7 @@ void GT_DriverTCPClientSocketTerminate(int32_t port){
     #if defined(_WIN32) && !defined(GENERIC_TARGET_IMPLEMENTATION)
     WSACleanup();
     #endif
-    (void)port;
+    static_cast<void>(port);
 }
 
 void GT_DriverTCPClientSocketStep(int32_t port, uint8_t tfSendReceive, int32_t rxBufferSize, uint8_t* bytesReceived, int32_t* result, int32_t* lastErrorCode, uint8_t* isConnected, uint8_t* destinationIP, uint16_t destinationPort, uint8_t manageConnection, uint8_t* bytesToSend, int32_t numBytesToSend){

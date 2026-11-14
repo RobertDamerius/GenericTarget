@@ -22,7 +22,7 @@ void GT_DriverTaskExecutionTimeStep(double* taskExecutionTime, uint8_t* taskName
             }
         }
     #else
-        (void)taskName;
-        (void)taskNameLength;
+        static_cast<void>(taskName);
+        static_cast<void>(taskNameLength);
     #endif
 }

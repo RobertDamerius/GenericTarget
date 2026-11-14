@@ -28,12 +28,12 @@ void GT_DriverDataRecorderInitialize(uint8_t typeOfRecorder, const uint8_t* idCh
             gt::RuntimeEnvironment::RequestStop();
         }
         #else
-        (void)success;
+        static_cast<void>(success);
         #endif
     #if !defined(GENERIC_TARGET_IMPLEMENTATION)
     }
     #else
-    (void)writeFilesDuringSimulation;
+    static_cast<void>(writeFilesDuringSimulation);
     #endif
 }
 
@@ -45,7 +45,7 @@ void GT_DriverDataRecorderTerminate(uint8_t writeFilesDuringSimulation){
     #if !defined(GENERIC_TARGET_IMPLEMENTATION)
     }
     #else
-    (void)writeFilesDuringSimulation;
+    static_cast<void>(writeFilesDuringSimulation);
     #endif
 }
 
@@ -64,6 +64,6 @@ void GT_DriverDataRecorderStep(uint8_t typeOfRecorder, const uint8_t* idCharacte
     #if !defined(GENERIC_TARGET_IMPLEMENTATION)
     }
     #else
-    (void)writeFilesDuringSimulation;
+    static_cast<void>(writeFilesDuringSimulation);
     #endif
 }

@@ -49,7 +49,7 @@ void GT_DriverUDPSocketInitialize(int32_t port, uint8_t* deviceName, uint32_t de
         gt::RuntimeEnvironment::RequestStop();
     }
     #else
-    (void) success;
+    static_cast<void>(success);
     #endif
 }
 
@@ -58,7 +58,7 @@ void GT_DriverUDPSocketTerminate(int32_t port){
     #if defined(_WIN32) && !defined(GENERIC_TARGET_IMPLEMENTATION)
     WSACleanup();
     #endif
-    (void)port;
+    static_cast<void>(port);
 }
 
 void GT_DriverUDPSocketStep(int32_t port, uint8_t tfSendReceive, int32_t rxBufferSize, uint8_t* bytesReceived, uint8_t* sourceIP, uint16_t* sourcePort, int32_t* result, int32_t* lastErrorCode, uint8_t* destinationIP, uint16_t destinationPort, uint8_t* bytesToSend, int32_t numBytesToSend, uint8_t* groupBytes, uint32_t numGroupBytes){
