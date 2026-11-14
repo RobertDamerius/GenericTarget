@@ -23,21 +23,21 @@ class RuntimeEnvironment {
          * @return Model execution time in seconds.
          * @note Calling this function while the application is not initialized will throw a runtime error.
          */
-        static double GetModelExecutionTime(void);
+        [[nodiscard]] static double GetModelExecutionTime(void) noexcept;
 
         /**
          * @brief Get the number of CPU overloads that have occurred since the start of the real-time scheduler.
          * @return The number of CPU overloads.
          * @note Calling this function while the application is not initialized will throw a runtime error.
          */
-        static uint64_t GetNumCPUOverloads(void);
+        [[nodiscard]] static uint64_t GetNumCPUOverloads(void) noexcept;
 
         /**
          * @brief Get the number of lost ticks that have occurred since the start of the real-time scheduler.
          * @return The number of lost ticks.
          * @note Calling this function while the application is not initialized will throw a runtime error.
          */
-        static uint64_t GetNumLostTicks(void);
+        [[nodiscard]] static uint64_t GetNumLostTicks(void) noexcept;
 
         /**
          * @brief Get the latest task execution time for a task.
@@ -45,7 +45,7 @@ class RuntimeEnvironment {
          * @return The latest task execution time in seconds or NaN if the taskID is invalid.
          * @note Calling this function while the application is not initialized will throw a runtime error.
          */
-        static double GetTaskExecutionTime(const uint32_t taskID);
+        [[nodiscard]] static double GetTaskExecutionTime(const uint32_t taskID) noexcept;
 
         /**
          * @brief Get the number of task overloads for a task.
@@ -53,19 +53,19 @@ class RuntimeEnvironment {
          * @return The latest task overload counter or zero if the taskID is invalid.
          * @note Calling this function while the application is not initialized will throw a runtime error.
          */
-        static uint64_t GetNumTaskOverloads(const uint32_t taskID);
+        [[nodiscard]] static uint64_t GetNumTaskOverloads(const uint32_t taskID) noexcept;
 
         /**
          * @brief Get the application arguments that have been passed to the application.
          * @return The application arguments.
          * @note Calling this function while the application is not initialized will throw a runtime error.
          */
-        static const std::vector<std::string>& GetAppArguments(void);
+        [[nodiscard]] static std::span<const std::string> GetAppArguments(void) noexcept;
 
         /**
          * @brief Call this function if the real-time application is to be terminated.
          */
-        static void RequestStop(void);
+        static void RequestStop(void) noexcept;
 
     protected:
         /* Only the main entry function is allowed to access the protected member functions */

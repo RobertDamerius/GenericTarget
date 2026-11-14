@@ -10,48 +10,48 @@ Semaphore& RuntimeEnvironment::GetTerminationSemaphore(void){
     return instance;
 }
 
-void RuntimeEnvironment::RequestStop(void){
+void RuntimeEnvironment::RequestStop(void) noexcept {
     GetTerminationSemaphore().Post();
 }
 
-double RuntimeEnvironment::GetModelExecutionTime(void){
-    if(!s_app){
-        throw std::runtime_error("Failed to execute RuntimeEnvironment::GetModelExecutionTime: Real-time target application is not running");
+double RuntimeEnvironment::GetModelExecutionTime(void) noexcept {
+    if(s_app == nullptr){
+        return 0.0;
     }
     return s_app->GetModelExecutionTime();
 }
 
-uint64_t RuntimeEnvironment::GetNumCPUOverloads(void){
-    if(!s_app){
-        throw std::runtime_error("Failed to execute RuntimeEnvironment::GetNumCPUOverloads: Real-time target application is not running");
+uint64_t RuntimeEnvironment::GetNumCPUOverloads(void) noexcept {
+    if(s_app == nullptr){
+        return uint64_t{0};
     }
     return s_app->GetNumCPUOverloads();
 }
 
-uint64_t RuntimeEnvironment::GetNumLostTicks(void){
-    if(!s_app){
-        throw std::runtime_error("Failed to execute RuntimeEnvironment::GetNumLostTicks: Real-time target application is not running");
+uint64_t RuntimeEnvironment::GetNumLostTicks(void) noexcept {
+    if(s_app == nullptr){
+        return uint64_t{0};
     }
     return s_app->GetNumLostTicks();
 }
 
-double RuntimeEnvironment::GetTaskExecutionTime(const uint32_t taskID){
-    if(!s_app){
-        throw std::runtime_error("Failed to execute RuntimeEnvironment::GetTaskExecutionTime: Real-time target application is not running");
+double RuntimeEnvironment::GetTaskExecutionTime(const uint32_t taskID) noexcept {
+    if(s_app == nullptr){
+        return 0.0;
     }
     return s_app->GetTaskExecutionTime(taskID);
 }
 
-uint64_t RuntimeEnvironment::GetNumTaskOverloads(const uint32_t taskID){
-    if(!s_app){
-        throw std::runtime_error("Failed to execute RuntimeEnvironment::GetNumTaskOverloads: Real-time target application is not running");
+uint64_t RuntimeEnvironment::GetNumTaskOverloads(const uint32_t taskID) noexcept {
+    if(s_app == nullptr){
+        return uint64_t{0};
     }
     return s_app->GetNumTaskOverloads(taskID);
 }
 
-const std::vector<std::string>& RuntimeEnvironment::GetAppArguments(void){
-    if(!s_app){
-        throw std::runtime_error("Failed to execute RuntimeEnvironment::GetAppArguments: Real-time target application is not running");
+std::span<const std::string> RuntimeEnvironment::GetAppArguments(void) noexcept {
+    if(s_app == nullptr){
+        return {};
     }
     return s_app->args;
 }

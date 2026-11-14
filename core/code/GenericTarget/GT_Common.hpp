@@ -7,6 +7,7 @@
 /* Default C++ headers */
 #include <cstdint>
 #include <cstdlib>
+#include <cerrno>
 #include <iostream>
 #include <fstream>
 #include <cstdio>
@@ -15,6 +16,7 @@
 #include <ctime>
 #include <vector>
 #include <array>
+#include <span>
 #include <string>
 #include <cstring>
 #include <algorithm>

@@ -60,37 +60,37 @@ void App::Shutdown(void){
     SimulinkInterface::Terminate();
 }
 
-double App::GetModelExecutionTime(void){
-    if(!m_rtScheduler){
-        throw std::runtime_error("Failed to execute App::GetModelExecutionTime: Real-time scheduler is not running");
+double App::GetModelExecutionTime(void) noexcept {
+    if(m_rtScheduler == nullptr){
+        return 0.0;
     }
     return m_rtScheduler->GetModelExecutionTime();
 }
 
-uint64_t App::GetNumCPUOverloads(void) const {
-    if(!m_rtScheduler){
-        throw std::runtime_error("Failed to execute App::GetNumCPUOverloads: Real-time scheduler is not running");
+uint64_t App::GetNumCPUOverloads(void) const noexcept {
+    if(m_rtScheduler == nullptr){
+        return uint64_t{0};
     }
     return m_rtScheduler->GetNumCPUOverloads();
 }
 
-uint64_t App::GetNumLostTicks(void) const {
-    if(!m_rtScheduler){
-        throw std::runtime_error("Failed to execute App::GetNumLostTicks: Real-time scheduler is not running");
+uint64_t App::GetNumLostTicks(void) const noexcept {
+    if(m_rtScheduler == nullptr){
+        return uint64_t{0};
     }
     return m_rtScheduler->GetNumLostTicks();
 }
 
-double App::GetTaskExecutionTime(const uint32_t taskID) const {
-    if(!m_rtScheduler){
-        throw std::runtime_error("Failed to execute App::GetTaskExecutionTime: Real-time scheduler is not running");
+double App::GetTaskExecutionTime(const uint32_t taskID) const noexcept {
+    if(m_rtScheduler == nullptr){
+        return 0.0;
     }
     return m_rtScheduler->GetTaskExecutionTime(taskID);
 }
 
-uint64_t App::GetNumTaskOverloads(const uint32_t taskID) const {
-    if(!m_rtScheduler){
-        throw std::runtime_error("Failed to execute App::GetNumTaskOverloads: Real-time scheduler is not running");
+uint64_t App::GetNumTaskOverloads(const uint32_t taskID) const noexcept {
+    if(m_rtScheduler == nullptr){
+        return uint64_t{0};
     }
     return m_rtScheduler->GetNumTaskOverloads(taskID);
 }

@@ -64,9 +64,10 @@ class Semaphore {
         /**
          * @brief Increments (unlocks) the semaphore.
          */
-        void Post(void){
+        void Post(void) noexcept {
             if(sem_post(&m_sem) == -1){
-                throw std::system_error(errno, std::generic_category(), "Failed to increment (unlock) semaphore");
+                GENERIC_TARGET_PRINT_ERROR("Failed to increment (unlock) semaphore\n");
+                std::abort();
             }
         }
 
