@@ -34,7 +34,6 @@
 #include <semaphore.h>
 #include <unistd.h>
 #include <dirent.h>
-#include <stdarg.h>
 #include <string.h>
 #include <fcntl.h>
 #include <execinfo.h>

@@ -20,7 +20,6 @@
 #include <Iphlpapi.h>
 #elif defined(__linux__)
 #include <unistd.h>
-#include <stdarg.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <sys/utsname.h>
