@@ -10,7 +10,7 @@ void GT_DriverStopExecutionTerminate(void){}
 
 void GT_DriverStopExecutionStep(uint8_t stopExecution){
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
-        if(stopExecution){
+        if(stopExecution != 0U){
             gt::RuntimeEnvironment::RequestStop();
         }
     #else

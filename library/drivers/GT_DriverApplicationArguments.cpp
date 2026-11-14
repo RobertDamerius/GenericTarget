@@ -21,7 +21,7 @@ void GT_DriverApplicationArgumentsStep(uint8_t* argBuffer, uint32_t* numCharsPer
             }
         }
     #else
-        (void) argBuffer;
-        (void) maxNumCharsPerArgument;
+        (void)argBuffer;
+        (void)maxNumCharsPerArgument;
     #endif
 }
