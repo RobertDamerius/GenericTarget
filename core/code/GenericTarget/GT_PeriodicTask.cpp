@@ -6,12 +6,12 @@ using namespace gt;
 PeriodicTask::PeriodicTask(const uint32_t taskID) : taskID(taskID), m_ticks(SimulinkInterface::sampleTicks[taskID]), m_offsetSamples(SimulinkInterface::offsetTicks[taskID]){
     // check worker thread priority
     int requestedPriority = static_cast<int>(gt::basePriority) - (taskID + 1);
-    if(requestedPriority < sched_get_priority_min(SCHED_FIFO) || requestedPriority > sched_get_priority_max(SCHED_FIFO)){
+    if(requestedPriority < ::sched_get_priority_min(SCHED_FIFO) || requestedPriority > ::sched_get_priority_max(SCHED_FIFO)){
         std::string msg = std::format("Requested priority {} of task \"{}\" is not in range [{},{}]\n",
             requestedPriority,
             SimulinkInterface::taskNames[taskID],
-            sched_get_priority_min(SCHED_FIFO),
-            sched_get_priority_max(SCHED_FIFO));
+            ::sched_get_priority_min(SCHED_FIFO),
+            ::sched_get_priority_max(SCHED_FIFO));
         #if defined(DEBUG)
         GENERIC_TARGET_PRINT_ERROR("{}\n", msg);
         #else
@@ -26,9 +26,9 @@ PeriodicTask::PeriodicTask(const uint32_t taskID) : taskID(taskID), m_ticks(Simu
     m_workerThread = std::thread(&PeriodicTask::WorkerThread, this);
 
     // set worker thread priority
-    struct sched_param param;
+    ::sched_param param;
     param.sched_priority = requestedPriority;
-    if(0 != pthread_setschedparam(m_workerThread.native_handle(), SCHED_FIFO, &param)){
+    if(0 != ::pthread_setschedparam(m_workerThread.native_handle(), SCHED_FIFO, &param)){
         std::string msg = std::format("Failed to set thread priority {} of task \"{}\" (sampletime={})",
             requestedPriority,
             SimulinkInterface::taskNames[taskID],

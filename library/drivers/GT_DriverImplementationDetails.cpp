@@ -86,7 +86,7 @@ template <typename... Args> void gt_driver_simulink_print_error(const char* file
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Event::Event(){
     #if defined(__linux__)
-    if(sem_init(&m_sem, 0, 0) == -1){
+    if(::sem_init(&m_sem, 0, 0) == -1){
         throw std::system_error(errno, std::generic_category(), "Failed to initialize semaphore");
     }
     #endif
@@ -94,7 +94,7 @@ Event::Event(){
 
 Event::~Event(){
     #if defined(__linux__)
-    if(sem_destroy(&m_sem) == -1){
+    if(::sem_destroy(&m_sem) == -1){
         const int errorCode = errno;
         GENERIC_TARGET_PRINT_ERROR("Failed to destroy semaphore: {}\n", errorCode);
     }
@@ -107,7 +107,7 @@ void Event::Notify(void){
     m_notified = true;
     m_cv.notify_one();
     #elif defined(__linux__)
-    if(sem_post(&m_sem) == -1){
+    if(::sem_post(&m_sem) == -1){
         throw std::system_error(errno, std::generic_category(), "Failed to increment (unlock) semaphore");
     }
     #endif
@@ -119,7 +119,7 @@ void Event::Wait(void){
     m_cv.wait(lock, [this](){ return this->m_notified; });
     m_notified = false;
     #elif defined(__linux__)
-    while(sem_wait(&m_sem) == -1){
+    while(::sem_wait(&m_sem) == -1){
         const int errorCode = errno;
         if(errorCode != EINTR){
             throw std::system_error(errorCode, std::generic_category(), "Failed to decrement (lock) semaphore");
@@ -143,7 +143,7 @@ bool Event::WaitFor(double sec) {
     return true; // notified
 
     #elif defined(__linux__)
-    struct timespec ts{};
+    ::timespec ts{};
     if(clock_gettime(CLOCK_MONOTONIC, &ts) == -1){
         throw std::system_error(errno, std::generic_category(), "Failed to get monotonic time");
     }
@@ -158,7 +158,7 @@ bool Event::WaitFor(double sec) {
         ts.tv_nsec -= 1000000000L;
     }
 
-    while(sem_clockwait(&m_sem, CLOCK_MONOTONIC, &ts) == -1){
+    while(::sem_clockwait(&m_sem, CLOCK_MONOTONIC, &ts) == -1){
         const int errorCode = errno;
         if(errorCode == EINTR){
             continue;
@@ -179,7 +179,7 @@ void Event::Clear(void){
     m_notified = false;
     #elif defined(__linux__)
     while(true){
-        if(sem_trywait(&m_sem) == 0){
+        if(::sem_trywait(&m_sem) == 0){
             continue;
         }
         if(errno == EINTR){
@@ -195,7 +195,7 @@ void Event::Clear(void){
 
 void DataRecorderBase::SetNumSamplesPerFile(uint32_t numSamplesPerFile){
     if(!m_started.load(std::memory_order_relaxed)){
-        this->m_numSamplesPerFile = static_cast<size_t>(numSamplesPerFile);
+        this->m_numSamplesPerFile = static_cast<std::size_t>(numSamplesPerFile);
     }
 }
 
@@ -274,7 +274,7 @@ void DataRecorderScalarDoubles::Write(double timestamp, void* data, uint32_t num
 
 bool DataRecorderScalarDoubles::WriteHeader(std::string name){
     // open file
-    FILE* file = fopen(name.c_str(), "wb");
+    std::FILE* file = std::fopen(name.c_str(), "wb");
     if(!file){
         GENERIC_TARGET_PRINT_ERROR("Failed to write file \"{}\"!\n", name);
         return false;
@@ -282,7 +282,7 @@ bool DataRecorderScalarDoubles::WriteHeader(std::string name){
 
     // header: "GTDBL" (5 bytes)
     const uint8_t header[] = {'G','T', 'D', 'B', 'L'};
-    fwrite(&header[0], 1, 5, file);
+    std::fwrite(&header[0], 1, 5, file);
 
     // zero-based offset to SampleData (4 bytes)
     uint8_t bytes[4];
@@ -291,19 +291,19 @@ bool DataRecorderScalarDoubles::WriteHeader(std::string name){
     bytes[1] = uint8_t((offset >> 16) & 0x000000FF);
     bytes[2] = uint8_t((offset >> 8) & 0x000000FF);
     bytes[3] = uint8_t(offset & 0x000000FF);
-    fwrite(&bytes[0], 1, 4, file);
+    std::fwrite(&bytes[0], 1, 4, file);
 
     // m_numSignals (4 bytes)
     bytes[0] = uint8_t((m_numSignals >> 24) & 0x000000FF);
     bytes[1] = uint8_t((m_numSignals >> 16) & 0x000000FF);
     bytes[2] = uint8_t((m_numSignals >> 8) & 0x000000FF);
     bytes[3] = uint8_t(m_numSignals & 0x000000FF);
-    fwrite(&bytes[0], 1, 4, file);
+    std::fwrite(&bytes[0], 1, 4, file);
 
     // m_labels + 0x00 (L + 1 bytes)
-    fwrite(&m_labels[0], 1, m_labels.length(), file);
+    std::fwrite(&m_labels[0], 1, m_labels.length(), file);
     bytes[0] = 0;
-    fwrite(&bytes[0], 1, 1, file);
+    std::fwrite(&bytes[0], 1, 1, file);
 
     // endianess (1 byte): litte endian (0x01) or big endian (0x80)
     union {
@@ -311,10 +311,10 @@ bool DataRecorderScalarDoubles::WriteHeader(std::string name){
         uint8_t bytes[2];
     } endian = {0x0100};
     uint8_t byte = endian.bytes[0] ? 0x80 : 0x01;
-    fwrite(&byte, 1, 1, file);
+    std::fwrite(&byte, 1, 1, file);
 
     // close file and return success
-    fclose(file);
+    std::fclose(file);
     return true;
 }
 
@@ -330,20 +330,20 @@ void DataRecorderScalarDoubles::WriteBufferToDataFiles(std::vector<double>& valu
             }
             m_currentFileStarted = true;
             m_numSamplesWritten = 0;
-            m_filePosition = 15 + static_cast<size_t>(m_labels.length()); // start of SampleData: header "GTDBL" (5) + offset (4) + numSignals (4) + labels (L+1) + endianess (1)
+            m_filePosition = 15 + static_cast<std::size_t>(m_labels.length()); // start of SampleData: header "GTDBL" (5) + offset (4) + numSignals (4) + labels (L+1) + endianess (1)
             GENERIC_TARGET_PRINT_INFO("Created data recording file \"{}\"\n", currentFileName);
         }
 
         // started file: write samples
-        size_t numSamplesToWrite = values.size() / static_cast<size_t>(1 + m_numSignals);
+        std::size_t numSamplesToWrite = values.size() / static_cast<std::size_t>(1 + m_numSignals);
         if(m_numSamplesPerFile){
             numSamplesToWrite = std::min(numSamplesToWrite, m_numSamplesPerFile);
         }
         if(!numSamplesToWrite){
             return;
         }
-        size_t numValuesToWrite = numSamplesToWrite * static_cast<size_t>(1 + m_numSignals);
-        const size_t numBytesToWrite = numValuesToWrite * 8;
+        std::size_t numValuesToWrite = numSamplesToWrite * static_cast<std::size_t>(1 + m_numSignals);
+        const std::size_t numBytesToWrite = numValuesToWrite * 8;
         std::fstream fs(currentFileName, std::ios::in | std::ios::out | std::ios::binary);
         if(!fs.is_open()){
             return;
@@ -386,7 +386,7 @@ void DataRecorderBus::Write(double timestamp, void* data, uint32_t numBytes){
 
 bool DataRecorderBus::WriteHeader(std::string name){
     // open file
-    FILE* file = fopen(name.c_str(), "wb");
+    std::FILE* file = std::fopen(name.c_str(), "wb");
     if(!file){
         GENERIC_TARGET_PRINT_ERROR("Failed to write file \"{}\"!\n", name);
         return false;
@@ -394,7 +394,7 @@ bool DataRecorderBus::WriteHeader(std::string name){
 
     // header: "GTBUS" (5 bytes)
     const uint8_t header[] = {'G','T', 'B', 'U', 'S'};
-    fwrite(&header[0], 1, 5, file);
+    std::fwrite(&header[0], 1, 5, file);
 
     // zero-based offset to SampleData (4 bytes)
     uint8_t bytes[4];
@@ -403,29 +403,29 @@ bool DataRecorderBus::WriteHeader(std::string name){
     bytes[1] = uint8_t((offset >> 16) & 0x000000FF);
     bytes[2] = uint8_t((offset >> 8) & 0x000000FF);
     bytes[3] = uint8_t(offset & 0x000000FF);
-    fwrite(&bytes[0], 1, 4, file);
+    std::fwrite(&bytes[0], 1, 4, file);
 
     // m_numBytesPerSample without timestamp (4 bytes)
     bytes[0] = uint8_t((m_numBytesPerSample >> 24) & 0x000000FF);
     bytes[1] = uint8_t((m_numBytesPerSample >> 16) & 0x000000FF);
     bytes[2] = uint8_t((m_numBytesPerSample >> 8) & 0x000000FF);
     bytes[3] = uint8_t(m_numBytesPerSample & 0x000000FF);
-    fwrite(&bytes[0], 1, 4, file);
+    std::fwrite(&bytes[0], 1, 4, file);
 
     // m_labels + 0x00 (L + 1 bytes)
-    fwrite(&m_labels[0], 1, m_labels.length(), file);
+    std::fwrite(&m_labels[0], 1, m_labels.length(), file);
     bytes[0] = 0;
-    fwrite(&bytes[0], 1, 1, file);
+    std::fwrite(&bytes[0], 1, 1, file);
 
     // m_dimensions + 0x00 (D + 1 bytes)
-    fwrite(&m_dimensions[0], 1, m_dimensions.length(), file);
+    std::fwrite(&m_dimensions[0], 1, m_dimensions.length(), file);
     bytes[0] = 0;
-    fwrite(&bytes[0], 1, 1, file);
+    std::fwrite(&bytes[0], 1, 1, file);
 
     // data types + 0x00 (T + 1 bytes)
-    fwrite(&m_dataTypes[0], 1, m_dataTypes.length(), file);
+    std::fwrite(&m_dataTypes[0], 1, m_dataTypes.length(), file);
     bytes[0] = 0;
-    fwrite(&bytes[0], 1, 1, file);
+    std::fwrite(&bytes[0], 1, 1, file);
 
     // endianess (1 byte): litte endian (0x01) or big endian (0x80)
     union {
@@ -433,10 +433,10 @@ bool DataRecorderBus::WriteHeader(std::string name){
         uint8_t bytes[2];
     } endian = {0x0100};
     uint8_t byte = endian.bytes[0] ? 0x80 : 0x01;
-    fwrite(&byte, 1, 1, file);
+    std::fwrite(&byte, 1, 1, file);
 
     // close file and return success
-    fclose(file);
+    std::fclose(file);
     return true;
 }
 
@@ -452,19 +452,19 @@ void DataRecorderBus::WriteBufferToDataFiles(std::vector<uint8_t>& bytes){
             }
             m_currentFileStarted = true;
             m_numSamplesWritten = 0;
-            m_filePosition = 17 + static_cast<size_t>(m_labels.length() + m_dimensions.length() + m_dataTypes.length()); // start of SampleData: header "GTBUS" (5) + offset (4) + numBytesPerSample (4) + labels (L+1) + dimensions (D+1) + dataTypes (T+1) + endianess (1)
+            m_filePosition = 17 + static_cast<std::size_t>(m_labels.length() + m_dimensions.length() + m_dataTypes.length()); // start of SampleData: header "GTBUS" (5) + offset (4) + numBytesPerSample (4) + labels (L+1) + dimensions (D+1) + dataTypes (T+1) + endianess (1)
             GENERIC_TARGET_PRINT_INFO("Created data recording file \"{}\"\n", currentFileName);
         }
 
         // we have a started file, write samples
-        size_t numSamplesToWrite = bytes.size() / (size_t)(8 + m_numBytesPerSample);
+        std::size_t numSamplesToWrite = bytes.size() / (std::size_t)(8 + m_numBytesPerSample);
         if(m_numSamplesPerFile){
             numSamplesToWrite = std::min(numSamplesToWrite, m_numSamplesPerFile);
         }
         if(!numSamplesToWrite){
             return;
         }
-        size_t numBytesToWrite = numSamplesToWrite * (size_t)(8 + m_numBytesPerSample);
+        std::size_t numBytesToWrite = numSamplesToWrite * (std::size_t)(8 + m_numBytesPerSample);
         std::fstream fs(currentFileName, std::ios::in | std::ios::out | std::ios::binary);
         if(!fs.is_open()){
             return;
@@ -682,7 +682,7 @@ bool DataRecorderManager::MakeDataDirectory(void){
 std::string DataRecorderManager::GetOSInfo(void){
     std::string result = "{";
     #if __linux__
-    struct utsname info{};
+    ::utsname info{};
     if(uname(&info) < 0){
         return "{}";
     }
@@ -712,7 +712,7 @@ bool DataRecorderManager::WriteIndexFile(void){
     // open index file
     std::string filename = (m_pathToDataDirectory / "index").string();
     GENERIC_TARGET_PRINT_INFO("Writing data record index file \"{}\"\n", filename);
-    FILE* file = fopen(filename.c_str(), "wb");
+    std::FILE* file = std::fopen(filename.c_str(), "wb");
     if(!file){
         GENERIC_TARGET_PRINT_ERROR("Failed to write data record index file \"{}\"\n", filename);
         return false;
@@ -720,7 +720,7 @@ bool DataRecorderManager::WriteIndexFile(void){
 
     // header: "GTIDX" (5 bytes)
     const uint8_t header[] = {'G','T', 'I', 'D', 'X'};
-    fwrite(&header[0], 1, 5, file);
+    std::fwrite(&header[0], 1, 5, file);
 
     // date
     uint8_t bytes[11];
@@ -735,7 +735,7 @@ bool DataRecorderManager::WriteIndexFile(void){
     bytes[8] = static_cast<uint8_t>(m_utc.second);
     bytes[9] = static_cast<uint8_t>((m_utc.millisecond >> 8) & 0x00FF);
     bytes[10] = static_cast<uint8_t>(m_utc.millisecond & 0x00FF);
-    fwrite(&bytes[0], 1, 11, file);
+    std::fwrite(&bytes[0], 1, 11, file);
 
     // number of data recorders (4 bytes)
     uint32_t num = (uint32_t)m_dataRecorders.size();
@@ -743,49 +743,49 @@ bool DataRecorderManager::WriteIndexFile(void){
     bytes[1] = static_cast<uint8_t>((num >> 16) & 0x000000FF);
     bytes[2] = static_cast<uint8_t>((num >> 8) & 0x000000FF);
     bytes[3] = static_cast<uint8_t>(num & 0x000000FF);
-    fwrite(&bytes[0], 1, 4, file);
+    std::fwrite(&bytes[0], 1, 4, file);
 
     // for all data records, write information
     for(auto&& rec : m_dataRecorders){
         // ID (string) + 0x00
-        fwrite(&rec.m_id[0], 1, rec.m_id.size(), file);
+        std::fwrite(&rec.m_id[0], 1, rec.m_id.size(), file);
         bytes[0] = 0;
-        fwrite(&bytes[0], 1, 1, file);
+        std::fwrite(&bytes[0], 1, 1, file);
     }
 
     // version + 0x00
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
-    fwrite(gt::version.data(), sizeof(char), gt::version.length(), file);
+    std::fwrite(gt::version.data(), sizeof(char), gt::version.length(), file);
     #else
-    fwrite(gt_driver_version.data(), sizeof(char), gt_driver_version.length(), file);
+    std::fwrite(gt_driver_version.data(), sizeof(char), gt_driver_version.length(), file);
     #endif
     bytes[0] = 0;
-    fwrite(&bytes[0], 1, 1, file);
+    std::fwrite(&bytes[0], 1, 1, file);
 
     // modelName + 0x00
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
-    fwrite(SimulinkInterface::modelName.data(), sizeof(char), SimulinkInterface::modelName.length(), file);
+    std::fwrite(SimulinkInterface::modelName.data(), sizeof(char), SimulinkInterface::modelName.length(), file);
     #else
-    fwrite(gt_driver_modelName.data(), sizeof(char), gt_driver_modelName.length(), file);
+    std::fwrite(gt_driver_modelName.data(), sizeof(char), gt_driver_modelName.length(), file);
     #endif
     bytes[0] = 0;
-    fwrite(&bytes[0], 1, 1, file);
+    std::fwrite(&bytes[0], 1, 1, file);
 
     // compiler version + 0x00
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
-    fwrite(gt::compilerVersion.data(), sizeof(char), gt::compilerVersion.length(), file);
+    std::fwrite(gt::compilerVersion.data(), sizeof(char), gt::compilerVersion.length(), file);
     #else
-    fwrite(gt_driver_compilerVersion.data(), sizeof(char), gt_driver_compilerVersion.length(), file);
+    std::fwrite(gt_driver_compilerVersion.data(), sizeof(char), gt_driver_compilerVersion.length(), file);
     #endif
     bytes[0] = 0;
-    fwrite(&bytes[0], 1, 1, file);
+    std::fwrite(&bytes[0], 1, 1, file);
 
     // OSInfo + 0x00
     std::string osInfo = GetOSInfo();
-    fwrite(&osInfo[0], 1, osInfo.length(), file);
+    std::fwrite(&osInfo[0], 1, osInfo.length(), file);
     bytes[0] = 0;
-    fwrite(&bytes[0], 1, 1, file);
-    fclose(file);
+    std::fwrite(&bytes[0], 1, 1, file);
+    std::fclose(file);
     return true;
 }
 
@@ -823,20 +823,20 @@ void SocketBase::Close(void){
     int fd = m_socket.exchange(-1);
     if(fd >= 0){
         #ifdef _WIN32
-        static_cast<void>(shutdown(fd, SD_BOTH));
-        static_cast<void>(closesocket(fd));
+        static_cast<void>(::shutdown(fd, SD_BOTH));
+        static_cast<void>(::closesocket(fd));
         #else
-        static_cast<void>(shutdown(fd, SHUT_RDWR));
-        static_cast<void>(close(fd));
+        static_cast<void>(::shutdown(fd, SHUT_RDWR));
+        static_cast<void>(::close(fd));
         #endif
     }
 }
 
 int32_t SocketBase::SetOption(int level, int optname, const void* optval, int optlen){
     #ifdef _WIN32
-    return static_cast<int32_t>(setsockopt(m_socket, level, optname, reinterpret_cast<const char*>(optval), optlen));
+    return static_cast<int32_t>(::setsockopt(m_socket, level, optname, reinterpret_cast<const char*>(optval), optlen));
     #else
-    return static_cast<int32_t>(setsockopt(m_socket, level, optname, optval, static_cast<socklen_t>(optlen)));
+    return static_cast<int32_t>(::setsockopt(m_socket, level, optname, optval, static_cast<socklen_t>(optlen)));
     #endif
 }
 
@@ -867,11 +867,11 @@ int32_t SocketBase::AllowBroadcast(bool allow){
 bool SocketBase::EnableNonBlockingMode(void){
     #ifdef _WIN32
     unsigned long nonBlockingMode = 1;
-    return ioctlsocket(m_socket, FIONBIO, &nonBlockingMode) == 0;
+    return ::ioctlsocket(m_socket, FIONBIO, &nonBlockingMode) == 0;
     #else
     int fd = m_socket.load();
-    int flags = fcntl(fd, F_GETFL, 0);
-    return fcntl(fd, F_SETFL, flags | O_NONBLOCK) != -1;
+    int flags = ::fcntl(fd, F_GETFL, 0);
+    return ::fcntl(fd, F_SETFL, flags | O_NONBLOCK) != -1;
     #endif
 }
 
@@ -887,11 +887,11 @@ int32_t SocketBase::SetSocketPriority(int32_t priority){
 
 std::tuple<int32_t, std::string> SocketBase::GetLastError(void){
     #ifdef _WIN32
-    int errorCode = static_cast<int>(WSAGetLastError());
+    int errorCode = static_cast<int>(::WSAGetLastError());
     std::string errStr("");
     #else
     int errorCode = static_cast<int>(errno);
-    std::string errStr = std::string(strerror(errorCode)) + std::string(" ");
+    std::string errStr = std::string(std::strerror(errorCode)) + std::string(" ");
     #endif
     errStr += std::string("(") + std::to_string(errorCode) + std::string(")");
     return std::make_tuple(static_cast<int32_t>(errorCode), errStr);
@@ -899,7 +899,7 @@ std::tuple<int32_t, std::string> SocketBase::GetLastError(void){
 
 int32_t SocketBase::GetLastErrorCode(void){
     #ifdef _WIN32
-    return static_cast<int32_t>(WSAGetLastError());
+    return static_cast<int32_t>(::WSAGetLastError());
     #else
     return static_cast<int32_t>(errno);
     #endif
@@ -907,7 +907,7 @@ int32_t SocketBase::GetLastErrorCode(void){
 
 void SocketBase::ResetLastError(void){
     #ifdef _WIN32
-    WSASetLastError(0);
+    ::WSASetLastError(0);
     #else
     errno = 0;
     #endif
@@ -917,18 +917,18 @@ int32_t SocketBinding::Bind(uint16_t port, std::array<uint8_t,4> ipInterface){
     // convert interface ip to a string pointer, where nullptr means any interface (INADDR_ANY)
     char* ip = nullptr;
     char strIP[16];
-    snprintf(&strIP[0], sizeof(strIP), "%u.%u.%u.%u", ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]);
+    std::snprintf(&strIP[0], sizeof(strIP), "%u.%u.%u.%u", ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]);
     if(ipInterface[0] || ipInterface[1] || ipInterface[2] || ipInterface[3]){
         ip = &strIP[0];
     }
 
     // bind the port
-    struct sockaddr_in addr_this;
-    addr_this.sin_addr.s_addr = ip ? inet_addr(ip) : htonl(INADDR_ANY);
+    ::sockaddr_in addr_this{};
+    addr_this.sin_addr.s_addr = ip ? ::inet_addr(ip) : ::htonl(INADDR_ANY);
     addr_this.sin_family = AF_INET;
-    addr_this.sin_port = htons(port);
+    addr_this.sin_port = ::htons(port);
     int fd = m_socket.load();
-    return static_cast<int32_t>(bind(fd, (struct sockaddr *)&addr_this, sizeof(struct sockaddr_in)));
+    return static_cast<int32_t>(::bind(fd, (::sockaddr*)&addr_this, sizeof(::sockaddr_in)));
 }
 
 int32_t SocketBinding::BindToDevice(std::string deviceName){
@@ -937,26 +937,26 @@ int32_t SocketBinding::BindToDevice(std::string deviceName){
     static_cast<void>(deviceName);
     return 0;
     #else
-    struct ifreq ifr;
+    ::ifreq ifr;
     std::memset(ifr.ifr_name, 0, sizeof(ifr.ifr_name));
-    snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", deviceName.c_str());
+    std::snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", deviceName.c_str());
     return SetOption(SOL_SOCKET, SO_BINDTODEVICE, (const void*)&ifr, sizeof(ifr));
     #endif
 }
 
 bool TCPSocketBase::Open(void){
-    int new_fd = socket(AF_INET, SOCK_STREAM, 0);
+    int new_fd = ::socket(AF_INET, SOCK_STREAM, 0);
     if(new_fd < 0){
         return false;
     }
     int old_fd = m_socket.exchange(new_fd);
     if(old_fd >= 0){
         #ifdef _WIN32
-        static_cast<void>(shutdown(old_fd, SD_BOTH));
-        static_cast<void>(closesocket(old_fd));
+        static_cast<void>(::shutdown(old_fd, SD_BOTH));
+        static_cast<void>(::closesocket(old_fd));
         #else
-        static_cast<void>(shutdown(old_fd, SHUT_RDWR));
-        static_cast<void>(close(old_fd));
+        static_cast<void>(::shutdown(old_fd, SHUT_RDWR));
+        static_cast<void>(::close(old_fd));
         #endif
     }
     return true;
@@ -971,9 +971,9 @@ int32_t TCPSocketBase::Send(uint8_t* bytes, int32_t size){
         return -1;
     }
     #ifdef _WIN32
-    return static_cast<int32_t>(send(fd, reinterpret_cast<const char*>(bytes), size, 0));
+    return static_cast<int32_t>(::send(fd, reinterpret_cast<const char*>(bytes), size, 0));
     #else
-    return static_cast<int32_t>(send(fd, reinterpret_cast<const char*>(bytes), size, MSG_NOSIGNAL));
+    return static_cast<int32_t>(::send(fd, reinterpret_cast<const char*>(bytes), size, MSG_NOSIGNAL));
     #endif
 }
 
@@ -985,7 +985,7 @@ int32_t TCPSocketBase::Receive(uint8_t* bytes, int32_t maxSize){
     if(fd < 0){
         return -1;
     }
-    return static_cast<int32_t>(recv(fd, reinterpret_cast<char*>(bytes), maxSize, 0));
+    return static_cast<int32_t>(::recv(fd, reinterpret_cast<char*>(bytes), maxSize, 0));
 }
 
 int32_t TCPClientSocket::Connect(Address serverAddress){
@@ -993,20 +993,20 @@ int32_t TCPClientSocket::Connect(Address serverAddress){
     if(fd < 0){
         return -1;
     }
-    sockaddr_in addr;
+    ::sockaddr_in addr;
     addr.sin_family = AF_INET;
-    memset((void*) &addr.sin_zero[0], 0, 8);
-    GT_DRIVER_ADDRESS_PORT(addr) = htons(serverAddress.port);
+    std::memset((void*) &addr.sin_zero[0], 0, 8);
+    GT_DRIVER_ADDRESS_PORT(addr) = ::htons(serverAddress.port);
     const uint32_t ip = (static_cast<uint32_t>(serverAddress.ip[0]) << 24) |
                         (static_cast<uint32_t>(serverAddress.ip[1]) << 16) |
                         (static_cast<uint32_t>(serverAddress.ip[2]) << 8) |
                         static_cast<uint32_t>(serverAddress.ip[3]);
-    GT_DRIVER_ADDRESS_IP(addr) = htonl(ip);
-    return static_cast<int32_t>(connect(fd, reinterpret_cast<const struct sockaddr*>(&addr), sizeof(addr)));
+    GT_DRIVER_ADDRESS_IP(addr) = ::htonl(ip);
+    return static_cast<int32_t>(::connect(fd, reinterpret_cast<const ::sockaddr*>(&addr), sizeof(addr)));
 }
 
 bool UDPSocket::Open(void){
-    int new_fd = socket(AF_INET, SOCK_DGRAM, 0);
+    int new_fd = ::socket(AF_INET, SOCK_DGRAM, 0);
     if(new_fd < 0){
         return false;
     }
@@ -1015,17 +1015,17 @@ bool UDPSocket::Open(void){
     #ifdef _WIN32
     BOOL bNewBehavior = FALSE;
     DWORD dwBytesReturned = 0;
-    WSAIoctl(new_fd, _WSAIOW(IOC_VENDOR, 12), &bNewBehavior, sizeof(bNewBehavior), NULL, 0, &dwBytesReturned, NULL, NULL);
+    ::WSAIoctl(new_fd, _WSAIOW(IOC_VENDOR, 12), &bNewBehavior, sizeof(bNewBehavior), NULL, 0, &dwBytesReturned, NULL, NULL);
     #endif
 
     int old_fd = m_socket.exchange(new_fd);
     if(old_fd >= 0){
         #ifdef _WIN32
-        static_cast<void>(shutdown(old_fd, SD_BOTH));
-        static_cast<void>(closesocket(old_fd));
+        static_cast<void>(::shutdown(old_fd, SD_BOTH));
+        static_cast<void>(::closesocket(old_fd));
         #else
-        static_cast<void>(shutdown(old_fd, SHUT_RDWR));
-        static_cast<void>(close(old_fd));
+        static_cast<void>(::shutdown(old_fd, SHUT_RDWR));
+        static_cast<void>(::close(old_fd));
         #endif
     }
 
@@ -1040,16 +1040,16 @@ int32_t UDPSocket::SendTo(Address destination, uint8_t* bytes, int32_t size){
     if(fd < 0){
         return -1;
     }
-    sockaddr_in addr;
+    ::sockaddr_in addr;
     addr.sin_family = AF_INET;
-    memset((void*) &addr.sin_zero[0], 0, 8);
-    GT_DRIVER_ADDRESS_PORT(addr) = htons(destination.port);
+    std::memset((void*) &addr.sin_zero[0], 0, 8);
+    GT_DRIVER_ADDRESS_PORT(addr) = ::htons(destination.port);
     uint32_t ip = (static_cast<uint32_t>(destination.ip[0]) << 24) |
                   (static_cast<uint32_t>(destination.ip[1]) << 16) |
                   (static_cast<uint32_t>(destination.ip[2]) << 8)  |
                   (static_cast<uint32_t>(destination.ip[3]));
-    GT_DRIVER_ADDRESS_IP(addr) = htonl(ip);
-    return static_cast<int32_t>(sendto(fd, reinterpret_cast<const char*>(bytes), size, 0, reinterpret_cast<const struct sockaddr*>(&addr), sizeof(addr)));
+    GT_DRIVER_ADDRESS_IP(addr) = ::htonl(ip);
+    return static_cast<int32_t>(::sendto(fd, reinterpret_cast<const char*>(bytes), size, 0, reinterpret_cast<const ::sockaddr*>(&addr), sizeof(addr)));
 }
 
 int32_t UDPSocket::ReceiveFrom(Address& source, uint8_t* bytes, int32_t maxSize){
@@ -1060,48 +1060,48 @@ int32_t UDPSocket::ReceiveFrom(Address& source, uint8_t* bytes, int32_t maxSize)
     if(fd < 0){
         return -1;
     }
-    sockaddr_in addr{};
+    ::sockaddr_in addr{};
     #ifndef _WIN32
     socklen_t address_size = sizeof(addr);
     #else
     int address_size = sizeof(addr);
     #endif
-    int32_t rx = static_cast<int32_t>(recvfrom(fd, reinterpret_cast<char*>(bytes), maxSize, 0, reinterpret_cast<struct sockaddr*>(&addr), &address_size));
+    int32_t rx = static_cast<int32_t>(::recvfrom(fd, reinterpret_cast<char*>(bytes), maxSize, 0, reinterpret_cast<::sockaddr*>(&addr), &address_size));
     if(rx >= 0){
-        uint32_t u32 = ntohl(GT_DRIVER_ADDRESS_IP(addr));
+        uint32_t u32 = ::ntohl(GT_DRIVER_ADDRESS_IP(addr));
         source.ip[0] = static_cast<uint8_t>(0x000000FF & (u32 >> 24));
         source.ip[1] = static_cast<uint8_t>(0x000000FF & (u32 >> 16));
         source.ip[2] = static_cast<uint8_t>(0x000000FF & (u32 >> 8));
         source.ip[3] = static_cast<uint8_t>(0x000000FF & u32);
-        source.port = static_cast<uint16_t>(ntohs(GT_DRIVER_ADDRESS_PORT(addr)));
+        source.port = static_cast<uint16_t>(::ntohs(GT_DRIVER_ADDRESS_PORT(addr)));
     }
     return rx;
 }
 
 int32_t UDPSocket::SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::string interfaceName, std::array<uint8_t,4> multicastInterfaceAddress){
     #ifdef _WIN32
-    struct ip_mreq mreq = ConvertToMREQ(ipGroup, interfaceName, multicastInterfaceAddress);
+    ::ip_mreq mreq = ConvertToMREQ(ipGroup, interfaceName, multicastInterfaceAddress);
     return SetOption(IPPROTO_IP, IP_MULTICAST_IF, (const void*) &mreq.imr_interface, sizeof(mreq.imr_interface));
     #else
-    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, interfaceName, multicastInterfaceAddress);
+    ::ip_mreqn mreq = ConvertToMREQ(ipGroup, interfaceName, multicastInterfaceAddress);
     return SetOption(IPPROTO_IP, IP_MULTICAST_IF, (const void*) &mreq, sizeof(mreq));
     #endif
 }
 
 int32_t UDPSocket::JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName, std::array<uint8_t,4> multicastInterfaceAddress){
     #ifdef _WIN32
-    struct ip_mreq mreq = ConvertToMREQ(ipGroup, interfaceName, multicastInterfaceAddress);
+    ::ip_mreq mreq = ConvertToMREQ(ipGroup, interfaceName, multicastInterfaceAddress);
     #else
-    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, interfaceName, multicastInterfaceAddress);
+    ::ip_mreqn mreq = ConvertToMREQ(ipGroup, interfaceName, multicastInterfaceAddress);
     #endif
     return SetOption(IPPROTO_IP, IP_ADD_MEMBERSHIP, (const void*) &mreq, sizeof(mreq));
 }
 
 int32_t UDPSocket::LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName, std::array<uint8_t,4> multicastInterfaceAddress){
     #ifdef _WIN32
-    struct ip_mreq mreq = ConvertToMREQ(ipGroup, interfaceName, multicastInterfaceAddress);
+    ::ip_mreq mreq = ConvertToMREQ(ipGroup, interfaceName, multicastInterfaceAddress);
     #else
-    struct ip_mreqn mreq = ConvertToMREQ(ipGroup, interfaceName, multicastInterfaceAddress);
+    ::ip_mreqn mreq = ConvertToMREQ(ipGroup, interfaceName, multicastInterfaceAddress);
     #endif
     return SetOption(IPPROTO_IP, IP_DROP_MEMBERSHIP, (const void*) &mreq, sizeof(mreq));
 }
@@ -1126,36 +1126,36 @@ int32_t UDPSocket::SetMulticastLoop(bool multicastLoop){
 }
 
 #ifdef _WIN32
-struct ip_mreq UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName, std::array<uint8_t,4> multicastInterfaceAddress){
+::ip_mreq UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName, std::array<uint8_t,4> multicastInterfaceAddress){
     // convert group IP to string
     char strGroup[16];
-    snprintf(&strGroup[0], sizeof(strGroup), "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
+    std::snprintf(&strGroup[0], sizeof(strGroup), "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
 
     // convert interface name to string (first try to convert to index)
     char strInterface[16];
     unsigned long index = win32_if_nametoindex(interfaceName);
     if(index){
-        snprintf(&strInterface[0], sizeof(strInterface), "0.0.0.%lu", index);
+        std::snprintf(&strInterface[0], sizeof(strInterface), "0.0.0.%lu", index);
     }
     else{
-        snprintf(&strInterface[0], sizeof(strInterface), "%u.%u.%u.%u", multicastInterfaceAddress[0], multicastInterfaceAddress[1], multicastInterfaceAddress[2], multicastInterfaceAddress[3]);
+        std::snprintf(&strInterface[0], sizeof(strInterface), "%u.%u.%u.%u", multicastInterfaceAddress[0], multicastInterfaceAddress[1], multicastInterfaceAddress[2], multicastInterfaceAddress[3]);
     }
 
     // create structure
-    struct ip_mreq result;
-    result.imr_multiaddr.s_addr = inet_addr(strGroup);
-    result.imr_interface.s_addr = inet_addr(strInterface);
+    ::ip_mreq result;
+    result.imr_multiaddr.s_addr = ::inet_addr(strGroup);
+    result.imr_interface.s_addr = ::inet_addr(strInterface);
     return result;
 }
 #else
-struct ip_mreqn UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName, std::array<uint8_t,4> multicastInterfaceAddress){
+::ip_mreqn UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName, std::array<uint8_t,4> multicastInterfaceAddress){
     // convert group IP to string
     char strGroup[16];
-    snprintf(&strGroup[0], sizeof(strGroup), "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
+    std::snprintf(&strGroup[0], sizeof(strGroup), "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
 
     // convert interface IP to string
     char strInterface[16];
-    snprintf(&strInterface[0], sizeof(strInterface), "%u.%u.%u.%u", multicastInterfaceAddress[0], multicastInterfaceAddress[1], multicastInterfaceAddress[2], multicastInterfaceAddress[3]);
+    std::snprintf(&strInterface[0], sizeof(strInterface), "%u.%u.%u.%u", multicastInterfaceAddress[0], multicastInterfaceAddress[1], multicastInterfaceAddress[2], multicastInterfaceAddress[3]);
 
     // set interface index based on interface name
     int index = 0;
@@ -1164,9 +1164,9 @@ struct ip_mreqn UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, c
     }
 
     // create structure
-    struct ip_mreqn result;
-    result.imr_multiaddr.s_addr = inet_addr(strGroup);
-    result.imr_address.s_addr = inet_addr(strInterface);
+    ::ip_mreqn result;
+    result.imr_multiaddr.s_addr = ::inet_addr(strGroup);
+    result.imr_address.s_addr = ::inet_addr(strInterface);
     result.imr_ifindex = index;
     return result;
 }
@@ -1179,7 +1179,7 @@ int32_t UDPSocket::win32_if_nametoindex(std::string name){
     PIP_ADAPTER_INFO pAdapter;
     DWORD dwSize = 0;
     if(GetAdaptersInfo(pAdapterInfo, &dwSize) == ERROR_BUFFER_OVERFLOW){
-        pAdapterInfo = (PIP_ADAPTER_INFO)malloc(dwSize);
+        pAdapterInfo = (PIP_ADAPTER_INFO)::malloc(dwSize);
     }
     if(GetAdaptersInfo(pAdapterInfo, &dwSize) == NO_ERROR){
         pAdapter = pAdapterInfo;
@@ -1193,7 +1193,7 @@ int32_t UDPSocket::win32_if_nametoindex(std::string name){
         }
     }
     if(pAdapterInfo){
-        free(pAdapterInfo);
+        ::free(pAdapterInfo);
     }
     return result;
 }
@@ -1238,16 +1238,16 @@ bool UDPServiceConfiguration::operator==(const UDPServiceConfiguration& rhs) con
 }
 
 UDPService::UDPService(){
-    pthread_mutexattr_t attr;
-    pthread_mutexattr_init(&attr);
-    pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
-    pthread_mutex_init(&m_mtxSocket, &attr);
-    pthread_mutexattr_destroy(&attr);
+    ::pthread_mutexattr_t attr;
+    ::pthread_mutexattr_init(&attr);
+    ::pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
+    ::pthread_mutex_init(&m_mtxSocket, &attr);
+    ::pthread_mutexattr_destroy(&attr);
 }
 
 UDPService::~UDPService(){
     Destroy();
-    pthread_mutex_destroy(&m_mtxSocket);
+    ::pthread_mutex_destroy(&m_mtxSocket);
 }
 
 bool UDPService::Create(UDPServiceConfiguration desiredConf){
@@ -1474,7 +1474,7 @@ void UDPService::UpdateMulticastGroups(std::vector<std::array<uint8_t,4>> multic
 }
 
 void UDPService::RemoveInvalidGroupAddresses(std::vector<std::array<uint8_t,4>>& groupAddresses) const {
-    for(size_t k = 0; k < groupAddresses.size();){
+    for(std::size_t k = 0; k < groupAddresses.size();){
         if((groupAddresses[k][0] < 224) || (groupAddresses[k][0] > 239)){
             groupAddresses.erase(groupAddresses.begin() + k);
             continue;
@@ -1484,9 +1484,9 @@ void UDPService::RemoveInvalidGroupAddresses(std::vector<std::array<uint8_t,4>>&
 }
 
 void UDPService::MakeUnique(std::vector<std::array<uint8_t,4>>& groupAddresses) const {
-    for(size_t k = 0; k < groupAddresses.size();){
+    for(std::size_t k = 0; k < groupAddresses.size();){
         bool addressAlreadyExists = false;
-        for(size_t i = 0; (i < k) && !addressAlreadyExists; ++i){
+        for(std::size_t i = 0; (i < k) && !addressAlreadyExists; ++i){
             addressAlreadyExists = (groupAddresses[i] == groupAddresses[k]);
         }
         if(addressAlreadyExists){
@@ -1604,16 +1604,16 @@ bool TCPClientServiceConfiguration::operator==(const TCPClientServiceConfigurati
 }
 
 TCPClientService::TCPClientService(){
-    pthread_mutexattr_t attr;
-    pthread_mutexattr_init(&attr);
-    pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
-    pthread_mutex_init(&m_mtxIO, &attr);
-    pthread_mutexattr_destroy(&attr);
+    ::pthread_mutexattr_t attr;
+    ::pthread_mutexattr_init(&attr);
+    ::pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
+    ::pthread_mutex_init(&m_mtxIO, &attr);
+    ::pthread_mutexattr_destroy(&attr);
 }
 
 TCPClientService::~TCPClientService(){
     Destroy();
-    pthread_mutex_destroy(&m_mtxIO);
+    ::pthread_mutex_destroy(&m_mtxIO);
 }
 
 bool TCPClientService::Create(TCPClientServiceConfiguration conf){
@@ -1946,7 +1946,7 @@ void AsyncThermalZoneReader::ReadThread(double pollingInterval){
     constexpr double maxInterval = 10.0;
     pollingInterval = std::isfinite(pollingInterval) ? std::clamp(pollingInterval, minInterval, maxInterval) : minInterval;
     while(!m_terminate.load(std::memory_order_acquire)){
-        for(size_t i = 0; i < m_temperatures.size(); ++i){
+        for(std::size_t i = 0; i < m_temperatures.size(); ++i){
             double tempData = std::numeric_limits<double>::quiet_NaN();
             if(m_tempFiles[i].is_open()){
                 m_tempFiles[i].clear();

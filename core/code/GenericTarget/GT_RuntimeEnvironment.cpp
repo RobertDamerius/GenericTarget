@@ -63,7 +63,7 @@ int RuntimeEnvironment::Main(int argc, char** argv){
     if(!SetupSemaphore()) return exit_code::SemaphoreInitFailed;
 
     // set file mode creation mask globally
-    umask(0000);
+    ::umask(0000);
 
     // start real-time application
     PrintHeader();
@@ -99,8 +99,8 @@ int RuntimeEnvironment::Main(int argc, char** argv){
 }
 
 bool RuntimeEnvironment::SetupMemoryLocking(void){
-    if(mlockall(MCL_CURRENT | MCL_FUTURE) < 0){ // lock memory pages to prevent swapping
-        GENERIC_TARGET_PRINT_ERROR("Failed to setup memory locking: {}\n", strerror(errno));
+    if(::mlockall(MCL_CURRENT | MCL_FUTURE) < 0){ // lock memory pages to prevent swapping
+        GENERIC_TARGET_PRINT_ERROR("Failed to setup memory locking: {}\n", std::strerror(errno));
         #if !defined(DEBUG)
         return false;
         #endif
@@ -110,24 +110,30 @@ bool RuntimeEnvironment::SetupMemoryLocking(void){
 
 bool RuntimeEnvironment::SetupSignalHandlers(void){
     // crash handler
-    struct sigaction action{};
+    struct ::sigaction action{};
     action.sa_handler = CrashHandler;
-    sigemptyset(&action.sa_mask);
+    if(::sigemptyset(&action.sa_mask) == -1){
+        GENERIC_TARGET_PRINT_ERROR("Failed to initialize signal set: {}\n", std::strerror(errno));
+        return false;
+    }
     action.sa_flags = SA_RESETHAND;
     constexpr int signals[] = {SIGSEGV, SIGABRT, SIGBUS, SIGILL, SIGFPE};
     for(int sig : signals){
-        if(sigaction(sig, &action, nullptr) < 0){
-            GENERIC_TARGET_PRINT_ERROR("Failed to register crash handler for signal {}\n", sig);
+        if(::sigaction(sig, &action, nullptr) == -1){
+            GENERIC_TARGET_PRINT_ERROR("Failed to register crash handler for signal {}: {}\n", sig, std::strerror(errno));
             return false;
         }
     }
 
     // interrupt/termination handler
-    struct sigaction actionIntTerm{};
+    struct ::sigaction actionIntTerm{};
     actionIntTerm.sa_handler = SignalHandler;
-    sigemptyset(&actionIntTerm.sa_mask);
-    if(sigaction(SIGINT, &actionIntTerm, nullptr) < 0 || sigaction(SIGTERM, &actionIntTerm, nullptr) < 0){
-        GENERIC_TARGET_PRINT_ERROR("Failed to register SIGINT/SIGTERM handlers\n");
+    if(::sigemptyset(&actionIntTerm.sa_mask) == -1){
+        GENERIC_TARGET_PRINT_ERROR("Failed to initialize signal set: {}\n", std::strerror(errno));
+        return false;
+    }
+    if((::sigaction(SIGINT, &actionIntTerm, nullptr) == -1) || (::sigaction(SIGTERM, &actionIntTerm, nullptr) == -1)){
+        GENERIC_TARGET_PRINT_ERROR("Failed to register SIGINT/SIGTERM handlers: {}\n", std::strerror(errno));
         return false;
     }
     return true;
@@ -161,7 +167,7 @@ void RuntimeEnvironment::CrashHandler(const int signal) noexcept {
         case SIGFPE:  sigName = "SIGFPE (Floating-point exception)"; break;
         default: break;
     }
-    ssize_t discarded;
+    ::ssize_t discarded;
     discarded = ::write(STDERR_FILENO, banner.data(), banner.size());
     discarded = ::write(STDERR_FILENO, prefix.data(), prefix.size());
     discarded = ::write(STDERR_FILENO, sigName.data(), sigName.size());
@@ -180,10 +186,10 @@ void RuntimeEnvironment::CrashHandler(const int signal) noexcept {
 
 void RuntimeEnvironment::PrintHeader(void){
     auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
-    GENERIC_TARGET_PRINT_RAW("==========================================================================\n[{:%Y-%m-%d %H:%M:%S} UTC] >>> TARGET START (PID: {})\n==========================================================================\n\n", utc_time, getpid());
+    GENERIC_TARGET_PRINT_RAW("==========================================================================\n[{:%Y-%m-%d %H:%M:%S} UTC] >>> TARGET START (PID: {})\n==========================================================================\n\n", utc_time, ::getpid());
 }
 
 void RuntimeEnvironment::PrintFooter(void){
     auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
-    GENERIC_TARGET_PRINT_RAW("--------------------------------------------------------------------------\n[{:%Y-%m-%d %H:%M:%S} UTC] <<< TARGET STOP (PID: {})\n==========================================================================\n", utc_time, getpid());
+    GENERIC_TARGET_PRINT_RAW("--------------------------------------------------------------------------\n[{:%Y-%m-%d %H:%M:%S} UTC] <<< TARGET STOP (PID: {})\n==========================================================================\n", utc_time, ::getpid());
 }

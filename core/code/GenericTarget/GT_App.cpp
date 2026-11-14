@@ -103,14 +103,14 @@ std::string App::GetAbsoluteApplicationPath(void){
 
 void App::OpenSocket(const std::string_view& socketName){
     // validate socket name length
-    struct sockaddr_un addr{};
-    const size_t max_name_len = sizeof(addr.sun_path) - 1;
+    ::sockaddr_un addr{};
+    const std::size_t max_name_len = sizeof(addr.sun_path) - 1;
     if(socketName.empty() || socketName.size() > max_name_len){
         throw std::runtime_error(std::format("Invalid application socket name length: expected at most {} bytes, got {}\n", max_name_len, socketName.size()));
     }
 
     // create abstract socket
-    m_socket = socket(AF_UNIX, SOCK_STREAM, 0);
+    m_socket = ::socket(AF_UNIX, SOCK_STREAM, 0);
     if(m_socket < 0){
         throw std::system_error(errno, std::generic_category(), "Failed to create application socket");
     }
@@ -119,8 +119,8 @@ void App::OpenSocket(const std::string_view& socketName){
     addr.sun_family = AF_UNIX;
     addr.sun_path[0] = '\0';
     std::memcpy(addr.sun_path + 1, socketName.data(), socketName.size());
-    socklen_t addr_len = static_cast<socklen_t>(offsetof(struct sockaddr_un, sun_path) + 1 + socketName.size());
-    if(bind(m_socket, reinterpret_cast<struct sockaddr*>(&addr), addr_len) < 0){
+    socklen_t addr_len = static_cast<socklen_t>(offsetof(::sockaddr_un, sun_path) + 1 + socketName.size());
+    if(::bind(m_socket, reinterpret_cast<::sockaddr*>(&addr), addr_len) < 0){
         const int errorCode = errno;
         if(errorCode == EADDRINUSE){
             throw std::system_error(errorCode, std::generic_category(), "Another instance of this application is already running");
@@ -134,7 +134,7 @@ void App::OpenSocket(const std::string_view& socketName){
 void App::CloseSocket(void){
     if(m_socket >= 0){
         GENERIC_TARGET_PRINT_INFO("Destroying application socket\n");
-        if(close(m_socket) < 0){
+        if(::close(m_socket) < 0){
             GENERIC_TARGET_PRINT_ERROR("Failed to close application socket: {}\n", std::strerror(errno));
         }
         m_socket = -1;
@@ -142,8 +142,8 @@ void App::CloseSocket(void){
 }
 
 void App::PrintInfo(void){
-    struct utsname info{};
-    if(uname(&info) == -1){
+    ::utsname info{};
+    if(::uname(&info) == -1){
         GENERIC_TARGET_PRINT_WARNING("Failed to get operating system information: {}\n", std::strerror(errno));
     } else {
         GENERIC_TARGET_PRINT_RAW("sysname:                  {}\n", info.sysname);
@@ -155,23 +155,23 @@ void App::PrintInfo(void){
         GENERIC_TARGET_PRINT_RAW("domainname:               {}\n", info.domainname);
         #endif
     }
-    struct if_nameindex *if_ni, *i;
-    if_ni = if_nameindex();
+    struct ::if_nameindex *if_ni, *i;
+    if_ni = ::if_nameindex();
     if(if_ni){
         GENERIC_TARGET_PRINT_RAW("network interfaces:       ");
         for(i = if_ni; !(i->if_index == 0 && i->if_name == nullptr); i++){
             GENERIC_TARGET_PRINT_RAW("[{}]", i->if_name);
         }
         GENERIC_TARGET_PRINT_RAW("\n");
-        if_freenameindex(if_ni);
+        ::if_freenameindex(if_ni);
     }
     GENERIC_TARGET_PRINT_RAW("\n");
     GENERIC_TARGET_PRINT_RAW("Generic Target Version:   {}\n", gt::version);
     GENERIC_TARGET_PRINT_RAW("Compiler Version:         {}\n", gt::compilerVersion);
     GENERIC_TARGET_PRINT_RAW("Application Path:         {}\n", GetAbsoluteApplicationPath());
     GENERIC_TARGET_PRINT_RAW("Arguments:               "); for(size_t i = 0; i < args.size(); i++){ GENERIC_TARGET_PRINT_RAW(" [{}]", args[i]); } GENERIC_TARGET_PRINT_RAW("\n");
-    GENERIC_TARGET_PRINT_RAW("Maximum thread priority:  {}\n", sched_get_priority_max(SCHED_FIFO));
-    GENERIC_TARGET_PRINT_RAW("Minimum thread priority:  {}\n", sched_get_priority_min(SCHED_FIFO));
+    GENERIC_TARGET_PRINT_RAW("Maximum thread priority:  {}\n", ::sched_get_priority_max(SCHED_FIFO));
+    GENERIC_TARGET_PRINT_RAW("Minimum thread priority:  {}\n", ::sched_get_priority_min(SCHED_FIFO));
     GENERIC_TARGET_PRINT_RAW("\n");
     GENERIC_TARGET_PRINT_RAW("modelName:                {}\n", SimulinkInterface::modelName);
     GENERIC_TARGET_PRINT_RAW("targetSocketName:         {}\n", SimulinkInterface::targetSocketName);

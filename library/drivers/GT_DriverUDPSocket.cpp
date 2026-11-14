@@ -9,7 +9,7 @@
 
 
 #if defined(_WIN32) && !defined(GENERIC_TARGET_IMPLEMENTATION)
-static WSADATA gt_driver_wsa_data;
+static ::WSADATA gt_driver_wsa_data;
 #endif
 
 
@@ -20,8 +20,8 @@ gt::driver::UDPServiceManager udpServiceManager;
 
 void GT_DriverUDPSocketInitialize(int32_t port, uint8_t* deviceName, uint32_t deviceNameLength, int32_t socketPriority, uint8_t allowBroadcast, uint8_t allowZeroLengthMessage, uint8_t multicastAll, uint8_t multicastLoop, uint8_t multicastTTL, uint8_t* multicastInterfaceAddress){
     #if defined(_WIN32) && !defined(GENERIC_TARGET_IMPLEMENTATION)
-    if((WSAStartup(MAKEWORD(2, 2), &gt_driver_wsa_data)) || (LOBYTE(gt_driver_wsa_data.wVersion) != 2) || (HIBYTE(gt_driver_wsa_data.wVersion) != 2)){
-        fprintf(stderr, "ERROR: Failed to setup network for windows OS! WSAStartup(2,2) failed!\n");
+    if((::WSAStartup(MAKEWORD(2, 2), &gt_driver_wsa_data)) || (LOBYTE(gt_driver_wsa_data.wVersion) != 2) || (HIBYTE(gt_driver_wsa_data.wVersion) != 2)){
+        std::fprintf(stderr, "ERROR: Failed to setup network for windows OS! WSAStartup(2,2) failed!\n");
     }
     #endif
     gt::driver::UDPServiceConfiguration conf;
@@ -56,7 +56,7 @@ void GT_DriverUDPSocketInitialize(int32_t port, uint8_t* deviceName, uint32_t de
 void GT_DriverUDPSocketTerminate(int32_t port){
     udpServiceManager.ClearAllServices();
     #if defined(_WIN32) && !defined(GENERIC_TARGET_IMPLEMENTATION)
-    WSACleanup();
+    ::WSACleanup();
     #endif
     static_cast<void>(port);
 }

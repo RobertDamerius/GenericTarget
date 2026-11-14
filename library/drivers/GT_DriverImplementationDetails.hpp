@@ -29,13 +29,13 @@ namespace gt::driver {
  */
 class LockGuard {
     public:
-        explicit LockGuard(pthread_mutex_t& mutex) : m_mtx(&mutex){ pthread_mutex_lock(m_mtx); }
-        ~LockGuard(){ pthread_mutex_unlock(m_mtx); }
+        explicit LockGuard(::pthread_mutex_t& mutex) : m_mtx(&mutex){ ::pthread_mutex_lock(m_mtx); }
+        ~LockGuard(){ ::pthread_mutex_unlock(m_mtx); }
         LockGuard(const LockGuard&) = delete;
         LockGuard& operator=(const LockGuard&) = delete;
 
     private:
-        pthread_mutex_t* m_mtx;
+        ::pthread_mutex_t* m_mtx;
 };
 
 
@@ -82,7 +82,7 @@ class Event {
         std::condition_variable m_cv;   // The condition variable used for event notification.
         bool m_notified{false};         // A boolean flag to prevent spurious wakeups.
         #elif defined(__linux__)
-        sem_t m_sem;                    // The semaphore used for event notification.
+        ::sem_t m_sem;                    // The semaphore used for event notification.
         #endif
 };
 
@@ -161,7 +161,7 @@ class DataRecorderBase {
         virtual void Write(double timestamp, void* data, uint32_t numValues) = 0;
 
     protected:
-        size_t m_numSamplesPerFile{0};          // Number of samples per file. If this value is zero, all samples are written to a single file.
+        std::size_t m_numSamplesPerFile{0};     // Number of samples per file. If this value is zero, all samples are written to a single file.
         uint32_t m_numSignals{0};               // Number of scalar values.
         uint32_t m_numBytesPerSample{0};        // Number of bytes per sample.
         std::string m_labels;                   // Signal labels.
@@ -174,9 +174,9 @@ class DataRecorderBase {
         Event m_event;                          // Event for thread notification.
         std::atomic<bool> m_terminate{false};   // Flag for thread termination.
         uint32_t m_currentFileNumber{0};        // The current filenumber.
-        size_t m_numSamplesWritten{0};          // Number of samples that have been written to the current file.
+        std::size_t m_numSamplesWritten{0};     // Number of samples that have been written to the current file.
         bool m_currentFileStarted{false};       // True if header for current file has been written successfully, false otherwise.
-        size_t m_filePosition{0};               // Byte offset within the current file where the next sample will be written (start of SampleData after a new header).
+        std::size_t m_filePosition{0};          // Byte offset within the current file where the next sample will be written (start of SampleData after a new header).
 
         /**
          * @brief Get the current filename based on @ref m_filename and @ref m_currentFileNumber.
@@ -206,23 +206,23 @@ template <typename T> class DataRecorderTemplate: public DataRecorderBase {
          * @brief Construct a new data recorder template.
          */
         DataRecorderTemplate(){
-            pthread_mutexattr_t attr;
-            pthread_mutexattr_init(&attr);
-            pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
-            pthread_mutex_init(&m_mtxBuffer, &attr);
-            pthread_mutexattr_destroy(&attr);
+            ::pthread_mutexattr_t attr;
+            ::pthread_mutexattr_init(&attr);
+            ::pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
+            ::pthread_mutex_init(&m_mtxBuffer, &attr);
+            ::pthread_mutexattr_destroy(&attr);
         }
 
         /**
          * @brief Destroy the data recorder template.
          */
         ~DataRecorderTemplate(){
-            pthread_mutex_destroy(&m_mtxBuffer);
+            ::pthread_mutex_destroy(&m_mtxBuffer);
         }
 
     protected:
-        std::vector<T> m_buffer;       // Buffering of values to be written to file.
-        pthread_mutex_t m_mtxBuffer;   // Protect the @ref m_buffer.
+        std::vector<T> m_buffer;         // Buffering of values to be written to file.
+        ::pthread_mutex_t m_mtxBuffer;   // Protect the @ref m_buffer.
 
         /**
          * @brief Write header data to a file.
@@ -766,9 +766,9 @@ class UDPSocket: public SocketBinding {
          * @return ip_mreq structure under windows and ip_mreqn under linux.
          */
         #ifdef _WIN32
-        struct ip_mreq ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName, std::array<uint8_t,4> multicastInterfaceAddress);
+        ::ip_mreq ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName, std::array<uint8_t,4> multicastInterfaceAddress);
         #else
-        struct ip_mreqn ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName, std::array<uint8_t,4> multicastInterfaceAddress);
+        ::ip_mreqn ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName, std::array<uint8_t,4> multicastInterfaceAddress);
         #endif
 
         /**
@@ -884,7 +884,7 @@ class UDPService {
 
     private:
         UDPSocket m_udpSocket;                                        // Internal socket object for UDP operation.
-        pthread_mutex_t m_mtxSocket;                                  // Protect the @ref m_udpSocket.
+        ::pthread_mutex_t m_mtxSocket;                                // Protect the @ref m_udpSocket.
         UDPServiceConfiguration m_activeConf;                         // The active configuration in use.
         bool m_activeConfSet{false};                                  // True if @ref m_activeConf has already been set.
         std::atomic<int32_t> m_latestErrorCode{0};                    // Stores the latest socket error code.
@@ -1078,7 +1078,7 @@ class TCPClientService {
 
     private:
         TCPClientSocket m_tcpSocket;                  // Internal socket object for TCP client operation.
-        pthread_mutex_t m_mtxIO;                      // Ensure safe send and receive operations. Protects @ref m_isConnected and @ref m_commandedAddress.
+        ::pthread_mutex_t m_mtxIO;                    // Ensure safe send and receive operations. Protects @ref m_isConnected and @ref m_commandedAddress.
         TCPClientServiceConfiguration m_activeConf;   // The active configuration in use.
         std::atomic<bool> m_terminate{false};         // Flag for thread termination.
         bool m_isCreated{false};                      // True if this service has already been created, false otherwise.
