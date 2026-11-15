@@ -7,12 +7,12 @@
 /**
  * @brief Initialize the driver.
  */
-extern void GT_DriverTaskExecutionTimeInitialize(void);
+extern void GT_DriverTaskExecutionTimeInitialize();
 
 /**
  * @brief Terminate the driver.
  */
-extern void GT_DriverTaskExecutionTimeTerminate(void);
+extern void GT_DriverTaskExecutionTimeTerminate();
 
 /**
  * @brief Perform one step of the driver.

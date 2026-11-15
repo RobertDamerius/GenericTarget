@@ -4,16 +4,16 @@
 #endif
 
 
-void GT_DriverNumCPUOverloadsInitialize(void){}
+void GT_DriverNumCPUOverloadsInitialize(){}
 
-void GT_DriverNumCPUOverloadsTerminate(void){}
+void GT_DriverNumCPUOverloadsTerminate(){}
 
 void GT_DriverNumCPUOverloadsStep(uint64_t* numCPUOverloads, uint64_t* numLostTicks){
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
         *numCPUOverloads = gt::RuntimeEnvironment::GetNumCPUOverloads();
         *numLostTicks = gt::RuntimeEnvironment::GetNumLostTicks();
     #else
-        *numCPUOverloads = 0;
-        *numLostTicks = 0;
+        *numCPUOverloads = 0U;
+        *numLostTicks = 0U;
     #endif
 }

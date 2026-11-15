@@ -7,12 +7,12 @@
 /**
  * @brief Initialize the driver.
  */
-extern void GT_DriverNumCPUOverloadsInitialize(void);
+extern void GT_DriverNumCPUOverloadsInitialize();
 
 /**
  * @brief Terminate the driver.
  */
-extern void GT_DriverNumCPUOverloadsTerminate(void);
+extern void GT_DriverNumCPUOverloadsTerminate();
 
 /**
  * @brief Perform one step of the driver.

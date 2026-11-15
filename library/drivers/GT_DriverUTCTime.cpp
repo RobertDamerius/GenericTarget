@@ -2,9 +2,9 @@
 #include <chrono>
 
 
-void GT_DriverUTCTimeInitialize(void){}
+void GT_DriverUTCTimeInitialize(){}
 
-void GT_DriverUTCTimeTerminate(void){}
+void GT_DriverUTCTimeTerminate(){}
 
 void GT_DriverUTCTimeStep(int32_t* nanoseconds, int32_t* second, int32_t* minute, int32_t* hour, int32_t* mday, int32_t* month, int32_t* year, int32_t* wday, int32_t* yday, int32_t* isdst){
     auto timePoint = std::chrono::system_clock::now();

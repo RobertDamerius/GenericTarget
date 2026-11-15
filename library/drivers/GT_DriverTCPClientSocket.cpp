@@ -27,7 +27,7 @@ void GT_DriverTCPClientSocketInitialize(int32_t port, uint8_t* deviceName, uint3
     gt::driver::TCPClientServiceConfiguration conf;
     conf.port = port;
     conf.deviceName.clear();
-    for(uint32_t n = 0; n < deviceNameLength; ++n){
+    for(uint32_t n = 0U; n < deviceNameLength; ++n){
         char c = static_cast<char>(deviceName[n]);
         if(c >= ' '){
             conf.deviceName.push_back(c);
@@ -53,7 +53,7 @@ void GT_DriverTCPClientSocketTerminate(int32_t port){
 }
 
 void GT_DriverTCPClientSocketStep(int32_t port, uint8_t tfSendReceive, int32_t rxBufferSize, uint8_t* bytesReceived, int32_t* result, int32_t* lastErrorCode, uint8_t* isConnected, uint8_t* destinationIP, uint16_t destinationPort, uint8_t manageConnection, uint8_t* bytesToSend, int32_t numBytesToSend){
-    gt::driver::Address serverAddress(destinationIP[0], destinationIP[1], destinationIP[2], destinationIP[3], destinationPort);
+    gt::driver::Address serverAddress(destinationIP[0U], destinationIP[1U], destinationIP[2U], destinationIP[3U], destinationPort);
     if(tfSendReceive){
         std::tie(*result, *lastErrorCode, *isConnected) = tcpClientServiceManager.Send(port, serverAddress, manageConnection, bytesToSend, numBytesToSend);
     }

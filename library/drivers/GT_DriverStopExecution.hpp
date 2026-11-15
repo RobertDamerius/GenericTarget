@@ -7,12 +7,12 @@
 /**
  * @brief Initialize the driver.
  */
-extern void GT_DriverStopExecutionInitialize(void);
+extern void GT_DriverStopExecutionInitialize();
 
 /**
  * @brief Terminate the driver.
  */
-extern void GT_DriverStopExecutionTerminate(void);
+extern void GT_DriverStopExecutionTerminate();
 
 /**
  * @brief Perform one step of the driver.

@@ -4,12 +4,12 @@
 /**
  * @brief Initialize the driver.
  */
-extern void GT_DriverUnixTimeInitialize(void);
+extern void GT_DriverUnixTimeInitialize();
 
 /**
  * @brief Terminate the driver.
  */
-extern void GT_DriverUnixTimeTerminate(void);
+extern void GT_DriverUnixTimeTerminate();
 
 /**
  * @brief Perform one step of the driver.

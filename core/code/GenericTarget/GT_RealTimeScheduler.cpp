@@ -31,7 +31,7 @@ RealTimeScheduler::RealTimeScheduler(){
     // set master thread priority
     ::sched_param param;
     param.sched_priority = gt::basePriority;
-    if(::pthread_setschedparam(m_masterThread.native_handle(), SCHED_FIFO, &param) != 0){
+    if(::pthread_setschedparam(m_masterThread.native_handle(), SCHED_FIFO, &param) == -1){
         std::string msg = std::format("Failed to set thread priority {} of real-time scheduler (sampletime={})",
             gt::basePriority,
             SimulinkInterface::baseSampleTime);
@@ -50,7 +50,7 @@ RealTimeScheduler::~RealTimeScheduler(){
     // check and print overloads
     uint64_t numCPUOverloads = m_timer.GetNumCPUOverloads();
     uint64_t numLostTicks = m_timer.GetNumLostTicks();
-    if((numCPUOverloads != 0ULL) || (numLostTicks != 0ULL)){
+    if((numCPUOverloads != uint64_t{0U}) || (numLostTicks != uint64_t{0U})){
         GENERIC_TARGET_PRINT_ERROR("Master thread stopped with overloads ({} CPU overloads, {} lost ticks)\n", numCPUOverloads, numLostTicks);
     }
 
@@ -58,11 +58,11 @@ RealTimeScheduler::~RealTimeScheduler(){
     m_tasks.clear();
 }
 
-void RealTimeScheduler::Execute(void){
+void RealTimeScheduler::Execute(){
     m_executionSemaphore.Post();
 }
 
-void RealTimeScheduler::Shutdown(void){
+void RealTimeScheduler::Shutdown(){
     m_terminate.store(true, std::memory_order_release);
     m_executionSemaphore.Post();
     m_timer.Cancel();
@@ -74,7 +74,7 @@ void RealTimeScheduler::Shutdown(void){
     }
 }
 
-void RealTimeScheduler::MasterThread(void){
+void RealTimeScheduler::MasterThread(){
     // wait for start event
     m_executionSemaphore.Wait();
     if(m_terminate.load(std::memory_order_acquire)){
@@ -112,15 +112,15 @@ void RealTimeScheduler::MasterThread(void){
     m_timer.Stop();
 }
 
-double RealTimeScheduler::GetModelExecutionTime(void) const {
+double RealTimeScheduler::GetModelExecutionTime() const {
     return std::chrono::duration<double>(std::chrono::steady_clock::now() - m_timeOfStart.load(std::memory_order_acquire)).count();
 }
 
-uint64_t RealTimeScheduler::GetNumCPUOverloads(void) const {
+uint64_t RealTimeScheduler::GetNumCPUOverloads() const {
     return m_timer.GetNumCPUOverloads();
 }
 
-uint64_t RealTimeScheduler::GetNumLostTicks(void) const {
+uint64_t RealTimeScheduler::GetNumLostTicks() const {
     return m_timer.GetNumLostTicks();
 }
 
@@ -132,6 +132,6 @@ double RealTimeScheduler::GetTaskExecutionTime(const int taskID) const {
 
 uint64_t RealTimeScheduler::GetNumTaskOverloads(const int taskID) const {
     if((taskID < 0) || (static_cast<std::size_t>(taskID) >= m_tasks.size()) || !m_tasks[taskID])
-        return uint64_t{0};
+        return 0U;
     return m_tasks[taskID]->GetNumTaskOverloads();
 }

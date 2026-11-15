@@ -4,12 +4,12 @@
 /**
  * @brief Initialize the driver.
  */
-extern void GT_DriverUTCTimestampInitialize(void);
+extern void GT_DriverUTCTimestampInitialize();
 
 /**
  * @brief Terminate the driver.
  */
-extern void GT_DriverUTCTimestampTerminate(void);
+extern void GT_DriverUTCTimestampTerminate();
 
 /**
  * @brief Perform one step of the driver.

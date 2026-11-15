@@ -4,12 +4,12 @@
 /**
  * @brief Initialize the driver.
  */
-extern void GT_DriverModelExecutionTimeInitialize(void);
+extern void GT_DriverModelExecutionTimeInitialize();
 
 /**
  * @brief Terminate the driver.
  */
-extern void GT_DriverModelExecutionTimeTerminate(void);
+extern void GT_DriverModelExecutionTimeTerminate();
 
 /**
  * @brief Perform one step of the driver.

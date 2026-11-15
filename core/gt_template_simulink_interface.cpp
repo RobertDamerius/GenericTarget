@@ -2,16 +2,16 @@
 #include <SimulinkCodeGeneration/SimulinkInterface.hpp>
 
 
-$NAME_OF_CLASS$& SimulinkInterface::GetModelInstance(void){
+$NAME_OF_CLASS$& SimulinkInterface::GetModelInstance(){
     static $NAME_OF_CLASS$ instance;
     return instance;
 }
 
-void SimulinkInterface::Initialize(void){
+void SimulinkInterface::Initialize(){
     GetModelInstance().$CODE_INFO_INITIALIZE$();
 }
 
-void SimulinkInterface::Terminate(void){
+void SimulinkInterface::Terminate(){
     GetModelInstance().$CODE_INFO_TERMINATE$();
 }
 

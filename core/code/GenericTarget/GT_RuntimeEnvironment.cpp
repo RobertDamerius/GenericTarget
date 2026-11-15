@@ -5,32 +5,32 @@ using namespace gt;
 std::unique_ptr<App> RuntimeEnvironment::s_app{nullptr};
 
 
-Semaphore& RuntimeEnvironment::GetTerminationSemaphore(void){
+Semaphore& RuntimeEnvironment::GetTerminationSemaphore(){
     static Semaphore instance;
     return instance;
 }
 
-void RuntimeEnvironment::RequestStop(void) noexcept {
+void RuntimeEnvironment::RequestStop() noexcept {
     GetTerminationSemaphore().Post();
 }
 
-double RuntimeEnvironment::GetModelExecutionTime(void) noexcept {
+double RuntimeEnvironment::GetModelExecutionTime() noexcept {
     if(s_app == nullptr){
         return 0.0;
     }
     return s_app->GetModelExecutionTime();
 }
 
-uint64_t RuntimeEnvironment::GetNumCPUOverloads(void) noexcept {
+uint64_t RuntimeEnvironment::GetNumCPUOverloads() noexcept {
     if(s_app == nullptr){
-        return uint64_t{0ULL};
+        return 0U;
     }
     return s_app->GetNumCPUOverloads();
 }
 
-uint64_t RuntimeEnvironment::GetNumLostTicks(void) noexcept {
+uint64_t RuntimeEnvironment::GetNumLostTicks() noexcept {
     if(s_app == nullptr){
-        return uint64_t{0ULL};
+        return 0U;
     }
     return s_app->GetNumLostTicks();
 }
@@ -44,12 +44,12 @@ double RuntimeEnvironment::GetTaskExecutionTime(const int taskID) noexcept {
 
 uint64_t RuntimeEnvironment::GetNumTaskOverloads(const int taskID) noexcept {
     if(s_app == nullptr){
-        return uint64_t{0ULL};
+        return 0U;
     }
     return s_app->GetNumTaskOverloads(taskID);
 }
 
-std::span<const std::string> RuntimeEnvironment::GetAppArguments(void) noexcept {
+std::span<const std::string> RuntimeEnvironment::GetAppArguments() noexcept {
     if(s_app == nullptr){
         return {};
     }
@@ -98,7 +98,7 @@ int RuntimeEnvironment::Main(int argc, char** argv){
     return exit_code::Success;
 }
 
-bool RuntimeEnvironment::SetupMemoryLocking(void){
+bool RuntimeEnvironment::SetupMemoryLocking(){
     if(::mlockall(MCL_CURRENT | MCL_FUTURE) == -1){ // lock memory pages to prevent swapping
         GENERIC_TARGET_PRINT_ERROR("Failed to setup memory locking: {}\n", std::strerror(errno));
         #if !defined(DEBUG)
@@ -108,7 +108,7 @@ bool RuntimeEnvironment::SetupMemoryLocking(void){
     return true;
 }
 
-bool RuntimeEnvironment::SetupSignalHandlers(void){
+bool RuntimeEnvironment::SetupSignalHandlers(){
     // crash handler
     struct ::sigaction action{};
     action.sa_handler = CrashHandler;
@@ -139,7 +139,7 @@ bool RuntimeEnvironment::SetupSignalHandlers(void){
     return true;
 }
 
-bool RuntimeEnvironment::SetupSemaphore(void){
+bool RuntimeEnvironment::SetupSemaphore(){
     try {
         static_cast<void>(GetTerminationSemaphore());
     } catch(const std::exception& e) {
@@ -184,12 +184,12 @@ void RuntimeEnvironment::CrashHandler(const int signal) noexcept {
     ::_Exit(128 + signal);
 }
 
-void RuntimeEnvironment::PrintHeader(void){
+void RuntimeEnvironment::PrintHeader(){
     auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
     GENERIC_TARGET_PRINT_RAW("==========================================================================\n[{:%Y-%m-%d %H:%M:%S} UTC] >>> TARGET START (PID: {})\n==========================================================================\n\n", utc_time, ::getpid());
 }
 
-void RuntimeEnvironment::PrintFooter(void){
+void RuntimeEnvironment::PrintFooter(){
     auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
     GENERIC_TARGET_PRINT_RAW("--------------------------------------------------------------------------\n[{:%Y-%m-%d %H:%M:%S} UTC] <<< TARGET STOP (PID: {})\n==========================================================================\n", utc_time, ::getpid());
 }

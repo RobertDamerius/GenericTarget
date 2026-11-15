@@ -34,31 +34,31 @@ class RealTimeScheduler {
         /**
          * @brief Start the real-time execution loop of the scheduler.
          */
-        void Execute(void);
+        void Execute();
 
         /**
          * @brief Shutdown the real-time scheduler (master thread and all worker threads) completely without destroying it.
          * @note The scheduler cannot be executed again!
          */
-        void Shutdown(void);
+        void Shutdown();
 
         /**
          * @brief Get the model execution time (steady clock), that is, the elapsed time to the start of the master clock.
          * @return Model execution time in seconds.
          */
-        double GetModelExecutionTime(void) const;
+        double GetModelExecutionTime() const;
 
         /**
          * @brief Get the number of CPU overloads that have occurred since the start of the real-time scheduler.
          * @return The number of CPU overloads.
          */
-        uint64_t GetNumCPUOverloads(void) const;
+        uint64_t GetNumCPUOverloads() const;
 
         /**
          * @brief Get the number of lost ticks that have occurred since the start of the real-time scheduler.
          * @return The number of lost ticks.
          */
-        uint64_t GetNumLostTicks(void) const;
+        uint64_t GetNumLostTicks() const;
 
         /**
          * @brief Get the latest task execution time for a task.
@@ -85,7 +85,7 @@ class RealTimeScheduler {
         /**
          * @brief The real-time master thread function.
          */
-        void MasterThread(void);
+        void MasterThread();
 };
 
 

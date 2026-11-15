@@ -26,7 +26,7 @@ PeriodicTask::PeriodicTask(const int taskID) : taskID(taskID) {
     // start worker thread
     m_ticks = SimulinkInterface::sampleTicks[taskID];
     m_offsetSamples = SimulinkInterface::offsetTicks[taskID];
-    m_numTaskOverloads.store(0ULL, std::memory_order_relaxed);
+    m_numTaskOverloads.store(0U, std::memory_order_relaxed);
     m_jobPendingOrRunning.store(false, std::memory_order_relaxed);
     m_terminate.store(false, std::memory_order_relaxed);
     m_workerThread = std::thread(&PeriodicTask::WorkerThread, this);
@@ -34,7 +34,7 @@ PeriodicTask::PeriodicTask(const int taskID) : taskID(taskID) {
     // set worker thread priority
     ::sched_param param;
     param.sched_priority = requestedPriority;
-    if(::pthread_setschedparam(m_workerThread.native_handle(), SCHED_FIFO, &param) != 0){
+    if(::pthread_setschedparam(m_workerThread.native_handle(), SCHED_FIFO, &param) == -1){
         std::string msg = std::format("Failed to set thread priority {} of task \"{}\" (sampletime={})",
             requestedPriority,
             SimulinkInterface::taskNames[taskID],
@@ -53,7 +53,7 @@ PeriodicTask::~PeriodicTask(){
 
     // check and print overloads
     uint64_t taskOverloads = m_numTaskOverloads.load(std::memory_order_relaxed);
-    if(taskOverloads != 0ULL){
+    if(taskOverloads != 0U){
         GENERIC_TARGET_PRINT_ERROR("Task \"{}\" (samplerate={}) stopped with overloads ({} task overloads)\n",
             SimulinkInterface::taskNames[taskID],
             SimulinkInterface::baseSampleTime * static_cast<double>(SimulinkInterface::sampleTicks[taskID]),
@@ -61,7 +61,7 @@ PeriodicTask::~PeriodicTask(){
     }
 }
 
-void PeriodicTask::Shutdown(void){
+void PeriodicTask::Shutdown(){
     m_terminate.store(true, std::memory_order_release);
     m_sem.Post();
     if(m_workerThread.joinable() && (std::this_thread::get_id() != m_workerThread.get_id())){
@@ -69,15 +69,15 @@ void PeriodicTask::Shutdown(void){
     }
 }
 
-uint64_t PeriodicTask::GetNumTaskOverloads(void) const {
+uint64_t PeriodicTask::GetNumTaskOverloads() const {
     return m_numTaskOverloads.load(std::memory_order_acquire);
 }
 
-double PeriodicTask::GetTaskExecutionTime(void) const {
+double PeriodicTask::GetTaskExecutionTime() const {
     return m_taskExecutionTime.load(std::memory_order_acquire);
 }
 
-void PeriodicTask::Trigger(void){
+void PeriodicTask::Trigger(){
     // decrement sample offset counter
     if((--m_offsetSamples) < 0){
         m_offsetSamples = 0;
@@ -90,7 +90,7 @@ void PeriodicTask::Trigger(void){
             // A queued or running job cannot accept another notification.
             bool expected = false;
             if(!m_jobPendingOrRunning.compare_exchange_strong(expected, true, std::memory_order_acq_rel, std::memory_order_relaxed)){
-                m_numTaskOverloads.fetch_add(1ULL, std::memory_order_acq_rel);
+                m_numTaskOverloads.fetch_add(1U, std::memory_order_acq_rel);
                 return;
             }
 
@@ -100,7 +100,7 @@ void PeriodicTask::Trigger(void){
     }
 }
 
-void PeriodicTask::WorkerThread(void){
+void PeriodicTask::WorkerThread(){
     while(!m_terminate.load(std::memory_order_acquire)){
         m_sem.Wait();
         if(m_terminate.load(std::memory_order_acquire)){

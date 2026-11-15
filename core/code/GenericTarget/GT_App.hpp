@@ -30,30 +30,30 @@ class App {
         /**
          * @brief Start the real-time execution of the app.
          */
-        void Execute(void);
+        void Execute();
 
         /**
          * @brief Stop the real-time execution of the app.
          */
-        void Shutdown(void);
+        void Shutdown();
 
         /**
          * @brief Get the model execution time (steady clock), that is, the elapsed time to the start of the real-time scheduler thread.
          * @return Model execution time in seconds.
          */
-        [[nodiscard]] double GetModelExecutionTime(void) noexcept;
+        [[nodiscard]] double GetModelExecutionTime() noexcept;
 
         /**
          * @brief Get the number of CPU overloads that have occurred since the start of the real-time scheduler.
          * @return The number of CPU overloads.
          */
-        [[nodiscard]] uint64_t GetNumCPUOverloads(void) const noexcept;
+        [[nodiscard]] uint64_t GetNumCPUOverloads() const noexcept;
 
         /**
          * @brief Get the number of lost ticks that have occurred since the start of the real-time scheduler.
          * @return The number of lost ticks.
          */
-        [[nodiscard]] uint64_t GetNumLostTicks(void) const noexcept;
+        [[nodiscard]] uint64_t GetNumLostTicks() const noexcept;
 
         /**
          * @brief Get the latest task execution time for a task.
@@ -75,9 +75,9 @@ class App {
 
         /* initialization/termination helpers */
         void OpenSocket(const std::string_view& socketName);
-        void CloseSocket(void);
-        void PrintInfo(void);
-        std::string GetAbsoluteApplicationPath(void);
+        void CloseSocket();
+        void PrintInfo();
+        std::string GetAbsoluteApplicationPath();
 };
 
 

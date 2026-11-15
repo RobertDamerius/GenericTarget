@@ -34,7 +34,7 @@ App::~App(){
     CloseSocket();
 }
 
-void App::Execute(void){
+void App::Execute(){
     try {
         // initialize the model
         GENERIC_TARGET_PRINT_INFO("Initializing model\n");
@@ -50,7 +50,7 @@ void App::Execute(void){
     }
 }
 
-void App::Shutdown(void){
+void App::Shutdown(){
     // stop execution
     GENERIC_TARGET_PRINT_INFO("Stopping real-time scheduler\n");
     m_rtScheduler->Shutdown();
@@ -60,23 +60,23 @@ void App::Shutdown(void){
     SimulinkInterface::Terminate();
 }
 
-double App::GetModelExecutionTime(void) noexcept {
+double App::GetModelExecutionTime() noexcept {
     if(m_rtScheduler == nullptr){
         return 0.0;
     }
     return m_rtScheduler->GetModelExecutionTime();
 }
 
-uint64_t App::GetNumCPUOverloads(void) const noexcept {
+uint64_t App::GetNumCPUOverloads() const noexcept {
     if(m_rtScheduler == nullptr){
-        return 0ULL;
+        return 0U;
     }
     return m_rtScheduler->GetNumCPUOverloads();
 }
 
-uint64_t App::GetNumLostTicks(void) const noexcept {
+uint64_t App::GetNumLostTicks() const noexcept {
     if(m_rtScheduler == nullptr){
-        return 0ULL;
+        return 0U;
     }
     return m_rtScheduler->GetNumLostTicks();
 }
@@ -90,12 +90,12 @@ double App::GetTaskExecutionTime(const int taskID) const noexcept {
 
 uint64_t App::GetNumTaskOverloads(const int taskID) const noexcept {
     if(m_rtScheduler == nullptr){
-        return 0ULL;
+        return 0U;
     }
     return m_rtScheduler->GetNumTaskOverloads(taskID);
 }
 
-std::string App::GetAbsoluteApplicationPath(void){
+std::string App::GetAbsoluteApplicationPath(){
     std::filesystem::path absolutePath = std::filesystem::canonical("/proc/self/exe");
     absolutePath.remove_filename();
     return absolutePath.string();
@@ -132,7 +132,7 @@ void App::OpenSocket(const std::string_view& socketName){
     }
 }
 
-void App::CloseSocket(void){
+void App::CloseSocket(){
     if(m_socket != -1){
         GENERIC_TARGET_PRINT_INFO("Destroying application socket\n");
         if(::close(m_socket) == -1){
@@ -142,7 +142,7 @@ void App::CloseSocket(void){
     }
 }
 
-void App::PrintInfo(void){
+void App::PrintInfo(){
     ::utsname info{};
     if(::uname(&info) == -1){
         GENERIC_TARGET_PRINT_WARNING("Failed to get operating system information: {}\n", std::strerror(errno));
@@ -170,7 +170,7 @@ void App::PrintInfo(void){
     GENERIC_TARGET_PRINT_RAW("Generic Target Version:   {}\n", gt::version);
     GENERIC_TARGET_PRINT_RAW("Compiler Version:         {}\n", gt::compilerVersion);
     GENERIC_TARGET_PRINT_RAW("Application Path:         {}\n", GetAbsoluteApplicationPath());
-    GENERIC_TARGET_PRINT_RAW("Arguments:               "); for(size_t i = 0; i < args.size(); i++){ GENERIC_TARGET_PRINT_RAW(" [{}]", args[i]); } GENERIC_TARGET_PRINT_RAW("\n");
+    GENERIC_TARGET_PRINT_RAW("Arguments:               "); for(std::size_t i = 0U; i < args.size(); i++){ GENERIC_TARGET_PRINT_RAW(" [{}]", args[i]); } GENERIC_TARGET_PRINT_RAW("\n");
     GENERIC_TARGET_PRINT_RAW("Maximum thread priority:  {}\n", ::sched_get_priority_max(SCHED_FIFO));
     GENERIC_TARGET_PRINT_RAW("Minimum thread priority:  {}\n", ::sched_get_priority_min(SCHED_FIFO));
     GENERIC_TARGET_PRINT_RAW("\n");

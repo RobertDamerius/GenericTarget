@@ -23,21 +23,21 @@ class RuntimeEnvironment {
          * @return Model execution time in seconds.
          * @note Calling this function while the application is not initialized will throw a runtime error.
          */
-        [[nodiscard]] static double GetModelExecutionTime(void) noexcept;
+        [[nodiscard]] static double GetModelExecutionTime() noexcept;
 
         /**
          * @brief Get the number of CPU overloads that have occurred since the start of the real-time scheduler.
          * @return The number of CPU overloads.
          * @note Calling this function while the application is not initialized will throw a runtime error.
          */
-        [[nodiscard]] static uint64_t GetNumCPUOverloads(void) noexcept;
+        [[nodiscard]] static uint64_t GetNumCPUOverloads() noexcept;
 
         /**
          * @brief Get the number of lost ticks that have occurred since the start of the real-time scheduler.
          * @return The number of lost ticks.
          * @note Calling this function while the application is not initialized will throw a runtime error.
          */
-        [[nodiscard]] static uint64_t GetNumLostTicks(void) noexcept;
+        [[nodiscard]] static uint64_t GetNumLostTicks() noexcept;
 
         /**
          * @brief Get the latest task execution time for a task.
@@ -60,12 +60,12 @@ class RuntimeEnvironment {
          * @return The application arguments.
          * @note Calling this function while the application is not initialized will throw a runtime error.
          */
-        [[nodiscard]] static std::span<const std::string> GetAppArguments(void) noexcept;
+        [[nodiscard]] static std::span<const std::string> GetAppArguments() noexcept;
 
         /**
          * @brief Call this function if the real-time application is to be terminated.
          */
-        static void RequestStop(void) noexcept;
+        static void RequestStop() noexcept;
 
     protected:
         /* Only the main entry function is allowed to access the protected member functions */
@@ -86,20 +86,20 @@ class RuntimeEnvironment {
          * @brief Get the termination semaphore object.
          * @return The termination semaphore object.
          */
-        static gt::Semaphore& GetTerminationSemaphore(void);
+        static gt::Semaphore& GetTerminationSemaphore();
 
         /* runtime helper functions */
-        static bool SetupMemoryLocking(void);
-        static bool SetupSignalHandlers(void);
-        static bool SetupSemaphore(void);
+        static bool SetupMemoryLocking();
+        static bool SetupSignalHandlers();
+        static bool SetupSemaphore();
 
         /* signal and crash handlers */
         static void SignalHandler(const int signum) noexcept;
         static void CrashHandler(const int signal) noexcept;
 
         /* print helper functions */
-        static void PrintHeader(void);
-        static void PrintFooter(void);
+        static void PrintHeader();
+        static void PrintFooter();
 };
 
 

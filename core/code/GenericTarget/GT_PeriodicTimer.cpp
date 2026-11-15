@@ -81,15 +81,15 @@ bool PeriodicTimer::Start(double sampletime){
         return false;
     }
 
-    m_numCPUOverloads.store(0ULL, std::memory_order_relaxed);
-    m_numLostTicks.store(0ULL, std::memory_order_relaxed);
+    m_numCPUOverloads.store(0U, std::memory_order_relaxed);
+    m_numLostTicks.store(0U, std::memory_order_relaxed);
     m_isRunning.store(true, std::memory_order_relaxed);
     return true;
 }
 
-void PeriodicTimer::Cancel(void){
+void PeriodicTimer::Cancel(){
     if(m_isRunning.exchange(false, std::memory_order_release)){
-        uint64_t wakeUpSignal{1ULL};
+        uint64_t wakeUpSignal{1U};
         ::ssize_t written;
         int errorCode{0};
         do {
@@ -102,7 +102,7 @@ void PeriodicTimer::Cancel(void){
     }
 }
 
-void PeriodicTimer::Stop(void){
+void PeriodicTimer::Stop(){
     m_isRunning.store(false, std::memory_order_release);
 
     // disarm the timer
@@ -128,12 +128,12 @@ void PeriodicTimer::Stop(void){
     }
 }
 
-int32_t PeriodicTimer::WaitForTick(void){
+int32_t PeriodicTimer::WaitForTick(){
     if(!m_isRunning.load(std::memory_order_acquire)){
         return 0;
     }
 
-    ::epoll_event events[1];
+    ::epoll_event events[1U];
     while(m_isRunning.load(std::memory_order_acquire)){
         // block here until either the timer ticks OR Cancel() writes to cancelFd
         int nfds = ::epoll_wait(m_epollFd, events, 1, -1);
@@ -148,11 +148,11 @@ int32_t PeriodicTimer::WaitForTick(void){
         if(nfds == 0){
             continue;
         }
-        if(events[0].data.fd == m_cancelFd){
+        if(events[0U].data.fd == m_cancelFd){
             return 0;
         }
-        if(events[0].data.fd == m_timerFd){
-            uint64_t expiredTicks{0ULL};
+        if(events[0U].data.fd == m_timerFd){
+            uint64_t expiredTicks{0U};
             ::ssize_t s = ::read(m_timerFd, &expiredTicks, sizeof(expiredTicks));
             const int errorCode = errno;
             if(s != sizeof(expiredTicks)){
@@ -162,9 +162,9 @@ int32_t PeriodicTimer::WaitForTick(void){
                 GENERIC_TARGET_PRINT_ERROR("Failed to read timer event: {}\n", std::strerror(errorCode));
                 return -1;
             }
-            if(expiredTicks > 1ULL){
-                m_numCPUOverloads.fetch_add(1ULL, std::memory_order_relaxed);
-                m_numLostTicks.fetch_add(expiredTicks - 1ULL, std::memory_order_relaxed);
+            if(expiredTicks > 1U){
+                m_numCPUOverloads.fetch_add(1U, std::memory_order_relaxed);
+                m_numLostTicks.fetch_add(expiredTicks - 1U, std::memory_order_relaxed);
             }
             return 1; // tick successful
         }
@@ -172,10 +172,10 @@ int32_t PeriodicTimer::WaitForTick(void){
     return 0;
 }
 
-uint64_t PeriodicTimer::GetNumCPUOverloads(void) const {
+uint64_t PeriodicTimer::GetNumCPUOverloads() const {
     return m_numCPUOverloads.load(std::memory_order_acquire);
 }
 
-uint64_t PeriodicTimer::GetNumLostTicks(void) const {
+uint64_t PeriodicTimer::GetNumLostTicks() const {
     return m_numLostTicks.load(std::memory_order_acquire);
 }

@@ -14,7 +14,7 @@ void GT_DriverReadThermalZonesTerminate(void* workVector){
 
 void GT_DriverReadThermalZonesStep(void* workVector, uint32_t maxNumThermalZones, double* temperatures){
     #if defined(_WIN32)
-    for(uint32_t n = 0; n < maxNumThermalZones; ++n){
+    for(uint32_t n = 0U; n < maxNumThermalZones; ++n){
         temperatures[n] = std::numeric_limits<double>::quiet_NaN();
     }
     #else

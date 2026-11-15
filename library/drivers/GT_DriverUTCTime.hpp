@@ -7,12 +7,12 @@
 /**
  * @brief Initialize the driver.
  */
-extern void GT_DriverUTCTimeInitialize(void);
+extern void GT_DriverUTCTimeInitialize();
 
 /**
  * @brief Terminate the driver.
  */
-extern void GT_DriverUTCTimeTerminate(void);
+extern void GT_DriverUTCTimeTerminate();
 
 /**
  * @brief Perform one step of the driver.

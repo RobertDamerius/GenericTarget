@@ -4,13 +4,13 @@
 #endif
 
 
-void GT_DriverStopExecutionInitialize(void){}
+void GT_DriverStopExecutionInitialize(){}
 
-void GT_DriverStopExecutionTerminate(void){}
+void GT_DriverStopExecutionTerminate(){}
 
 void GT_DriverStopExecutionStep(const uint8_t stopExecution) noexcept {
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
-        if(stopExecution != uint8_t{0}){
+        if(stopExecution != 0U){
             gt::RuntimeEnvironment::RequestStop();
         }
     #else

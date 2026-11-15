@@ -31,25 +31,25 @@ class PeriodicTask {
          * @brief Trigger the real-time task.
          * @note It must be triggered with the base sampletime.
          */
-        void Trigger(void);
+        void Trigger();
 
         /**
          * @brief Shutdown the real-time thread completely without destroying the periodic task.
          * @note The periodic task cannot be started again!
          */
-        void Shutdown(void);
+        void Shutdown();
 
         /**
          * @brief Get the number of task overloads.
          * @return Number of task overloads.
          */
-        uint64_t GetNumTaskOverloads(void) const;
+        uint64_t GetNumTaskOverloads() const;
 
         /**
          * @brief Get the task execution time.
          * @returns The latest task execution time in seconds.
          */
-        double GetTaskExecutionTime(void) const;
+        double GetTaskExecutionTime() const;
 
     private:
         int32_t m_ticks;                                  // Decrementing tick counter to be used to notify the actual thread with a multiple of the base sampletime.
@@ -57,14 +57,14 @@ class PeriodicTask {
         Semaphore m_sem;                                  // Semaphore for thread notification.
         std::atomic<bool> m_terminate{false};             // True if thread is to be terminated, false otherwise.
         std::atomic<bool> m_jobPendingOrRunning{false};   // True if a job is queued or the thread is executing model code.
-        std::atomic<uint64_t> m_numTaskOverloads{0ULL};   // Total number of task overloads.
+        std::atomic<uint64_t> m_numTaskOverloads{0U};     // Total number of task overloads.
         std::atomic<double> m_taskExecutionTime{0.0};     // Task-execution time in seconds.
         std::thread m_workerThread;                       // Worker thread object.
 
         /**
          * @brief The worker thread function.
          */
-        void WorkerThread(void);
+        void WorkerThread();
 };
 
 

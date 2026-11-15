@@ -2,9 +2,9 @@
 #include <chrono>
 
 
-void GT_DriverUnixTimeInitialize(void){}
+void GT_DriverUnixTimeInitialize(){}
 
-void GT_DriverUnixTimeTerminate(void){}
+void GT_DriverUnixTimeTerminate(){}
 
 void GT_DriverUnixTimeStep(double* time){
     auto timePoint = std::chrono::system_clock::now();

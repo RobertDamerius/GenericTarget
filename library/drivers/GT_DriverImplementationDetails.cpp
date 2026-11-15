@@ -101,7 +101,7 @@ Event::~Event(){
     #endif
 }
 
-void Event::Notify(void){
+void Event::Notify(){
     #if defined(_WIN32)
     std::unique_lock<std::mutex> lock(m_mtx);
     m_notified = true;
@@ -113,7 +113,7 @@ void Event::Notify(void){
     #endif
 }
 
-void Event::Wait(void){
+void Event::Wait(){
     #if defined(_WIN32)
     std::unique_lock<std::mutex> lock(m_mtx);
     m_cv.wait(lock, [this](){ return this->m_notified; });
@@ -173,7 +173,7 @@ bool Event::WaitFor(double sec) {
     #endif
 }
 
-void Event::Clear(void){
+void Event::Clear(){
     #if defined(_WIN32)
     std::unique_lock<std::mutex> lock(m_mtx);
     m_notified = false;
@@ -237,7 +237,7 @@ bool DataRecorderBase::Start(std::string filename){
     return true;
 }
 
-void DataRecorderBase::Stop(void){
+void DataRecorderBase::Stop(){
     m_terminate.store(true, std::memory_order_relaxed);
     m_event.Notify();
     if(m_threadDataRecorder.joinable()){
@@ -252,13 +252,13 @@ void DataRecorderBase::Stop(void){
         }
     }
     m_started.store(false, std::memory_order_relaxed);
-    m_currentFileNumber = 0;
-    m_numSamplesWritten = 0;
-    m_filePosition = 0;
+    m_currentFileNumber = 0U;
+    m_numSamplesWritten = 0U;
+    m_filePosition = 0U;
     m_currentFileStarted = false;
 }
 
-std::string DataRecorderBase::GetCurrentFilename(void){
+std::string DataRecorderBase::GetCurrentFilename(){
     return m_filename + std::string("_") + std::to_string(m_currentFileNumber);
 }
 
@@ -267,7 +267,7 @@ void DataRecorderScalarDoubles::Write(double timestamp, void* data, uint32_t num
         const LockGuard lock(m_mtxBuffer);
         double* values = static_cast<double*>(data);
         m_buffer.push_back(timestamp);
-        m_buffer.insert(m_buffer.end(), &values[0], &values[0] + m_numSignals);
+        m_buffer.insert(m_buffer.end(), &values[0U], &values[0U] + m_numSignals);
     }
     m_event.Notify();
 }
@@ -282,35 +282,35 @@ bool DataRecorderScalarDoubles::WriteHeader(std::string name){
 
     // header: "GTDBL" (5 bytes)
     const uint8_t header[] = {'G','T', 'D', 'B', 'L'};
-    std::fwrite(&header[0], 1, 5, file);
+    std::fwrite(&header[0U], 1, 5, file);
 
     // zero-based offset to SampleData (4 bytes)
-    uint8_t bytes[4];
+    uint8_t bytes[4U];
     uint32_t offset = 15 + uint32_t(m_labels.length());
-    bytes[0] = uint8_t((offset >> 24) & 0x000000FF);
-    bytes[1] = uint8_t((offset >> 16) & 0x000000FF);
-    bytes[2] = uint8_t((offset >> 8) & 0x000000FF);
-    bytes[3] = uint8_t(offset & 0x000000FF);
-    std::fwrite(&bytes[0], 1, 4, file);
+    bytes[0U] = static_cast<uint8_t>((offset >> 24U) & 0x000000FFU);
+    bytes[1U] = static_cast<uint8_t>((offset >> 16U) & 0x000000FFU);
+    bytes[2U] = static_cast<uint8_t>((offset >> 8U) & 0x000000FFU);
+    bytes[3U] = static_cast<uint8_t>(offset & 0x000000FFU);
+    std::fwrite(&bytes[0U], 1, 4, file);
 
     // m_numSignals (4 bytes)
-    bytes[0] = uint8_t((m_numSignals >> 24) & 0x000000FF);
-    bytes[1] = uint8_t((m_numSignals >> 16) & 0x000000FF);
-    bytes[2] = uint8_t((m_numSignals >> 8) & 0x000000FF);
-    bytes[3] = uint8_t(m_numSignals & 0x000000FF);
-    std::fwrite(&bytes[0], 1, 4, file);
+    bytes[0U] = static_cast<uint8_t>((m_numSignals >> 24U) & 0x000000FFU);
+    bytes[1U] = static_cast<uint8_t>((m_numSignals >> 16U) & 0x000000FFU);
+    bytes[2U] = static_cast<uint8_t>((m_numSignals >> 8U) & 0x000000FFU);
+    bytes[3U] = static_cast<uint8_t>(m_numSignals & 0x000000FFU);
+    std::fwrite(&bytes[0U], 1, 4, file);
 
     // m_labels + 0x00 (L + 1 bytes)
-    std::fwrite(&m_labels[0], 1, m_labels.length(), file);
-    bytes[0] = 0;
-    std::fwrite(&bytes[0], 1, 1, file);
+    std::fwrite(&m_labels[0U], 1, m_labels.length(), file);
+    bytes[0U] = 0U;
+    std::fwrite(&bytes[0U], 1, 1, file);
 
     // endianess (1 byte): litte endian (0x01) or big endian (0x80)
     union {
         uint16_t value;
-        uint8_t bytes[2];
+        uint8_t bytes[2U];
     } endian = {0x0100};
-    uint8_t byte = endian.bytes[0] ? 0x80 : 0x01;
+    uint8_t byte = endian.bytes[0U] ? 0x80U : 0x01U;
     std::fwrite(&byte, 1, 1, file);
 
     // close file and return success
@@ -329,8 +329,8 @@ void DataRecorderScalarDoubles::WriteBufferToDataFiles(std::vector<double>& valu
                 return;
             }
             m_currentFileStarted = true;
-            m_numSamplesWritten = 0;
-            m_filePosition = 15 + static_cast<std::size_t>(m_labels.length()); // start of SampleData: header "GTDBL" (5) + offset (4) + numSignals (4) + labels (L+1) + endianess (1)
+            m_numSamplesWritten = 0U;
+            m_filePosition = 15U + static_cast<std::size_t>(m_labels.length()); // start of SampleData: header "GTDBL" (5) + offset (4) + numSignals (4) + labels (L+1) + endianess (1)
             GENERIC_TARGET_PRINT_INFO("Created data recording file \"{}\"\n", currentFileName);
         }
 
@@ -352,7 +352,7 @@ void DataRecorderScalarDoubles::WriteBufferToDataFiles(std::vector<double>& valu
         if(!fs){
             return;
         }
-        fs.write(reinterpret_cast<const char*>(&values[0]), numBytesToWrite);
+        fs.write(reinterpret_cast<const char*>(&values[0U]), numBytesToWrite);
         if(!fs){
             return;
         }
@@ -375,11 +375,11 @@ void DataRecorderBus::Write(double timestamp, void* data, uint32_t numBytes){
         uint8_t* bytes = static_cast<uint8_t*>(data);
         union {
             double d;
-            uint8_t bytes[8];
+            uint8_t bytes[8U];
         } un;
         un.d = timestamp;
-        m_buffer.insert(m_buffer.end(), &un.bytes[0], &un.bytes[0] + 8);
-        m_buffer.insert(m_buffer.end(), &bytes[0], &bytes[0] + m_numBytesPerSample);
+        m_buffer.insert(m_buffer.end(), &un.bytes[0U], &un.bytes[0U] + 8);
+        m_buffer.insert(m_buffer.end(), &bytes[0U], &bytes[0U] + m_numBytesPerSample);
     }
     m_event.Notify();
 }
@@ -387,52 +387,52 @@ void DataRecorderBus::Write(double timestamp, void* data, uint32_t numBytes){
 bool DataRecorderBus::WriteHeader(std::string name){
     // open file
     std::FILE* file = std::fopen(name.c_str(), "wb");
-    if(!file){
+    if(file == nullptr){
         GENERIC_TARGET_PRINT_ERROR("Failed to write file \"{}\"!\n", name);
         return false;
     }
 
     // header: "GTBUS" (5 bytes)
     const uint8_t header[] = {'G','T', 'B', 'U', 'S'};
-    std::fwrite(&header[0], 1, 5, file);
+    std::fwrite(&header[0U], 1, 5, file);
 
     // zero-based offset to SampleData (4 bytes)
-    uint8_t bytes[4];
-    uint32_t offset = 17 + uint32_t(m_labels.length() + m_dimensions.length() + m_dataTypes.length());
-    bytes[0] = uint8_t((offset >> 24) & 0x000000FF);
-    bytes[1] = uint8_t((offset >> 16) & 0x000000FF);
-    bytes[2] = uint8_t((offset >> 8) & 0x000000FF);
-    bytes[3] = uint8_t(offset & 0x000000FF);
-    std::fwrite(&bytes[0], 1, 4, file);
+    uint8_t bytes[4U];
+    uint32_t offset = 17U + uint32_t(m_labels.length() + m_dimensions.length() + m_dataTypes.length());
+    bytes[0U] = static_cast<uint8_t>((offset >> 24U) & 0x000000FFU);
+    bytes[1U] = static_cast<uint8_t>((offset >> 16U) & 0x000000FFU);
+    bytes[2U] = static_cast<uint8_t>((offset >> 8U) & 0x000000FFU);
+    bytes[3U] = static_cast<uint8_t>(offset & 0x000000FFU);
+    std::fwrite(&bytes[0U], 1, 4, file);
 
     // m_numBytesPerSample without timestamp (4 bytes)
-    bytes[0] = uint8_t((m_numBytesPerSample >> 24) & 0x000000FF);
-    bytes[1] = uint8_t((m_numBytesPerSample >> 16) & 0x000000FF);
-    bytes[2] = uint8_t((m_numBytesPerSample >> 8) & 0x000000FF);
-    bytes[3] = uint8_t(m_numBytesPerSample & 0x000000FF);
-    std::fwrite(&bytes[0], 1, 4, file);
+    bytes[0U] = static_cast<uint8_t>((m_numBytesPerSample >> 24U) & 0x000000FFU);
+    bytes[1U] = static_cast<uint8_t>((m_numBytesPerSample >> 16U) & 0x000000FFU);
+    bytes[2U] = static_cast<uint8_t>((m_numBytesPerSample >> 8U) & 0x000000FFU);
+    bytes[3U] = static_cast<uint8_t>(m_numBytesPerSample & 0x000000FFU);
+    std::fwrite(&bytes[0U], 1, 4, file);
 
     // m_labels + 0x00 (L + 1 bytes)
-    std::fwrite(&m_labels[0], 1, m_labels.length(), file);
-    bytes[0] = 0;
-    std::fwrite(&bytes[0], 1, 1, file);
+    std::fwrite(&m_labels[0U], 1, m_labels.length(), file);
+    bytes[0U] = 0U;
+    std::fwrite(&bytes[0U], 1, 1, file);
 
     // m_dimensions + 0x00 (D + 1 bytes)
-    std::fwrite(&m_dimensions[0], 1, m_dimensions.length(), file);
-    bytes[0] = 0;
-    std::fwrite(&bytes[0], 1, 1, file);
+    std::fwrite(&m_dimensions[0U], 1, m_dimensions.length(), file);
+    bytes[0U] = 0U;
+    std::fwrite(&bytes[0U], 1, 1, file);
 
     // data types + 0x00 (T + 1 bytes)
-    std::fwrite(&m_dataTypes[0], 1, m_dataTypes.length(), file);
-    bytes[0] = 0;
-    std::fwrite(&bytes[0], 1, 1, file);
+    std::fwrite(&m_dataTypes[0U], 1, m_dataTypes.length(), file);
+    bytes[0U] = 0U;
+    std::fwrite(&bytes[0U], 1, 1, file);
 
     // endianess (1 byte): litte endian (0x01) or big endian (0x80)
     union {
         uint16_t value;
-        uint8_t bytes[2];
-    } endian = {0x0100};
-    uint8_t byte = endian.bytes[0] ? 0x80 : 0x01;
+        uint8_t bytes[2U];
+    } endian = {0x0100U};
+    uint8_t byte = endian.bytes[0U] ? 0x80U : 0x01U;
     std::fwrite(&byte, 1, 1, file);
 
     // close file and return success
@@ -451,8 +451,8 @@ void DataRecorderBus::WriteBufferToDataFiles(std::vector<uint8_t>& bytes){
                 return;
             }
             m_currentFileStarted = true;
-            m_numSamplesWritten = 0;
-            m_filePosition = 17 + static_cast<std::size_t>(m_labels.length() + m_dimensions.length() + m_dataTypes.length()); // start of SampleData: header "GTBUS" (5) + offset (4) + numBytesPerSample (4) + labels (L+1) + dimensions (D+1) + dataTypes (T+1) + endianess (1)
+            m_numSamplesWritten = 0U;
+            m_filePosition = 17U + static_cast<std::size_t>(m_labels.length() + m_dimensions.length() + m_dataTypes.length()); // start of SampleData: header "GTBUS" (5) + offset (4) + numBytesPerSample (4) + labels (L+1) + dimensions (D+1) + dataTypes (T+1) + endianess (1)
             GENERIC_TARGET_PRINT_INFO("Created data recording file \"{}\"\n", currentFileName);
         }
 
@@ -473,7 +473,7 @@ void DataRecorderBus::WriteBufferToDataFiles(std::vector<uint8_t>& bytes){
         if(!fs){
             return;
         }
-        fs.write((const char*)&bytes[0], numBytesToWrite);
+        fs.write((const char*)&bytes[0U], numBytesToWrite);
         if(!fs){
             return;
         }
@@ -582,7 +582,7 @@ void DataRecorderManager::WriteBus(const uint8_t* idCharacters, uint32_t numIDCh
     }
 }
 
-void DataRecorderManager::ClearAllDataRecorders(void){
+void DataRecorderManager::ClearAllDataRecorders(){
     for(auto&& rec : m_dataRecorders){
         rec.m_dataRecorder->Stop();
         delete rec.m_dataRecorder;
@@ -591,7 +591,7 @@ void DataRecorderManager::ClearAllDataRecorders(void){
     m_pathToDataDirectory.clear();
 }
 
-void DataRecorderManager::SetPathAndTimeIfNotSet(void){
+void DataRecorderManager::SetPathAndTimeIfNotSet(){
     if(m_pathToDataDirectory.empty()){
         // get current UTC
         auto timePoint = std::chrono::system_clock::now();
@@ -644,7 +644,7 @@ void DataRecorderManager::SetPathAndTimeIfNotSet(void){
 
 std::string DataRecorderManager::ConvertToPrintableString(const uint8_t* data, uint32_t numCharacters){
     std::string result;
-    for(uint32_t n = 0; n < numCharacters; ++n){
+    for(uint32_t n = 0U; n < numCharacters; ++n){
         if((data[n] >= ' ') && (data[n] <= '~')){
             result.push_back(data[n]);
         }
@@ -655,7 +655,7 @@ std::string DataRecorderManager::ConvertToPrintableString(const uint8_t* data, u
 std::string DataRecorderManager::ConvertToValidID(const uint8_t* data, uint32_t numCharacters){
     std::string result;
     result.reserve(numCharacters);
-    for(uint32_t n = 0; n < numCharacters; ++n){
+    for(uint32_t n = 0U; n < numCharacters; ++n){
         const uint8_t c = data[n];
         const bool valid = (c >= 'A' && c <= 'Z') ||
                            (c >= 'a' && c <= 'z') ||
@@ -666,7 +666,7 @@ std::string DataRecorderManager::ConvertToValidID(const uint8_t* data, uint32_t 
     return result;
 }
 
-bool DataRecorderManager::MakeDataDirectory(void){
+bool DataRecorderManager::MakeDataDirectory(){
     try{
         if(std::filesystem::create_directories(m_pathToDataDirectory)){
             GENERIC_TARGET_PRINT_INFO("Created data recording directory \"{}\"\n", m_pathToDataDirectory.string());
@@ -679,7 +679,7 @@ bool DataRecorderManager::MakeDataDirectory(void){
     return true;
 }
 
-std::string DataRecorderManager::GetOSInfo(void){
+std::string DataRecorderManager::GetOSInfo(){
     std::string result = "{";
     #if __linux__
     ::utsname info{};
@@ -708,49 +708,49 @@ std::string DataRecorderManager::GetOSInfo(void){
     return result + "}";
 }
 
-bool DataRecorderManager::WriteIndexFile(void){
+bool DataRecorderManager::WriteIndexFile(){
     // open index file
     std::string filename = (m_pathToDataDirectory / "index").string();
     GENERIC_TARGET_PRINT_INFO("Writing data record index file \"{}\"\n", filename);
     std::FILE* file = std::fopen(filename.c_str(), "wb");
-    if(!file){
+    if(file == nullptr){
         GENERIC_TARGET_PRINT_ERROR("Failed to write data record index file \"{}\"\n", filename);
         return false;
     }
 
     // header: "GTIDX" (5 bytes)
     const uint8_t header[] = {'G','T', 'I', 'D', 'X'};
-    std::fwrite(&header[0], 1, 5, file);
+    std::fwrite(&header[0U], 1, 5, file);
 
     // date
-    uint8_t bytes[11];
-    bytes[0] = static_cast<uint8_t>((m_utc.year >> 24) & 0x000000FF);
-    bytes[1] = static_cast<uint8_t>((m_utc.year >> 16) & 0x000000FF);
-    bytes[2] = static_cast<uint8_t>((m_utc.year >> 8) & 0x000000FF);
-    bytes[3] = static_cast<uint8_t>(m_utc.year & 0x000000FF);
-    bytes[4] = static_cast<uint8_t>(m_utc.month);
-    bytes[5] = static_cast<uint8_t>(m_utc.day);
-    bytes[6] = static_cast<uint8_t>(m_utc.hour);
-    bytes[7] = static_cast<uint8_t>(m_utc.minute);
-    bytes[8] = static_cast<uint8_t>(m_utc.second);
-    bytes[9] = static_cast<uint8_t>((m_utc.millisecond >> 8) & 0x00FF);
-    bytes[10] = static_cast<uint8_t>(m_utc.millisecond & 0x00FF);
-    std::fwrite(&bytes[0], 1, 11, file);
+    uint8_t bytes[11U];
+    bytes[0U] = static_cast<uint8_t>((m_utc.year >> 24U) & 0x000000FFU);
+    bytes[1U] = static_cast<uint8_t>((m_utc.year >> 16U) & 0x000000FFU);
+    bytes[2U] = static_cast<uint8_t>((m_utc.year >> 8U) & 0x000000FFU);
+    bytes[3U] = static_cast<uint8_t>(m_utc.year & 0x000000FFU);
+    bytes[4U] = static_cast<uint8_t>(m_utc.month);
+    bytes[5U] = static_cast<uint8_t>(m_utc.day);
+    bytes[6U] = static_cast<uint8_t>(m_utc.hour);
+    bytes[7U] = static_cast<uint8_t>(m_utc.minute);
+    bytes[8U] = static_cast<uint8_t>(m_utc.second);
+    bytes[9U] = static_cast<uint8_t>((m_utc.millisecond >> 8U) & 0x00FFU);
+    bytes[10U] = static_cast<uint8_t>(m_utc.millisecond & 0x00FFU);
+    std::fwrite(&bytes[0U], 1, 11, file);
 
     // number of data recorders (4 bytes)
     uint32_t num = (uint32_t)m_dataRecorders.size();
-    bytes[0] = static_cast<uint8_t>((num >> 24) & 0x000000FF);
-    bytes[1] = static_cast<uint8_t>((num >> 16) & 0x000000FF);
-    bytes[2] = static_cast<uint8_t>((num >> 8) & 0x000000FF);
-    bytes[3] = static_cast<uint8_t>(num & 0x000000FF);
-    std::fwrite(&bytes[0], 1, 4, file);
+    bytes[0U] = static_cast<uint8_t>((num >> 24U) & 0x000000FFU);
+    bytes[1U] = static_cast<uint8_t>((num >> 16U) & 0x000000FFU);
+    bytes[2U] = static_cast<uint8_t>((num >> 8U) & 0x000000FFU);
+    bytes[3U] = static_cast<uint8_t>(num & 0x000000FFU);
+    std::fwrite(&bytes[0U], 1, 4, file);
 
     // for all data records, write information
     for(auto&& rec : m_dataRecorders){
         // ID (string) + 0x00
-        std::fwrite(&rec.m_id[0], 1, rec.m_id.size(), file);
-        bytes[0] = 0;
-        std::fwrite(&bytes[0], 1, 1, file);
+        std::fwrite(&rec.m_id[0U], 1, rec.m_id.size(), file);
+        bytes[0U] = 0U;
+        std::fwrite(&bytes[0U], 1, 1, file);
     }
 
     // version + 0x00
@@ -759,8 +759,8 @@ bool DataRecorderManager::WriteIndexFile(void){
     #else
     std::fwrite(gt_driver_version.data(), sizeof(char), gt_driver_version.length(), file);
     #endif
-    bytes[0] = 0;
-    std::fwrite(&bytes[0], 1, 1, file);
+    bytes[0U] = 0U;
+    std::fwrite(&bytes[0U], 1, 1, file);
 
     // modelName + 0x00
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
@@ -768,8 +768,8 @@ bool DataRecorderManager::WriteIndexFile(void){
     #else
     std::fwrite(gt_driver_modelName.data(), sizeof(char), gt_driver_modelName.length(), file);
     #endif
-    bytes[0] = 0;
-    std::fwrite(&bytes[0], 1, 1, file);
+    bytes[0U] = 0U;
+    std::fwrite(&bytes[0U], 1, 1, file);
 
     // compiler version + 0x00
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
@@ -777,37 +777,37 @@ bool DataRecorderManager::WriteIndexFile(void){
     #else
     std::fwrite(gt_driver_compilerVersion.data(), sizeof(char), gt_driver_compilerVersion.length(), file);
     #endif
-    bytes[0] = 0;
-    std::fwrite(&bytes[0], 1, 1, file);
+    bytes[0U] = 0U;
+    std::fwrite(&bytes[0U], 1, 1, file);
 
     // OSInfo + 0x00
     std::string osInfo = GetOSInfo();
-    std::fwrite(&osInfo[0], 1, osInfo.length(), file);
-    bytes[0] = 0;
-    std::fwrite(&bytes[0], 1, 1, file);
+    std::fwrite(&osInfo[0U], 1, osInfo.length(), file);
+    bytes[0U] = 0U;
+    std::fwrite(&bytes[0U], 1, 1, file);
     std::fclose(file);
     return true;
 }
 
 Address::Address(uint8_t ip0, uint8_t ip1, uint8_t ip2, uint8_t ip3, uint16_t port){
-    ip[0] = ip0;
-    ip[1] = ip1;
-    ip[2] = ip2;
-    ip[3] = ip3;
+    ip[0U] = ip0;
+    ip[1U] = ip1;
+    ip[2U] = ip2;
+    ip[3U] = ip3;
     this->port = port;
 }
 
-Address::Address(std::array<uint8_t,4> ip, uint16_t port){
-    this->ip[0] = ip[0];
-    this->ip[1] = ip[1];
-    this->ip[2] = ip[2];
-    this->ip[3] = ip[3];
+Address::Address(std::array<uint8_t, 4U> ip, uint16_t port){
+    this->ip[0U] = ip[0U];
+    this->ip[1U] = ip[1U];
+    this->ip[2U] = ip[2U];
+    this->ip[3U] = ip[3U];
     this->port = port;
 }
 
-std::string Address::ToString(void){
+std::string Address::ToString(){
     std::stringstream text;
-    text << static_cast<int32_t>(ip[0]) << "." << static_cast<int32_t>(ip[1]) << "." << static_cast<int32_t>(ip[2]) << "." << static_cast<int32_t>(ip[3]) << ":" << static_cast<int32_t>(port);
+    text << static_cast<int32_t>(ip[0U]) << "." << static_cast<int32_t>(ip[1U]) << "." << static_cast<int32_t>(ip[2U]) << "." << static_cast<int32_t>(ip[3U]) << ":" << static_cast<int32_t>(port);
     return text.str();
 }
 
@@ -815,13 +815,13 @@ bool Address::operator==(const Address& rhs) const{
     return (ip == rhs.ip) && (port == rhs.port);
 }
 
-bool SocketBase::IsOpen(void){
-    return (m_socket >= 0);
+bool SocketBase::IsOpen(){
+    return (m_socket != -1);
 }
 
-void SocketBase::Close(void){
+void SocketBase::Close(){
     int fd = m_socket.exchange(-1);
-    if(fd >= 0){
+    if(fd != -1){
         #ifdef _WIN32
         static_cast<void>(::shutdown(fd, SD_BOTH));
         static_cast<void>(::closesocket(fd));
@@ -864,10 +864,10 @@ int32_t SocketBase::AllowBroadcast(bool allow){
     #endif
 }
 
-bool SocketBase::EnableNonBlockingMode(void){
+bool SocketBase::EnableNonBlockingMode(){
     #ifdef _WIN32
     unsigned long nonBlockingMode = 1;
-    return ::ioctlsocket(m_socket, FIONBIO, &nonBlockingMode) == 0;
+    return ::ioctlsocket(m_socket, FIONBIO, &nonBlockingMode) != -1;
     #else
     int fd = m_socket.load();
     int flags = ::fcntl(fd, F_GETFL, 0);
@@ -885,7 +885,7 @@ int32_t SocketBase::SetSocketPriority(int32_t priority){
     #endif
 }
 
-std::tuple<int32_t, std::string> SocketBase::GetLastError(void){
+std::tuple<int32_t, std::string> SocketBase::GetLastError(){
     #ifdef _WIN32
     int errorCode = static_cast<int>(::WSAGetLastError());
     std::string errStr("");
@@ -897,7 +897,7 @@ std::tuple<int32_t, std::string> SocketBase::GetLastError(void){
     return std::make_tuple(static_cast<int32_t>(errorCode), errStr);
 }
 
-int32_t SocketBase::GetLastErrorCode(void){
+int32_t SocketBase::GetLastErrorCode(){
     #ifdef _WIN32
     return static_cast<int32_t>(::WSAGetLastError());
     #else
@@ -905,7 +905,7 @@ int32_t SocketBase::GetLastErrorCode(void){
     #endif
 }
 
-void SocketBase::ResetLastError(void){
+void SocketBase::ResetLastError(){
     #ifdef _WIN32
     ::WSASetLastError(0);
     #else
@@ -913,13 +913,13 @@ void SocketBase::ResetLastError(void){
     #endif
 }
 
-int32_t SocketBinding::Bind(uint16_t port, std::array<uint8_t,4> ipInterface){
+int32_t SocketBinding::Bind(uint16_t port, std::array<uint8_t, 4U> ipInterface){
     // convert interface ip to a string pointer, where nullptr means any interface (INADDR_ANY)
     char* ip = nullptr;
-    char strIP[16];
-    std::snprintf(&strIP[0], sizeof(strIP), "%u.%u.%u.%u", ipInterface[0], ipInterface[1], ipInterface[2], ipInterface[3]);
-    if(ipInterface[0] || ipInterface[1] || ipInterface[2] || ipInterface[3]){
-        ip = &strIP[0];
+    char strIP[16U];
+    std::snprintf(&strIP[0U], sizeof(strIP), "%u.%u.%u.%u", ipInterface[0U], ipInterface[1U], ipInterface[2U], ipInterface[3U]);
+    if(ipInterface[0U] || ipInterface[1U] || ipInterface[2U] || ipInterface[3U]){
+        ip = &strIP[0U];
     }
 
     // bind the port
@@ -932,7 +932,7 @@ int32_t SocketBinding::Bind(uint16_t port, std::array<uint8_t,4> ipInterface){
 }
 
 int32_t SocketBinding::BindToDevice(std::string deviceName){
-    deviceName.erase(std::remove_if(deviceName.begin(), deviceName.end(), [](unsigned char c) { return c < 32 || c > 126; }), deviceName.end());
+    deviceName.erase(std::remove_if(deviceName.begin(), deviceName.end(), [](unsigned char c) { return (c < 32U) || (c > 126U); }), deviceName.end());
     #ifdef _WIN32
     static_cast<void>(deviceName);
     return 0;
@@ -944,13 +944,13 @@ int32_t SocketBinding::BindToDevice(std::string deviceName){
     #endif
 }
 
-bool TCPSocketBase::Open(void){
+bool TCPSocketBase::Open(){
     int new_fd = ::socket(AF_INET, SOCK_STREAM, 0);
     if(new_fd == -1){
         return false;
     }
     int old_fd = m_socket.exchange(new_fd);
-    if(old_fd >= 0){
+    if(old_fd != -1){
         #ifdef _WIN32
         static_cast<void>(::shutdown(old_fd, SD_BOTH));
         static_cast<void>(::closesocket(old_fd));
@@ -995,17 +995,17 @@ int32_t TCPClientSocket::Connect(Address serverAddress){
     }
     ::sockaddr_in addr;
     addr.sin_family = AF_INET;
-    std::memset((void*) &addr.sin_zero[0], 0, 8);
+    std::memset((void*) &addr.sin_zero[0U], 0, 8);
     GT_DRIVER_ADDRESS_PORT(addr) = ::htons(serverAddress.port);
-    const uint32_t ip = (static_cast<uint32_t>(serverAddress.ip[0]) << 24) |
-                        (static_cast<uint32_t>(serverAddress.ip[1]) << 16) |
-                        (static_cast<uint32_t>(serverAddress.ip[2]) << 8) |
-                        static_cast<uint32_t>(serverAddress.ip[3]);
+    const uint32_t ip = (static_cast<uint32_t>(serverAddress.ip[0U]) << 24U) |
+                        (static_cast<uint32_t>(serverAddress.ip[1U]) << 16U) |
+                        (static_cast<uint32_t>(serverAddress.ip[2U]) << 8U) |
+                        static_cast<uint32_t>(serverAddress.ip[3U]);
     GT_DRIVER_ADDRESS_IP(addr) = ::htonl(ip);
     return static_cast<int32_t>(::connect(fd, reinterpret_cast<const ::sockaddr*>(&addr), sizeof(addr)));
 }
 
-bool UDPSocket::Open(void){
+bool UDPSocket::Open(){
     int new_fd = ::socket(AF_INET, SOCK_DGRAM, 0);
     if(new_fd == -1){
         return false;
@@ -1019,7 +1019,7 @@ bool UDPSocket::Open(void){
     #endif
 
     int old_fd = m_socket.exchange(new_fd);
-    if(old_fd >= 0){
+    if(old_fd != -1){
         #ifdef _WIN32
         static_cast<void>(::shutdown(old_fd, SD_BOTH));
         static_cast<void>(::closesocket(old_fd));
@@ -1042,12 +1042,12 @@ int32_t UDPSocket::SendTo(Address destination, uint8_t* bytes, int32_t size){
     }
     ::sockaddr_in addr;
     addr.sin_family = AF_INET;
-    std::memset((void*) &addr.sin_zero[0], 0, 8);
+    std::memset((void*) &addr.sin_zero[0U], 0, 8);
     GT_DRIVER_ADDRESS_PORT(addr) = ::htons(destination.port);
-    uint32_t ip = (static_cast<uint32_t>(destination.ip[0]) << 24) |
-                  (static_cast<uint32_t>(destination.ip[1]) << 16) |
-                  (static_cast<uint32_t>(destination.ip[2]) << 8)  |
-                  (static_cast<uint32_t>(destination.ip[3]));
+    uint32_t ip = (static_cast<uint32_t>(destination.ip[0U]) << 24U) |
+                  (static_cast<uint32_t>(destination.ip[1U]) << 16U) |
+                  (static_cast<uint32_t>(destination.ip[2U]) << 8U)  |
+                  (static_cast<uint32_t>(destination.ip[3U]));
     GT_DRIVER_ADDRESS_IP(addr) = ::htonl(ip);
     return static_cast<int32_t>(::sendto(fd, reinterpret_cast<const char*>(bytes), size, 0, reinterpret_cast<const ::sockaddr*>(&addr), sizeof(addr)));
 }
@@ -1067,18 +1067,18 @@ int32_t UDPSocket::ReceiveFrom(Address& source, uint8_t* bytes, int32_t maxSize)
     int address_size = sizeof(addr);
     #endif
     int32_t rx = static_cast<int32_t>(::recvfrom(fd, reinterpret_cast<char*>(bytes), maxSize, 0, reinterpret_cast<::sockaddr*>(&addr), &address_size));
-    if(rx >= 0){
+    if(rx != -1){
         uint32_t u32 = ::ntohl(GT_DRIVER_ADDRESS_IP(addr));
-        source.ip[0] = static_cast<uint8_t>(0x000000FF & (u32 >> 24));
-        source.ip[1] = static_cast<uint8_t>(0x000000FF & (u32 >> 16));
-        source.ip[2] = static_cast<uint8_t>(0x000000FF & (u32 >> 8));
-        source.ip[3] = static_cast<uint8_t>(0x000000FF & u32);
+        source.ip[0U] = static_cast<uint8_t>(0x000000FFU & (u32 >> 24U));
+        source.ip[1U] = static_cast<uint8_t>(0x000000FFU & (u32 >> 16U));
+        source.ip[2U] = static_cast<uint8_t>(0x000000FFU & (u32 >> 8U));
+        source.ip[3U] = static_cast<uint8_t>(0x000000FFU & u32);
         source.port = static_cast<uint16_t>(::ntohs(GT_DRIVER_ADDRESS_PORT(addr)));
     }
     return rx;
 }
 
-int32_t UDPSocket::SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::string interfaceName, std::array<uint8_t,4> multicastInterfaceAddress){
+int32_t UDPSocket::SetMulticastInterface(std::array<uint8_t, 4U> ipGroup, std::string interfaceName, std::array<uint8_t, 4U> multicastInterfaceAddress){
     #ifdef _WIN32
     ::ip_mreq mreq = ConvertToMREQ(ipGroup, interfaceName, multicastInterfaceAddress);
     return SetOption(IPPROTO_IP, IP_MULTICAST_IF, (const void*) &mreq.imr_interface, sizeof(mreq.imr_interface));
@@ -1088,7 +1088,7 @@ int32_t UDPSocket::SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::str
     #endif
 }
 
-int32_t UDPSocket::JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName, std::array<uint8_t,4> multicastInterfaceAddress){
+int32_t UDPSocket::JoinMulticastGroup(std::array<uint8_t, 4U> ipGroup, std::string interfaceName, std::array<uint8_t, 4U> multicastInterfaceAddress){
     #ifdef _WIN32
     ::ip_mreq mreq = ConvertToMREQ(ipGroup, interfaceName, multicastInterfaceAddress);
     #else
@@ -1097,7 +1097,7 @@ int32_t UDPSocket::JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::string
     return SetOption(IPPROTO_IP, IP_ADD_MEMBERSHIP, (const void*) &mreq, sizeof(mreq));
 }
 
-int32_t UDPSocket::LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName, std::array<uint8_t,4> multicastInterfaceAddress){
+int32_t UDPSocket::LeaveMulticastGroup(std::array<uint8_t, 4U> ipGroup, std::string interfaceName, std::array<uint8_t, 4U> multicastInterfaceAddress){
     #ifdef _WIN32
     ::ip_mreq mreq = ConvertToMREQ(ipGroup, interfaceName, multicastInterfaceAddress);
     #else
@@ -1126,19 +1126,19 @@ int32_t UDPSocket::SetMulticastLoop(bool multicastLoop){
 }
 
 #ifdef _WIN32
-::ip_mreq UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName, std::array<uint8_t,4> multicastInterfaceAddress){
+::ip_mreq UDPSocket::ConvertToMREQ(const std::array<uint8_t, 4U>& ipGroup, const std::string& interfaceName, std::array<uint8_t, 4U> multicastInterfaceAddress){
     // convert group IP to string
-    char strGroup[16];
-    std::snprintf(&strGroup[0], sizeof(strGroup), "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
+    char strGroup[16U];
+    std::snprintf(&strGroup[0U], sizeof(strGroup), "%u.%u.%u.%u", ipGroup[0U], ipGroup[1U], ipGroup[2U], ipGroup[3U]);
 
     // convert interface name to string (first try to convert to index)
-    char strInterface[16];
+    char strInterface[16U];
     unsigned long index = win32_if_nametoindex(interfaceName);
     if(index){
-        std::snprintf(&strInterface[0], sizeof(strInterface), "0.0.0.%lu", index);
+        std::snprintf(&strInterface[0U], sizeof(strInterface), "0.0.0.%lu", index);
     }
     else{
-        std::snprintf(&strInterface[0], sizeof(strInterface), "%u.%u.%u.%u", multicastInterfaceAddress[0], multicastInterfaceAddress[1], multicastInterfaceAddress[2], multicastInterfaceAddress[3]);
+        std::snprintf(&strInterface[0U], sizeof(strInterface), "%u.%u.%u.%u", multicastInterfaceAddress[0U], multicastInterfaceAddress[1U], multicastInterfaceAddress[2U], multicastInterfaceAddress[3U]);
     }
 
     // create structure
@@ -1148,14 +1148,14 @@ int32_t UDPSocket::SetMulticastLoop(bool multicastLoop){
     return result;
 }
 #else
-::ip_mreqn UDPSocket::ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName, std::array<uint8_t,4> multicastInterfaceAddress){
+::ip_mreqn UDPSocket::ConvertToMREQ(const std::array<uint8_t, 4U>& ipGroup, const std::string& interfaceName, std::array<uint8_t, 4U> multicastInterfaceAddress){
     // convert group IP to string
-    char strGroup[16];
-    std::snprintf(&strGroup[0], sizeof(strGroup), "%u.%u.%u.%u", ipGroup[0], ipGroup[1], ipGroup[2], ipGroup[3]);
+    char strGroup[16U];
+    std::snprintf(&strGroup[0U], sizeof(strGroup), "%u.%u.%u.%u", ipGroup[0U], ipGroup[1U], ipGroup[2U], ipGroup[3U]);
 
     // convert interface IP to string
-    char strInterface[16];
-    std::snprintf(&strInterface[0], sizeof(strInterface), "%u.%u.%u.%u", multicastInterfaceAddress[0], multicastInterfaceAddress[1], multicastInterfaceAddress[2], multicastInterfaceAddress[3]);
+    char strInterface[16U];
+    std::snprintf(&strInterface[0U], sizeof(strInterface), "%u.%u.%u.%u", multicastInterfaceAddress[0U], multicastInterfaceAddress[1U], multicastInterfaceAddress[2U], multicastInterfaceAddress[3U]);
 
     // set interface index based on interface name
     int index = 0;
@@ -1199,7 +1199,7 @@ int32_t UDPSocket::win32_if_nametoindex(std::string name){
 }
 #endif
 
-void UDPServiceConfiguration::Reset(void){
+void UDPServiceConfiguration::Reset(){
     port = 0;
     deviceName.clear();
     socketPriority = 0;
@@ -1207,11 +1207,11 @@ void UDPServiceConfiguration::Reset(void){
     allowZeroLengthMessage = false;
     multicastAll = true;
     multicastLoop = true;
-    multicastTTL = 0;
+    multicastTTL = 0U;
     multicastInterfaceAddress.fill(0);
 }
 
-std::string UDPServiceConfiguration::ToString(void){
+std::string UDPServiceConfiguration::ToString(){
     std::stringstream text;
     text << "port=" << port;
     text << ", deviceName=\"" << deviceName << "\"";
@@ -1221,7 +1221,7 @@ std::string UDPServiceConfiguration::ToString(void){
     text << ", multicastAll=" << (multicastAll ? "1" : "0");
     text << ", multicastLoop=" << (multicastLoop ? "1" : "0");
     text << ", multicastTTL=" << static_cast<int32_t>(multicastTTL);
-    text << ", multicastInterfaceAddress=" << static_cast<int32_t>(multicastInterfaceAddress[0]) << "." << static_cast<int32_t>(multicastInterfaceAddress[1]) << "." << static_cast<int32_t>(multicastInterfaceAddress[2]) << "." << static_cast<int32_t>(multicastInterfaceAddress[3]);
+    text << ", multicastInterfaceAddress=" << static_cast<int32_t>(multicastInterfaceAddress[0U]) << "." << static_cast<int32_t>(multicastInterfaceAddress[1U]) << "." << static_cast<int32_t>(multicastInterfaceAddress[2U]) << "." << static_cast<int32_t>(multicastInterfaceAddress[3U]);
     return text.str();
 }
 
@@ -1339,7 +1339,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
     return true;
 }
 
-void UDPService::Destroy(void){
+void UDPService::Destroy(){
     const LockGuard lock(m_mtxSocket);
     if(m_udpSocket.IsOpen()){
         for(auto&& groupIP : m_currentlyJoinedGroups){
@@ -1371,7 +1371,7 @@ std::tuple<int32_t, int32_t> UDPService::SendTo(Address destination, uint8_t* by
     return std::make_tuple(tx, code);
 }
 
-std::tuple<Address, int32_t, int32_t> UDPService::ReceiveFrom(uint8_t* bytes, int32_t maxSize, std::vector<std::array<uint8_t,4>> multicastGroups){
+std::tuple<Address, int32_t, int32_t> UDPService::ReceiveFrom(uint8_t* bytes, int32_t maxSize, std::vector<std::array<uint8_t, 4U>> multicastGroups){
     Address source;
     int32_t rx = -1;
     int32_t code = m_latestErrorCode;
@@ -1385,7 +1385,7 @@ std::tuple<Address, int32_t, int32_t> UDPService::ReceiveFrom(uint8_t* bytes, in
     return std::make_tuple(source, rx, code);
 }
 
-bool UDPService::AttemptToBind(void){
+bool UDPService::AttemptToBind(){
     if(!m_isBound.load(std::memory_order_relaxed)){
         const LockGuard lock(m_mtxSocket);
 
@@ -1425,11 +1425,11 @@ bool UDPService::AttemptToBind(void){
     return true;
 }
 
-void UDPService::UpdateMulticastGroups(std::vector<std::array<uint8_t,4>> multicastGroups){
+void UDPService::UpdateMulticastGroups(std::vector<std::array<uint8_t, 4U>> multicastGroups){
     // delete all entries in multicastGroups that do not indicate valid multicast addresses
     RemoveInvalidGroupAddresses(multicastGroups);
     MakeUnique(multicastGroups);
-    std::vector<std::array<uint8_t,4>> joinedGroups;
+    std::vector<std::array<uint8_t, 4U>> joinedGroups;
 
     // leave groups that should be no longer joined
     for(auto&& currentlyJoinedGroup : m_currentlyJoinedGroups){
@@ -1461,7 +1461,7 @@ void UDPService::UpdateMulticastGroups(std::vector<std::array<uint8_t,4>> multic
             #ifdef _WIN32
             static_cast<void>(m_udpSocket.SetMulticastInterface(desiredJoinedGroup, m_activeConf.deviceName, m_activeConf.multicastInterfaceAddress));
             #endif
-            alreadyJoined = (m_udpSocket.JoinMulticastGroup(desiredJoinedGroup, m_activeConf.deviceName, m_activeConf.multicastInterfaceAddress) >= 0);
+            alreadyJoined = (m_udpSocket.JoinMulticastGroup(desiredJoinedGroup, m_activeConf.deviceName, m_activeConf.multicastInterfaceAddress) != -1);
         }
         if(alreadyJoined){
             joinedGroups.push_back(desiredJoinedGroup);
@@ -1473,9 +1473,9 @@ void UDPService::UpdateMulticastGroups(std::vector<std::array<uint8_t,4>> multic
     m_currentlyJoinedGroups.swap(joinedGroups);
 }
 
-void UDPService::RemoveInvalidGroupAddresses(std::vector<std::array<uint8_t,4>>& groupAddresses) const {
-    for(std::size_t k = 0; k < groupAddresses.size();){
-        if((groupAddresses[k][0] < 224) || (groupAddresses[k][0] > 239)){
+void UDPService::RemoveInvalidGroupAddresses(std::vector<std::array<uint8_t, 4U>>& groupAddresses) const {
+    for(std::size_t k = 0U; k < groupAddresses.size();){
+        if((groupAddresses[k][0U] < 224U) || (groupAddresses[k][0U] > 239U)){
             groupAddresses.erase(groupAddresses.begin() + k);
             continue;
         }
@@ -1483,10 +1483,10 @@ void UDPService::RemoveInvalidGroupAddresses(std::vector<std::array<uint8_t,4>>&
     }
 }
 
-void UDPService::MakeUnique(std::vector<std::array<uint8_t,4>>& groupAddresses) const {
-    for(std::size_t k = 0; k < groupAddresses.size();){
+void UDPService::MakeUnique(std::vector<std::array<uint8_t, 4U>>& groupAddresses) const {
+    for(std::size_t k = 0U; k < groupAddresses.size();){
         bool addressAlreadyExists = false;
-        for(std::size_t i = 0; (i < k) && !addressAlreadyExists; ++i){
+        for(std::size_t i = 0U; (i < k) && !addressAlreadyExists; ++i){
             addressAlreadyExists = (groupAddresses[i] == groupAddresses[k]);
         }
         if(addressAlreadyExists){
@@ -1517,7 +1517,7 @@ bool UDPServiceManager::AddService(int32_t id, UDPServiceConfiguration conf){
     return success;
 }
 
-void UDPServiceManager::ClearAllServices(void){
+void UDPServiceManager::ClearAllServices(){
     // stop management thread
     m_terminate.store(true, std::memory_order_relaxed);
     m_event.Notify();
@@ -1552,7 +1552,7 @@ std::tuple<int32_t, int32_t> UDPServiceManager::SendTo(int32_t id, Address desti
     return result;
 }
 
-std::tuple<Address, int32_t, int32_t> UDPServiceManager::ReceiveFrom(int32_t id, uint8_t* bytes, int32_t maxSize, std::vector<std::array<uint8_t,4>> multicastGroups){
+std::tuple<Address, int32_t, int32_t> UDPServiceManager::ReceiveFrom(int32_t id, uint8_t* bytes, int32_t maxSize, std::vector<std::array<uint8_t, 4U>> multicastGroups){
     if(m_doInitialWakeup.load(std::memory_order_relaxed)){
         if(m_doInitialWakeup.exchange(false, std::memory_order_relaxed)){
             m_event.Notify();
@@ -1568,7 +1568,7 @@ std::tuple<Address, int32_t, int32_t> UDPServiceManager::ReceiveFrom(int32_t id,
     return result;
 }
 
-void UDPServiceManager::ManagementThread(void){
+void UDPServiceManager::ManagementThread(){
     m_event.Wait();
     while(!m_terminate.load(std::memory_order_relaxed)){
         bool allBound = true;
@@ -1583,13 +1583,13 @@ void UDPServiceManager::ManagementThread(void){
     }
 }
 
-void TCPClientServiceConfiguration::Reset(void){
+void TCPClientServiceConfiguration::Reset(){
     port = 0;
     deviceName.clear();
     socketPriority = 0;
 }
 
-std::string TCPClientServiceConfiguration::ToString(void){
+std::string TCPClientServiceConfiguration::ToString(){
     std::stringstream text;
     text << "port=" << port;
     text << ", deviceName=\"" << deviceName << "\"";
@@ -1630,7 +1630,7 @@ bool TCPClientService::Create(TCPClientServiceConfiguration conf){
     return true;
 }
 
-void TCPClientService::Destroy(void){
+void TCPClientService::Destroy(){
     m_terminate.store(true, std::memory_order_relaxed);
     Disconnect();
     m_event.Notify();
@@ -1719,7 +1719,7 @@ bool TCPClientService::SetNewAddressCommand(Address serverAddress){
     return changed;
 }
 
-void TCPClientService::ManagementThread(void){
+void TCPClientService::ManagementThread(){
     Address destination;
     bool destinationChanged = false;
     bool notConnected = true;
@@ -1750,7 +1750,7 @@ void TCPClientService::ManagementThread(void){
 }
 
 bool TCPClientService::IsConnectCommand(Address addr){
-    return (addr.ip[0] || addr.ip[1] || addr.ip[2] || addr.ip[3]) && addr.port;
+    return (addr.ip[0U] || addr.ip[1U] || addr.ip[2U] || addr.ip[3U]) && addr.port;
 }
 
 bool TCPClientService::Connect(Address destination, bool destinationChanged){
@@ -1858,7 +1858,7 @@ bool TCPClientService::Connect(Address destination, bool destinationChanged){
     return true;
 }
 
-void TCPClientService::Disconnect(void){
+void TCPClientService::Disconnect(){
     const LockGuard lock(m_mtxIO);
     if(m_tcpSocket.IsOpen()){
         m_tcpSocket.Close();
@@ -1883,7 +1883,7 @@ bool TCPClientServiceManager::AddService(int32_t id, TCPClientServiceConfigurati
     return success;
 }
 
-void TCPClientServiceManager::ClearAllServices(void){
+void TCPClientServiceManager::ClearAllServices(){
     for(auto&& s : m_services){
         s.m_service->Destroy();
         delete s.m_service;
@@ -1914,7 +1914,7 @@ std::tuple<int32_t, int32_t, bool> TCPClientServiceManager::Receive(int32_t id, 
 }
 
 AsyncThermalZoneReader::AsyncThermalZoneReader(const uint32_t maxNumThermalZones, double pollingInterval) : m_temperatures(maxNumThermalZones), m_tempFiles(maxNumThermalZones) {
-    for(uint32_t i = 0; i < maxNumThermalZones; ++i){
+    for(uint32_t i = 0U; i < maxNumThermalZones; ++i){
         m_temperatures[i].store(std::numeric_limits<double>::quiet_NaN(), std::memory_order_release);
         m_tempFiles[i].rdbuf()->pubsetbuf(nullptr, 0);
         m_tempFiles[i].open("/sys/class/thermal/thermal_zone" + std::to_string(i) + "/temp");
@@ -1922,7 +1922,7 @@ AsyncThermalZoneReader::AsyncThermalZoneReader(const uint32_t maxNumThermalZones
     m_readThread = std::thread(&AsyncThermalZoneReader::ReadThread, this, pollingInterval);
 }
 
-AsyncThermalZoneReader::~AsyncThermalZoneReader(void){
+AsyncThermalZoneReader::~AsyncThermalZoneReader(){
     m_terminate.store(true, std::memory_order_release);
     m_event.Notify();
     if(m_readThread.joinable()){
@@ -1931,7 +1931,7 @@ AsyncThermalZoneReader::~AsyncThermalZoneReader(void){
 }
 
 void AsyncThermalZoneReader::ReadZones(double* temperatures, const uint32_t numZones){
-    for(uint32_t i = 0; i < numZones; ++i){
+    for(uint32_t i = 0U; i < numZones; ++i){
         if(i < m_temperatures.size()){
             temperatures[i] = m_temperatures[i].load(std::memory_order_acquire);
         }
@@ -1946,7 +1946,7 @@ void AsyncThermalZoneReader::ReadThread(double pollingInterval){
     constexpr double maxInterval = 10.0;
     pollingInterval = std::isfinite(pollingInterval) ? std::clamp(pollingInterval, minInterval, maxInterval) : minInterval;
     while(!m_terminate.load(std::memory_order_acquire)){
-        for(std::size_t i = 0; i < m_temperatures.size(); ++i){
+        for(std::size_t i = 0U; i < m_temperatures.size(); ++i){
             double tempData = std::numeric_limits<double>::quiet_NaN();
             if(m_tempFiles[i].is_open()){
                 m_tempFiles[i].clear();

@@ -39,7 +39,7 @@ class Semaphore {
          * @brief Decrements (locks) the semaphore.
          * @note The semaphore counter is cleared to zero.
          */
-        void Wait(void){
+        void Wait(){
             while(::sem_wait(&m_sem) == -1){
                 const int errorCode = errno;
                 if(errorCode != EINTR){
@@ -64,7 +64,7 @@ class Semaphore {
         /**
          * @brief Increments (unlocks) the semaphore.
          */
-        void Post(void) noexcept {
+        void Post() noexcept {
             if(::sem_post(&m_sem) == -1){
                 GENERIC_TARGET_PRINT_ERROR("Failed to increment (unlock) semaphore\n");
                 std::abort();

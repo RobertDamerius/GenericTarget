@@ -7,12 +7,12 @@
 /**
  * @brief Initialize the driver.
  */
-extern void GT_DriverNumTaskOverloadsInitialize(void);
+extern void GT_DriverNumTaskOverloadsInitialize();
 
 /**
  * @brief Terminate the driver.
  */
-extern void GT_DriverNumTaskOverloadsTerminate(void);
+extern void GT_DriverNumTaskOverloadsTerminate();
 
 /**
  * @brief Perform one step of the driver.

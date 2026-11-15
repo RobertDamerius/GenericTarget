@@ -7,9 +7,9 @@
 #endif
 
 
-void GT_DriverTaskExecutionTimeInitialize(void){}
+void GT_DriverTaskExecutionTimeInitialize(){}
 
-void GT_DriverTaskExecutionTimeTerminate(void){}
+void GT_DriverTaskExecutionTimeTerminate(){}
 
 void GT_DriverTaskExecutionTimeStep(double* taskExecutionTime, uint8_t* taskName, uint32_t taskNameLength){
     *taskExecutionTime = std::numeric_limits<double>::quiet_NaN();

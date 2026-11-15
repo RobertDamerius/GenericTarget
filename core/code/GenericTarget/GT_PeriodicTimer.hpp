@@ -37,38 +37,38 @@ class PeriodicTimer {
          * @brief Interrupt a blocking @ref WaitForTick call.
          * @details This function is thread-safe and may be called from another thread.
          */
-        void Cancel(void);
+        void Cancel();
 
         /**
          * @brief Disarm the timer and clear any pending cancellation event.
          */
-        void Stop(void);
+        void Stop();
 
         /**
          * @brief Wait for a tick event of the timer.
          * @return 1 for a timer tick, 0 if cancelled, or -1 on an error.
          */
-        int32_t WaitForTick(void);
+        int32_t WaitForTick();
 
         /**
          * @brief Get the number of CPU overloads.
          * @return The number of CPU overloads.
          */
-        uint64_t GetNumCPUOverloads(void) const;
+        uint64_t GetNumCPUOverloads() const;
 
         /**
          * @brief Get the number of lost ticks.
          * @return The number of lost ticks.
          */
-        uint64_t GetNumLostTicks(void) const;
+        uint64_t GetNumLostTicks() const;
 
     private:
-        int m_epollFd{-1};                               // File descriptor for epoll.
-        int m_cancelFd{-1};                              // File descriptor for cancel events.
-        int m_timerFd{-1};                               // File descriptor of internal timer object.
-        std::atomic<bool> m_isRunning{false};            // True if timer is running, false otherwise.
-        std::atomic<uint64_t> m_numCPUOverloads{0ULL};   // Number of CPU overloads that have occurred.
-        std::atomic<uint64_t> m_numLostTicks{0ULL};      // Number of lost ticks from the timer.
+        int m_epollFd{-1};                             // File descriptor for epoll.
+        int m_cancelFd{-1};                            // File descriptor for cancel events.
+        int m_timerFd{-1};                             // File descriptor of internal timer object.
+        std::atomic<bool> m_isRunning{false};          // True if timer is running, false otherwise.
+        std::atomic<uint64_t> m_numCPUOverloads{0U};   // Number of CPU overloads that have occurred.
+        std::atomic<uint64_t> m_numLostTicks{0U};      // Number of lost ticks from the timer.
 };
 
 

@@ -57,12 +57,12 @@ class Event {
         /**
          * @brief Notify a thread waiting for this event.
          */
-        void Notify(void);
+        void Notify();
 
         /**
          * @brief Wait for a notification event. A thread calling this function waits until @ref Notify is called.
          */
-        void Wait(void);
+        void Wait();
 
         /**
          * @brief Wait for a notification event up to a maximum duration.
@@ -74,7 +74,7 @@ class Event {
         /**
          * @brief Clear a notified event.
          */
-        void Clear(void);
+        void Clear();
 
     private:
         #if defined(_WIN32)
@@ -149,7 +149,7 @@ class DataRecorderBase {
         /**
          * @brief Stop the data recorder.
          */
-        void Stop(void);
+        void Stop();
 
         /**
          * @brief Write data values to buffer.
@@ -161,9 +161,9 @@ class DataRecorderBase {
         virtual void Write(double timestamp, void* data, uint32_t numValues) = 0;
 
     protected:
-        std::size_t m_numSamplesPerFile{0};     // Number of samples per file. If this value is zero, all samples are written to a single file.
-        uint32_t m_numSignals{0};               // Number of scalar values.
-        uint32_t m_numBytesPerSample{0};        // Number of bytes per sample.
+        std::size_t m_numSamplesPerFile{0U};    // Number of samples per file. If this value is zero, all samples are written to a single file.
+        uint32_t m_numSignals{0U};              // Number of scalar values.
+        uint32_t m_numBytesPerSample{0U};       // Number of bytes per sample.
         std::string m_labels;                   // Signal labels.
         std::string m_dimensions;               // Dimensions (string).
         std::string m_dataTypes;                // Data types (string).
@@ -173,27 +173,27 @@ class DataRecorderBase {
         std::thread m_threadDataRecorder;       // Data recorder thread instance.
         Event m_event;                          // Event for thread notification.
         std::atomic<bool> m_terminate{false};   // Flag for thread termination.
-        uint32_t m_currentFileNumber{0};        // The current filenumber.
-        std::size_t m_numSamplesWritten{0};     // Number of samples that have been written to the current file.
+        uint32_t m_currentFileNumber{0U};       // The current filenumber.
+        std::size_t m_numSamplesWritten{0U};    // Number of samples that have been written to the current file.
         bool m_currentFileStarted{false};       // True if header for current file has been written successfully, false otherwise.
-        std::size_t m_filePosition{0};          // Byte offset within the current file where the next sample will be written (start of SampleData after a new header).
+        std::size_t m_filePosition{0U};         // Byte offset within the current file where the next sample will be written (start of SampleData after a new header).
 
         /**
          * @brief Get the current filename based on @ref m_filename and @ref m_currentFileNumber.
          * @return Filename of the current data file.
          */
-        std::string GetCurrentFilename(void);
+        std::string GetCurrentFilename();
 
         /**
          * @brief Write remaining samples in the buffer to the file.
          * @return True if success, false otherwise.
          */
-        virtual bool FlushBuffer(void) = 0;
+        virtual bool FlushBuffer() = 0;
 
         /**
          * @brief Data recorder thread function.
          */
-        virtual void ThreadDataRecorder(void) = 0;
+        virtual void ThreadDataRecorder() = 0;
 };
 
 
@@ -241,7 +241,7 @@ template <typename T> class DataRecorderTemplate: public DataRecorderBase {
          * @brief Write remaining samples in the buffer to the file.
          * @return True if success, false otherwise.
          */
-        bool FlushBuffer(void){
+        bool FlushBuffer(){
             const LockGuard lock(m_mtxBuffer);
             bool success = true;
             WriteBufferToDataFiles(m_buffer);
@@ -255,7 +255,7 @@ template <typename T> class DataRecorderTemplate: public DataRecorderBase {
         /**
          * @brief Data recorder thread function.
          */
-        void ThreadDataRecorder(void){
+        void ThreadDataRecorder(){
             std::vector<T> localBuffer;
             while(!m_terminate.load(std::memory_order_relaxed)){
                 m_event.Wait();
@@ -406,7 +406,7 @@ class DataRecorderManager {
         /**
          * @brief Clear all data recorders. This will stop and remove all @ref m_dataRecorders.
          */
-        void ClearAllDataRecorders(void);
+        void ClearAllDataRecorders();
 
     private:
         struct entry {
@@ -429,7 +429,7 @@ class DataRecorderManager {
          * @brief Set @ref pathToDataDirectory and @ref utc if they were not set.
          * @note Only set values if @ref pathToDataDirectory is empty.
          */
-        void SetPathAndTimeIfNotSet(void);
+        void SetPathAndTimeIfNotSet();
 
         /**
          * @brief Generate the filename string for a given data file identifier.
@@ -458,19 +458,19 @@ class DataRecorderManager {
          * @brief Make the data recording directory.
          * @return True if success or if it already exists, false otherwise.
          */
-        bool MakeDataDirectory(void);
+        bool MakeDataDirectory();
 
         /**
          * @brief Get operating system information.
          * @return String representing information about the operating system.
          */
-        std::string GetOSInfo(void);
+        std::string GetOSInfo();
 
         /**
          * @brief Write index file.
          * @return True if success, false otherwise.
          */
-        bool WriteIndexFile(void);
+        bool WriteIndexFile();
 };
 
 
@@ -479,8 +479,8 @@ class DataRecorderManager {
  */
 class Address {
     public:
-        std::array<uint8_t,4> ip;   // IPv4 address.
-        uint16_t port{0};           // Port value.
+        std::array<uint8_t, 4U> ip;   // IPv4 address.
+        uint16_t port{0U};            // Port value.
 
         /**
          * @brief Create an address object (IP version 4).
@@ -503,13 +503,13 @@ class Address {
          * @param[in] ip IPv4 address.
          * @param[in] port Port value.
          */
-        Address(std::array<uint8_t,4> ip, uint16_t port);
+        Address(std::array<uint8_t, 4U> ip, uint16_t port);
 
         /**
          * @brief Convert this address to a human-readable string.
          * @return A string representing this address.
          */
-        std::string ToString(void);
+        std::string ToString();
 
         /**
          * @brief Comparison operator.
@@ -533,19 +533,19 @@ class SocketBase {
         /**
          * @brief Close the socket.
          */
-        virtual void Close(void);
+        virtual void Close();
 
         /**
          * @brief Open the socket.
          * @return True if success, false otherwise.
          */
-        virtual bool Open(void) = 0;
+        virtual bool Open() = 0;
 
         /**
          * @brief Check whether the socket is open or not.
          * @return True if socket is open, false otherwise.
          */
-        bool IsOpen(void);
+        bool IsOpen();
 
         /**
          * @brief Set socket options using the setsockopt() function.
@@ -583,7 +583,7 @@ class SocketBase {
          * @brief Enable non-blocking mode for the socket.
          * @return True if success, false otherwise.
          */
-        bool EnableNonBlockingMode(void);
+        bool EnableNonBlockingMode();
 
         /**
          * @brief Set the socket priority.
@@ -596,18 +596,18 @@ class SocketBase {
          * @brief Get the last error value.
          * @return Tuple including the last error code and the string representing the last error code.
          */
-        std::tuple<int32_t, std::string> GetLastError(void);
+        std::tuple<int32_t, std::string> GetLastError();
 
         /**
          * @brief Get the last error code.
          * @return Last error code.
          */
-        int32_t GetLastErrorCode(void);
+        int32_t GetLastErrorCode();
 
         /**
          * @brief Reset the last error code to zero.
          */
-        void ResetLastError(void);
+        void ResetLastError();
 
     protected:
         std::atomic<int> m_socket{-1};  // Internal socket value.
@@ -625,7 +625,7 @@ class SocketBinding: public SocketBase {
          * @param[in] ipInterface The IP of the ethernet interface to be used for this socket. If {0,0,0,0} is set, INADDR_ANY is used.
          * @return Return value of the bind() function of the socket API.
          */
-        int32_t Bind(uint16_t port, std::array<uint8_t,4> ipInterface = {0,0,0,0});
+        int32_t Bind(uint16_t port, std::array<uint8_t, 4U> ipInterface = {});
 
         /**
          * @brief Bind the socket to a specific network device (linux only).
@@ -645,7 +645,7 @@ class TCPSocketBase: public SocketBinding {
          * @brief Open the TCP socket.
          * @return True if success, false otherwise.
          */
-        bool Open(void);
+        bool Open();
 
         /**
          * @brief Send bytes.
@@ -688,7 +688,7 @@ class UDPSocket: public SocketBinding {
          * @brief Open the UDP socket.
          * @return True if success, false otherwise.
          */
-        bool Open(void);
+        bool Open();
 
         /**
          * @brief Send bytes to destination address.
@@ -715,7 +715,7 @@ class UDPSocket: public SocketBinding {
          * @param[in] multicastInterfaceAddress The IP address of the interface to be used for multicast messages.
          * @return Result of the internal setsockopt() function call.
          */
-        int32_t SetMulticastInterface(std::array<uint8_t,4> ipGroup, std::string interfaceName, std::array<uint8_t,4> multicastInterfaceAddress);
+        int32_t SetMulticastInterface(std::array<uint8_t, 4U> ipGroup, std::string interfaceName, std::array<uint8_t, 4U> multicastInterfaceAddress);
 
         /**
          * @brief Join a multicast group at a specific network interface.
@@ -724,7 +724,7 @@ class UDPSocket: public SocketBinding {
          * @param[in] multicastInterfaceAddress The IP address of the interface to be used for multicast messages.
          * @return Result of the internal setsockopt() function call.
          */
-        int32_t JoinMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName, std::array<uint8_t,4> multicastInterfaceAddress);
+        int32_t JoinMulticastGroup(std::array<uint8_t, 4U> ipGroup, std::string interfaceName, std::array<uint8_t, 4U> multicastInterfaceAddress);
 
         /**
          * @brief Leave a multicast group on a given network interface.
@@ -733,7 +733,7 @@ class UDPSocket: public SocketBinding {
          * @param[in] multicastInterfaceAddress The IP address of the interface to be used for multicast messages.
          * @return Result of the internal setsockopt() function call.
          */
-        int32_t LeaveMulticastGroup(std::array<uint8_t,4> ipGroup, std::string interfaceName, std::array<uint8_t,4> multicastInterfaceAddress);
+        int32_t LeaveMulticastGroup(std::array<uint8_t, 4U> ipGroup, std::string interfaceName, std::array<uint8_t, 4U> multicastInterfaceAddress);
 
         /**
          * @brief Set time-to-live multicast messages.
@@ -766,9 +766,9 @@ class UDPSocket: public SocketBinding {
          * @return ip_mreq structure under windows and ip_mreqn under linux.
          */
         #ifdef _WIN32
-        ::ip_mreq ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName, std::array<uint8_t,4> multicastInterfaceAddress);
+        ::ip_mreq ConvertToMREQ(const std::array<uint8_t, 4U>& ipGroup, const std::string& interfaceName, std::array<uint8_t, 4U> multicastInterfaceAddress);
         #else
-        ::ip_mreqn ConvertToMREQ(const std::array<uint8_t,4>& ipGroup, const std::string& interfaceName, std::array<uint8_t,4> multicastInterfaceAddress);
+        ::ip_mreqn ConvertToMREQ(const std::array<uint8_t, 4U>& ipGroup, const std::string& interfaceName, std::array<uint8_t, 4U> multicastInterfaceAddress);
         #endif
 
         /**
@@ -785,26 +785,26 @@ class UDPSocket: public SocketBinding {
  */
 class UDPServiceConfiguration {
     public:
-        int32_t port{0};                                   // The port to be bound to the UDP socket. Values less than 1 indicate a dynamic port. This value is also used as a unique key.
-        std::string deviceName;                            // The device name to which the socket should be bound, if this string is non-empty.
-        int32_t socketPriority{0};                         // The socket priority in range [0 (lowest), 6 (highest)] to be set for the UDP socket.
-        bool allowBroadcast{false};                        // True if broadcast messages are allowed to be sent, false otherwise.
-        bool allowZeroLengthMessage{false};                // True if zero-length messages should be allowed, false otherwise.
-        bool multicastAll{false};                          // True if IP_MULTICAST_ALL option should be set, false otherwise.
-        bool multicastLoop{false};                         // True if IP_MULTICAST_LOOP option should be set, false otherwise.
-        uint8_t multicastTTL{0};                           // Time-to-live for multicast messages.
-        std::array<uint8_t,4> multicastInterfaceAddress;   // The IP address of the interface to be used for multicast messages.
+        int32_t port{0};                                     // The port to be bound to the UDP socket. Values less than 1 indicate a dynamic port. This value is also used as a unique key.
+        std::string deviceName;                              // The device name to which the socket should be bound, if this string is non-empty.
+        int32_t socketPriority{0};                           // The socket priority in range [0 (lowest), 6 (highest)] to be set for the UDP socket.
+        bool allowBroadcast{false};                          // True if broadcast messages are allowed to be sent, false otherwise.
+        bool allowZeroLengthMessage{false};                  // True if zero-length messages should be allowed, false otherwise.
+        bool multicastAll{false};                            // True if IP_MULTICAST_ALL option should be set, false otherwise.
+        bool multicastLoop{false};                           // True if IP_MULTICAST_LOOP option should be set, false otherwise.
+        uint8_t multicastTTL{0U};                            // Time-to-live for multicast messages.
+        std::array<uint8_t, 4U> multicastInterfaceAddress;   // The IP address of the interface to be used for multicast messages.
 
         /**
          * @brief Reset all properties.
          */
-        void Reset(void);
+        void Reset();
 
         /**
          * @brief Convert this configuration to a human-readable string.
          * @return A string giving information about this configuration.
          */
-        std::string ToString(void);
+        std::string ToString();
 
         /**
          * @brief Comparison operator.
@@ -844,7 +844,7 @@ class UDPService {
         /**
          * @brief Destroy the UDP service.
          */
-        void Destroy(void);
+        void Destroy();
 
         /**
          * @brief Send bytes to address.
@@ -871,7 +871,7 @@ class UDPService {
          * <2> The last socket error code.
          * @details Keeps returning -1 and the latest error code if @ref AttempToBind has not been completed successfully.
          */
-        std::tuple<Address, int32_t, int32_t> ReceiveFrom(uint8_t* bytes, int32_t maxSize, std::vector<std::array<uint8_t,4>> multicastGroups = {});
+        std::tuple<Address, int32_t, int32_t> ReceiveFrom(uint8_t* bytes, int32_t maxSize, std::vector<std::array<uint8_t, 4U>> multicastGroups = {});
 
         /**
          * @brief Attempt to bind the port and device name to the socket using the internally stored configuration..
@@ -880,17 +880,17 @@ class UDPService {
          * It sets the @ref m_isBound flag to true if it succeeds.
          * If it has been completed once, then this functions always returns true.
          */
-        bool AttemptToBind(void);
+        bool AttemptToBind();
 
     private:
-        UDPSocket m_udpSocket;                                        // Internal socket object for UDP operation.
-        ::pthread_mutex_t m_mtxSocket;                                // Protect the @ref m_udpSocket.
-        UDPServiceConfiguration m_activeConf;                         // The active configuration in use.
-        bool m_activeConfSet{false};                                  // True if @ref m_activeConf has already been set.
-        std::atomic<int32_t> m_latestErrorCode{0};                    // Stores the latest socket error code.
-        std::vector<std::array<uint8_t,4>> m_currentlyJoinedGroups;   // List of successfully joined multicast groups.
-        std::atomic<bool> m_isBound{false};                           // True if port and interface are bound and socket is ready for operation, false otherwise.
-        int32_t m_attemptToBindStatus{0};                             // Status code for attempting to bind port and device name. 0: not bound, 1: port bound, 2: port and device name bound.
+        UDPSocket m_udpSocket;                                          // Internal socket object for UDP operation.
+        ::pthread_mutex_t m_mtxSocket;                                  // Protect the @ref m_udpSocket.
+        UDPServiceConfiguration m_activeConf;                           // The active configuration in use.
+        bool m_activeConfSet{false};                                    // True if @ref m_activeConf has already been set.
+        std::atomic<int32_t> m_latestErrorCode{0};                      // Stores the latest socket error code.
+        std::vector<std::array<uint8_t, 4U>> m_currentlyJoinedGroups;   // List of successfully joined multicast groups.
+        std::atomic<bool> m_isBound{false};                             // True if port and interface are bound and socket is ready for operation, false otherwise.
+        int32_t m_attemptToBindStatus{0};                               // Status code for attempting to bind port and device name. 0: not bound, 1: port bound, 2: port and device name bound.
 
         /**
          * @brief Update the multicast groups that have been joined.
@@ -898,20 +898,20 @@ class UDPService {
          * @details It's checked whether a new group should be joined or whether a no longer
          * specified group should be left.
          */
-        void UpdateMulticastGroups(std::vector<std::array<uint8_t,4>> multicastGroups);
+        void UpdateMulticastGroups(std::vector<std::array<uint8_t, 4U>> multicastGroups);
 
         /**
          * @brief Remove all invalid multicast group addresses from a list of addresses.
          * @param[inout] groupAddresses The container of group addresses from which to remove all
          * entries that do not indicate a valid multicast group address.
          */
-        void RemoveInvalidGroupAddresses(std::vector<std::array<uint8_t,4>>& groupAddresses) const;
+        void RemoveInvalidGroupAddresses(std::vector<std::array<uint8_t, 4U>>& groupAddresses) const;
 
         /**
          * @brief Make the list of group addresses unique, such that there are no duplicated entries.
          * @param[inout] groupAddresses The container of group addresses to make unique.
          */
-        void MakeUnique(std::vector<std::array<uint8_t,4>>& groupAddresses) const;
+        void MakeUnique(std::vector<std::array<uint8_t, 4U>>& groupAddresses) const;
 };
 
 
@@ -937,7 +937,7 @@ class UDPServiceManager {
          * @brief Clear all UDP services.
          * @details This will remove all @ref m_services.
          */
-        void ClearAllServices(void);
+        void ClearAllServices();
 
         /**
          * @brief Send bytes to address.
@@ -968,7 +968,7 @@ class UDPServiceManager {
          * @details Performs the post-initialization via @ref PostInitialization and then sends the
          * message if that post-initialization was successful.
          */
-        std::tuple<Address, int32_t, int32_t> ReceiveFrom(int32_t id, uint8_t* bytes, int32_t maxSize, std::vector<std::array<uint8_t,4>> multicastGroups = {});
+        std::tuple<Address, int32_t, int32_t> ReceiveFrom(int32_t id, uint8_t* bytes, int32_t maxSize, std::vector<std::array<uint8_t, 4U>> multicastGroups = {});
 
     private:
         struct entry {
@@ -985,7 +985,7 @@ class UDPServiceManager {
          * @brief The management thread function.
          * @details This thread attemps to bind port and device name to sockets as long as not completed.
          */
-        void ManagementThread(void);
+        void ManagementThread();
 };
 
 
@@ -1001,13 +1001,13 @@ class TCPClientServiceConfiguration {
         /**
          * @brief Reset all properties.
          */
-        void Reset(void);
+        void Reset();
 
         /**
          * @brief Convert this configuration to a human-readable string.
          * @return A string giving information about this configuration.
          */
-        std::string ToString(void);
+        std::string ToString();
 
         /**
          * @brief Comparison operator.
@@ -1046,7 +1046,7 @@ class TCPClientService {
         /**
          * @brief Destroy the TCP client service.
          */
-        void Destroy(void);
+        void Destroy();
 
         /**
          * @brief Send bytes to address and manage connection.
@@ -1099,7 +1099,7 @@ class TCPClientService {
          * @brief The management thread function.
          * @details This thread manages socket creation and server connections.
          */
-        void ManagementThread(void);
+        void ManagementThread();
 
         /**
          * @brief Check if a given address represents a given TCP server to connect to.
@@ -1119,7 +1119,7 @@ class TCPClientService {
         /**
          * @brief Disconnect from a server by closing the TCP client socket.
          */
-        void Disconnect(void);
+        void Disconnect();
 };
 
 
@@ -1145,7 +1145,7 @@ class TCPClientServiceManager {
          * @brief Clear all TCP client services.
          * @details This will remove all @ref m_services.
          */
-        void ClearAllServices(void);
+        void ClearAllServices();
 
         /**
          * @brief Send bytes to address and manage connection.
