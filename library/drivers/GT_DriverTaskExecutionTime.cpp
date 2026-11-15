@@ -15,7 +15,7 @@ void GT_DriverTaskExecutionTimeStep(double* taskExecutionTime, uint8_t* taskName
     *taskExecutionTime = std::numeric_limits<double>::quiet_NaN();
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
         std::string s(reinterpret_cast<char*>(taskName), static_cast<std::size_t>(taskNameLength));
-        for(uint32_t id = 0; id < SIMULINK_INTERFACE_NUM_TIMINGS; id++){
+        for(int id = 0; id < SIMULINK_INTERFACE_NUM_TIMINGS; id++){
             if(!s.compare(SimulinkInterface::taskNames[id])){
                 *taskExecutionTime = gt::RuntimeEnvironment::GetTaskExecutionTime(id);
                 break;

@@ -14,7 +14,7 @@ void GT_DriverNumTaskOverloadsStep(uint64_t* numTaskOverloads, uint8_t* taskName
     *numTaskOverloads = 0;
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
         std::string s(reinterpret_cast<char*>(taskName), static_cast<std::size_t>(taskNameLength));
-        for(uint32_t id = 0; id < SIMULINK_INTERFACE_NUM_TIMINGS; id++){
+        for(int id = 0; id < SIMULINK_INTERFACE_NUM_TIMINGS; id++){
             if(!s.compare(SimulinkInterface::taskNames[id])){
                 *numTaskOverloads = gt::RuntimeEnvironment::GetNumTaskOverloads(id);
                 break;

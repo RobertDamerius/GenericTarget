@@ -81,14 +81,14 @@ uint64_t App::GetNumLostTicks(void) const noexcept {
     return m_rtScheduler->GetNumLostTicks();
 }
 
-double App::GetTaskExecutionTime(const uint32_t taskID) const noexcept {
+double App::GetTaskExecutionTime(const int taskID) const noexcept {
     if(m_rtScheduler == nullptr){
         return 0.0;
     }
     return m_rtScheduler->GetTaskExecutionTime(taskID);
 }
 
-uint64_t App::GetNumTaskOverloads(const uint32_t taskID) const noexcept {
+uint64_t App::GetNumTaskOverloads(const int taskID) const noexcept {
     if(m_rtScheduler == nullptr){
         return uint64_t{0};
     }
@@ -133,7 +133,7 @@ void App::OpenSocket(const std::string_view& socketName){
 }
 
 void App::CloseSocket(void){
-    if(m_socket >= 0){
+    if(m_socket != -1){
         GENERIC_TARGET_PRINT_INFO("Destroying application socket\n");
         if(::close(m_socket) == -1){
             GENERIC_TARGET_PRINT_ERROR("Failed to close application socket: {}\n", std::strerror(errno));

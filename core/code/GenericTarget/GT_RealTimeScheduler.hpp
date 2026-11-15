@@ -65,14 +65,14 @@ class RealTimeScheduler {
          * @param[in] taskID The ID of the task from which to obtain the latest task execution time.
          * @return The latest task execution time in seconds or NaN if the taskID is invalid.
          */
-        double GetTaskExecutionTime(const uint32_t taskID) const;
+        double GetTaskExecutionTime(const int taskID) const;
 
         /**
          * @brief Get the number of task overloads for a task.
          * @param[in] taskID The ID of the task from which to obtain the latest number of task overloads.
          * @return The latest task overload counter or zero if the taskID is invalid.
          */
-        uint64_t GetNumTaskOverloads(const uint32_t taskID) const;
+        uint64_t GetNumTaskOverloads(const int taskID) const;
 
     private:
         std::vector<std::unique_ptr<PeriodicTask>> m_tasks;                              // A list of periodic worker tasks (declare before @ref m_timer and @ref m_masterThread).

@@ -35,14 +35,14 @@ uint64_t RuntimeEnvironment::GetNumLostTicks(void) noexcept {
     return s_app->GetNumLostTicks();
 }
 
-double RuntimeEnvironment::GetTaskExecutionTime(const uint32_t taskID) noexcept {
+double RuntimeEnvironment::GetTaskExecutionTime(const int taskID) noexcept {
     if(s_app == nullptr){
         return 0.0;
     }
     return s_app->GetTaskExecutionTime(taskID);
 }
 
-uint64_t RuntimeEnvironment::GetNumTaskOverloads(const uint32_t taskID) noexcept {
+uint64_t RuntimeEnvironment::GetNumTaskOverloads(const int taskID) noexcept {
     if(s_app == nullptr){
         return uint64_t{0};
     }

@@ -3,7 +3,11 @@
 using namespace gt;
 
 
-PeriodicTask::PeriodicTask(const uint32_t taskID) : taskID(taskID), m_ticks(SimulinkInterface::sampleTicks[taskID]), m_offsetSamples(SimulinkInterface::offsetTicks[taskID]){
+PeriodicTask::PeriodicTask(const int taskID) : taskID(taskID) {
+    if((taskID < 0) || (taskID >= SIMULINK_INTERFACE_NUM_TIMINGS)){
+        throw std::out_of_range("Invalid taskID");
+    }
+
     // check worker thread priority
     int requestedPriority = static_cast<int>(gt::basePriority) - (taskID + 1);
     if(requestedPriority < ::sched_get_priority_min(SCHED_FIFO) || requestedPriority > ::sched_get_priority_max(SCHED_FIFO)){
@@ -20,6 +24,8 @@ PeriodicTask::PeriodicTask(const uint32_t taskID) : taskID(taskID), m_ticks(Simu
     }
 
     // start worker thread
+    m_ticks = SimulinkInterface::sampleTicks[taskID];
+    m_offsetSamples = SimulinkInterface::offsetTicks[taskID];
     m_numTaskOverloads.store(0, std::memory_order_relaxed);
     m_jobPendingOrRunning.store(false, std::memory_order_relaxed);
     m_terminate.store(false, std::memory_order_relaxed);
