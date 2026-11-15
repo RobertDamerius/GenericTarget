@@ -76,4 +76,4 @@ class Semaphore {
 };
 
 
-}; /* namespace: gt */
+} /* namespace: gt */
