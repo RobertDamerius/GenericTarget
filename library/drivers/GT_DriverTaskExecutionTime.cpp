@@ -7,22 +7,22 @@
 #endif
 
 
-void GT_DriverTaskExecutionTimeInitialize(){}
+void GT_DriverTaskExecutionTimeInitialize() {}
 
-void GT_DriverTaskExecutionTimeTerminate(){}
+void GT_DriverTaskExecutionTimeTerminate() {}
 
-void GT_DriverTaskExecutionTimeStep(double* taskExecutionTime, uint8_t* taskName, uint32_t taskNameLength){
+void GT_DriverTaskExecutionTimeStep(double* taskExecutionTime, uint8_t* taskName, uint32_t taskNameLength) {
     *taskExecutionTime = std::numeric_limits<double>::quiet_NaN();
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
-        std::string s(reinterpret_cast<char*>(taskName), static_cast<std::size_t>(taskNameLength));
-        for(int id = 0; id < SIMULINK_INTERFACE_NUM_TIMINGS; id++){
-            if(!s.compare(SimulinkInterface::taskNames[id])){
-                *taskExecutionTime = gt::RuntimeEnvironment::GetTaskExecutionTime(id);
-                break;
-            }
+    std::string s(reinterpret_cast<char*>(taskName), static_cast<std::size_t>(taskNameLength));
+    for (int id = 0; id < SIMULINK_INTERFACE_NUM_TIMINGS; id++) {
+        if (!s.compare(SimulinkInterface::taskNames[id])) {
+            *taskExecutionTime = gt::RuntimeEnvironment::GetTaskExecutionTime(id);
+            break;
         }
+    }
     #else
-        static_cast<void>(taskName);
-        static_cast<void>(taskNameLength);
+    static_cast<void>(taskName);
+    static_cast<void>(taskNameLength);
     #endif
 }

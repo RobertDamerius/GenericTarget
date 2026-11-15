@@ -345,7 +345,7 @@ function BuildDrivers()
     cxxflags  = '-std=c++20 -pthread';
     ldflags   = '-std=c++20 -pthread';
     libraries = {'-L/usr/lib', '-L/usr/local/lib'};
-    if(ispc)
+    if (ispc)
         libraries = [libraries, {'-lws2_32', '-lIphlpapi'}];
     end
     legacy_code('compile', defs, [{['CFLAGS=$CFLAGS ', cflags],['CXXFLAGS=$CXXFLAGS ', cxxflags],['LINKFLAGS=$LINKFLAGS ', ldflags]}, libraries]);

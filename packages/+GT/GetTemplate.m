@@ -60,7 +60,7 @@ end
 
 function model = NewModel(modelName, fileName)
     close_system(modelName, 0);
-    if(exist(fileName, 'file'))
+    if (exist(fileName, 'file'))
         delete(fileName);
     end
     model = new_system(modelName, 'Model');

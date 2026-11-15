@@ -45,7 +45,7 @@ classdef GenericTarget < handle
 
             % get code directory of simulink and set temporary zip filename
             zipFileName = fullfile(Simulink.fileGenControl('get', 'CodeGenFolder'), [modelName '.zip']);
-            if(exist(zipFileName,'file')), delete(zipFileName); end
+            if (exist(zipFileName,'file')), delete(zipFileName); end
 
             % generate code (going to be stored in the zip file)
             this.GenerateCode(zipFileName, modelName);
@@ -110,14 +110,14 @@ classdef GenericTarget < handle
             this.GenerateCode(zipFileName, modelName);
 
             % remove old files and folders that are going to be replaced
-            if(exist(directory, 'dir'))
+            if (exist(directory, 'dir'))
                 [~,~] = rmdir(fullfile(directory, '.vscode'), 's');
                 [~,~] = rmdir(fullfile(directory, 'build'), 's');
                 [~,~] = rmdir(fullfile(directory, 'code'), 's');
                 fileReadme = fullfile(directory, 'README.md');
                 fileMakefile = fullfile(directory, 'Makefile');
-                if(exist(fileReadme, 'file')), delete(fileReadme); end
-                if(exist(fileMakefile, 'file')), delete(fileMakefile); end
+                if (exist(fileReadme, 'file')), delete(fileReadme); end
+                if (exist(fileMakefile, 'file')), delete(fileMakefile); end
             end
 
             % unzip generated code into output directory
@@ -154,7 +154,7 @@ classdef GenericTarget < handle
             modelCodeFolder = this.BuildModelToReleaseFolder(modelName, codeGenFolder, releaseFolder);
             this.UpdateGeneratedCode(modelCodeFolder);
             this.BuildInterfaceClass(modelName, codeGenFolder, modelCodeFolder);
-            if(numel(this.customCode))
+            if (numel(this.customCode))
                 customCodeFolder = fullfile(releaseFolder, 'code', 'CustomCode');
                 fprintf('[GENERIC TARGET] Adding custom code to "%s"\n', customCodeFolder);
                 assert(mkdir(customCodeFolder), 'Failed to make custom code folder!');
@@ -176,7 +176,7 @@ classdef GenericTarget < handle
             % RETURN
             % commands ... The commands that were executed on the host.
             args = '';
-            if(~isempty(this.applicationArguments))
+            if (~isempty(this.applicationArguments))
                 args = [' ', this.applicationArguments];
             end
             fprintf('[GENERIC TARGET] Starting target software on %s at %s\n', this.targetUsername, this.targetAddress);
@@ -243,14 +243,14 @@ classdef GenericTarget < handle
                 targetDataDirectory {mustBeTextScalar, GT.mustBeChar} = '';
             end
 
-            if(filesep ~= hostDirectory(end))
+            if (filesep ~= hostDirectory(end))
                 hostDirectory = [hostDirectory filesep];
             end
             dataFolder = this.GetTargetDataDirectoryName();
 
             % check if user specified data directory
             cmdSSH = cell.empty();
-            if(isempty(targetDataDirectory))
+            if (isempty(targetDataDirectory))
                 fprintf('[GENERIC TARGET] Listing available data directories on target %s at %s\n', this.targetUsername, this.targetAddress);
                 cmdSSH = this.RunCommandOnTarget(['cd ' dataFolder ' && ls']);
                 targetDataDirectory = input('[GENERIC TARGET] Choose directory name to download: ', 's');
@@ -261,7 +261,7 @@ classdef GenericTarget < handle
             [~,~] = mkdir(hostDirectory);
             cmdSCP = ['scp -o ConnectTimeout=' num2str(this.connectTimeout) ' -P ' num2str(this.portSSH) ' -r ' this.targetUsername '@' this.targetAddress ':' dataFolder targetDataDirectory ' ' hostDirectory targetDataDirectory];
             this.RunCommand(cmdSCP);
-            if(isempty(cmdSSH))
+            if (isempty(cmdSSH))
                 commands = {cmdSCP};
             else
                 commands = [cmdSSH; {cmdSCP}];
@@ -283,7 +283,7 @@ classdef GenericTarget < handle
                 hostDirectory {mustBeTextScalar, GT.mustBeChar} = pwd
             end
 
-            if(filesep ~= hostDirectory(end))
+            if (filesep ~= hostDirectory(end))
                 hostDirectory = [hostDirectory filesep];
             end
             dataFolder = this.GetTargetDataDirectoryName();
@@ -339,7 +339,7 @@ classdef GenericTarget < handle
         end
         function tasksetOption = GetTasksetOption(this)
             tasksetOption = '';
-            if(~isempty(this.targetBitmaskCPUCores))
+            if (~isempty(this.targetBitmaskCPUCores))
                 tasksetOption = ['taskset ' this.targetBitmaskCPUCores ' '];
             end
         end
@@ -368,7 +368,7 @@ classdef GenericTarget < handle
 
             % update patterns
             strDEBUG = '0';
-            if(this.additionalCompilerFlags.DEBUG_MODE)
+            if (this.additionalCompilerFlags.DEBUG_MODE)
                 strDEBUG = '1';
             end
             strMakefile = strrep(strMakefile, '$TARGET_MAKEFILE_PRODUCT_NAME$', this.targetProductName);
@@ -383,7 +383,7 @@ classdef GenericTarget < handle
 
             % write Makefile to release folder
             fidMakefile = fopen(dstMakefile, 'w');
-            if(fidMakefile == -1)
+            if (fidMakefile == -1)
                 error('Failed to write to file "%s"', dstMakefile);
             end
             fwrite(fidMakefile, uint8(strMakefile));
@@ -402,7 +402,7 @@ classdef GenericTarget < handle
 
             % write readme file to release folder
             fidReadme = fopen(dstReadme, 'w');
-            if(fidReadme == -1)
+            if (fidReadme == -1)
                 error('Failed to write to file "%s"', dstReadme);
             end
             fwrite(fidReadme, uint8(strReadme));
@@ -419,7 +419,7 @@ classdef GenericTarget < handle
 
             % overwrite launch file to release folder
             fidLaunch = fopen(dstLaunch, 'w');
-            if(fidLaunch == -1)
+            if (fidLaunch == -1)
                 error('Failed to write to file "%s"', dstLaunch);
             end
             fwrite(fidLaunch, uint8(strLaunch));
@@ -442,7 +442,7 @@ classdef GenericTarget < handle
             listings = dir(fullfile(modelCodeFolder, ['**', filesep, '*.*']));
             listings = listings(~[listings.isdir]);
             for i = 1:numel(listings)
-                if(~endsWith(listings(i).name, {'.c', '.cc', '.cpp', '.cxx', '.h', '.hh', '.hpp', '.hxx', '.asm', '.s', '.ipp', '.tcc'}, 'IgnoreCase', true))
+                if (~endsWith(listings(i).name, {'.c', '.cc', '.cpp', '.cxx', '.h', '.hh', '.hpp', '.hxx', '.asm', '.s', '.ipp', '.tcc'}, 'IgnoreCase', true))
                     delete(fullfile(listings(i).folder, listings(i).name));
                 end
             end
@@ -457,7 +457,7 @@ classdef GenericTarget < handle
                 currentFile = fullfile(listings(i).folder, listings(i).name);
 
                 % check for rtw_windows.h or rtw_linux.h: replace those
-                if(strcmp('rtw_windows.h', listings(i).name) || strcmp('rtw_linux.h', listings(i).name))
+                if (strcmp('rtw_windows.h', listings(i).name) || strcmp('rtw_linux.h', listings(i).name))
                     templateFile = fullfile(this.GetCoreDirectory(), ['gt_template_', listings(i).name]);
                     fprintf('    Replacing file "%s"\n', currentFile);
                     delete(currentFile);
@@ -466,7 +466,7 @@ classdef GenericTarget < handle
                 end
 
                 % check for rtw_windows.c or rtw_linux.c: delete those
-                if(strcmp('rtw_windows.c', listings(i).name) || strcmp('rtw_linux.c', listings(i).name))
+                if (strcmp('rtw_windows.c', listings(i).name) || strcmp('rtw_linux.c', listings(i).name))
                     fprintf('    Deleting file "%s"\n', currentFile);
                     delete(currentFile);
                     continue;
@@ -487,10 +487,10 @@ classdef GenericTarget < handle
             sourceFile = fullfile(modelCodeFolder, 'SimulinkInterface.cpp');
             fidHeader = fopen(headerFile, 'w');
             fidSource = fopen(sourceFile, 'w');
-            if(fidHeader == -1)
+            if (fidHeader == -1)
                 error('Failed to write to file "%s"', headerFile);
             end
-            if(fidSource == -1)
+            if (fidSource == -1)
                 error('Failed to write to file "%s"', sourceFile);
             end
             fwrite(fidHeader, uint8(strInterfaceHeader));
@@ -502,7 +502,7 @@ classdef GenericTarget < handle
             % get the model name, both for function names and information
             strNameOfModel = char.empty();
             for i = 1:numel(modelName)
-                if((uint8(modelName(i)) >= uint8(20)) && (uint8(modelName(i)) <= uint8(126)))
+                if ((uint8(modelName(i)) >= uint8(20)) && (uint8(modelName(i)) <= uint8(126)))
                     strNameOfModel = append(strNameOfModel, modelName(i));
                 end
             end
@@ -530,7 +530,7 @@ classdef GenericTarget < handle
                 assert(strcmp(codeInfo.OutputFunctions(n).Timing.TaskingMode, 'IMPLICIT_TASKING') || strcmp(codeInfo.OutputFunctions(n).Timing.TaskingMode, 'EXPLICIT_TASKING'), 'GT.GenericTarget.GenerateInterfaceCode(): Tasking mode for all model step functions must be either "IMPLICIT_TASKING" or "EXPLICIT_TASKING"!');
                 assert(codeInfo.OutputFunctions(n).Timing.SamplePeriod > 0, 'GT.GenericTarget.GenerateInterfaceCode(): The SamplePeriod must be greater than zero!');
                 assert(codeInfo.OutputFunctions(n).Timing.SampleOffset >= 0, 'GT.GenericTarget.GenerateInterfaceCode(): A negative SampleOffset is not supported for output functions!');
-                if(codeInfo.OutputFunctions(n).Timing.SamplePeriod < baseSampleTime)
+                if (codeInfo.OutputFunctions(n).Timing.SamplePeriod < baseSampleTime)
                     baseSampleTime = codeInfo.OutputFunctions(n).Timing.SamplePeriod;
                 end
             end
@@ -564,11 +564,11 @@ classdef GenericTarget < handle
             strArraySampleTicks = sprintf('%d', sampleTicks(1));
             strArrayOffsetTicks = sprintf('%d', offsetTicks(1));
             strArrayTaskNames = sprintf('"%s"', taskNames(1));
-            strStepSwitch = sprintf('        case 0: GetModelInstance().%s(); break;', stepPrototypes(1));
+            strStepSwitch = sprintf('        case 0:\n            GetModelInstance().%s();\n            break;', stepPrototypes(1));
             for n = uint32(2):numTimings
                 strArraySampleTicks = strcat(strArraySampleTicks, sprintf(',%d', sampleTicks(n)));
                 strArrayOffsetTicks = strcat(strArrayOffsetTicks, sprintf(',%d', offsetTicks(n)));
-                strStepSwitch = append(strStepSwitch, sprintf('\n        case %d: GetModelInstance().%s(); break;', uint32(n-1), stepPrototypes(n)));
+                strStepSwitch = append(strStepSwitch, sprintf('\n        case %d:\n            GetModelInstance().%s();\n            break;', uint32(n-1), stepPrototypes(n)));
                 strArrayTaskNames = append(strArrayTaskNames, sprintf(', "%s"', taskNames(n)));
             end
 
@@ -611,7 +611,7 @@ classdef GenericTarget < handle
 
             % compress all listings from the release folder
             fprintf('[GENERIC TARGET] Compressing release code into "%s"\n', zipFileName);
-            if(exist(zipFileName, 'file')), delete(zipFileName); end
+            if (exist(zipFileName, 'file')), delete(zipFileName); end
             zip(zipFileName, releaseListings);
             [~,~] = rmdir(releaseFolder, 's');
         end

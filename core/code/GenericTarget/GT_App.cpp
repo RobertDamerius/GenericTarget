@@ -3,10 +3,10 @@
 using namespace gt;
 
 
-App::App(int argc, char** argv){
+App::App(int argc, char** argv) {
     try {
         // store arguments passed to the application
-        for(int i = 0; i < argc; ++i){
+        for (int i = 0; i < argc; ++i) {
             args.emplace_back(argv[i]);
         }
         PrintInfo();
@@ -18,14 +18,14 @@ App::App(int argc, char** argv){
         // start the scheduler
         GENERIC_TARGET_PRINT_INFO("Creating real-time scheduler\n");
         m_rtScheduler = std::make_unique<RealTimeScheduler>();
-    } catch(const std::exception& e) {
+    } catch (const std::exception& e) {
         GENERIC_TARGET_PRINT_ERROR("{}\n", e.what());
         CloseSocket();
         throw;
     }
 }
 
-App::~App(){
+App::~App() {
     // destroy the scheduler
     GENERIC_TARGET_PRINT_INFO("Destroying real-time scheduler\n");
     m_rtScheduler.reset();
@@ -34,7 +34,7 @@ App::~App(){
     CloseSocket();
 }
 
-void App::Execute(){
+void App::Execute() {
     try {
         // initialize the model
         GENERIC_TARGET_PRINT_INFO("Initializing model\n");
@@ -44,13 +44,13 @@ void App::Execute(){
         GENERIC_TARGET_PRINT_INFO("Starting real-time scheduling\n");
         m_rtScheduler->Execute();
         GENERIC_TARGET_PRINT_INFO("Real-time application running\n");
-    } catch(const std::exception& e) {
+    } catch (const std::exception& e) {
         GENERIC_TARGET_PRINT_ERROR("{}\n", e.what());
         throw;
     }
 }
 
-void App::Shutdown(){
+void App::Shutdown() {
     // stop execution
     GENERIC_TARGET_PRINT_INFO("Stopping real-time scheduler\n");
     m_rtScheduler->Shutdown();
@@ -61,57 +61,57 @@ void App::Shutdown(){
 }
 
 double App::GetModelExecutionTime() noexcept {
-    if(m_rtScheduler == nullptr){
+    if (m_rtScheduler == nullptr) {
         return 0.0;
     }
     return m_rtScheduler->GetModelExecutionTime();
 }
 
 uint64_t App::GetNumCPUOverloads() const noexcept {
-    if(m_rtScheduler == nullptr){
+    if (m_rtScheduler == nullptr) {
         return 0U;
     }
     return m_rtScheduler->GetNumCPUOverloads();
 }
 
 uint64_t App::GetNumLostTicks() const noexcept {
-    if(m_rtScheduler == nullptr){
+    if (m_rtScheduler == nullptr) {
         return 0U;
     }
     return m_rtScheduler->GetNumLostTicks();
 }
 
 double App::GetTaskExecutionTime(const int taskID) const noexcept {
-    if(m_rtScheduler == nullptr){
+    if (m_rtScheduler == nullptr) {
         return 0.0;
     }
     return m_rtScheduler->GetTaskExecutionTime(taskID);
 }
 
 uint64_t App::GetNumTaskOverloads(const int taskID) const noexcept {
-    if(m_rtScheduler == nullptr){
+    if (m_rtScheduler == nullptr) {
         return 0U;
     }
     return m_rtScheduler->GetNumTaskOverloads(taskID);
 }
 
-std::string App::GetAbsoluteApplicationPath(){
+std::string App::GetAbsoluteApplicationPath() {
     std::filesystem::path absolutePath = std::filesystem::canonical("/proc/self/exe");
     absolutePath.remove_filename();
     return absolutePath.string();
 }
 
-void App::OpenSocket(const std::string_view& socketName){
+void App::OpenSocket(const std::string_view& socketName) {
     // validate socket name length
     ::sockaddr_un addr{};
     std::span<char> pathSpan{addr.sun_path};
-    if(socketName.empty() || ((socketName.size() + 2U) > pathSpan.size())){
+    if (socketName.empty() || ((socketName.size() + 2U) > pathSpan.size())) {
         throw std::runtime_error("Invalid socket name length\n");
     }
 
     // create abstract socket
     m_socket = ::socket(AF_UNIX, SOCK_STREAM, 0);
-    if(m_socket == -1){
+    if (m_socket == -1) {
         throw std::system_error(errno, std::generic_category(), "Failed to create application socket");
     }
 
@@ -121,30 +121,30 @@ void App::OpenSocket(const std::string_view& socketName){
     std::ranges::copy(socketName, pathSpan.subspan(1U).begin());
     pathSpan[1U + socketName.size()] = '\0';
     ::socklen_t addr_len = static_cast<::socklen_t>(offsetof(::sockaddr_un, sun_path) + 1U + socketName.size());
-    if(::bind(m_socket, reinterpret_cast<::sockaddr*>(&addr), addr_len) == -1){
+    if (::bind(m_socket, reinterpret_cast<::sockaddr*>(&addr), addr_len) == -1) {
         const int errorCode = errno;
         static_cast<void>(::close(m_socket));
         m_socket = -1;
-        if(errorCode == EADDRINUSE){
+        if (errorCode == EADDRINUSE) {
             throw std::system_error(errorCode, std::generic_category(), "Another instance of this application is already running");
         }
         throw std::system_error(errorCode, std::generic_category(), "Failed to bind application socket");
     }
 }
 
-void App::CloseSocket(){
-    if(m_socket != -1){
+void App::CloseSocket() {
+    if (m_socket != -1) {
         GENERIC_TARGET_PRINT_INFO("Destroying application socket\n");
-        if(::close(m_socket) == -1){
+        if (::close(m_socket) == -1) {
             GENERIC_TARGET_PRINT_ERROR("Failed to close application socket: {}\n", std::strerror(errno));
         }
         m_socket = -1;
     }
 }
 
-void App::PrintInfo(){
+void App::PrintInfo() {
     ::utsname info{};
-    if(::uname(&info) == -1){
+    if (::uname(&info) == -1) {
         GENERIC_TARGET_PRINT_WARNING("Failed to get operating system information: {}\n", std::strerror(errno));
     } else {
         GENERIC_TARGET_PRINT_RAW("sysname:                  {}\n", info.sysname);
@@ -158,9 +158,9 @@ void App::PrintInfo(){
     }
     struct ::if_nameindex *if_ni, *i;
     if_ni = ::if_nameindex();
-    if(if_ni){
+    if (if_ni) {
         GENERIC_TARGET_PRINT_RAW("network interfaces:       ");
-        for(i = if_ni; !((i->if_index == 0U) && (i->if_name == nullptr)); i++){
+        for (i = if_ni; !((i->if_index == 0U) && (i->if_name == nullptr)); i++) {
             GENERIC_TARGET_PRINT_RAW("[{}]", i->if_name);
         }
         GENERIC_TARGET_PRINT_RAW("\n");
@@ -170,7 +170,11 @@ void App::PrintInfo(){
     GENERIC_TARGET_PRINT_RAW("Generic Target Version:   {}\n", gt::version);
     GENERIC_TARGET_PRINT_RAW("Compiler Version:         {}\n", gt::compilerVersion);
     GENERIC_TARGET_PRINT_RAW("Application Path:         {}\n", GetAbsoluteApplicationPath());
-    GENERIC_TARGET_PRINT_RAW("Arguments:               "); for(std::size_t i = 0U; i < args.size(); i++){ GENERIC_TARGET_PRINT_RAW(" [{}]", args[i]); } GENERIC_TARGET_PRINT_RAW("\n");
+    GENERIC_TARGET_PRINT_RAW("Arguments:               ");
+    for (std::size_t i = 0U; i < args.size(); i++) {
+        GENERIC_TARGET_PRINT_RAW(" [{}]", args[i]);
+    }
+    GENERIC_TARGET_PRINT_RAW("\n");
     GENERIC_TARGET_PRINT_RAW("Maximum thread priority:  {}\n", ::sched_get_priority_max(SCHED_FIFO));
     GENERIC_TARGET_PRINT_RAW("Minimum thread priority:  {}\n", ::sched_get_priority_min(SCHED_FIFO));
     GENERIC_TARGET_PRINT_RAW("\n");
@@ -179,8 +183,10 @@ void App::PrintInfo(){
     GENERIC_TARGET_PRINT_RAW("baseSampleTime:           {:f} s\n", SimulinkInterface::baseSampleTime);
     GENERIC_TARGET_PRINT_RAW("basePriority:             {}\n", gt::basePriority);
     GENERIC_TARGET_PRINT_RAW("tasks:                    ");
-    for(int i = 0; i < SIMULINK_INTERFACE_NUM_TIMINGS; ++i){
-        if(i) GENERIC_TARGET_PRINT_RAW("                          ");
+    for (int i = 0; i < SIMULINK_INTERFACE_NUM_TIMINGS; ++i) {
+        if (i != 0) {
+            GENERIC_TARGET_PRINT_RAW("                          ");
+        }
         GENERIC_TARGET_PRINT_RAW("[{}]: name=\"{}\", sampleTicks={}, sampleOffset={}\n",
             i,
             SimulinkInterface::taskNames[i],

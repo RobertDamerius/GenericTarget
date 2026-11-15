@@ -11,7 +11,7 @@ end
 
 % save path
 str = input('\nSave path? [y]: ', 's');
-if(strcmp('y', str))
+if (strcmp('y', str))
     savepath;
     fprintf('Path saved\n');
 else
@@ -20,7 +20,7 @@ end
 
 % build driver blocks
 str = input('\nRebuild Simulink driver blocks? [y]: ', 's');
-if(strcmp('y', str))
+if (strcmp('y', str))
     GT.BuildDrivers();
     fprintf('Simulink driver blocks rebuilt\n');
 else

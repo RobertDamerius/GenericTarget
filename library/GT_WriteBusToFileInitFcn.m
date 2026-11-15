@@ -7,7 +7,7 @@ function GT_WriteBusToFileInitFcn(block)
     isUpdating = strcmp(get_param(blockNameBytePack,'Commented'),'on');
 
     % prevent this callback code from being called during a block update via the block mask
-    if(~isUpdating)
+    if (~isUpdating)
         % delete all line handles between bus selector and byte pack block
         lineHandles = get_param(blockNameBusSelector,'LineHandles');  delete_line(lineHandles.Outport(lineHandles.Outport >= 0));
         lineHandles = get_param(blockNameBytePack,'LineHandles');     delete_line(lineHandles.Inport(lineHandles.Inport >= 0));

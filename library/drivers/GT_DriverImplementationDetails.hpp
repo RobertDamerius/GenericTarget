@@ -29,8 +29,12 @@ namespace gt::driver {
  */
 class LockGuard {
     public:
-        explicit LockGuard(::pthread_mutex_t& mutex) : m_mtx(&mutex){ ::pthread_mutex_lock(m_mtx); }
-        ~LockGuard(){ ::pthread_mutex_unlock(m_mtx); }
+        explicit LockGuard(::pthread_mutex_t& mutex) : m_mtx(&mutex) {
+            ::pthread_mutex_lock(m_mtx);
+        }
+        ~LockGuard() {
+            ::pthread_mutex_unlock(m_mtx);
+        }
         LockGuard(const LockGuard&) = delete;
         LockGuard& operator=(const LockGuard&) = delete;
 
@@ -205,7 +209,7 @@ template <typename T> class DataRecorderTemplate: public DataRecorderBase {
         /**
          * @brief Construct a new data recorder template.
          */
-        DataRecorderTemplate(){
+        DataRecorderTemplate() {
             ::pthread_mutexattr_t attr;
             ::pthread_mutexattr_init(&attr);
             ::pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
@@ -216,7 +220,7 @@ template <typename T> class DataRecorderTemplate: public DataRecorderBase {
         /**
          * @brief Destroy the data recorder template.
          */
-        ~DataRecorderTemplate(){
+        ~DataRecorderTemplate() {
             ::pthread_mutex_destroy(&m_mtxBuffer);
         }
 
@@ -241,11 +245,11 @@ template <typename T> class DataRecorderTemplate: public DataRecorderBase {
          * @brief Write remaining samples in the buffer to the file.
          * @return True if success, false otherwise.
          */
-        bool FlushBuffer(){
+        bool FlushBuffer() {
             const LockGuard lock(m_mtxBuffer);
             bool success = true;
             WriteBufferToDataFiles(m_buffer);
-            if(m_buffer.size()){
+            if (m_buffer.size()) {
                 m_buffer.clear();
                 success = false;
             }
@@ -255,23 +259,23 @@ template <typename T> class DataRecorderTemplate: public DataRecorderBase {
         /**
          * @brief Data recorder thread function.
          */
-        void ThreadDataRecorder(){
+        void ThreadDataRecorder() {
             std::vector<T> localBuffer;
-            while(!m_terminate.load(std::memory_order_relaxed)){
+            while (!m_terminate.load(std::memory_order_relaxed)) {
                 m_event.Wait();
-                if(m_terminate.load(std::memory_order_relaxed)){
+                if (m_terminate.load(std::memory_order_relaxed)) {
                     break;
                 }
                 {
                     const LockGuard lock(m_mtxBuffer);
-                    if(m_buffer.size()){
+                    if (m_buffer.size()) {
                         localBuffer.insert(localBuffer.end(), m_buffer.begin(), m_buffer.end());
                         m_buffer.clear();
                     }
                 }
                 WriteBufferToDataFiles(localBuffer);
             }
-            if(localBuffer.size()){
+            if (localBuffer.size()) {
                 const LockGuard lock(m_mtxBuffer);
                 m_buffer.insert(m_buffer.begin(), localBuffer.begin(), localBuffer.end());
             }
@@ -284,7 +288,9 @@ template <typename T> class DataRecorderTemplate: public DataRecorderBase {
  */
 class DataRecorderScalarDoubles: public DataRecorderTemplate<double> {
     public:
-        ~DataRecorderScalarDoubles(){ Stop(); }
+        ~DataRecorderScalarDoubles() {
+            Stop();
+        }
 
         /**
          * @brief Write data values to buffer.
@@ -316,7 +322,9 @@ class DataRecorderScalarDoubles: public DataRecorderTemplate<double> {
  */
 class DataRecorderBus: public DataRecorderTemplate<uint8_t> {
     public:
-        ~DataRecorderBus(){ Stop(); }
+        ~DataRecorderBus() {
+            Stop();
+        }
 
         /**
          * @brief Write data values to buffer.
@@ -351,7 +359,9 @@ class DataRecorderManager {
         /**
          * @brief Destroy the manager for data recordings.
          */
-        ~DataRecorderManager(){ ClearAllDataRecorders(); }
+        ~DataRecorderManager() {
+            ClearAllDataRecorders();
+        }
 
         /**
          * @brief Add a new data recorder for scalar doubles.
@@ -486,7 +496,7 @@ class Address {
          * @brief Create an address object (IP version 4).
          * @details IPv4 address and port are set to zero.
          */
-        Address():Address(0,0,0,0,0){}
+        Address() : Address(0U, 0U, 0U, 0U, 0U) {}
 
         /**
          * @brief Create an address object (IP version 4).
@@ -528,7 +538,9 @@ class SocketBase {
         /**
          * @brief Destroy the socket base object.
          */
-        virtual ~SocketBase(){ Close(); }
+        virtual ~SocketBase() {
+            Close();
+        }
 
         /**
          * @brief Close the socket.
@@ -923,7 +935,9 @@ class UDPServiceManager {
         /**
          * @brief Destroy the UDP service manager.
          */
-        ~UDPServiceManager(){ ClearAllServices(); }
+        ~UDPServiceManager() {
+            ClearAllServices();
+        }
 
         /**
          * @brief Add a new UDP service for a UDP block.
@@ -1131,7 +1145,9 @@ class TCPClientServiceManager {
         /**
          * @brief Destroy the TCP client service manager.
          */
-        ~TCPClientServiceManager(){ ClearAllServices(); }
+        ~TCPClientServiceManager() {
+            ClearAllServices();
+        }
 
         /**
          * @brief Add a new TCP client service for a TCP client block.

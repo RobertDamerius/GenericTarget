@@ -2,20 +2,20 @@
 #include <chrono>
 
 
-void GT_DriverLocalTimeInitialize(){}
+void GT_DriverLocalTimeInitialize() {}
 
-void GT_DriverLocalTimeTerminate(){}
+void GT_DriverLocalTimeTerminate() {}
 
-void GT_DriverLocalTimeStep(int32_t* nanoseconds, int32_t* second, int32_t* minute, int32_t* hour, int32_t* mday, int32_t* month, int32_t* year, int32_t* wday, int32_t* yday, int32_t* isdst){
+void GT_DriverLocalTimeStep(int32_t* nanoseconds, int32_t* second, int32_t* minute, int32_t* hour, int32_t* mday, int32_t* month, int32_t* year, int32_t* wday, int32_t* yday, int32_t* isdst) {
     auto timePoint = std::chrono::system_clock::now();
     std::time_t systemTime = std::chrono::system_clock::to_time_t(timePoint);
     std::tm localTimeStruct;
     #if defined(_WIN32) // #TODO: use std::localtime_r when C++26 is fully supported
-        std::tm* localTime = localtime_s(&localTimeStruct, &systemTime) == 0 ? &localTimeStruct : nullptr;
+    std::tm* localTime = localtime_s(&localTimeStruct, &systemTime) == 0 ? &localTimeStruct : nullptr;
     #else
-        std::tm* localTime = ::localtime_r(&systemTime, &localTimeStruct);
+    std::tm* localTime = ::localtime_r(&systemTime, &localTimeStruct);
     #endif
-    if(localTime == nullptr){
+    if (localTime == nullptr) {
         *nanoseconds = 0;
         *second = 0;
         *minute = 0;

@@ -13,21 +13,21 @@ function info = DecodeIndexFile(filename)
 
     % open index file
     [fp, errmsg] = fopen(filename, 'r');
-    if(fp == -1)
+    if (fp == -1)
         error('Failed to open index file "%s": %s', filename, errmsg);
     end
     fprintf('[GENERIC TARGET] Decoding index file "%s" ...', filename);
 
     % header should be: 'G' (71), 'T' (84), 'I' (73), 'D' (68), 'X' (88)
     bytesHeader = uint8(fread(fp, 5));
-    if((5 ~= numel(bytesHeader)) || (uint8(71) ~= bytesHeader(1)) || (uint8(84) ~= bytesHeader(2)) || (uint8(73) ~= bytesHeader(3)) || (uint8(68) ~= bytesHeader(4)) || (uint8(88) ~= bytesHeader(5)))
+    if ((5 ~= numel(bytesHeader)) || (uint8(71) ~= bytesHeader(1)) || (uint8(84) ~= bytesHeader(2)) || (uint8(73) ~= bytesHeader(3)) || (uint8(68) ~= bytesHeader(4)) || (uint8(88) ~= bytesHeader(5)))
         fclose(fp);
         error('Invalid header of file: "%s"', filename);
     end
 
     % decode date
     bytesDate = uint8(fread(fp, 11));
-    if(11 ~= numel(bytesDate))
+    if (11 ~= numel(bytesDate))
         fclose(fp);
         error('Invalid header of file: "%s"', filename);
     end
@@ -41,7 +41,7 @@ function info = DecodeIndexFile(filename)
 
     % number of IDs
     bytesNumIDs = uint8(fread(fp, 4));
-    if(4 ~= numel(bytesNumIDs))
+    if (4 ~= numel(bytesNumIDs))
         fclose(fp);
         error('Invalid header of file: "%s"',filename);
     end
@@ -51,13 +51,13 @@ function info = DecodeIndexFile(filename)
     info.listOfIDs = cell.empty();
     for i = uint32(1):numIDs
         strID = char.empty();
-        while(true)
+        while (true)
             byte = uint8(fread(fp, 1));
-            if(1 ~= numel(byte))
+            if (1 ~= numel(byte))
                 fclose(fp);
                 error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!', numel(byte), filename);
             end
-            if(~byte)
+            if (~byte)
                 break;
             end
             strID = append(strID, char(byte));
@@ -67,13 +67,13 @@ function info = DecodeIndexFile(filename)
 
     % version (zero-terminated string)
     info.version = char.empty();
-    while(true)
+    while (true)
         byte = uint8(fread(fp, 1));
-        if(1 ~= numel(byte))
+        if (1 ~= numel(byte))
             fclose(fp);
             error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!', numel(byte), filename);
         end
-        if(~byte)
+        if (~byte)
             break;
         end
         info.version = [info.version, char(byte)];
@@ -81,13 +81,13 @@ function info = DecodeIndexFile(filename)
 
     % model name (zero-terminated string)
     info.modelName = char.empty();
-    while(true)
+    while (true)
         byte = uint8(fread(fp, 1));
-        if(1 ~= numel(byte))
+        if (1 ~= numel(byte))
             fclose(fp);
             error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!', numel(byte), filename);
         end
-        if(~byte)
+        if (~byte)
             break;
         end
         info.modelName = [info.modelName, char(byte)];
@@ -95,13 +95,13 @@ function info = DecodeIndexFile(filename)
 
     % compilerVersion (zero-terminated string)
     info.compilerVersion = char.empty();
-    while(true)
+    while (true)
         byte = uint8(fread(fp, 1));
-        if(1 ~= numel(byte))
+        if (1 ~= numel(byte))
             fclose(fp);
             error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!', numel(byte), filename);
         end
-        if(~byte)
+        if (~byte)
             break;
         end
         info.compilerVersion = [info.compilerVersion, char(byte)];
@@ -109,13 +109,13 @@ function info = DecodeIndexFile(filename)
 
     % OSInfo (zero-terminated string)
     info.operatingSystemInfo = char.empty();
-    while(true)
+    while (true)
         byte = uint8(fread(fp, 1));
-        if(1 ~= numel(byte))
+        if (1 ~= numel(byte))
             fclose(fp);
             error('Tried to read 1 byte but could only read %d byte(s). File: "%s" may not be complete!', numel(byte), filename);
         end
-        if(~byte)
+        if (~byte)
             break;
         end
         info.operatingSystemInfo = [info.operatingSystemInfo, char(byte)];

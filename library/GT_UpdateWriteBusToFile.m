@@ -75,8 +75,8 @@ function [strDimensions, bytesPerSample] = ExtractCompiledDimension(compiled_dat
     % The values of Outport are a concatenation of dimensions for all signal, where the dimension for one
     % signal is encoded by the vector [numberOfDimensions(N) sizeOfDimension1 ... sizeOfDimensionN]. For example,
     % a 5-by-8 matrix is a 2-dimensional signal and would thus be represented by [2 5 8]. A scalar would be [1 1].
-    while(i < numel(compiled_dimensions.Outport))
-        if(i > 1)
+    while (i < numel(compiled_dimensions.Outport))
+        if (i > 1)
             strDimensions = strcat(strDimensions,',');
         end
         N = compiled_dimensions.Outport(i);
@@ -85,7 +85,7 @@ function [strDimensions, bytesPerSample] = ExtractCompiledDimension(compiled_dat
         numSignals = uint32(1);
         for k = 1:N
             numSignals = numSignals * compiled_dimensions.Outport(i);
-            if(k > 1)
+            if (k > 1)
                 strDimensions = strcat(strDimensions,[' ', num2str(compiled_dimensions.Outport(i))]);
             else
                 strDimensions = strcat(strDimensions,num2str(compiled_dimensions.Outport(i)));
@@ -100,7 +100,7 @@ end
 
 function result = SizeOfType(type)
     result = uint32(0);
-    switch(type)
+    switch (type)
         case {'boolean','logical','uint8','int8'}
             result = uint32(1);
         case {'uint16','int16'}

@@ -28,31 +28,31 @@ function [data,info] = DecodeDataDirectory(directory)
         k = 0;
         for j = 1:numel(listing)
             filename = fullfile(listing(j).folder, listing(j).name);
-            if(listing(j).isdir || ~isfile(filename))
+            if (listing(j).isdir || ~isfile(filename))
                 continue;
             end
 
             % find the last underscore '_' in the name
             idxUnderscore = strfind(listing(j).name, '_');
-            if(isempty(idxUnderscore))
+            if (isempty(idxUnderscore))
                 continue;
             end
             idxLastUnderscore = idxUnderscore(end);
 
             % make sure that only digits appear after the last underscore
             sNum = listing(j).name((idxLastUnderscore + 1):end);
-            if(isempty(sNum))
+            if (isempty(sNum))
                 continue;
             end
             maskDigits = isstrprop(sNum, 'digit');
-            if(sum(maskDigits) == numel(maskDigits))
+            if (sum(maskDigits) == numel(maskDigits))
                 k = k + 1;
                 dataFileNames{k} = filename;
             end
         end
 
         % decode all filenames
-        if(~isempty(dataFileNames))
+        if (~isempty(dataFileNames))
             data.(idName) = GT.DecodeDataFiles(dataFileNames);
         end
     end

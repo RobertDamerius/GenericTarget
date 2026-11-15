@@ -8,7 +8,7 @@ function data = DecodeDataFiles(dataFileNames)
     % data ... The data structure containing timeseries for all recorded signals.
 
     % check for correct input
-    if(ischar(dataFileNames))
+    if (ischar(dataFileNames))
         dataFileNames = {dataFileNames};
     end
     assert(iscell(dataFileNames), 'GT.DecodeDataFiles(): Input "dataFileNames" must be a string or a cell array of strings!');
@@ -18,12 +18,12 @@ function data = DecodeDataFiles(dataFileNames)
 
     % fallback output
     data = struct();
-    if(isempty(dataFileNames))
+    if (isempty(dataFileNames))
         return;
     end
 
     % decode/check all headers and make sure that all headers are equal
-    if(isscalar(dataFileNames)), fprintf('[GENERIC TARGET] Decoding %d data file: reading binary data', numel(dataFileNames));
+    if (isscalar(dataFileNames)), fprintf('[GENERIC TARGET] Decoding %d data file: reading binary data', numel(dataFileNames));
     else, fprintf('[GENERIC TARGET] Decoding %d data files: reading binary data', numel(dataFileNames)); end
     tic();
     header = struct.empty();
@@ -31,10 +31,10 @@ function data = DecodeDataFiles(dataFileNames)
     for i = 1:numel(dataFileNames)
         [success, h, chunkSizeSampleData] = DecodeHeader(dataFileNames{i});
         numBytesSampleData = numBytesSampleData + chunkSizeSampleData;
-        if(~success)
+        if (~success)
             error(['Failed to decode target data file "' dataFileNames{i} '"!']);
         end
-        if(isempty(header))
+        if (isempty(header))
             header = h;
         else
             equal = strcmp(header.id, h.id);
@@ -45,7 +45,7 @@ function data = DecodeDataFiles(dataFileNames)
             equal = equal & strcmp(header.dimensions, h.dimensions);
             equal = equal & strcmp(header.dataTypes, h.dataTypes);
             equal = equal & (header.bigEndian == h.bigEndian);
-            if(~equal)
+            if (~equal)
                 error(['All target data files must have the same header, but header of file "' dataFileNames{i} '" is different than header of file "' dataFileNames{1} '"!']);
             end
         end
@@ -53,7 +53,7 @@ function data = DecodeDataFiles(dataFileNames)
 
     % decoding header information
     [success, signalNames, dimensions, dataTypes] = ConvertHeader(header);
-    if(~success)
+    if (~success)
         error('Failed to read signal names, dimensions and/or dataTypes from header!');
     end
 
@@ -66,12 +66,12 @@ function data = DecodeDataFiles(dataFileNames)
     idx1 = uint64(1);
     for i = 1:numel(dataFileNames)
         [fp, errmsg] = fopen(dataFileNames{i}, 'r');
-        if(fp == -1)
+        if (fp == -1)
             error('Failed to open file "%s": %s', dataFileNames{i}, errmsg);
         end
         fseek(fp, 0, 'eof');
         fileDataSize = uint64(ftell(fp));
-        if(fileDataSize < uint64(header.offsetSampleData))
+        if (fileDataSize < uint64(header.offsetSampleData))
             error(['Invalid header of file "' dataFileNames{i} '"! Failed to read sample data!']);
         end
         sampleDataSize = fileDataSize - uint64(header.offsetSampleData);
@@ -83,7 +83,7 @@ function data = DecodeDataFiles(dataFileNames)
 
     % check if size of read binary data is a multiple of the size of one sample data buffer
     numberOfSamples = uint64(floor(double(numBytesSampleData) / double(uint64(8) + uint64(header.numBytesPerSample))));
-    if((numberOfSamples * (uint64(8) + uint64(header.numBytesPerSample))) ~= numBytesSampleData)
+    if ((numberOfSamples * (uint64(8) + uint64(header.numBytesPerSample))) ~= numBytesSampleData)
         warning('Incomplete sample data. The last sample may be missing.');
     end
 
@@ -92,7 +92,7 @@ function data = DecodeDataFiles(dataFileNames)
     stride = uint64(8 + header.numBytesPerSample);
     idx1 = reshape(repmat(stride * (uint64(0):(numberOfSamples-uint64(1))), [8,1]) + repmat(uint64(1:8)', [1,numberOfSamples]), [uint64(8)*numberOfSamples,1]);
     timeVec = typecast(bytes(idx1), 'double');
-    if(thisBigEndian ~= header.bigEndian)
+    if (thisBigEndian ~= header.bigEndian)
         timeVec = swapbytes(timeVec);
     end
 
@@ -105,13 +105,13 @@ function data = DecodeDataFiles(dataFileNames)
         dim = uint64(dimensions{k});
         name = signalNames{k};
         type = dataTypes{k};
-        if(strcmp(type,'boolean') || strcmp(type,'logical'))
+        if (strcmp(type,'boolean') || strcmp(type,'logical'))
             type = 'uint8';
         end
 
         % Show progress
         progress = int32(floor(100.0 * (double(k - 1) / double(header.numSignals))));
-        if(progress ~= prevProgress)
+        if (progress ~= prevProgress)
             prevProgress = progress;
             fprintf('\b\b\b\b\b\b%03d %%]', progress);
         end
@@ -120,7 +120,7 @@ function data = DecodeDataFiles(dataFileNames)
         sizeOfSignal = GetSizeOfSignal(dim, type);
         byteIndices = offsetSignalData + cumsum(repmat([stride; zeros(sizeOfSignal-1,1)], [numberOfSamples 1])) - stride + repmat(((1:sizeOfSignal)' - 1), [numberOfSamples 1]);
         valuesCasted = typecast(bytes(byteIndices), type);
-        if(numel(dim) > 1) % multi-dimensional signal
+        if (numel(dim) > 1) % multi-dimensional signal
             dataVals = reshape(valuesCasted, [dim, numberOfSamples]);
         else % scalar signal
             dataVals = valuesCasted;
@@ -128,7 +128,7 @@ function data = DecodeDataFiles(dataFileNames)
         offsetSignalData = offsetSignalData + sizeOfSignal;
 
         % Check for correct endianess
-        if(thisBigEndian ~= header.bigEndian)
+        if (thisBigEndian ~= header.bigEndian)
             dataVals = swapbytes(dataVals);
         end
 
@@ -156,13 +156,13 @@ function [success, header, chunkSizeSampleData] = DecodeHeader(filename)
 
     % Open file
     [fp, errmsg] = fopen(filename, 'r');
-    if(fp == -1)
+    if (fp == -1)
         error('Failed to open file "%s": %s', filename, errmsg);
     end
 
     % Read header ID
     bytes = uint8(fread(fp, 5));
-    if(5 ~= numel(bytes)), fclose(fp); return; end
+    if (5 ~= numel(bytes)), fclose(fp); return; end
     header.id = char(reshape(bytes, [1 5]));
 
     % Read sample data offset
@@ -170,21 +170,21 @@ function [success, header, chunkSizeSampleData] = DecodeHeader(filename)
     header.offsetSampleData = uint32(bitor(bitor(bitshift(uint32(bytes(1)), 24),bitshift(uint32(bytes(2)), 16)),bitor(bitshift(uint32(bytes(3)), 8),uint32(bytes(4)))));
 
     % Read remaining header bytes and get chunk size of sample data
-    if(header.offsetSampleData < uint32(9)), fclose(fp); return; end
+    if (header.offsetSampleData < uint32(9)), fclose(fp); return; end
     N = header.offsetSampleData - uint32(9);
     bytes = uint8(fread(fp, N));
     fseek(fp, 0, 'eof');
     chunkSizeSampleData = uint64(ftell(fp)) - uint64(header.offsetSampleData);
     fclose(fp);
-    if(N ~= uint32(numel(bytes))), return; end
+    if (N ~= uint32(numel(bytes))), return; end
 
     % Decode endianess indicator for sample data (end of header data)
-    if(N < 5), return; end
-    if((uint8(1) ~= bytes(end)) && (uint8(128) ~= bytes(end))), return; end
+    if (N < 5), return; end
+    if ((uint8(1) ~= bytes(end)) && (uint8(128) ~= bytes(end))), return; end
     header.bigEndian = (uint8(128) == bytes(end));
 
     % Decode header content depending on ID
-    switch(header.id)
+    switch (header.id)
         case 'GTDBL'
             % Decode numSignals
             header.numSignals = uint32(bitor(bitor(bitshift(uint32(bytes(1)),24),bitshift(uint32(bytes(2)),16)),bitor(bitshift(uint32(bytes(3)),8),uint32(bytes(4)))));
@@ -192,7 +192,7 @@ function [success, header, chunkSizeSampleData] = DecodeHeader(filename)
 
             % Decode labels
             idxZeroTerminator = find(~bytes(idx1:end), 1);
-            if(isempty(idxZeroTerminator)), return; end
+            if (isempty(idxZeroTerminator)), return; end
             L = int32(idxZeroTerminator) - int32(1);
             header.labels = char(reshape(bytes(idx1:(idx1 + L - int32(1))), [1 L]));
 
@@ -200,7 +200,7 @@ function [success, header, chunkSizeSampleData] = DecodeHeader(filename)
             header.numBytesPerSample = header.numSignals * uint32(8);
             header.dimensions = repmat('[1],', [1 header.numSignals]);
             header.dataTypes = repmat('double,', [1 header.numSignals]);
-            if(header.numSignals)
+            if (header.numSignals)
                 header.dimensions = header.dimensions(1:end-1);
                 header.dataTypes = header.dataTypes(1:end-1);
             end
@@ -211,21 +211,21 @@ function [success, header, chunkSizeSampleData] = DecodeHeader(filename)
 
             % Decode labels
             idxZeroTerminator = find(~bytes(idx1:end), 1);
-            if(isempty(idxZeroTerminator)), return; end
+            if (isempty(idxZeroTerminator)), return; end
             L = int32(idxZeroTerminator) - int32(1);
             header.labels = char(reshape(bytes(idx1:(idx1 + L - int32(1))), [1 L]));
             idx1 = idx1 + L + int32(1);
 
             % Decode dimensions
             idxZeroTerminator = find(~bytes(idx1:end), 1);
-            if(isempty(idxZeroTerminator)), return; end
+            if (isempty(idxZeroTerminator)), return; end
             L = int32(idxZeroTerminator) - int32(1);
             header.dimensions = char(reshape(bytes(idx1:(idx1 + L - int32(1))), [1 L]));
             idx1 = idx1 + L + int32(1);
 
             % Decode dataTypes
             idxZeroTerminator = find(~bytes(idx1:end), 1);
-            if(isempty(idxZeroTerminator)), return; end
+            if (isempty(idxZeroTerminator)), return; end
             L = int32(idxZeroTerminator) - int32(1);
             header.dataTypes = char(reshape(bytes(idx1:(idx1 + L - int32(1))), [1 L]));
 
@@ -245,18 +245,18 @@ function [success, signalNames, dimensions, dataTypes] = ConvertHeader(header)
     strDimensions = split(strDimensions, ',');
     dimensions = cellfun(@str2num,strDimensions, 'UniformOutput', false);
     for i = 1:numel(dimensions)
-        if(isscalar(dimensions{i}))
-            if(dimensions{i} > 1)
+        if (isscalar(dimensions{i}))
+            if (dimensions{i} > 1)
                 dimensions{i} = [dimensions{i}, 1];
             end
         end
-        if(1 == prod(dimensions{i}))
+        if (1 == prod(dimensions{i}))
             dimensions{i} = 1;
         end
     end
     dimensions = reshape(dimensions, [1 numel(dimensions)]);
     dataTypes = split(header.dataTypes, ',');
-    if((numel(signalNames) ~= numel(dimensions)) || (numel(signalNames) ~= numel(dataTypes)) || (numel(signalNames) ~= header.numSignals))
+    if ((numel(signalNames) ~= numel(dimensions)) || (numel(signalNames) ~= numel(dataTypes)) || (numel(signalNames) ~= header.numSignals))
         success = false;
     end
 end
@@ -264,7 +264,7 @@ end
 function result = GetSizeOfSignal(dim, type)
     result = uint64(0);
     numValues = uint64(prod(dim));
-    switch(type)
+    switch (type)
         case {'boolean', 'logical', 'uint8', 'int8'}
             result = numValues;
         case {'uint16', 'int16'}

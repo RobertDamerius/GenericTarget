@@ -2,20 +2,20 @@
 #include <chrono>
 
 
-void GT_DriverUTCTimestampInitialize(){}
+void GT_DriverUTCTimestampInitialize() {}
 
-void GT_DriverUTCTimestampTerminate(){}
+void GT_DriverUTCTimestampTerminate() {}
 
-void GT_DriverUTCTimestampStep(double* timestamp){
+void GT_DriverUTCTimestampStep(double* timestamp) {
     auto timePoint = std::chrono::system_clock::now();
     std::time_t systemTime = std::chrono::system_clock::to_time_t(timePoint);
     std::tm gmTimeStruct;
     #if defined(_WIN32) // #TODO: use std::gmtime_r when C++26 is fully supported
-        std::tm* gmTime = gmtime_s(&gmTimeStruct, &systemTime) == 0 ? &gmTimeStruct : nullptr;
+    std::tm* gmTime = gmtime_s(&gmTimeStruct, &systemTime) == 0 ? &gmTimeStruct : nullptr;
     #else
-        std::tm* gmTime = ::gmtime_r(&systemTime, &gmTimeStruct);
+    std::tm* gmTime = ::gmtime_r(&systemTime, &gmTimeStruct);
     #endif
-    if(gmTime == nullptr){
+    if (gmTime == nullptr) {
         *timestamp = 0.0;
         return;
     }

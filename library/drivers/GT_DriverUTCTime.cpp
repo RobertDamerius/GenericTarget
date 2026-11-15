@@ -2,20 +2,20 @@
 #include <chrono>
 
 
-void GT_DriverUTCTimeInitialize(){}
+void GT_DriverUTCTimeInitialize() {}
 
-void GT_DriverUTCTimeTerminate(){}
+void GT_DriverUTCTimeTerminate() {}
 
-void GT_DriverUTCTimeStep(int32_t* nanoseconds, int32_t* second, int32_t* minute, int32_t* hour, int32_t* mday, int32_t* month, int32_t* year, int32_t* wday, int32_t* yday, int32_t* isdst){
+void GT_DriverUTCTimeStep(int32_t* nanoseconds, int32_t* second, int32_t* minute, int32_t* hour, int32_t* mday, int32_t* month, int32_t* year, int32_t* wday, int32_t* yday, int32_t* isdst) {
     auto timePoint = std::chrono::system_clock::now();
     std::time_t systemTime = std::chrono::system_clock::to_time_t(timePoint);
     std::tm gmTimeStruct;
     #if defined(_WIN32) // #TODO: use std::gmtime_r when C++26 is fully supported
-        std::tm* gmTime = gmtime_s(&gmTimeStruct, &systemTime) == 0 ? &gmTimeStruct : nullptr;
+    std::tm* gmTime = gmtime_s(&gmTimeStruct, &systemTime) == 0 ? &gmTimeStruct : nullptr;
     #else
-        std::tm* gmTime = ::gmtime_r(&systemTime, &gmTimeStruct);
+    std::tm* gmTime = ::gmtime_r(&systemTime, &gmTimeStruct);
     #endif
-    if(gmTime == nullptr){
+    if (gmTime == nullptr) {
         *second = 0;
         *minute = 0;
         *hour = 0;
