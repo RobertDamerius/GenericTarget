@@ -8,7 +8,7 @@ RealTimeScheduler::RealTimeScheduler(){
     m_timeOfStart.store(std::chrono::steady_clock::now(), std::memory_order_relaxed);
 
     // start worker threads
-    for(uint32_t id = 0; id < SIMULINK_INTERFACE_NUM_TIMINGS; ++id){
+    for(int id = 0; id < SIMULINK_INTERFACE_NUM_TIMINGS; ++id){
         m_tasks.push_back(std::make_unique<PeriodicTask>(id));
     }
 
@@ -31,7 +31,7 @@ RealTimeScheduler::RealTimeScheduler(){
     // set master thread priority
     ::sched_param param;
     param.sched_priority = gt::basePriority;
-    if(0 != ::pthread_setschedparam(m_masterThread.native_handle(), SCHED_FIFO, &param)){
+    if(::pthread_setschedparam(m_masterThread.native_handle(), SCHED_FIFO, &param) != 0){
         std::string msg = std::format("Failed to set thread priority {} of real-time scheduler (sampletime={})",
             gt::basePriority,
             SimulinkInterface::baseSampleTime);
@@ -50,7 +50,7 @@ RealTimeScheduler::~RealTimeScheduler(){
     // check and print overloads
     uint64_t numCPUOverloads = m_timer.GetNumCPUOverloads();
     uint64_t numLostTicks = m_timer.GetNumLostTicks();
-    if(numCPUOverloads || numLostTicks){
+    if((numCPUOverloads != 0ULL) || (numLostTicks != 0ULL)){
         GENERIC_TARGET_PRINT_ERROR("Master thread stopped with overloads ({} CPU overloads, {} lost ticks)\n", numCPUOverloads, numLostTicks);
     }
 
@@ -98,7 +98,7 @@ void RealTimeScheduler::MasterThread(void){
             RuntimeEnvironment::RequestStop();
             break;
         }
-        if(tickResult == 0 || m_terminate.load(std::memory_order_acquire)){
+        if((tickResult == 0) || m_terminate.load(std::memory_order_acquire)){
             break;
         }
 

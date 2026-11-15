@@ -383,7 +383,7 @@ classdef GenericTarget < handle
 
             % write Makefile to release folder
             fidMakefile = fopen(dstMakefile, 'w');
-            if(-1 == fidMakefile)
+            if(fidMakefile == -1)
                 error('Failed to write to file "%s"', dstMakefile);
             end
             fwrite(fidMakefile, uint8(strMakefile));
@@ -402,7 +402,7 @@ classdef GenericTarget < handle
 
             % write readme file to release folder
             fidReadme = fopen(dstReadme, 'w');
-            if(-1 == fidReadme)
+            if(fidReadme == -1)
                 error('Failed to write to file "%s"', dstReadme);
             end
             fwrite(fidReadme, uint8(strReadme));
@@ -419,7 +419,7 @@ classdef GenericTarget < handle
 
             % overwrite launch file to release folder
             fidLaunch = fopen(dstLaunch, 'w');
-            if(-1 == fidLaunch)
+            if(fidLaunch == -1)
                 error('Failed to write to file "%s"', dstLaunch);
             end
             fwrite(fidLaunch, uint8(strLaunch));
@@ -487,10 +487,10 @@ classdef GenericTarget < handle
             sourceFile = fullfile(modelCodeFolder, 'SimulinkInterface.cpp');
             fidHeader = fopen(headerFile, 'w');
             fidSource = fopen(sourceFile, 'w');
-            if(-1 == fidHeader)
+            if(fidHeader == -1)
                 error('Failed to write to file "%s"', headerFile);
             end
-            if(-1 == fidSource)
+            if(fidSource == -1)
                 error('Failed to write to file "%s"', sourceFile);
             end
             fwrite(fidHeader, uint8(strInterfaceHeader));

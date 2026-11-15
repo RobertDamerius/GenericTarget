@@ -69,14 +69,14 @@ double App::GetModelExecutionTime(void) noexcept {
 
 uint64_t App::GetNumCPUOverloads(void) const noexcept {
     if(m_rtScheduler == nullptr){
-        return uint64_t{0};
+        return 0ULL;
     }
     return m_rtScheduler->GetNumCPUOverloads();
 }
 
 uint64_t App::GetNumLostTicks(void) const noexcept {
     if(m_rtScheduler == nullptr){
-        return uint64_t{0};
+        return 0ULL;
     }
     return m_rtScheduler->GetNumLostTicks();
 }
@@ -90,7 +90,7 @@ double App::GetTaskExecutionTime(const int taskID) const noexcept {
 
 uint64_t App::GetNumTaskOverloads(const int taskID) const noexcept {
     if(m_rtScheduler == nullptr){
-        return uint64_t{0};
+        return 0ULL;
     }
     return m_rtScheduler->GetNumTaskOverloads(taskID);
 }

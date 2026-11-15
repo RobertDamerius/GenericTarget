@@ -10,7 +10,7 @@ PeriodicTask::PeriodicTask(const int taskID) : taskID(taskID) {
 
     // check worker thread priority
     int requestedPriority = gt::basePriority - (taskID + 1);
-    if(requestedPriority < ::sched_get_priority_min(SCHED_FIFO) || requestedPriority > ::sched_get_priority_max(SCHED_FIFO)){
+    if((requestedPriority < ::sched_get_priority_min(SCHED_FIFO)) || (requestedPriority > ::sched_get_priority_max(SCHED_FIFO))){
         std::string msg = std::format("Requested priority {} of task \"{}\" is not in range [{},{}]\n",
             requestedPriority,
             SimulinkInterface::taskNames[taskID],
@@ -26,7 +26,7 @@ PeriodicTask::PeriodicTask(const int taskID) : taskID(taskID) {
     // start worker thread
     m_ticks = SimulinkInterface::sampleTicks[taskID];
     m_offsetSamples = SimulinkInterface::offsetTicks[taskID];
-    m_numTaskOverloads.store(0, std::memory_order_relaxed);
+    m_numTaskOverloads.store(0ULL, std::memory_order_relaxed);
     m_jobPendingOrRunning.store(false, std::memory_order_relaxed);
     m_terminate.store(false, std::memory_order_relaxed);
     m_workerThread = std::thread(&PeriodicTask::WorkerThread, this);
@@ -34,11 +34,11 @@ PeriodicTask::PeriodicTask(const int taskID) : taskID(taskID) {
     // set worker thread priority
     ::sched_param param;
     param.sched_priority = requestedPriority;
-    if(0 != ::pthread_setschedparam(m_workerThread.native_handle(), SCHED_FIFO, &param)){
+    if(::pthread_setschedparam(m_workerThread.native_handle(), SCHED_FIFO, &param) != 0){
         std::string msg = std::format("Failed to set thread priority {} of task \"{}\" (sampletime={})",
             requestedPriority,
             SimulinkInterface::taskNames[taskID],
-            SimulinkInterface::baseSampleTime * double(SimulinkInterface::sampleTicks[taskID]));
+            SimulinkInterface::baseSampleTime * static_cast<double>(SimulinkInterface::sampleTicks[taskID]));
         #if defined(DEBUG)
         GENERIC_TARGET_PRINT_ERROR("{}\n", msg);
         #else
@@ -53,10 +53,10 @@ PeriodicTask::~PeriodicTask(){
 
     // check and print overloads
     uint64_t taskOverloads = m_numTaskOverloads.load(std::memory_order_relaxed);
-    if(taskOverloads){
+    if(taskOverloads != 0ULL){
         GENERIC_TARGET_PRINT_ERROR("Task \"{}\" (samplerate={}) stopped with overloads ({} task overloads)\n",
             SimulinkInterface::taskNames[taskID],
-            SimulinkInterface::baseSampleTime*double(SimulinkInterface::sampleTicks[taskID]),
+            SimulinkInterface::baseSampleTime * static_cast<double>(SimulinkInterface::sampleTicks[taskID]),
             taskOverloads);
     }
 }
@@ -90,7 +90,7 @@ void PeriodicTask::Trigger(void){
             // A queued or running job cannot accept another notification.
             bool expected = false;
             if(!m_jobPendingOrRunning.compare_exchange_strong(expected, true, std::memory_order_acq_rel, std::memory_order_relaxed)){
-                m_numTaskOverloads.fetch_add(1, std::memory_order_acq_rel);
+                m_numTaskOverloads.fetch_add(1ULL, std::memory_order_acq_rel);
                 return;
             }
 

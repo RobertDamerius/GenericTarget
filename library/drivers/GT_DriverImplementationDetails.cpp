@@ -683,7 +683,7 @@ std::string DataRecorderManager::GetOSInfo(void){
     std::string result = "{";
     #if __linux__
     ::utsname info{};
-    if(uname(&info) < 0){
+    if(uname(&info) == -1){
         return "{}";
     }
     result += std::string("\"sysname\": \"") + std::string(info.sysname) + std::string("\"");
@@ -946,7 +946,7 @@ int32_t SocketBinding::BindToDevice(std::string deviceName){
 
 bool TCPSocketBase::Open(void){
     int new_fd = ::socket(AF_INET, SOCK_STREAM, 0);
-    if(new_fd < 0){
+    if(new_fd == -1){
         return false;
     }
     int old_fd = m_socket.exchange(new_fd);
@@ -967,7 +967,7 @@ int32_t TCPSocketBase::Send(uint8_t* bytes, int32_t size){
         return -1;
     }
     int fd = m_socket.load();
-    if(fd < 0){
+    if(fd == -1){
         return -1;
     }
     #ifdef _WIN32
@@ -982,7 +982,7 @@ int32_t TCPSocketBase::Receive(uint8_t* bytes, int32_t maxSize){
         return -1;
     }
     int fd = m_socket.load();
-    if(fd < 0){
+    if(fd == -1){
         return -1;
     }
     return static_cast<int32_t>(::recv(fd, reinterpret_cast<char*>(bytes), maxSize, 0));
@@ -990,7 +990,7 @@ int32_t TCPSocketBase::Receive(uint8_t* bytes, int32_t maxSize){
 
 int32_t TCPClientSocket::Connect(Address serverAddress){
     int fd = m_socket.load();
-    if(fd < 0){
+    if(fd == -1){
         return -1;
     }
     ::sockaddr_in addr;
@@ -1007,7 +1007,7 @@ int32_t TCPClientSocket::Connect(Address serverAddress){
 
 bool UDPSocket::Open(void){
     int new_fd = ::socket(AF_INET, SOCK_DGRAM, 0);
-    if(new_fd < 0){
+    if(new_fd == -1){
         return false;
     }
 
@@ -1037,7 +1037,7 @@ int32_t UDPSocket::SendTo(Address destination, uint8_t* bytes, int32_t size){
         return -1;
     }
     int fd = m_socket.load();
-    if(fd < 0){
+    if(fd == -1){
         return -1;
     }
     ::sockaddr_in addr;
@@ -1057,7 +1057,7 @@ int32_t UDPSocket::ReceiveFrom(Address& source, uint8_t* bytes, int32_t maxSize)
         return -1;
     }
     int fd = m_socket.load();
-    if(fd < 0){
+    if(fd == -1){
         return -1;
     }
     ::sockaddr_in addr{};
@@ -1270,7 +1270,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
                 return false;
             }
             m_udpSocket.ResetLastError();
-            if(m_udpSocket.ReusePort(true) < 0){
+            if(m_udpSocket.ReusePort(true) == -1){
                 auto [errorCode, errorString] = m_udpSocket.GetLastError();
                 m_latestErrorCode = errorCode;
                 GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEPORT option for UDP socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
@@ -1278,7 +1278,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
                 return false;
             }
             m_udpSocket.ResetLastError();
-            if(m_udpSocket.ReuseAddress(true) < 0){
+            if(m_udpSocket.ReuseAddress(true) == -1){
                 auto [errorCode, errorString] = m_udpSocket.GetLastError();
                 m_latestErrorCode = errorCode;
                 GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEADDR option for UDP socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
@@ -1294,7 +1294,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
                 return false;
             }
             m_udpSocket.ResetLastError();
-            if(m_udpSocket.SetSocketPriority(m_activeConf.socketPriority) < 0){
+            if(m_udpSocket.SetSocketPriority(m_activeConf.socketPriority) == -1){
                 auto [errorCode, errorString] = m_udpSocket.GetLastError();
                 m_latestErrorCode = errorCode;
                 GENERIC_TARGET_PRINT_ERROR("Failed to set SO_PRIORITY option for UDP socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
@@ -1302,7 +1302,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
                 return false;
             }
             m_udpSocket.ResetLastError();
-            if(m_udpSocket.AllowBroadcast(m_activeConf.allowBroadcast) < 0){
+            if(m_udpSocket.AllowBroadcast(m_activeConf.allowBroadcast) == -1){
                 auto [errorCode, errorString] = m_udpSocket.GetLastError();
                 m_latestErrorCode = errorCode;
                 GENERIC_TARGET_PRINT_ERROR("Failed to set SO_BROADCAST option for UDP socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
@@ -1310,7 +1310,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
                 return false;
             }
             m_udpSocket.ResetLastError();
-            if(m_udpSocket.SetMulticastAll(m_activeConf.multicastAll) < 0){
+            if(m_udpSocket.SetMulticastAll(m_activeConf.multicastAll) == -1){
                 auto [errorCode, errorString] = m_udpSocket.GetLastError();
                 m_latestErrorCode = errorCode;
                 GENERIC_TARGET_PRINT_ERROR("Failed to set IP_MULTICAST_ALL option for UDP socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
@@ -1318,7 +1318,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
                 return false;
             }
             m_udpSocket.ResetLastError();
-            if(m_udpSocket.SetMulticastLoop(m_activeConf.multicastLoop) < 0){
+            if(m_udpSocket.SetMulticastLoop(m_activeConf.multicastLoop) == -1){
                 auto [errorCode, errorString] = m_udpSocket.GetLastError();
                 m_latestErrorCode = errorCode;
                 GENERIC_TARGET_PRINT_ERROR("Failed to set IP_MULTICAST_LOOP option for UDP socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
@@ -1326,7 +1326,7 @@ bool UDPService::Create(UDPServiceConfiguration desiredConf){
                 return false;
             }
             m_udpSocket.ResetLastError();
-            if(m_udpSocket.SetMulticastTTL(m_activeConf.multicastTTL) < 0){
+            if(m_udpSocket.SetMulticastTTL(m_activeConf.multicastTTL) == -1){
                 auto [errorCode, errorString] = m_udpSocket.GetLastError();
                 m_latestErrorCode = errorCode;
                 GENERIC_TARGET_PRINT_ERROR("Failed to set IP_MULTICAST_TTL option for UDP socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
@@ -1393,7 +1393,7 @@ bool UDPService::AttemptToBind(void){
         if(m_attemptToBindStatus < 1){
             uint16_t port = static_cast<uint16_t>(std::clamp(m_activeConf.port, 0, 65535));
             m_udpSocket.ResetLastError();
-            if(m_udpSocket.Bind(port) < 0){
+            if(m_udpSocket.Bind(port) == -1){
                 auto [errorCode, errorString] = m_udpSocket.GetLastError();
                 if(errorCode != m_latestErrorCode){
                     GENERIC_TARGET_PRINT_ERROR("Failed to bind port for UDP socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
@@ -1407,7 +1407,7 @@ bool UDPService::AttemptToBind(void){
         // bind to device
         if(m_attemptToBindStatus < 2){
             m_udpSocket.ResetLastError();
-            if(m_udpSocket.BindToDevice(m_activeConf.deviceName) < 0){
+            if(m_udpSocket.BindToDevice(m_activeConf.deviceName) == -1){
                 auto [errorCode, errorString] = m_udpSocket.GetLastError();
                 if(errorCode != m_latestErrorCode){
                     GENERIC_TARGET_PRINT_ERROR("Failed to bind UDP socket to a device {{{}}}! {}\n", m_activeConf.ToString(), errorString);
@@ -1441,7 +1441,7 @@ void UDPService::UpdateMulticastGroups(std::vector<std::array<uint8_t,4>> multic
             }
         }
         if(!keepJoined){
-            keepJoined = (m_udpSocket.LeaveMulticastGroup(currentlyJoinedGroup, m_activeConf.deviceName, m_activeConf.multicastInterfaceAddress) < 0);
+            keepJoined = (m_udpSocket.LeaveMulticastGroup(currentlyJoinedGroup, m_activeConf.deviceName, m_activeConf.multicastInterfaceAddress) == -1);
         }
         if(keepJoined){
             joinedGroups.push_back(currentlyJoinedGroup);
@@ -1657,7 +1657,7 @@ std::tuple<int32_t, int32_t, bool> TCPClientService::Send(Address serverAddress,
         m_tcpSocket.ResetLastError();
         tx = m_tcpSocket.Send(bytes, size);
         m_latestErrorCode = code = m_tcpSocket.GetLastErrorCode();
-        bool connectionClosed = (tx < 0) && (
+        bool connectionClosed = (tx == -1) && (
         #if defined(_WIN32)
             code == WSAECONNRESET ||
             code == WSAENOTCONN ||
@@ -1690,7 +1690,7 @@ std::tuple<int32_t, int32_t, bool> TCPClientService::Receive(Address serverAddre
         m_tcpSocket.ResetLastError();
         rx = m_tcpSocket.Receive(bytes, maxSize);
         m_latestErrorCode = code = m_tcpSocket.GetLastErrorCode();
-        bool connectionClosed = !rx || ((rx < 0) && (
+        bool connectionClosed = !rx || ((rx == -1) && (
         #if defined(_WIN32)
             code == WSAECONNRESET ||
             code == WSAENOTCONN ||
@@ -1767,7 +1767,7 @@ bool TCPClientService::Connect(Address destination, bool destinationChanged){
 
     // reuse port
     m_tcpSocket.ResetLastError();
-    if(m_tcpSocket.ReusePort(true) < 0){
+    if(m_tcpSocket.ReusePort(true) == -1){
         auto [errorCode, errorString] = m_tcpSocket.GetLastError();
         if(errorCode != m_latestErrorCode){
             GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEPORT option for TCP client socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
@@ -1779,7 +1779,7 @@ bool TCPClientService::Connect(Address destination, bool destinationChanged){
 
     // reuse address
     m_tcpSocket.ResetLastError();
-    if(m_tcpSocket.ReuseAddress(true) < 0){
+    if(m_tcpSocket.ReuseAddress(true) == -1){
         auto [errorCode, errorString] = m_tcpSocket.GetLastError();
         if(errorCode != m_latestErrorCode){
             GENERIC_TARGET_PRINT_ERROR("Failed to set SO_REUSEADDR option for TCP client socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
@@ -1791,7 +1791,7 @@ bool TCPClientService::Connect(Address destination, bool destinationChanged){
 
     // set socket priority
     m_tcpSocket.ResetLastError();
-    if(m_tcpSocket.SetSocketPriority(m_activeConf.socketPriority) < 0){
+    if(m_tcpSocket.SetSocketPriority(m_activeConf.socketPriority) == -1){
         auto [errorCode, errorString] = m_tcpSocket.GetLastError();
         if(errorCode != m_latestErrorCode){
             GENERIC_TARGET_PRINT_ERROR("Failed to set SO_PRIORITY option for TCP client socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
@@ -1804,7 +1804,7 @@ bool TCPClientService::Connect(Address destination, bool destinationChanged){
     // bind port
     uint16_t port = static_cast<uint16_t>(std::clamp(m_activeConf.port, 0, 65535));
     m_tcpSocket.ResetLastError();
-    if(m_tcpSocket.Bind(port) < 0){
+    if(m_tcpSocket.Bind(port) == -1){
         auto [errorCode, errorString] = m_tcpSocket.GetLastError();
         if(errorCode != m_latestErrorCode){
             GENERIC_TARGET_PRINT_ERROR("Failed to bind port for TCP client socket {{{}}}! {}\n", m_activeConf.ToString(), errorString);
@@ -1816,7 +1816,7 @@ bool TCPClientService::Connect(Address destination, bool destinationChanged){
 
     // bind to device
     m_tcpSocket.ResetLastError();
-    if(m_tcpSocket.BindToDevice(m_activeConf.deviceName) < 0){
+    if(m_tcpSocket.BindToDevice(m_activeConf.deviceName) == -1){
         auto [errorCode, errorString] = m_tcpSocket.GetLastError();
         if(errorCode != m_latestErrorCode){
             GENERIC_TARGET_PRINT_ERROR("Failed to bind TCP client socket to a device {{{}}}! {}\n", m_activeConf.ToString(), errorString);
@@ -1828,7 +1828,7 @@ bool TCPClientService::Connect(Address destination, bool destinationChanged){
 
     // connect to server
     m_tcpSocket.ResetLastError();
-    if(m_tcpSocket.Connect(destination) < 0){
+    if(m_tcpSocket.Connect(destination) == -1){
         auto [errorCode, errorString] = m_tcpSocket.GetLastError();
         if(errorCode != m_latestErrorCode || destinationChanged){
             GENERIC_TARGET_PRINT_ERROR("Failed to connect TCP client socket {{{}}} to {}! {}\n", m_activeConf.ToString(), destination.ToString(), errorString);

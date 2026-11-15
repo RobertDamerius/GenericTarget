@@ -63,12 +63,12 @@ class PeriodicTimer {
         uint64_t GetNumLostTicks(void) const;
 
     private:
-        int m_epollFd{-1};                            // File descriptor for epoll.
-        int m_cancelFd{-1};                           // File descriptor for cancel events.
-        int m_timerFd{-1};                            // File descriptor of internal timer object.
-        std::atomic<bool> m_isRunning{false};         // True if timer is running, false otherwise.
-        std::atomic<uint64_t> m_numCPUOverloads{0};   // Number of CPU overloads that have occurred.
-        std::atomic<uint64_t> m_numLostTicks{0};      // Number of lost ticks from the timer.
+        int m_epollFd{-1};                               // File descriptor for epoll.
+        int m_cancelFd{-1};                              // File descriptor for cancel events.
+        int m_timerFd{-1};                               // File descriptor of internal timer object.
+        std::atomic<bool> m_isRunning{false};            // True if timer is running, false otherwise.
+        std::atomic<uint64_t> m_numCPUOverloads{0ULL};   // Number of CPU overloads that have occurred.
+        std::atomic<uint64_t> m_numLostTicks{0ULL};      // Number of lost ticks from the timer.
 };
 
 

@@ -66,7 +66,7 @@ function data = DecodeDataFiles(dataFileNames)
     idx1 = uint64(1);
     for i = 1:numel(dataFileNames)
         [fp, errmsg] = fopen(dataFileNames{i}, 'r');
-        if(fp < 0)
+        if(fp == -1)
             error('Failed to open file "%s": %s', dataFileNames{i}, errmsg);
         end
         fseek(fp, 0, 'eof');
@@ -156,7 +156,7 @@ function [success, header, chunkSizeSampleData] = DecodeHeader(filename)
 
     % Open file
     [fp, errmsg] = fopen(filename, 'r');
-    if(fp < 0)
+    if(fp == -1)
         error('Failed to open file "%s": %s', filename, errmsg);
     end
 

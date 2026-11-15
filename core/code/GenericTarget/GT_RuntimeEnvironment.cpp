@@ -23,14 +23,14 @@ double RuntimeEnvironment::GetModelExecutionTime(void) noexcept {
 
 uint64_t RuntimeEnvironment::GetNumCPUOverloads(void) noexcept {
     if(s_app == nullptr){
-        return uint64_t{0};
+        return uint64_t{0ULL};
     }
     return s_app->GetNumCPUOverloads();
 }
 
 uint64_t RuntimeEnvironment::GetNumLostTicks(void) noexcept {
     if(s_app == nullptr){
-        return uint64_t{0};
+        return uint64_t{0ULL};
     }
     return s_app->GetNumLostTicks();
 }
@@ -44,7 +44,7 @@ double RuntimeEnvironment::GetTaskExecutionTime(const int taskID) noexcept {
 
 uint64_t RuntimeEnvironment::GetNumTaskOverloads(const int taskID) noexcept {
     if(s_app == nullptr){
-        return uint64_t{0};
+        return uint64_t{0ULL};
     }
     return s_app->GetNumTaskOverloads(taskID);
 }
@@ -99,7 +99,7 @@ int RuntimeEnvironment::Main(int argc, char** argv){
 }
 
 bool RuntimeEnvironment::SetupMemoryLocking(void){
-    if(::mlockall(MCL_CURRENT | MCL_FUTURE) < 0){ // lock memory pages to prevent swapping
+    if(::mlockall(MCL_CURRENT | MCL_FUTURE) == -1){ // lock memory pages to prevent swapping
         GENERIC_TARGET_PRINT_ERROR("Failed to setup memory locking: {}\n", std::strerror(errno));
         #if !defined(DEBUG)
         return false;

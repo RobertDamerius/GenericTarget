@@ -57,7 +57,7 @@ class PeriodicTask {
         Semaphore m_sem;                                  // Semaphore for thread notification.
         std::atomic<bool> m_terminate{false};             // True if thread is to be terminated, false otherwise.
         std::atomic<bool> m_jobPendingOrRunning{false};   // True if a job is queued or the thread is executing model code.
-        std::atomic<uint64_t> m_numTaskOverloads{0};      // Total number of task overloads.
+        std::atomic<uint64_t> m_numTaskOverloads{0ULL};   // Total number of task overloads.
         std::atomic<double> m_taskExecutionTime{0.0};     // Task-execution time in seconds.
         std::thread m_workerThread;                       // Worker thread object.
 
