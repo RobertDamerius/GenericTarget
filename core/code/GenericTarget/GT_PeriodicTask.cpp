@@ -9,7 +9,7 @@ PeriodicTask::PeriodicTask(const int taskID) : taskID(taskID) {
     }
 
     // check worker thread priority
-    int requestedPriority = static_cast<int>(gt::basePriority) - (taskID + 1);
+    int requestedPriority = gt::basePriority - (taskID + 1);
     if(requestedPriority < ::sched_get_priority_min(SCHED_FIFO) || requestedPriority > ::sched_get_priority_max(SCHED_FIFO)){
         std::string msg = std::format("Requested priority {} of task \"{}\" is not in range [{},{}]\n",
             requestedPriority,

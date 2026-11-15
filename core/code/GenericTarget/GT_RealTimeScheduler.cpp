@@ -13,10 +13,9 @@ RealTimeScheduler::RealTimeScheduler(){
     }
 
     // check master thread priority
-    int requestedPriority = static_cast<int>(gt::basePriority);
-    if((requestedPriority < ::sched_get_priority_min(SCHED_FIFO)) || (requestedPriority > ::sched_get_priority_max(SCHED_FIFO))){
+    if((gt::basePriority < ::sched_get_priority_min(SCHED_FIFO)) || (gt::basePriority > ::sched_get_priority_max(SCHED_FIFO))){
         std::string msg = std::format("Requested priority {} of real-time scheduler is not in range [{},{}]",
-            requestedPriority,
+            gt::basePriority,
             ::sched_get_priority_min(SCHED_FIFO),
             ::sched_get_priority_max(SCHED_FIFO));
         #if defined(DEBUG)
@@ -31,10 +30,10 @@ RealTimeScheduler::RealTimeScheduler(){
 
     // set master thread priority
     ::sched_param param;
-    param.sched_priority = int(requestedPriority);
+    param.sched_priority = gt::basePriority;
     if(0 != ::pthread_setschedparam(m_masterThread.native_handle(), SCHED_FIFO, &param)){
         std::string msg = std::format("Failed to set thread priority {} of real-time scheduler (sampletime={})",
-            requestedPriority,
+            gt::basePriority,
             SimulinkInterface::baseSampleTime);
         #if defined(DEBUG)
         GENERIC_TARGET_PRINT_ERROR("{}\n", msg);

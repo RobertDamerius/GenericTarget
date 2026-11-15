@@ -59,7 +59,7 @@ namespace gt {
 
 
 inline constexpr std::string_view version{"2.2.0"};
-inline constexpr int32_t basePriority{49};
+inline constexpr int basePriority{49};
 inline constexpr std::string_view compilerVersion{__VERSION__};
 
 
