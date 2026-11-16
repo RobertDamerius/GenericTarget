@@ -164,7 +164,7 @@ function BuildDrivers()
     def.SFunctionName    = 'SFunctionGTDriverUTCTime';
     def.StartFcnSpec     = 'void GT_DriverUTCTimeInitialize()';
     def.TerminateFcnSpec = 'void GT_DriverUTCTimeTerminate()';
-    def.OutputFcnSpec    = 'void GT_DriverUTCTimeStep(int32 y1[1], int32 y2[1], int32 y3[1], int32 y4[1], int32 y5[1], int32 y6[1], int32 y7[1], int32 y8[1], int32 y9[1], int32 y10[1])';
+    def.OutputFcnSpec    = 'void GT_DriverUTCTimeStep(int32 y1[1], int32 y2[1], int32 y3[1], int32 y4[1], int32 y5[1], int32 y6[1], int32 y7[1], int32 y8[1], int32 y9[1])';
     def.HeaderFiles      = {'GT_DriverUTCTime.hpp'};
     def.SourceFiles      = {'GT_DriverUTCTime.cpp'};
     def.IncPaths         = {''};
