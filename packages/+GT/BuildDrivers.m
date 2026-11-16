@@ -184,9 +184,9 @@ function BuildDrivers()
     fprintf('define driver: LocalTime\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverLocalTime';
-    def.StartFcnSpec     = 'void GT_DriverLocalTimeInitialize()';
-    def.TerminateFcnSpec = 'void GT_DriverLocalTimeTerminate()';
-    def.OutputFcnSpec    = 'void GT_DriverLocalTimeStep(int32 y1[1], int32 y2[1], int32 y3[1], int32 y4[1], int32 y5[1], int32 y6[1], int32 y7[1], int32 y8[1], int32 y9[1], int32 y10[1])';
+    def.StartFcnSpec     = 'void GT_DriverLocalTimeInitialize(void** work1)';
+    def.TerminateFcnSpec = 'void GT_DriverLocalTimeTerminate(void* work1)';
+    def.OutputFcnSpec    = 'void GT_DriverLocalTimeStep(void* work1, int32 y1[1], int32 y2[1], int32 y3[1], int32 y4[1], int32 y5[1], int32 y6[1], int32 y7[1], int32 y8[1], int32 y9[1], uint8 y10[1])';
     def.HeaderFiles      = {'GT_DriverLocalTime.hpp'};
     def.SourceFiles      = {'GT_DriverLocalTime.cpp'};
     def.IncPaths         = {''};

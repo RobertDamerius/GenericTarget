@@ -130,15 +130,15 @@
     </thead>
     <tbody>
       <tr><td><code>nanoseconds</code></td><td><code>int32</code></td><td>Nanoseconds after the second [0, 999999999].</td></tr>
-      <tr><td><code>second</code></td><td><code>int32</code></td><td>Seconds after the minute [0, 59] (on some systems [0,60] or [0,61] to allow leap seconds).</td></tr>
+      <tr><td><code>second</code></td><td><code>int32</code></td><td>Seconds after the minute [0, 59].</td></tr>
       <tr><td><code>minute</code></td><td><code>int32</code></td><td>Minutes after the hour [0, 59].</td></tr>
       <tr><td><code>hour</code></td><td><code>int32</code></td><td>Hours since midnight [0, 23].</td></tr>
       <tr><td><code>mday</code></td><td><code>int32</code></td><td>Day of the month [1, 31].</td></tr>
-      <tr><td><code>month</code></td><td><code>int32</code></td><td>Month since January [0, 11].</td></tr>
-      <tr><td><code>year</code></td><td><code>int32</code></td><td>Years since 1900.</td></tr>
-      <tr><td><code>wday</code></td><td><code>int32</code></td><td>Days since Sunday [0, 6].</td></tr>
-      <tr><td><code>yday</code></td><td><code>int32</code></td><td>Days since January 1 [0, 365].</td></tr>
-      <tr><td><code>isdst</code></td><td><code>int32</code></td><td>Daylight Saving Time flag. The value is positive if DST is in effect, zero if not, and negative if no information is available.</td></tr>
+      <tr><td><code>month</code></td><td><code>int32</code></td><td>Month of the year [1, 12].</td></tr>
+      <tr><td><code>year</code></td><td><code>int32</code></td><td>Full year according to ISO 8601, e.g. 2026.</td></tr>
+      <tr><td><code>wday</code></td><td><code>int32</code></td><td>Week days according to ISO 8601 [1 (Mon), 7 (Sun)].</td></tr>
+      <tr><td><code>yday</code></td><td><code>int32</code></td><td>Days of the year [1, 366].</td></tr>
+      <tr><td><code>isdst</code></td><td><code>bool</code></td><td>Daylight Saving Time flag. True if DST is active, false otherwise.</td></tr>
     </tbody>
   </table>
 </div>
@@ -155,6 +155,12 @@
     </tbody>
   </table>
 </div>
+
+<h2>Further Notes</h2>
+<h3>Time Zone</h3>
+<p>
+  The time zone is only set once during the initialization callback of the driver.
+</p>
 
       </article>
       <footer class="site-footer">
