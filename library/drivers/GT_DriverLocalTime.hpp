@@ -8,13 +8,13 @@
  * @brief Initialize the driver.
  * @param[inout] workVector The simulink work vector storing the pointer to an std::chrono::time_zone object.
  */
-extern void GT_DriverLocalTimeInitialize(void** workVector);
+extern void GT_DriverLocalTimeInitialize(void** const workVector);
 
 /**
  * @brief Terminate the driver.
  * @param[inout] workVector The simulink work vector storing the pointer to an std::chrono::time_zone object.
  */
-extern void GT_DriverLocalTimeTerminate(void* workVector);
+extern void GT_DriverLocalTimeTerminate(void* const workVector);
 
 /**
  * @brief Perform one step of the driver.
@@ -30,4 +30,4 @@ extern void GT_DriverLocalTimeTerminate(void* workVector);
  * @param[out] yday Days of the year [1, 366].
  * @param[out] isdst Daylight Saving Time flag. 1 if DST is active, 0 otherwise.
  */
-extern void GT_DriverLocalTimeStep(void* workVector, int32_t* const nanoseconds, int32_t* const second, int32_t* const minute, int32_t* const hour, int32_t* const mday, int32_t* const month, int32_t* const year, int32_t* const wday, int32_t* const yday, uint8_t* const isdst) noexcept;
+extern void GT_DriverLocalTimeStep(void* const workVector, int32_t* const nanoseconds, int32_t* const second, int32_t* const minute, int32_t* const hour, int32_t* const mday, int32_t* const month, int32_t* const year, int32_t* const wday, int32_t* const yday, uint8_t* const isdst) noexcept;

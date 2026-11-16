@@ -37,7 +37,7 @@ uint64_t RuntimeEnvironment::GetNumLostTicks() noexcept {
 
 double RuntimeEnvironment::GetTaskExecutionTime(const int taskID) noexcept {
     if (s_app == nullptr) {
-        return 0.0;
+        return std::numeric_limits<double>::quiet_NaN();
     }
     return s_app->GetTaskExecutionTime(taskID);
 }

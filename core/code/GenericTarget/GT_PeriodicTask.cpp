@@ -27,6 +27,7 @@ PeriodicTask::PeriodicTask(const int taskID) : taskID(taskID) {
     m_ticks = SimulinkInterface::sampleTicks[taskID];
     m_offsetSamples = SimulinkInterface::offsetTicks[taskID];
     m_numTaskOverloads.store(0U, std::memory_order_relaxed);
+    m_taskExecutionTime.store(std::numeric_limits<double>::quiet_NaN(), std::memory_order_relaxed);
     m_jobPendingOrRunning.store(false, std::memory_order_relaxed);
     m_terminate.store(false, std::memory_order_relaxed);
     m_workerThread = std::thread(&PeriodicTask::WorkerThread, this);

@@ -83,7 +83,7 @@ uint64_t App::GetNumLostTicks() const noexcept {
 
 double App::GetTaskExecutionTime(const int taskID) const noexcept {
     if (m_rtScheduler == nullptr) {
-        return 0.0;
+        return std::numeric_limits<double>::quiet_NaN();
     }
     return m_rtScheduler->GetTaskExecutionTime(taskID);
 }

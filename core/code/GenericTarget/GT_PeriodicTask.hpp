@@ -52,14 +52,14 @@ class PeriodicTask {
         double GetTaskExecutionTime() const noexcept;
 
     private:
-        int32_t m_ticks;                                  // Decrementing tick counter to be used to notify the actual thread with a multiple of the base sampletime.
-        int32_t m_offsetSamples;                          // Decrementing tick counter to be used to wait for some ticks before starting with the actual periodic task.
-        Semaphore m_sem;                                  // Semaphore for thread notification.
-        std::atomic<bool> m_terminate{false};             // True if thread is to be terminated, false otherwise.
-        std::atomic<bool> m_jobPendingOrRunning{false};   // True if a job is queued or the thread is executing model code.
-        std::atomic<uint64_t> m_numTaskOverloads{0U};     // Total number of task overloads.
-        std::atomic<double> m_taskExecutionTime{0.0};     // Task-execution time in seconds.
-        std::thread m_workerThread;                       // Worker thread object.
+        int32_t m_ticks;                                                                     // Decrementing tick counter to be used to notify the actual thread with a multiple of the base sampletime.
+        int32_t m_offsetSamples;                                                             // Decrementing tick counter to be used to wait for some ticks before starting with the actual periodic task.
+        Semaphore m_sem;                                                                     // Semaphore for thread notification.
+        std::atomic<bool> m_terminate{false};                                                // True if thread is to be terminated, false otherwise.
+        std::atomic<bool> m_jobPendingOrRunning{false};                                      // True if a job is queued or the thread is executing model code.
+        std::atomic<uint64_t> m_numTaskOverloads{0U};                                        // Total number of task overloads.
+        std::atomic<double> m_taskExecutionTime{std::numeric_limits<double>::quiet_NaN()};   // Task-execution time in seconds.
+        std::thread m_workerThread;                                                          // Worker thread object.
 
         /**
          * @brief The worker thread function.

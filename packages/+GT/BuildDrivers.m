@@ -228,9 +228,9 @@ function BuildDrivers()
     fprintf('define driver: TaskExecutionTime\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverTaskExecutionTime';
-    def.StartFcnSpec     = 'void GT_DriverTaskExecutionTimeInitialize()';
-    def.TerminateFcnSpec = 'void GT_DriverTaskExecutionTimeTerminate()';
-    def.OutputFcnSpec    = 'void GT_DriverTaskExecutionTimeStep(double y1[1], uint8 p1[], uint32 p2)';
+    def.StartFcnSpec     = 'void GT_DriverTaskExecutionTimeInitialize(void** work1, uint8 p1[], uint32 p2)';
+    def.TerminateFcnSpec = 'void GT_DriverTaskExecutionTimeTerminate(void* work1)';
+    def.OutputFcnSpec    = 'void GT_DriverTaskExecutionTimeStep(void* work1, double y1[1])';
     def.HeaderFiles      = {'GT_DriverTaskExecutionTime.hpp'};
     def.SourceFiles      = {'GT_DriverTaskExecutionTime.cpp'};
     def.IncPaths         = {''};

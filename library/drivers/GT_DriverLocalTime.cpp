@@ -1,16 +1,18 @@
 #include <GT_DriverLocalTime.hpp>
 #include <GT_DriverLocalTimeDetails.hpp>
+#include <stdexcept>
 
 
-void GT_DriverLocalTimeInitialize(void** workVector) {
+void GT_DriverLocalTimeInitialize(void** const workVector) {
     if (workVector == nullptr) {
         throw std::invalid_argument("workVector must not be nullptr");
     }
+    *workVector = nullptr;
     gt::driver::details::LocalClockDriver* const localClockDriver{new gt::driver::details::LocalClockDriver()};
     *workVector = static_cast<void*>(localClockDriver);
 }
 
-void GT_DriverLocalTimeTerminate(void* workVector) {
+void GT_DriverLocalTimeTerminate(void* const workVector) {
     if (workVector == nullptr) {
         return;
     }
@@ -19,7 +21,7 @@ void GT_DriverLocalTimeTerminate(void* workVector) {
 }
 
 void GT_DriverLocalTimeStep(
-    void* workVector,
+    void* const workVector,
     int32_t* const nanoseconds,
     int32_t* const second,
     int32_t* const minute,
