@@ -31,7 +31,7 @@ class PeriodicTask {
          * @brief Trigger the real-time task.
          * @note It must be triggered with the base sampletime.
          */
-        void Trigger();
+        void Trigger() noexcept;
 
         /**
          * @brief Shutdown the real-time thread completely without destroying the periodic task.
@@ -43,13 +43,13 @@ class PeriodicTask {
          * @brief Get the number of task overloads.
          * @return Number of task overloads.
          */
-        uint64_t GetNumTaskOverloads() const;
+        uint64_t GetNumTaskOverloads() const noexcept;
 
         /**
          * @brief Get the task execution time.
          * @returns The latest task execution time in seconds.
          */
-        double GetTaskExecutionTime() const;
+        double GetTaskExecutionTime() const noexcept;
 
     private:
         int32_t m_ticks;                                  // Decrementing tick counter to be used to notify the actual thread with a multiple of the base sampletime.
@@ -64,7 +64,7 @@ class PeriodicTask {
         /**
          * @brief The worker thread function.
          */
-        void WorkerThread();
+        void WorkerThread() noexcept;
 };
 
 

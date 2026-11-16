@@ -45,5 +45,5 @@ class SimulinkInterface {
          *  @brief Step output function for specified sample rate.
          *  @param[in] id ID or index for sample rate.
          */
-        static void Step(int id);
+        static void Step(int id) noexcept;
 };

@@ -128,7 +128,7 @@ void PeriodicTimer::Stop() {
     }
 }
 
-int32_t PeriodicTimer::WaitForTick() {
+int32_t PeriodicTimer::WaitForTick() noexcept {
     if (!m_isRunning.load(std::memory_order_acquire)) {
         return 0;
     }
@@ -172,10 +172,10 @@ int32_t PeriodicTimer::WaitForTick() {
     return 0;
 }
 
-uint64_t PeriodicTimer::GetNumCPUOverloads() const {
+uint64_t PeriodicTimer::GetNumCPUOverloads() const noexcept {
     return m_numCPUOverloads.load(std::memory_order_acquire);
 }
 
-uint64_t PeriodicTimer::GetNumLostTicks() const {
+uint64_t PeriodicTimer::GetNumLostTicks() const noexcept {
     return m_numLostTicks.load(std::memory_order_acquire);
 }

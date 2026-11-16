@@ -69,15 +69,15 @@ void PeriodicTask::Shutdown() {
     }
 }
 
-uint64_t PeriodicTask::GetNumTaskOverloads() const {
+uint64_t PeriodicTask::GetNumTaskOverloads() const noexcept {
     return m_numTaskOverloads.load(std::memory_order_acquire);
 }
 
-double PeriodicTask::GetTaskExecutionTime() const {
+double PeriodicTask::GetTaskExecutionTime() const noexcept {
     return m_taskExecutionTime.load(std::memory_order_acquire);
 }
 
-void PeriodicTask::Trigger() {
+void PeriodicTask::Trigger() noexcept {
     // decrement sample offset counter
     if ((--m_offsetSamples) < 0) {
         m_offsetSamples = 0;
@@ -100,7 +100,7 @@ void PeriodicTask::Trigger() {
     }
 }
 
-void PeriodicTask::WorkerThread() {
+void PeriodicTask::WorkerThread() noexcept {
     while (!m_terminate.load(std::memory_order_acquire)) {
         m_sem.Wait();
         if (m_terminate.load(std::memory_order_acquire)) {

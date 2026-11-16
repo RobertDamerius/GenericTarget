@@ -15,7 +15,7 @@ void SimulinkInterface::Terminate() {
     GetModelInstance().$CODE_INFO_TERMINATE$();
 }
 
-void SimulinkInterface::Step(int id) {
+void SimulinkInterface::Step(int id) noexcept {
     switch (id) {
 $STEP_SWITCH$
         default:

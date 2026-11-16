@@ -48,19 +48,19 @@ class PeriodicTimer {
          * @brief Wait for a tick event of the timer.
          * @return 1 for a timer tick, 0 if cancelled, or -1 on an error.
          */
-        int32_t WaitForTick();
+        int32_t WaitForTick() noexcept;
 
         /**
          * @brief Get the number of CPU overloads.
          * @return The number of CPU overloads.
          */
-        uint64_t GetNumCPUOverloads() const;
+        uint64_t GetNumCPUOverloads() const noexcept;
 
         /**
          * @brief Get the number of lost ticks.
          * @return The number of lost ticks.
          */
-        uint64_t GetNumLostTicks() const;
+        uint64_t GetNumLostTicks() const noexcept;
 
     private:
         int m_epollFd{-1};                             // File descriptor for epoll.

@@ -112,26 +112,26 @@ void RealTimeScheduler::MasterThread() {
     m_timer.Stop();
 }
 
-double RealTimeScheduler::GetModelExecutionTime() const {
+double RealTimeScheduler::GetModelExecutionTime() const noexcept {
     return std::chrono::duration<double>(std::chrono::steady_clock::now() - m_timeOfStart.load(std::memory_order_acquire)).count();
 }
 
-uint64_t RealTimeScheduler::GetNumCPUOverloads() const {
+uint64_t RealTimeScheduler::GetNumCPUOverloads() const noexcept {
     return m_timer.GetNumCPUOverloads();
 }
 
-uint64_t RealTimeScheduler::GetNumLostTicks() const {
+uint64_t RealTimeScheduler::GetNumLostTicks() const noexcept {
     return m_timer.GetNumLostTicks();
 }
 
-double RealTimeScheduler::GetTaskExecutionTime(const int taskID) const {
+double RealTimeScheduler::GetTaskExecutionTime(const int taskID) const noexcept {
     if ((taskID < 0) || (static_cast<std::size_t>(taskID) >= m_tasks.size()) || !m_tasks[taskID]) {
         return std::numeric_limits<double>::quiet_NaN();
     }
     return m_tasks[taskID]->GetTaskExecutionTime();
 }
 
-uint64_t RealTimeScheduler::GetNumTaskOverloads(const int taskID) const {
+uint64_t RealTimeScheduler::GetNumTaskOverloads(const int taskID) const noexcept {
     if ((taskID < 0) || (static_cast<std::size_t>(taskID) >= m_tasks.size()) || !m_tasks[taskID]) {
         return 0U;
     }
