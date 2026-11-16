@@ -75,12 +75,14 @@ class RealTimeScheduler {
         uint64_t GetNumTaskOverloads(const int taskID) const noexcept;
 
     private:
-        std::vector<std::unique_ptr<PeriodicTask>> m_tasks;                              // A list of periodic worker tasks (declare before @ref m_timer and @ref m_masterThread).
-        std::atomic<bool> m_terminate{false};                                            // Termination flag: true if master thread is to be terminated, false otherwise.
-        Semaphore m_executionSemaphore;                                                  // Semaphore used to order the master thread to start working.
-        PeriodicTimer m_timer;                                                           // The periodic timer that ticks with the base sampletime.
-        std::atomic<std::chrono::time_point<std::chrono::steady_clock>> m_timeOfStart;   // Timepoint of the first timer's tick.
-        std::thread m_masterThread;                                                      // Thread object for the master thread.
+        static_assert(std::atomic<std::chrono::steady_clock::time_point>::is_always_lock_free, "steady_clock::time_point atomic must be lock-free");
+
+        std::vector<std::unique_ptr<PeriodicTask>> m_tasks;                 // A list of periodic worker tasks (declare before @ref m_timer and @ref m_masterThread).
+        std::atomic<bool> m_terminate{false};                               // Termination flag: true if master thread is to be terminated, false otherwise.
+        Semaphore m_executionSemaphore;                                     // Semaphore used to order the master thread to start working.
+        PeriodicTimer m_timer;                                              // The periodic timer that ticks with the base sampletime.
+        std::atomic<std::chrono::steady_clock::time_point> m_timeOfStart;   // Timepoint of the first timer's tick.
+        std::thread m_masterThread;                                         // Thread object for the master thread.
 
         /**
          * @brief The real-time master thread function.
