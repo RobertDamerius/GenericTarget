@@ -138,6 +138,13 @@
   </table>
 </div>
 
+<h2>Further Notes</h2>
+<h3>Precision Note for <code>double</code> UNIX Timestamps</h3>
+<p>
+  An IEEE 754 <code>double</code>-precision floating-point value has a significand of 53 bits. At current UNIX timestamps (approximately 1.79 &times; 10<sup>9</sup>&nbsp;s since the Unix epoch), consecutive representable values are spaced by one unit in the last place,
+  <code>2<sup>-22</sup> &asymp; 238&nbsp;ns</code>. The effective temporal resolution of a UNIX timestamp stored as <code>double</code> is therefore approximately 0.24&nbsp;&micro;s.
+</p>
+
       </article>
       <footer class="site-footer">
         <span>Generic Target Toolbox &mdash; offline documentation</span>
