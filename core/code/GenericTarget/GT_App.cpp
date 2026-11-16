@@ -81,14 +81,14 @@ uint64_t App::GetNumLostTicks() const noexcept {
     return m_rtScheduler->GetNumLostTicks();
 }
 
-double App::GetTaskExecutionTime(const int taskID) const noexcept {
+double App::GetTaskExecutionTime(const int32_t taskID) const noexcept {
     if (m_rtScheduler == nullptr) {
         return std::numeric_limits<double>::quiet_NaN();
     }
     return m_rtScheduler->GetTaskExecutionTime(taskID);
 }
 
-uint64_t App::GetNumTaskOverloads(const int taskID) const noexcept {
+uint64_t App::GetNumTaskOverloads(const int32_t taskID) const noexcept {
     if (m_rtScheduler == nullptr) {
         return 0U;
     }
@@ -183,7 +183,7 @@ void App::PrintInfo() {
     GENERIC_TARGET_PRINT_RAW("baseSampleTime:           {:f} s\n", SimulinkInterface::baseSampleTime);
     GENERIC_TARGET_PRINT_RAW("basePriority:             {}\n", gt::basePriority);
     GENERIC_TARGET_PRINT_RAW("tasks:                    ");
-    for (int i = 0; i < SIMULINK_INTERFACE_NUM_TIMINGS; ++i) {
+    for (int32_t i{0}; i < SimulinkInterface::numTasks; ++i) {
         if (i != 0) {
             GENERIC_TARGET_PRINT_RAW("                          ");
         }

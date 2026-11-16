@@ -3,13 +3,13 @@
 using namespace gt;
 
 
-PeriodicTask::PeriodicTask(const int taskID) : taskID(taskID) {
-    if ((taskID < 0) || (taskID >= SIMULINK_INTERFACE_NUM_TIMINGS)) {
+PeriodicTask::PeriodicTask(const int32_t taskID) : taskID(taskID) {
+    if ((taskID < 0) || (taskID >= SimulinkInterface::numTasks)) {
         throw std::out_of_range("Invalid taskID");
     }
 
     // check worker thread priority
-    int requestedPriority = gt::basePriority - (taskID + 1);
+    int requestedPriority = gt::basePriority - (static_cast<int>(taskID) + 1);
     if ((requestedPriority < ::sched_get_priority_min(SCHED_FIFO)) || (requestedPriority > ::sched_get_priority_max(SCHED_FIFO))) {
         std::string msg = std::format("Requested priority {} of task \"{}\" is not in range [{},{}]\n",
             requestedPriority,

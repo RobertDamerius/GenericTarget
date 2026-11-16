@@ -14,13 +14,13 @@ namespace gt {
  */
 class PeriodicTask {
     public:
-        const int taskID;   // Task ID for the simulink interface. This is used to identify the task in the SimulinkInterface class.
+        const int32_t taskID;   // Task ID for the simulink interface. This is used to identify the task in the SimulinkInterface class.
 
         /**
          * @brief Create a periodic task.
          * @param[in] taskID The task ID for the simulink interface.
          */
-        explicit PeriodicTask(const int taskID);
+        explicit PeriodicTask(const int32_t taskID);
 
         /**
          * @brief Delete the periodic task.

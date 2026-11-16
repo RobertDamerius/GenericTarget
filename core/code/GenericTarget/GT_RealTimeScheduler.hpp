@@ -65,14 +65,14 @@ class RealTimeScheduler {
          * @param[in] taskID The ID of the task from which to obtain the latest task execution time.
          * @return The latest task execution time in seconds or NaN if the taskID is invalid.
          */
-        double GetTaskExecutionTime(const int taskID) const noexcept;
+        double GetTaskExecutionTime(const int32_t taskID) const noexcept;
 
         /**
          * @brief Get the number of task overloads for a task.
          * @param[in] taskID The ID of the task from which to obtain the latest number of task overloads.
          * @return The latest task overload counter or zero if the taskID is invalid.
          */
-        uint64_t GetNumTaskOverloads(const int taskID) const noexcept;
+        uint64_t GetNumTaskOverloads(const int32_t taskID) const noexcept;
 
     private:
         static_assert(std::atomic<std::chrono::steady_clock::time_point>::is_always_lock_free, "steady_clock::time_point atomic must be lock-free");

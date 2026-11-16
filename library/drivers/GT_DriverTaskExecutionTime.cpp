@@ -22,7 +22,7 @@ void GT_DriverTaskExecutionTimeInitialize(void** const workVector, const uint8_t
     // find task ID by name and store in work vector
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
     const std::string_view targetTaskName{reinterpret_cast<const char*>(taskName), static_cast<std::size_t>(taskNameLength)};
-    for (int32_t id{0}; id < SIMULINK_INTERFACE_NUM_TIMINGS; ++id) {
+    for (int32_t id{0}; id < SimulinkInterface::numTasks; ++id) {
         if (targetTaskName == SimulinkInterface::taskNames[id]) {
             *taskID = id;
             break;
@@ -57,7 +57,7 @@ void GT_DriverTaskExecutionTimeStep(void* const workVector, double* const taskEx
     #if defined(GENERIC_TARGET_IMPLEMENTATION)
     const int32_t* const taskID{static_cast<const int32_t*>(workVector)};
     const int32_t id{*taskID};
-    if ((id >= 0) && (id < SIMULINK_INTERFACE_NUM_TIMINGS)) {
+    if ((id >= 0) && (id < SimulinkInterface::numTasks)) {
         *taskExecutionTime = gt::RuntimeEnvironment::GetTaskExecutionTime(id);
     }
     #else

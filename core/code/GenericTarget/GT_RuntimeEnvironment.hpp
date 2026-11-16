@@ -45,7 +45,7 @@ class RuntimeEnvironment {
          * @return The latest task execution time in seconds or NaN if the taskID is invalid.
          * @note Calling this function while the application is not initialized will throw a runtime error.
          */
-        [[nodiscard]] static double GetTaskExecutionTime(const int taskID) noexcept;
+        [[nodiscard]] static double GetTaskExecutionTime(const int32_t taskID) noexcept;
 
         /**
          * @brief Get the number of task overloads for a task.
@@ -53,7 +53,7 @@ class RuntimeEnvironment {
          * @return The latest task overload counter or zero if the taskID is invalid.
          * @note Calling this function while the application is not initialized will throw a runtime error.
          */
-        [[nodiscard]] static uint64_t GetNumTaskOverloads(const int taskID) noexcept;
+        [[nodiscard]] static uint64_t GetNumTaskOverloads(const int32_t taskID) noexcept;
 
         /**
          * @brief Get the application arguments that have been passed to the application.

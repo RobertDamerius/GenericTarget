@@ -60,14 +60,14 @@ class App {
          * @param[in] taskID The ID of the task from which to obtain the latest task execution time.
          * @return The latest task execution time in seconds or NaN if the taskID is invalid.
          */
-        [[nodiscard]] double GetTaskExecutionTime(const int taskID) const noexcept;
+        [[nodiscard]] double GetTaskExecutionTime(const int32_t taskID) const noexcept;
 
         /**
          * @brief Get the number of task overloads for a task.
          * @param[in] taskID The ID of the task from which to obtain the latest number of task overloads.
          * @return The latest task overload counter or zero if the taskID is invalid.
          */
-        [[nodiscard]] uint64_t GetNumTaskOverloads(const int taskID) const noexcept;
+        [[nodiscard]] uint64_t GetNumTaskOverloads(const int32_t taskID) const noexcept;
 
     private:
         int m_socket{-1};                                   // File-descriptor for the abstract application socket.

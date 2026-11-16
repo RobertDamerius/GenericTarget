@@ -519,13 +519,13 @@ classdef GenericTarget < handle
             strModelTerminate = codeInfo.TerminateFunctions.Prototype.Name;
 
             % number of output functions (different sample rates)
-            numTimings = uint32(numel(codeInfo.OutputFunctions));
-            strNumTimings = sprintf('%d',numTimings);
-            assert(numTimings > 0, 'GT.GenericTarget.GenerateInterfaceCode(): There must be at least one model step function!');
+            numTasks = uint32(numel(codeInfo.OutputFunctions));
+            strNumTasks = sprintf('%d', numTasks);
+            assert(numTasks > 0, 'GT.GenericTarget.GenerateInterfaceCode(): There must be at least one model step function!');
 
             % get the lowest sampletime (this is the base sample time)
             baseSampleTime = inf;
-            for n = uint32(1):numTimings
+            for n = uint32(1):numTasks
                 assert(strcmp(codeInfo.OutputFunctions(n).Timing.TimingMode,'PERIODIC'), 'GT.GenericTarget.GenerateInterfaceCode(): Timing mode for all model step functions must be "PERIODIC"!');
                 assert(strcmp(codeInfo.OutputFunctions(n).Timing.TaskingMode, 'IMPLICIT_TASKING') || strcmp(codeInfo.OutputFunctions(n).Timing.TaskingMode, 'EXPLICIT_TASKING'), 'GT.GenericTarget.GenerateInterfaceCode(): Tasking mode for all model step functions must be either "IMPLICIT_TASKING" or "EXPLICIT_TASKING"!');
                 assert(codeInfo.OutputFunctions(n).Timing.SamplePeriod > 0, 'GT.GenericTarget.GenerateInterfaceCode(): The SamplePeriod must be greater than zero!');
@@ -537,12 +537,12 @@ classdef GenericTarget < handle
             strBaseSampleTime = sprintf('%.16f',baseSampleTime);
 
             % get priority array, sampleTick array, prototype names and task names
-            priorities = uint32(zeros(numTimings, 1));
-            sampleTicks = uint32(zeros(numTimings, 1));
-            offsetTicks = int32(zeros(numTimings, 1));
-            stepPrototypes = string(zeros(numTimings, 1));
-            taskNames = string(zeros(numTimings, 1));
-            for n = uint32(1):numTimings
+            priorities = uint32(zeros(numTasks, 1));
+            sampleTicks = uint32(zeros(numTasks, 1));
+            offsetTicks = int32(zeros(numTasks, 1));
+            stepPrototypes = string(zeros(numTasks, 1));
+            taskNames = string(zeros(numTasks, 1));
+            for n = uint32(1):numTasks
                 priorities(n) = codeInfo.OutputFunctions(n).Timing.Priority;
                 sampleTicks(n) = uint32(round(codeInfo.OutputFunctions(n).Timing.SamplePeriod / baseSampleTime));
                 offsetTicks(n) = int32(round(codeInfo.OutputFunctions(n).Timing.SampleOffset / baseSampleTime));
@@ -565,7 +565,7 @@ classdef GenericTarget < handle
             strArrayOffsetTicks = sprintf('%d', offsetTicks(1));
             strArrayTaskNames = sprintf('"%s"', taskNames(1));
             strStepSwitch = sprintf('        case 0:\n            GetModelInstance().%s();\n            break;', stepPrototypes(1));
-            for n = uint32(2):numTimings
+            for n = uint32(2):numTasks
                 strArraySampleTicks = strcat(strArraySampleTicks, sprintf(',%d', sampleTicks(n)));
                 strArrayOffsetTicks = strcat(strArrayOffsetTicks, sprintf(',%d', offsetTicks(n)));
                 strStepSwitch = append(strStepSwitch, sprintf('\n        case %d:\n            GetModelInstance().%s();\n            break;', uint32(n-1), stepPrototypes(n)));
@@ -585,8 +585,8 @@ classdef GenericTarget < handle
             strSource = strrep(strSource, '$CODE_INFO_INITIALIZE$', strModelInitialize);
             strHeader = strrep(strHeader, '$CODE_INFO_TERMINATE$', strModelTerminate);
             strSource = strrep(strSource, '$CODE_INFO_TERMINATE$', strModelTerminate);
-            strHeader = strrep(strHeader, '$NUM_TIMINGS$', strNumTimings);
-            strSource = strrep(strSource, '$NUM_TIMINGS$', strNumTimings);
+            strHeader = strrep(strHeader, '$NUM_TASKS$', strNumTasks);
+            strSource = strrep(strSource, '$NUM_TASKS$', strNumTasks);
             strHeader = strrep(strHeader, '$BASE_SAMPLE_TIME$', strBaseSampleTime);
             strSource = strrep(strSource, '$BASE_SAMPLE_TIME$', strBaseSampleTime);
             strHeader = strrep(strHeader, '$ARRAY_SAMPLE_TICKS$', strArraySampleTicks);

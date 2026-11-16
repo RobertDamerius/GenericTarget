@@ -114,7 +114,7 @@ void PeriodicTimer::Stop() {
 
     // clear any pending cancellation event
     uint64_t discarded;
-    for (int attempt = 0; attempt < 3; ++attempt) {
+    for (int32_t attempt{0}; attempt < 3; ++attempt) {
         ::ssize_t r = ::read(m_cancelFd, &discarded, sizeof(discarded));
         const int errorCode = errno;
         if ((r == sizeof(discarded)) || ((r == -1) && (errorCode == EAGAIN))) {

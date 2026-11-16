@@ -1064,7 +1064,7 @@ int32_t UDPSocket::ReceiveFrom(Address& source, uint8_t* bytes, int32_t maxSize)
     #ifndef _WIN32
     socklen_t address_size = sizeof(addr);
     #else
-    int address_size = sizeof(addr);
+    int address_size = static_cast<int>(sizeof(addr));
     #endif
     int32_t rx = static_cast<int32_t>(::recvfrom(fd, reinterpret_cast<char*>(bytes), maxSize, 0, reinterpret_cast<::sockaddr*>(&addr), &address_size));
     if (rx != -1) {

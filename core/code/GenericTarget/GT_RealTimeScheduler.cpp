@@ -8,7 +8,7 @@ RealTimeScheduler::RealTimeScheduler() {
     m_timeOfStart.store(std::chrono::steady_clock::now(), std::memory_order_relaxed);
 
     // start worker threads
-    for (int id = 0; id < SIMULINK_INTERFACE_NUM_TIMINGS; ++id) {
+    for (int32_t id{0}; id < SimulinkInterface::numTasks; ++id) {
         m_tasks.push_back(std::make_unique<PeriodicTask>(id));
     }
 
@@ -124,14 +124,14 @@ uint64_t RealTimeScheduler::GetNumLostTicks() const noexcept {
     return m_timer.GetNumLostTicks();
 }
 
-double RealTimeScheduler::GetTaskExecutionTime(const int taskID) const noexcept {
+double RealTimeScheduler::GetTaskExecutionTime(const int32_t taskID) const noexcept {
     if ((taskID < 0) || (static_cast<std::size_t>(taskID) >= m_tasks.size()) || !m_tasks[taskID]) {
         return std::numeric_limits<double>::quiet_NaN();
     }
     return m_tasks[taskID]->GetTaskExecutionTime();
 }
 
-uint64_t RealTimeScheduler::GetNumTaskOverloads(const int taskID) const noexcept {
+uint64_t RealTimeScheduler::GetNumTaskOverloads(const int32_t taskID) const noexcept {
     if ((taskID < 0) || (static_cast<std::size_t>(taskID) >= m_tasks.size()) || !m_tasks[taskID]) {
         return 0U;
     }
