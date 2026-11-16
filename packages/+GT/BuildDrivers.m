@@ -250,9 +250,9 @@ function BuildDrivers()
     fprintf('define driver: NumTaskOverloads\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverNumTaskOverloads';
-    def.StartFcnSpec     = 'void GT_DriverNumTaskOverloadsInitialize()';
-    def.TerminateFcnSpec = 'void GT_DriverNumTaskOverloadsTerminate()';
-    def.OutputFcnSpec    = 'void GT_DriverNumTaskOverloadsStep(uint64 y1[1], uint8 p1[], uint32 p2)';
+    def.StartFcnSpec     = 'void GT_DriverNumTaskOverloadsInitialize(void** work1, uint8 p1[], uint32 p2)';
+    def.TerminateFcnSpec = 'void GT_DriverNumTaskOverloadsTerminate(void* work1)';
+    def.OutputFcnSpec    = 'void GT_DriverNumTaskOverloadsStep(void* work1, uint64 y1[1])';
     def.HeaderFiles      = {'GT_DriverNumTaskOverloads.hpp'};
     def.SourceFiles      = {'GT_DriverNumTaskOverloads.cpp'};
     def.IncPaths         = {''};
