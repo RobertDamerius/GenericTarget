@@ -26,7 +26,7 @@ class AsyncThermalZoneReader final {
          * @param[in] maxNumThermalZones The maximum number of thermal zones to read.
          * @param[in] pollingInterval The interval in seconds at which to poll the thermal zones.
          */
-        AsyncThermalZoneReader(const uint32_t maxNumThermalZones, const double pollingInterval){
+        AsyncThermalZoneReader(const uint32_t maxNumThermalZones, const double pollingInterval) : m_temperatures(maxNumThermalZones), m_tempFiles(maxNumThermalZones) {
             for (uint32_t i{0U}; i < maxNumThermalZones; ++i) {
                 m_temperatures[i].store(std::numeric_limits<double>::quiet_NaN(), std::memory_order_release);
                 m_tempFiles[i].rdbuf()->pubsetbuf(nullptr, 0);
