@@ -95,7 +95,7 @@ Event::Event() {
 Event::~Event() {
     #if defined(__linux__)
     if (::sem_destroy(&m_sem) == -1) {
-        const int errorCode = errno;
+        const int errorCode{errno};
         GENERIC_TARGET_PRINT_ERROR("Failed to destroy semaphore: {}\n", errorCode);
     }
     #endif
@@ -120,7 +120,7 @@ void Event::Wait() {
     m_notified = false;
     #elif defined(__linux__)
     while (::sem_wait(&m_sem) == -1) {
-        const int errorCode = errno;
+        const int errorCode{errno};
         if (errorCode != EINTR) {
             throw std::system_error(errorCode, std::generic_category(), "Failed to decrement (lock) semaphore");
         }
@@ -130,7 +130,7 @@ void Event::Wait() {
 }
 
 bool Event::WaitFor(double sec) {
-    constexpr double maxSec = 86400.0;
+    constexpr double maxSec{86400.0};
     const double safeSec = (std::isfinite(sec) && (sec > 0.0)) ? std::min(sec, maxSec) : 0.0;
 
     #if defined(_WIN32)
@@ -159,7 +159,7 @@ bool Event::WaitFor(double sec) {
     }
 
     while (::sem_clockwait(&m_sem, CLOCK_MONOTONIC, &ts) == -1) {
-        const int errorCode = errno;
+        const int errorCode{errno};
         if (errorCode == EINTR) {
             continue;
         }
@@ -887,10 +887,10 @@ int32_t SocketBase::SetSocketPriority(int32_t priority) {
 
 std::tuple<int32_t, std::string> SocketBase::GetLastError() {
     #ifdef _WIN32
-    int errorCode = static_cast<int>(::WSAGetLastError());
+    const int errorCode{::WSAGetLastError()};
     std::string errStr("");
     #else
-    int errorCode = static_cast<int>(errno);
+    const int errorCode{errno};
     std::string errStr = std::string(std::strerror(errorCode)) + std::string(" ");
     #endif
     errStr += std::string("(") + std::to_string(errorCode) + std::string(")");

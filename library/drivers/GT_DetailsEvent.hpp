@@ -33,7 +33,9 @@ class Event final {
          */
         Event(){
             #if defined(__linux__)
-            if (::sem_init(&m_sem, 0, 0) == -1) {
+            constexpr int kShared{0};
+            constexpr unsigned int kValue{0};
+            if (::sem_init(&m_sem, kShared, kValue) == -1) {
                 throw std::system_error(errno, std::generic_category(), "Failed to initialize semaphore");
             }
             #endif
@@ -45,7 +47,7 @@ class Event final {
         ~Event(){
             #if defined(__linux__)
             if (::sem_destroy(&m_sem) == -1) {
-                const int errorCode = errno;
+                const int errorCode{errno};
                 GENERIC_TARGET_PRINT_ERROR("Failed to destroy semaphore: {}\n", errorCode);
             }
             #endif
@@ -79,7 +81,7 @@ class Event final {
         void Wait(){
             #if defined(__linux__)
             while (::sem_wait(&m_sem) == -1) {
-                const int errorCode = errno;
+                const int errorCode{errno};
                 if (errorCode != EINTR) {
                     throw std::system_error(errorCode, std::generic_category(), "Failed to decrement (lock) semaphore");
                 }
@@ -118,7 +120,7 @@ class Event final {
             }
 
             while (::sem_clockwait(&m_sem, CLOCK_MONOTONIC, &ts) == -1) {
-                const int errorCode = errno;
+                const int errorCode{errno};
                 if (errorCode == EINTR) {
                     continue;
                 }
@@ -149,7 +151,7 @@ class Event final {
                 if (::sem_trywait(&m_sem) == 0) {
                     continue;
                 }
-                const int errorCode = errno;
+                const int errorCode{errno};
                 if (errorCode == EINTR) {
                     continue;
                 }

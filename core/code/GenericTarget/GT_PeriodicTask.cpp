@@ -87,11 +87,13 @@ double PeriodicTask::GetTaskExecutionTime() const noexcept {
 
 void PeriodicTask::Trigger() noexcept {
     // decrement sample offset counter
-    if ((--m_offsetSamples) < 0) {
+    constexpr int32_t kThresholdOffsetSamples{0};
+    if ((--m_offsetSamples) < kThresholdOffsetSamples) {
         m_offsetSamples = 0;
 
         // decrement tick counter
-        if ((--m_ticks) < 1) {
+        constexpr int32_t kThresholdTicks{1};
+        if ((--m_ticks) < kThresholdTicks) {
             // reset tick counter to specified model sample ticks
             m_ticks = SimulinkInterface::sampleTicks[taskID];
 

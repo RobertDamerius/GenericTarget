@@ -10,7 +10,7 @@
 
 
 namespace {
-constexpr std::int32_t kInvalidTaskID{-1};
+constexpr int32_t kInvalidTaskID{-1};
 }
 
 void GT_DriverNumTaskOverloadsInitialize(void** const workVector, const uint8_t* const taskName, const uint32_t taskNameLength) {

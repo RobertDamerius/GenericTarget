@@ -16,20 +16,23 @@ using namespace gt;
 
 PeriodicTimer::PeriodicTimer() {
     // create epoll, eventfd and timerfd
-    m_epollFd = ::epoll_create1(0);
+    constexpr int kEpollFlags{0};
+    m_epollFd = ::epoll_create1(kEpollFlags);
     if (m_epollFd == -1) {
-        const int errorCode = errno;
+        const int errorCode{errno};
         throw std::system_error(errorCode, std::generic_category(), "Failed to create epoll instance for timer");
     }
-    m_cancelFd = ::eventfd(0, EFD_NONBLOCK);
+    constexpr unsigned int kEventFdCount{0};
+    m_cancelFd = ::eventfd(kEventFdCount, EFD_NONBLOCK);
     if (m_cancelFd == -1) {
-        const int errorCode = errno;
+        const int errorCode{errno};
         static_cast<void>(::close(m_epollFd));
         throw std::system_error(errorCode, std::generic_category(), "Failed to create cancel event for timer");
     }
-    m_timerFd = ::timerfd_create(CLOCK_MONOTONIC, 0);
+    constexpr int kTimerFdFlags{0};
+    m_timerFd = ::timerfd_create(CLOCK_MONOTONIC, kTimerFdFlags);
     if (m_timerFd == -1) {
-        const int errorCode = errno;
+        const int errorCode{errno};
         static_cast<void>(::close(m_cancelFd));
         static_cast<void>(::close(m_epollFd));
         throw std::system_error(errorCode, std::generic_category(), "Failed to create timer");
@@ -40,7 +43,7 @@ PeriodicTimer::PeriodicTimer() {
     ev.events = EPOLLIN;
     ev.data.fd = m_cancelFd;
     if (::epoll_ctl(m_epollFd, EPOLL_CTL_ADD, m_cancelFd, &ev) == -1) {
-        const int errorCode = errno;
+        const int errorCode{errno};
         static_cast<void>(::close(m_timerFd));
         static_cast<void>(::close(m_cancelFd));
         static_cast<void>(::close(m_epollFd));
@@ -48,7 +51,7 @@ PeriodicTimer::PeriodicTimer() {
     }
     ev.data.fd = m_timerFd;
     if (::epoll_ctl(m_epollFd, EPOLL_CTL_ADD, m_timerFd, &ev) == -1) {
-        const int errorCode = errno;
+        const int errorCode{errno};
         static_cast<void>(::close(m_timerFd));
         static_cast<void>(::close(m_cancelFd));
         static_cast<void>(::close(m_epollFd));
@@ -87,8 +90,9 @@ bool PeriodicTimer::Start(double sampletime) {
     its.it_interval.tv_nsec = fractionalNanoseconds;
     its.it_value.tv_sec = 0;
     its.it_value.tv_nsec = 1;
-    if (::timerfd_settime(m_timerFd, 0, &its, nullptr) == -1) { // 0: no flags
-        const int errorCode = errno;
+    constexpr int kTimerFdFlags{0};
+    if (::timerfd_settime(m_timerFd, kTimerFdFlags, &its, nullptr) == -1) {
+        const int errorCode{errno};
         GENERIC_TARGET_PRINT_ERROR("Failed to set time for timer: {}\n", std::strerror(errorCode));
         return false;
     }
@@ -119,8 +123,9 @@ void PeriodicTimer::Stop() {
 
     // disarm the timer
     ::itimerspec disarmed{};
-    if (::timerfd_settime(m_timerFd, 0, &disarmed, nullptr) == -1) {
-        const int errorCode = errno;
+    constexpr int kTimerFdFlags{0};
+    if (::timerfd_settime(m_timerFd, kTimerFdFlags, &disarmed, nullptr) == -1) {
+        const int errorCode{errno};
         GENERIC_TARGET_PRINT_ERROR("Failed to stop timer: {}\n", std::strerror(errorCode));
     }
 
@@ -128,7 +133,7 @@ void PeriodicTimer::Stop() {
     uint64_t discarded;
     for (int32_t attempt{0}; attempt < 3; ++attempt) {
         ::ssize_t r = ::read(m_cancelFd, &discarded, sizeof(discarded));
-        const int errorCode = errno;
+        const int errorCode{errno};
         if ((r == sizeof(discarded)) || ((r == -1) && (errorCode == EAGAIN))) {
             break;
         }
@@ -148,9 +153,11 @@ int32_t PeriodicTimer::WaitForTick() noexcept {
     ::epoll_event events[1U];
     while (m_isRunning.load(std::memory_order_acquire)) {
         // block here until either the timer ticks OR Cancel() writes to cancelFd
-        int nfds = ::epoll_wait(m_epollFd, events, 1, -1);
+        constexpr int kEpollMaxEvents{1};
+        constexpr int kEpollTimeout{-1};
+        int nfds = ::epoll_wait(m_epollFd, events, kEpollMaxEvents, kEpollTimeout);
         if (nfds == -1) {
-            const int errorCode = errno;
+            const int errorCode{errno};
             if (errorCode == EINTR) {
                 continue; // interrupted by system signal, retry
             }
@@ -164,9 +171,10 @@ int32_t PeriodicTimer::WaitForTick() noexcept {
             return 0;
         }
         if (events[0U].data.fd == m_timerFd) {
+            constexpr uint64_t kExpectedExpiredTicks{1U};
             uint64_t expiredTicks{0U};
             ::ssize_t s = ::read(m_timerFd, &expiredTicks, sizeof(expiredTicks));
-            const int errorCode = errno;
+            const int errorCode{errno};
             if (s != sizeof(expiredTicks)) {
                 if ((errorCode == EAGAIN) || (errorCode == EINTR)) {
                     continue;
@@ -174,7 +182,7 @@ int32_t PeriodicTimer::WaitForTick() noexcept {
                 GENERIC_TARGET_PRINT_ERROR("Failed to read timer event: {}\n", std::strerror(errorCode));
                 return -1;
             }
-            if (expiredTicks > 1U) {
+            if (expiredTicks > kExpectedExpiredTicks) {
                 m_numCPUOverloads.fetch_add(1U, std::memory_order_relaxed);
                 m_numLostTicks.fetch_add(expiredTicks - 1U, std::memory_order_relaxed);
             }

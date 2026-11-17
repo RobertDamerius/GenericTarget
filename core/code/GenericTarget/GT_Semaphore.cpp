@@ -9,21 +9,23 @@ using namespace gt;
 
 
 Semaphore::Semaphore() {
-    if (::sem_init(&m_sem, 0, 0) == -1) {
+    constexpr int kShared{0};
+    constexpr unsigned int kValue{0};
+    if (::sem_init(&m_sem, kShared, kValue) == -1) {
         throw std::system_error(errno, std::generic_category(), "Failed to initialize semaphore");
     }
 }
 
 Semaphore::~Semaphore() {
     if (::sem_destroy(&m_sem) == -1) {
-        const int errorCode = errno;
+        const int errorCode{errno};
         GENERIC_TARGET_PRINT_ERROR("Failed to destroy semaphore: {}\n", errorCode);
     }
 }
 
 void Semaphore::Wait() noexcept {
     while (::sem_wait(&m_sem) == -1) {
-        const int errorCode = errno;
+        const int errorCode{errno};
         if (errorCode != EINTR) {
             GENERIC_TARGET_PRINT_ERROR("Failed to decrement (lock) semaphore: {}\n", errorCode);
             std::abort();
@@ -33,7 +35,7 @@ void Semaphore::Wait() noexcept {
         if (::sem_trywait(&m_sem) == 0) {
             continue;
         }
-        const int errorCode = errno;
+        const int errorCode{errno};
         if (errorCode == EINTR) {
             continue;
         }

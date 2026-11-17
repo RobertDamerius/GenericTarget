@@ -98,14 +98,16 @@ void RealTimeScheduler::MasterThread() {
     // real-time thread loop
     while (!m_terminate.load(std::memory_order_acquire)) {
         // wait for the next timer event
+        constexpr int kTickResultError{-1};
+        constexpr int kTickResultCancel{0};
         const int tickResult = m_timer.WaitForTick();
 
         // handle errors and stop requests
-        if (tickResult == -1) {
+        if (tickResult == kTickResultError) {
             RuntimeEnvironment::RequestStop();
             break;
         }
-        if ((tickResult == 0) || m_terminate.load(std::memory_order_acquire)) {
+        if ((tickResult == kTickResultCancel) || m_terminate.load(std::memory_order_acquire)) {
             break;
         }
 

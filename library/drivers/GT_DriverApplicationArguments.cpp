@@ -38,11 +38,11 @@ void GT_DriverApplicationArgumentsStep(uint8_t* const argBuffer, uint32_t* const
     const std::span<const std::string> args = gt::RuntimeEnvironment::GetAppArguments();
     const std::size_t numArgs = args.size();
     uint32_t argCount{0U};
-    for (std::size_t k = 0U; (k < numArgs) && (k < maxNumArgs); ++k) {
+    for (std::size_t k{0U}; (k < numArgs) && (k < maxNumArgs); ++k) {
         const std::string& currentArg = args[k];
         const std::size_t currentArgLength = currentArg.size();
         uint32_t charCount{0U};
-        for (std::size_t n = 0U; (n < currentArgLength) && (n < maxNumCharsPerArg); ++n) {
+        for (std::size_t n{0U}; (n < currentArgLength) && (n < maxNumCharsPerArg); ++n) {
             const std::size_t bufferIndex = (k * maxNumCharsPerArg) + n;
             argBufferSpan[bufferIndex] = static_cast<uint8_t>(currentArg[n]);
             ++charCount;

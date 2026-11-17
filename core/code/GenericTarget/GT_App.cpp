@@ -20,7 +20,7 @@ using namespace gt;
 App::App(int argc, char** argv) {
     try {
         // store arguments passed to the application
-        for (int i = 0; i < argc; ++i) {
+        for (int i{0}; i < argc; ++i) {
             args.emplace_back(argv[i]);
         }
         PrintInfo();
@@ -76,35 +76,40 @@ void App::Shutdown() {
 
 double App::GetModelExecutionTime() noexcept {
     if (m_rtScheduler == nullptr) {
-        return 0.0;
+        constexpr double kFallbackValue{0.0};
+        return kFallbackValue;
     }
     return m_rtScheduler->GetModelExecutionTime();
 }
 
 uint64_t App::GetNumCPUOverloads() const noexcept {
     if (m_rtScheduler == nullptr) {
-        return 0U;
+        constexpr uint64_t kFallbackValue{0U};
+        return kFallbackValue;
     }
     return m_rtScheduler->GetNumCPUOverloads();
 }
 
 uint64_t App::GetNumLostTicks() const noexcept {
     if (m_rtScheduler == nullptr) {
-        return 0U;
+        constexpr uint64_t kFallbackValue{0U};
+        return kFallbackValue;
     }
     return m_rtScheduler->GetNumLostTicks();
 }
 
 double App::GetTaskExecutionTime(const int32_t taskID) const noexcept {
     if (m_rtScheduler == nullptr) {
-        return std::numeric_limits<double>::quiet_NaN();
+        constexpr double kFallbackValue{std::numeric_limits<double>::quiet_NaN()};
+        return kFallbackValue;
     }
     return m_rtScheduler->GetTaskExecutionTime(taskID);
 }
 
 uint64_t App::GetNumTaskOverloads(const int32_t taskID) const noexcept {
     if (m_rtScheduler == nullptr) {
-        return 0U;
+        constexpr uint64_t kFallbackValue{0U};
+        return kFallbackValue;
     }
     return m_rtScheduler->GetNumTaskOverloads(taskID);
 }
@@ -117,9 +122,10 @@ std::string App::GetAbsoluteApplicationPath() {
 
 void App::OpenSocket(const std::string_view& socketName) {
     // validate socket name length
+    constexpr std::size_t kNumReservedZeroBytes{2U};
     ::sockaddr_un addr{};
     std::span<char> pathSpan{addr.sun_path};
-    if (socketName.empty() || ((socketName.size() + 2U) > pathSpan.size())) {
+    if (socketName.empty() || ((socketName.size() + kNumReservedZeroBytes) > pathSpan.size())) {
         throw std::runtime_error("Invalid socket name length\n");
     }
 
@@ -130,13 +136,14 @@ void App::OpenSocket(const std::string_view& socketName) {
     }
 
     // bind the socket to the specified name
+    constexpr std::size_t kOffsetSocketName{1U};
     addr.sun_family = AF_UNIX;
     addr.sun_path[0U] = '\0';
-    std::ranges::copy(socketName, pathSpan.subspan(1U).begin());
-    pathSpan[1U + socketName.size()] = '\0';
-    ::socklen_t addr_len = static_cast<::socklen_t>(offsetof(::sockaddr_un, sun_path) + 1U + socketName.size());
+    std::ranges::copy(socketName, pathSpan.subspan(kOffsetSocketName).begin());
+    pathSpan[kOffsetSocketName + socketName.size()] = '\0';
+    ::socklen_t addr_len = static_cast<::socklen_t>(offsetof(::sockaddr_un, sun_path) + kOffsetSocketName + socketName.size());
     if (::bind(m_socket, reinterpret_cast<::sockaddr*>(&addr), addr_len) == -1) {
-        const int errorCode = errno;
+        const int errorCode{errno};
         static_cast<void>(::close(m_socket));
         m_socket = -1;
         if (errorCode == EADDRINUSE) {
@@ -185,7 +192,7 @@ void App::PrintInfo() {
     GENERIC_TARGET_PRINT_RAW("Compiler Version:         {}\n", gt::compilerVersion);
     GENERIC_TARGET_PRINT_RAW("Application Path:         {}\n", GetAbsoluteApplicationPath());
     GENERIC_TARGET_PRINT_RAW("Arguments:               ");
-    for (std::size_t i = 0U; i < args.size(); i++) {
+    for (std::size_t i{0U}; i < args.size(); i++) {
         GENERIC_TARGET_PRINT_RAW(" [{}]", args[i]);
     }
     GENERIC_TARGET_PRINT_RAW("\n");

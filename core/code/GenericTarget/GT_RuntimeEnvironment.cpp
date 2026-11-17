@@ -29,21 +29,24 @@ void RuntimeEnvironment::RequestStop() noexcept {
 
 double RuntimeEnvironment::GetModelExecutionTime() noexcept {
     if (s_app == nullptr) {
-        return 0.0;
+        constexpr double kFallbackValue{0.0};
+        return kFallbackValue;
     }
     return s_app->GetModelExecutionTime();
 }
 
 uint64_t RuntimeEnvironment::GetNumCPUOverloads() noexcept {
     if (s_app == nullptr) {
-        return 0U;
+        constexpr uint64_t kFallbackValue{0U};
+        return kFallbackValue;
     }
     return s_app->GetNumCPUOverloads();
 }
 
 uint64_t RuntimeEnvironment::GetNumLostTicks() noexcept {
     if (s_app == nullptr) {
-        return 0U;
+        constexpr uint64_t kFallbackValue{0U};
+        return kFallbackValue;
     }
     return s_app->GetNumLostTicks();
 }
@@ -57,7 +60,8 @@ double RuntimeEnvironment::GetTaskExecutionTime(const int32_t taskID) noexcept {
 
 uint64_t RuntimeEnvironment::GetNumTaskOverloads(const int32_t taskID) noexcept {
     if (s_app == nullptr) {
-        return 0U;
+        constexpr uint64_t kFallbackValue{0U};
+        return kFallbackValue;
     }
     return s_app->GetNumTaskOverloads(taskID);
 }
@@ -82,7 +86,8 @@ int RuntimeEnvironment::Main(int argc, char** argv) {
     }
 
     // set file mode creation mask globally
-    static_cast<void>(::umask(0000));
+    constexpr int kMaskUnrestricted{0000};
+    static_cast<void>(::umask(kMaskUnrestricted));
 
     // start real-time application
     PrintHeader();
@@ -203,9 +208,9 @@ void RuntimeEnvironment::CrashHandler(const int signal) noexcept {
     discarded = ::write(STDERR_FILENO, sigName.data(), sigName.size());
     discarded = ::write(STDERR_FILENO, vline.data(), vline.size());
 
-    constexpr int backtraceSize{64};
-    void* frames[backtraceSize];
-    const int frameCount = ::backtrace(frames, backtraceSize);
+    constexpr int kBacktraceSize{64};
+    void* frames[kBacktraceSize];
+    const int frameCount = ::backtrace(frames, kBacktraceSize);
     if (frameCount > 0) {
         ::backtrace_symbols_fd(frames, frameCount, STDERR_FILENO);
     }
