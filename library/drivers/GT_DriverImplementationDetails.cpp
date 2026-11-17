@@ -43,11 +43,8 @@ inline constexpr std::string_view gt_driver_version{"2.2.0"};
 inline constexpr std::string_view gt_driver_compilerVersion{__VERSION__};
 const std::string_view gt_driver_modelName{""};
 
-template <typename... Args> void gt_driver_simulink_print_info(std::format_string<Args...> format, Args&&... args) {
-    auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
-    std::osyncstream synced_out(std::cerr);
-    synced_out << std::format("[{:%Y-%m-%d %H:%M:%S} UTC] [INFO] ", utc_time);
-    synced_out << std::format(format, std::forward<Args>(args)...);
+template <typename... Args> constexpr void gt_driver_simulink_print_info(std::format_string<Args...> format, Args&&... args) noexcept {
+    static_cast<void>(format);
 }
 
 template <typename... Args> void gt_driver_simulink_print_warning(const char* file, int line, const char* func, std::format_string<Args...> format, Args&&... args) {
