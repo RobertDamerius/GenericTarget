@@ -6,7 +6,6 @@
 #include <string_view>
 #include <array>
 #include <cstddef>
-#include <$NAME_OF_CLASSHEADER$>
 
 
 /**
@@ -23,12 +22,6 @@ class SimulinkInterface {
         constexpr static std::array<std::string_view, static_cast<std::size_t>(numTasks)> taskNames{$ARRAY_TASK_NAMES$};   // Names for all sample rate tasks.
 
         static_assert(numTasks > 0, "numTasks must be greater than zero!");
-
-        /**
-         * @brief Get the termination semaphore object.
-         * @return The termination semaphore object.
-         */
-        static $NAME_OF_CLASS$& GetModelInstance();
 
         /**
          *  @brief Initialize the model.

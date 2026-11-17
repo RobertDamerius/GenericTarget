@@ -1,11 +1,18 @@
 /* Auto-generated code (Template Version 20261117) */
 #include <SimulinkCodeGeneration/SimulinkInterface.hpp>
+#include <$NAME_OF_CLASSHEADER$>
 
 
-$NAME_OF_CLASS$& SimulinkInterface::GetModelInstance() {
+namespace {
+
+/* Meyers Singleton for lazy initialization */
+$NAME_OF_CLASS$& GetModelInstance() {
     static $NAME_OF_CLASS$ instance;
     return instance;
 }
+
+} /* anonymous namespace */
+
 
 void SimulinkInterface::Initialize() {
     GetModelInstance().$CODE_INFO_INITIALIZE$();
