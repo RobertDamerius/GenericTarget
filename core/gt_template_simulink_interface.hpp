@@ -1,4 +1,4 @@
-/* Auto-generated code (Template Version 20261116) */
+/* Auto-generated code (Template Version 20261117) */
 #pragma once
 
 
@@ -44,5 +44,5 @@ class SimulinkInterface {
          *  @brief Step output function for specified sample rate.
          *  @param[in] id ID or index for sample rate.
          */
-        static void Step(int32_t id) noexcept;
+        static void Step(const int32_t id) noexcept;
 };

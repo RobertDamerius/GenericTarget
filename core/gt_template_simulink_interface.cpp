@@ -1,4 +1,4 @@
-/* Auto-generated code (Template Version 20261116) */
+/* Auto-generated code (Template Version 20261117) */
 #include <SimulinkCodeGeneration/SimulinkInterface.hpp>
 
 
@@ -15,7 +15,7 @@ void SimulinkInterface::Terminate() {
     GetModelInstance().$CODE_INFO_TERMINATE$();
 }
 
-void SimulinkInterface::Step(int32_t id) noexcept {
+void SimulinkInterface::Step(const int32_t id) noexcept {
     switch (id) {
 $STEP_SWITCH$
         default:
