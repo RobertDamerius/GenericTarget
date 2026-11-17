@@ -1,9 +1,12 @@
 #pragma once
 
 
-#include <GenericTarget/GT_Common.hpp>
-#include <GenericTarget/GT_Semaphore.hpp>
+#include <cstdint>
+#include <span>
+#include <string>
+#include <memory>
 #include <GenericTarget/GT_App.hpp>
+#include <GenericTarget/GT_Semaphore.hpp>
 
 
 /* Forward declaration of the main entry function. It's used as friend and has access to the protected member functions. */

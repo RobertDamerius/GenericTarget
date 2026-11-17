@@ -1,6 +1,13 @@
 #include <GenericTarget/GT_RealTimeScheduler.hpp>
 #include <GenericTarget/GT_RuntimeEnvironment.hpp>
+#include <GenericTarget/GT_Common.hpp>
 #include <SimulinkCodeGeneration/SimulinkInterface.hpp>
+#include <format>
+#include <stdexcept>
+#include <cstddef>
+#include <sched.h>
+
+
 using namespace gt;
 
 

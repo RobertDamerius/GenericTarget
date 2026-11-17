@@ -1,58 +1,12 @@
 #pragma once
 
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// External Libraries
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/* Default C++ headers */
-#include <cstdint>
-#include <cstdlib>
-#include <cerrno>
-#include <iostream>
-#include <fstream>
-#include <cstdio>
-#include <cmath>
-#include <chrono>
-#include <ctime>
-#include <vector>
-#include <array>
-#include <span>
-#include <string>
-#include <cstring>
-#include <algorithm>
-#include <thread>
-#include <atomic>
-#include <filesystem>
-#include <csignal>
-#include <tuple>
-#include <limits>
+#include <string_view>
 #include <format>
+#include <chrono>
 #include <syncstream>
+#include <iostream>
 #include <utility>
-#include <system_error>
-#include <memory>
-
-/* Linux-specific headers */
-#include <semaphore.h>
-#include <unistd.h>
-#include <dirent.h>
-#include <string.h>
-#include <fcntl.h>
-#include <execinfo.h>
-#include <sys/mman.h>
-#include <sys/time.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <sys/types.h>
-#include <sys/timerfd.h>
-#include <sys/utsname.h>
-#include <sys/stat.h>
-#include <sys/epoll.h>
-#include <sys/eventfd.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <net/if.h>
 
 
 namespace gt {

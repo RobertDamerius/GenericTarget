@@ -1,7 +1,10 @@
 #pragma once
 
 
-#include <GenericTarget/GT_Common.hpp>
+#include <cstdint>
+#include <atomic>
+#include <limits>
+#include <thread>
 #include <GenericTarget/GT_Semaphore.hpp>
 
 

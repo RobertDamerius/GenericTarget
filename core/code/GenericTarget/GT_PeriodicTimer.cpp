@@ -1,4 +1,16 @@
 #include <GenericTarget/GT_PeriodicTimer.hpp>
+#include <GenericTarget/GT_Common.hpp>
+#include <system_error>
+#include <cmath>
+#include <cerrno>
+#include <cstring>
+#include <limits>
+#include <sys/epoll.h>
+#include <sys/eventfd.h>
+#include <sys/timerfd.h>
+#include <sys/types.h>
+
+
 using namespace gt;
 
 

@@ -1,7 +1,10 @@
 #pragma once
 
 
-#include <GenericTarget/GT_Common.hpp>
+#include <vector>
+#include <string>
+#include <cstdint>
+#include <memory>
 #include <GenericTarget/GT_RealTimeScheduler.hpp>
 
 

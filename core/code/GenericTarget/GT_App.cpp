@@ -1,5 +1,19 @@
 #include <GenericTarget/GT_App.hpp>
+#include <GenericTarget/GT_Common.hpp>
 #include <SimulinkCodeGeneration/SimulinkInterface.hpp>
+#include <cstddef>
+#include <cstring>
+#include <cerrno>
+#include <stdexcept>
+#include <limits>
+#include <filesystem>
+#include <span>
+#include <sys/socket.h>
+#include <sys/utsname.h>
+#include <sys/un.h>
+#include <net/if.h>
+
+
 using namespace gt;
 
 

@@ -3,6 +3,8 @@
 #if defined(GENERIC_TARGET_IMPLEMENTATION)
 #include <GenericTarget/GT_RuntimeEnvironment.hpp>
 #include <SimulinkCodeGeneration/SimulinkInterface.hpp>
+#include <cstddef>
+#include <cstdint>
 #include <string_view>
 #endif
 

@@ -1,4 +1,6 @@
 #include <GT_DriverApplicationArguments.hpp>
+#include <cstddef>
+#include <cstdint>
 #include <limits>
 #include <span>
 #if defined(GENERIC_TARGET_IMPLEMENTATION)

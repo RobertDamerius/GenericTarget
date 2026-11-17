@@ -2,6 +2,7 @@
 
 
 #include <cstdint>
+#include <cstddef>
 #include <array>
 #include <vector>
 #include <string>

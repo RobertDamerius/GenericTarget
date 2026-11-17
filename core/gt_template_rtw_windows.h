@@ -5,7 +5,7 @@
 
 
 #include <pthread.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <semaphore.h>
 
 

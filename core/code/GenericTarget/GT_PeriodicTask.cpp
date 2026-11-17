@@ -1,5 +1,12 @@
 #include <GenericTarget/GT_PeriodicTask.hpp>
+#include <GenericTarget/GT_Common.hpp>
 #include <SimulinkCodeGeneration/SimulinkInterface.hpp>
+#include <sched.h>
+#include <stdexcept>
+#include <format>
+#include <chrono>
+
+
 using namespace gt;
 
 
@@ -107,9 +114,9 @@ void PeriodicTask::WorkerThread() noexcept {
         if (m_terminate.load(std::memory_order_acquire)) {
             break;
         }
-        auto t1 = std::chrono::steady_clock::now();
+        const std::chrono::steady_clock::time_point t1{std::chrono::steady_clock::now()};
         SimulinkInterface::Step(taskID);
-        auto t2 = std::chrono::steady_clock::now();
+        const std::chrono::steady_clock::time_point t2{std::chrono::steady_clock::now()};
         m_taskExecutionTime.store(std::chrono::duration<double>(t2 - t1).count(), std::memory_order_release);
         m_jobPendingOrRunning.store(false, std::memory_order_release);
     }

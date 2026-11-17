@@ -1,8 +1,11 @@
 #include <GT_DriverImplementationDetails.hpp>
 #if defined(GENERIC_TARGET_IMPLEMENTATION)
+#include <GenericTarget/GT_Common.hpp>
 #include <GenericTarget/GT_RuntimeEnvironment.hpp>
 #include <SimulinkCodeGeneration/SimulinkInterface.hpp>
 #endif
+#include <cerrno>
+#include <cstddef>
 #include <fstream>
 #include <cmath>
 #include <cstring>

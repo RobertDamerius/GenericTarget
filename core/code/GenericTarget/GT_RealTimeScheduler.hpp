@@ -1,10 +1,14 @@
 #pragma once
 
 
-#include <GenericTarget/GT_Common.hpp>
-#include <GenericTarget/GT_PeriodicTimer.hpp>
+#include <cstdint>
+#include <atomic>
+#include <chrono>
+#include <memory>
+#include <thread>
 #include <GenericTarget/GT_PeriodicTask.hpp>
 #include <GenericTarget/GT_Semaphore.hpp>
+#include <GenericTarget/GT_PeriodicTimer.hpp>
 
 
 namespace gt {

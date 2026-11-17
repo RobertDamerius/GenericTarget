@@ -2,10 +2,10 @@
 #pragma once
 
 
-#include <string>
+#include <cstdint>
 #include <string_view>
 #include <array>
-#include <cstdint>
+#include <cstddef>
 #include <$NAME_OF_CLASSHEADER$>
 
 

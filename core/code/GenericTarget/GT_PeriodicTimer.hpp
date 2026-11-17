@@ -1,7 +1,8 @@
 #pragma once
 
 
-#include <GenericTarget/GT_Common.hpp>
+#include <cstdint>
+#include <atomic>
 
 
 namespace gt {
