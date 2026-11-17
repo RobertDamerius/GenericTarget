@@ -1203,47 +1203,4 @@ class TCPClientServiceManager {
 };
 
 
-/**
- * @brief This class reads the temperatures of the thermal zones asynchronously in a separate thread.
- */
-class AsyncThermalZoneReader {
-    public:
-        /**
-         * @brief Construct an asynchronous thermal zone reader.
-         * @param[in] maxNumThermalZones The maximum number of thermal zones to read.
-         * @param[in] pollingInterval The interval in seconds at which to poll the thermal zones.
-         */
-        AsyncThermalZoneReader(const uint32_t maxNumThermalZones, double pollingInterval);
-
-        /**
-         * @brief Destroy the asynchronous thermal zone reader.
-         */
-        ~AsyncThermalZoneReader();
-
-        /* Do not allow copying */
-        AsyncThermalZoneReader(const AsyncThermalZoneReader&) = delete;
-        AsyncThermalZoneReader& operator=(const AsyncThermalZoneReader&) = delete;
-
-        /**
-         * @brief Read the latest temperatures of the thermal zones.
-         * @param[out] temperatures Pointer to an array where the latest read temperatures will be stored.
-         * @param[in] numZones The number of thermal zones to read.
-         */
-        void ReadZones(double* temperatures, const uint32_t numZones);
-
-    private:
-        std::vector<std::atomic<double>> m_temperatures;   // The latest read temperatures of the thermal zones.
-        std::vector<std::ifstream> m_tempFiles;            // Input streams for all thermal zone files.
-        std::atomic<bool> m_terminate{false};              // Flag for thread termination.
-        Event m_event;                                     // Event to signal termination.
-        std::thread m_readThread;                          // Thread that reads the thermal zones.
-
-        /**
-         * @brief The thread function that reads the thermal zones and updates the latest read temperatures.
-         * @param[in] pollingInterval The interval in seconds at which to poll the thermal zones.
-         */
-        void ReadThread(double pollingInterval);
-};
-
-
 } /* namespace: gt::driver */

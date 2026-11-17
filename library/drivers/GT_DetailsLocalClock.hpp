@@ -8,25 +8,25 @@
 namespace gt::driver::details {
 
 
-class LocalClockDriver final {
+class LocalClock final {
     public:
         /**
-         * @brief Construct a new local clock driver.
+         * @brief Construct a new local clock.
          */
-        LocalClockDriver() : m_timeZone{std::chrono::current_zone()} {
+        LocalClock() : m_timeZone{std::chrono::current_zone()} {
             if (m_timeZone == nullptr) {
                 throw std::runtime_error("Failed to acquire system time zone");
             }
         }
 
         /* Use default destructor */
-        ~LocalClockDriver() noexcept = default;
+        ~LocalClock() noexcept = default;
 
         /* Make this class non-copyable */
-        LocalClockDriver(const LocalClockDriver&) = delete;
-        LocalClockDriver& operator=(const LocalClockDriver&) = delete;
-        LocalClockDriver(LocalClockDriver&&) = delete;
-        LocalClockDriver& operator=(LocalClockDriver&&) = delete;
+        LocalClock(const LocalClock&) = delete;
+        LocalClock& operator=(const LocalClock&) = delete;
+        LocalClock(LocalClock&&) = delete;
+        LocalClock& operator=(LocalClock&&) = delete;
 
         /**
          * @brief Get the local time in a real-time safe manner.

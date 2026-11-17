@@ -318,9 +318,9 @@ function BuildDrivers()
     def.SFunctionName    = 'SFunctionGTDriverReadThermalZones';
     def.StartFcnSpec     = 'void GT_DriverReadThermalZonesInitialize(void** work1, uint32 p1, double p2)';
     def.TerminateFcnSpec = 'void GT_DriverReadThermalZonesTerminate(void* work1)';
-    def.OutputFcnSpec    = 'void GT_DriverReadThermalZonesStep(void* work1, uint32 p1, double y1[p1])';
+    def.OutputFcnSpec    = 'void GT_DriverReadThermalZonesStep(void* work1, double y1[p1], uint32 p1)';
     def.HeaderFiles      = {'GT_DriverReadThermalZones.hpp'};
-    def.SourceFiles      = {'GT_DriverReadThermalZones.cpp','GT_DriverImplementationDetails.cpp'};
+    def.SourceFiles      = {'GT_DriverReadThermalZones.cpp'};
     def.IncPaths         = {''};
     def.SrcPaths         = {''};
     def.LibPaths         = {''};

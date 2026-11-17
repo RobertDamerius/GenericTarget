@@ -1,5 +1,5 @@
 #include <GT_DriverLocalTime.hpp>
-#include <GT_DriverLocalTimeDetails.hpp>
+#include <GT_DetailsLocalClock.hpp>
 #include <stdexcept>
 
 
@@ -8,16 +8,16 @@ void GT_DriverLocalTimeInitialize(void** const workVector) {
         throw std::invalid_argument("workVector must not be nullptr");
     }
     *workVector = nullptr;
-    gt::driver::details::LocalClockDriver* const localClockDriver{new gt::driver::details::LocalClockDriver()};
-    *workVector = static_cast<void*>(localClockDriver);
+    gt::driver::details::LocalClock* const localClock{new gt::driver::details::LocalClock()};
+    *workVector = static_cast<void*>(localClock);
 }
 
 void GT_DriverLocalTimeTerminate(void* const workVector) {
     if (workVector == nullptr) {
         return;
     }
-    const gt::driver::details::LocalClockDriver* const localClockDriver{static_cast<gt::driver::details::LocalClockDriver*>(workVector)};
-    delete localClockDriver;
+    const gt::driver::details::LocalClock* const localClock{static_cast<gt::driver::details::LocalClock*>(workVector)};
+    delete localClock;
 }
 
 void GT_DriverLocalTimeStep(
@@ -39,6 +39,6 @@ void GT_DriverLocalTimeStep(
     }
 
     // run actual driver
-    const gt::driver::details::LocalClockDriver* const localClockDriver{static_cast<gt::driver::details::LocalClockDriver*>(workVector)};
-    localClockDriver->GetLocalTime(nanoseconds, second, minute, hour, mday, month, year, wday, yday, isdst);
+    const gt::driver::details::LocalClock* const localClock{static_cast<gt::driver::details::LocalClock*>(workVector)};
+    localClock->GetLocalTime(nanoseconds, second, minute, hour, mday, month, year, wday, yday, isdst);
 }
