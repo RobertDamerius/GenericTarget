@@ -24,7 +24,7 @@ inline constexpr std::string_view compilerVersion{__VERSION__};
  * @param[in] args The arguments for the format string.
  */
 template <typename... Args> void print_info(std::format_string<Args...> fmt, Args&&... args) {
-    auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
+    const std::chrono::system_clock::time_point utc_time = std::chrono::system_clock::now();
     std::osyncstream synced_out(std::cerr);
     synced_out << std::format("[{:%Y-%m-%d %H:%M:%S} UTC] [INFO] ", utc_time);
     synced_out << std::format(fmt, std::forward<Args>(args)...);
@@ -41,7 +41,7 @@ template <typename... Args> void print_info(std::format_string<Args...> fmt, Arg
  * @param[in] args The arguments for the format string.
  */
 template <typename... Args> void print_warning(const char* file, int line, const char* func, std::format_string<Args...> fmt, Args&&... args) {
-    auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
+    const std::chrono::system_clock::time_point utc_time = std::chrono::system_clock::now();
     std::osyncstream synced_err(std::cerr);
     synced_err << std::format("[{:%Y-%m-%d %H:%M:%S} UTC] [WARNING] [{}:{}] [{}] ", utc_time, file, line, func);
     synced_err << std::format(fmt, std::forward<Args>(args)...);
@@ -58,7 +58,7 @@ template <typename... Args> void print_warning(const char* file, int line, const
  * @param[in] args The arguments for the format string.
  */
 template <typename... Args> void print_error(const char* file, int line, const char* func, std::format_string<Args...> fmt, Args&&... args) {
-    auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
+    const std::chrono::system_clock::time_point utc_time = std::chrono::system_clock::now();
     std::osyncstream synced_err(std::cerr);
     synced_err << std::format("[{:%Y-%m-%d %H:%M:%S} UTC] [ERROR] [{}:{}] [{}] ", utc_time, file, line, func);
     synced_err << std::format(fmt, std::forward<Args>(args)...);

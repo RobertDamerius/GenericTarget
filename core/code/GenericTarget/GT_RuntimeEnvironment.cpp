@@ -220,11 +220,11 @@ void RuntimeEnvironment::CrashHandler(const int signal) noexcept {
 }
 
 void RuntimeEnvironment::PrintHeader() {
-    auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
+    const std::chrono::system_clock::time_point utc_time = std::chrono::system_clock::now();
     GENERIC_TARGET_PRINT_RAW("==========================================================================\n[{:%Y-%m-%d %H:%M:%S} UTC] >>> TARGET START (PID: {})\n==========================================================================\n\n", utc_time, ::getpid());
 }
 
 void RuntimeEnvironment::PrintFooter() {
-    auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
+    const std::chrono::system_clock::time_point utc_time = std::chrono::system_clock::now();
     GENERIC_TARGET_PRINT_RAW("--------------------------------------------------------------------------\n[{:%Y-%m-%d %H:%M:%S} UTC] <<< TARGET STOP (PID: {})\n==========================================================================\n", utc_time, ::getpid());
 }

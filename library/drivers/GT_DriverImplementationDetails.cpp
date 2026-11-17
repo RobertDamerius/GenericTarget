@@ -48,14 +48,14 @@ template <typename... Args> constexpr void gt_driver_simulink_print_info(std::fo
 }
 
 template <typename... Args> void gt_driver_simulink_print_warning(const char* file, int line, const char* func, std::format_string<Args...> format, Args&&... args) {
-    auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
+    const std::chrono::system_clock::time_point utc_time = std::chrono::system_clock::now();
     std::osyncstream synced_err(std::cerr);
     synced_err << std::format("[{:%Y-%m-%d %H:%M:%S} UTC] [WARNING] [{}:{}] [{}] ", utc_time, file, line, func);
     synced_err << std::format(format, std::forward<Args>(args)...);
 }
 
 template <typename... Args> void gt_driver_simulink_print_error(const char* file, int line, const char* func, std::format_string<Args...> format, Args&&... args) {
-    auto utc_time = std::chrono::clock_cast<std::chrono::utc_clock>(std::chrono::system_clock::now());
+    const std::chrono::system_clock::time_point utc_time = std::chrono::system_clock::now();
     std::osyncstream synced_err(std::cerr);
     synced_err << std::format("[{:%Y-%m-%d %H:%M:%S} UTC] [ERROR] [{}:{}] [{}] ", utc_time, file, line, func);
     synced_err << std::format(format, std::forward<Args>(args)...);
