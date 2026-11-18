@@ -22,7 +22,7 @@ void GT_DriverReadThermalZonesTerminate(void* const workVector) {
 
 void GT_DriverReadThermalZonesStep(void* const workVector, double* const temperatures, const uint32_t maxNumThermalZones) noexcept {
     // check for null-pointer
-    if (workVector == nullptr) {
+    if ((workVector == nullptr) || (temperatures == nullptr)) {
         return;
     }
 
