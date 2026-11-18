@@ -63,6 +63,9 @@ class PeriodicTask final {
         void Trigger() noexcept;
 
     private:
+        static_assert(std::atomic<uint64_t>::is_always_lock_free, "std::atomic<uint64_t> must always be lock-free");
+        static_assert(std::atomic<double>::is_always_lock_free, "std::atomic<double> must always be lock-free");
+
         int32_t m_ticks;                                                                     // Decrementing tick counter to be used to notify the actual thread with a multiple of the base sampletime.
         int32_t m_offsetSamples;                                                             // Decrementing tick counter to be used to wait for some ticks before starting with the actual periodic task.
         Semaphore m_sem;                                                                     // Semaphore for thread notification.

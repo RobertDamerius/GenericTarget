@@ -64,6 +64,8 @@ class PeriodicTimer final {
         uint64_t GetNumLostTicks() const noexcept;
 
     private:
+        static_assert(std::atomic<uint64_t>::is_always_lock_free, "std::atomic<uint64_t> must always be lock-free");
+
         int m_epollFd{-1};                             // File descriptor for epoll.
         int m_cancelFd{-1};                            // File descriptor for cancel events.
         int m_timerFd{-1};                             // File descriptor of internal timer object.

@@ -29,7 +29,7 @@ class AsyncThermalZoneReader final {
         AsyncThermalZoneReader(const uint32_t maxNumThermalZones, const double pollingInterval) : m_temperatures(maxNumThermalZones), m_tempFiles(maxNumThermalZones) {
             for (uint32_t i{0U}; i < maxNumThermalZones; ++i) {
                 m_temperatures[i].store(std::numeric_limits<double>::quiet_NaN(), std::memory_order_release);
-                m_tempFiles[i].rdbuf()->pubsetbuf(nullptr, 0);
+                m_tempFiles[i].rdbuf()->pubsetbuf(nullptr, 0); // make the stream unbuffered (call before open)
                 m_tempFiles[i].open("/sys/class/thermal/thermal_zone" + std::to_string(i) + "/temp");
             }
             constexpr double minInterval{0.01};
@@ -71,6 +71,8 @@ class AsyncThermalZoneReader final {
         }
 
     private:
+        static_assert(std::atomic<double>::is_always_lock_free, "std::atomic<double> must always be lock-free");
+
         std::vector<std::atomic<double>> m_temperatures;   // The latest read temperatures of the thermal zones.
         std::vector<std::ifstream> m_tempFiles;            // Input streams for all thermal zone files.
         std::atomic<bool> m_terminate{false};              // Flag for thread termination.

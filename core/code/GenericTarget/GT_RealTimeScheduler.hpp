@@ -80,7 +80,7 @@ class RealTimeScheduler final {
         uint64_t GetNumTaskOverloads(const int32_t taskID) const noexcept;
 
     private:
-        static_assert(std::atomic<std::chrono::steady_clock::time_point>::is_always_lock_free, "steady_clock::time_point atomic must be lock-free");
+        static_assert(std::atomic<std::chrono::steady_clock::time_point>::is_always_lock_free, "std::atomic<std::chrono::steady_clock::time_point> must always be lock-free");
 
         std::vector<std::unique_ptr<PeriodicTask>> m_tasks;                 // A list of periodic worker tasks (declare before @ref m_timer and @ref m_masterThread).
         std::atomic<bool> m_terminate{false};                               // Termination flag: true if master thread is to be terminated, false otherwise.
