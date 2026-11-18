@@ -42,33 +42,33 @@ class App final {
 
         /**
          * @brief Get the model execution time (steady clock), that is, the elapsed time to the start of the real-time scheduler thread.
-         * @return Model execution time in seconds.
+         * @return Model execution time in seconds. If the scheduler is not initialized, 0.0 is returned.
          */
         [[nodiscard]] double GetModelExecutionTime() const noexcept;
 
         /**
          * @brief Get the number of CPU overloads that have occurred since the start of the real-time scheduler.
-         * @return The number of CPU overloads.
+         * @return The number of CPU overloads. If the scheduler is not initialized, 0 is returned.
          */
         [[nodiscard]] uint64_t GetNumCPUOverloads() const noexcept;
 
         /**
          * @brief Get the number of lost ticks that have occurred since the start of the real-time scheduler.
-         * @return The number of lost ticks.
+         * @return The number of lost ticks. If the scheduler is not initialized, 0 is returned.
          */
         [[nodiscard]] uint64_t GetNumLostTicks() const noexcept;
 
         /**
          * @brief Get the latest task execution time for a task.
          * @param[in] taskID The ID of the task from which to obtain the latest task execution time.
-         * @return The latest task execution time in seconds or NaN if the taskID is invalid.
+         * @return The latest task execution time in seconds or NaN if the taskID is invalid. If the scheduler is not initialized, NaN is returned.
          */
         [[nodiscard]] double GetTaskExecutionTime(const int32_t taskID) const noexcept;
 
         /**
          * @brief Get the number of task overloads for a task.
          * @param[in] taskID The ID of the task from which to obtain the latest number of task overloads.
-         * @return The latest task overload counter or zero if the taskID is invalid.
+         * @return The latest task overload counter or zero if the taskID is invalid. If the scheduler is not initialized, 0 is returned.
          */
         [[nodiscard]] uint64_t GetNumTaskOverloads(const int32_t taskID) const noexcept;
 

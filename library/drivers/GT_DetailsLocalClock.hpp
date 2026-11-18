@@ -17,6 +17,11 @@ class LocalClock final {
             if (m_timeZone == nullptr) {
                 throw std::runtime_error("Failed to acquire system time zone");
             }
+
+            // run get_info once to let chrono load the timezone database
+            namespace chr = std::chrono;
+            const chr::system_clock::time_point now_utc{chr::system_clock::now()};
+            static_cast<void>(m_timeZone->get_info(now_utc));
         }
 
         /* Use default destructor */
