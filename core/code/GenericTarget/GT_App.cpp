@@ -8,6 +8,7 @@
 #include <limits>
 #include <filesystem>
 #include <span>
+#include <unistd.h>
 #include <sys/socket.h>
 #include <sys/utsname.h>
 #include <sys/un.h>
@@ -74,7 +75,7 @@ void App::Shutdown() {
     SimulinkInterface::Terminate();
 }
 
-double App::GetModelExecutionTime() noexcept {
+double App::GetModelExecutionTime() const noexcept {
     if (m_rtScheduler == nullptr) {
         constexpr double kFallbackValue{0.0};
         return kFallbackValue;

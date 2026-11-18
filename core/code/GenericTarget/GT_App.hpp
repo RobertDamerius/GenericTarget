@@ -44,7 +44,7 @@ class App {
          * @brief Get the model execution time (steady clock), that is, the elapsed time to the start of the real-time scheduler thread.
          * @return Model execution time in seconds.
          */
-        [[nodiscard]] double GetModelExecutionTime() noexcept;
+        [[nodiscard]] double GetModelExecutionTime() const noexcept;
 
         /**
          * @brief Get the number of CPU overloads that have occurred since the start of the real-time scheduler.
