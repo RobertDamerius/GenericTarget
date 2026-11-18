@@ -11,6 +11,10 @@
 namespace gt {
 
 
+/* Forward declaration of friendly class. Only the RealTimeScheduler is allowed to trigger a periodic task. */
+class RealTimeScheduler;
+
+
 /**
  * @brief Represents a real-time task that is notified periodically by the real-time scheduler. It contains a worker thread
  * that runs the step function of the simulink model.
@@ -22,6 +26,7 @@ class PeriodicTask {
         /**
          * @brief Create a periodic task.
          * @param[in] taskID The task ID for the simulink interface.
+         * @note In DEBUG mode, the worker thread is allowed to run as non-realtime thread.
          */
         explicit PeriodicTask(const int32_t taskID);
 
@@ -29,12 +34,6 @@ class PeriodicTask {
          * @brief Delete the periodic task.
          */
         ~PeriodicTask();
-
-        /**
-         * @brief Trigger the real-time task.
-         * @note It must be triggered with the base sampletime.
-         */
-        void Trigger() noexcept;
 
         /**
          * @brief Shutdown the real-time thread completely without destroying the periodic task.
@@ -53,6 +52,15 @@ class PeriodicTask {
          * @returns The latest task execution time in seconds.
          */
         double GetTaskExecutionTime() const noexcept;
+
+    protected:
+        friend gt::RealTimeScheduler;
+
+        /**
+         * @brief Trigger the real-time task.
+         * @note It must be triggered with the base sampletime. Only the master real-time thread is allowed to trigger this task.
+         */
+        void Trigger() noexcept;
 
     private:
         int32_t m_ticks;                                                                     // Decrementing tick counter to be used to notify the actual thread with a multiple of the base sampletime.
