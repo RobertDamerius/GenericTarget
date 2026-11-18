@@ -6,19 +6,19 @@
 
 /**
  * @brief Initialize the driver.
- * @param[inout] workVector The simulink work vector storing the pointer to an std::chrono::time_zone object.
+ * @param[inout] workVector The simulink work vector storing the pointer to a LocalClock object.
  */
 extern void GT_DriverLocalTimeInitialize(void** const workVector);
 
 /**
  * @brief Terminate the driver.
- * @param[inout] workVector The simulink work vector storing the pointer to an std::chrono::time_zone object.
+ * @param[inout] workVector The simulink work vector storing the pointer to a LocalClock object.
  */
 extern void GT_DriverLocalTimeTerminate(void* const workVector);
 
 /**
  * @brief Perform one step of the driver.
- * @param[inout] workVector The simulink work vector storing the pointer to an std::chrono::time_zone object.
+ * @param[inout] workVector The simulink work vector storing the pointer to a LocalClock object.
  * @param[out] nanoseconds Nanoseconds after the second [0, 999999999].
  * @param[out] second Seconds after the minute [0, 59].
  * @param[out] minute Minutes after the hour [0, 59].

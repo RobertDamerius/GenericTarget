@@ -1,4 +1,5 @@
 #include <GT_DriverTaskExecutionTime.hpp>
+#include <GT_DetailsTaskIDResolver.hpp>
 #include <stdexcept>
 #include <limits>
 #if defined(GENERIC_TARGET_IMPLEMENTATION)
@@ -9,31 +10,12 @@
 #endif
 
 
-namespace {
-constexpr int32_t kInvalidTaskID{-1};
-}
-
 void GT_DriverTaskExecutionTimeInitialize(void** const workVector, const uint8_t* const taskName, const uint32_t taskNameLength) {
     if ((workVector == nullptr) || (taskName == nullptr)) {
         throw std::invalid_argument("workVector and taskName must not be nullptr");
     }
     *workVector = nullptr;
-    int32_t* const taskID{new int32_t{kInvalidTaskID}};
-
-    // find task ID by name and store in work vector
-    #if defined(GENERIC_TARGET_IMPLEMENTATION)
-    const std::string_view targetTaskName{reinterpret_cast<const char*>(taskName), static_cast<std::size_t>(taskNameLength)};
-    for (int32_t id{0}; id < SimulinkInterface::numTasks; ++id) {
-        if (targetTaskName == SimulinkInterface::taskNames[id]) {
-            *taskID = id;
-            break;
-        }
-    }
-    #else
-    static_cast<void>(taskName);
-    static_cast<void>(taskNameLength);
-    #endif
-
+    int32_t* const taskID{new int32_t{gt::driver::details::task_id_resolver::Resolve(taskName, taskNameLength)}};
     *workVector = static_cast<void*>(taskID);
 }
 
