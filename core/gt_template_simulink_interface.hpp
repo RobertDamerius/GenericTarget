@@ -1,4 +1,4 @@
-/* Auto-generated code (Template Version 20261117) */
+/* Auto-generated code (Template Version 20261118) */
 #pragma once
 
 
@@ -6,6 +6,7 @@
 #include <string_view>
 #include <array>
 #include <cstddef>
+#include <algorithm>
 
 
 /**
@@ -22,6 +23,9 @@ class SimulinkInterface {
         constexpr static std::array<std::string_view, static_cast<std::size_t>(numTasks)> taskNames{$ARRAY_TASK_NAMES$};   // Names for all sample rate tasks.
 
         static_assert(numTasks > 0, "numTasks must be greater than zero!");
+        static_assert(baseSampleTime > 0.0, "baseSampleTime must be greater than zero!");
+        static_assert(std::all_of(sampleTicks.begin(), sampleTicks.end(), [](int32_t v) { return v > 0; }), "All sampleTicks must be greater than zero!");
+        static_assert(std::all_of(offsetTicks.begin(), offsetTicks.end(), [](int32_t v) { return v >= 0; }), "All sampleTicks must be greater than or equal zero!");
 
         /**
          *  @brief Initialize the model.

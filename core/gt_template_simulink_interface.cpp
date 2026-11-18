@@ -1,4 +1,4 @@
-/* Auto-generated code (Template Version 20261117) */
+/* Auto-generated code (Template Version 20261118) */
 #include <SimulinkCodeGeneration/SimulinkInterface.hpp>
 #include <$NAME_OF_CLASSHEADER$>
 
