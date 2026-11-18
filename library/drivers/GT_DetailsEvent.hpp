@@ -61,6 +61,7 @@ class Event final {
 
         /**
          * @brief Post the event and trigger a thread waiting for this event.
+         * @note Under linux, the application is terminated immediately via std::abort on failure.
          */
         void Post() noexcept {
             #if defined(__linux__)
@@ -96,12 +97,16 @@ class Event final {
 
         /**
          * @brief Wait for a notification event up to a maximum duration.
-         * @param[in] sec Maximum time to wait in seconds (at most 86400.0).
+         * @param[in] sec Maximum finite time to wait in seconds (at most 86400.0).
          * @return True if the event was notified, false if the timeout elapsed.
+         * @note If the given time is zero or non-finite, this function returns false immediately.
          */
         bool WaitFor(double sec){
             constexpr double maxSec{86400.0};
             const double safeSec = (std::isfinite(sec) && (sec > 0.0)) ? std::min(sec, maxSec) : 0.0;
+            if (safeSec == 0.0) {
+                return false;
+            }
 
             #if defined(__linux__)
             ::timespec ts{};
