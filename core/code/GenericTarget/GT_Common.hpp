@@ -86,7 +86,6 @@ namespace exit_code {
     constexpr int SignalHandlerFailed{2};
     constexpr int SemaphoreInitFailed{3};
     constexpr int AppStartupFailed{4};
-    constexpr int SemaphoreWaitFailed{5};
 } /* namespace: exit_code*/
 
 

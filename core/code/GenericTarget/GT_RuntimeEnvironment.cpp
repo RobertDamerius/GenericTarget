@@ -105,16 +105,8 @@ int RuntimeEnvironment::Main(int argc, char** argv) {
     }
 
     // wait on termination signal
-    try {
-        GetTerminationSemaphore().Wait();
-        GENERIC_TARGET_PRINT_INFO("The application is interrupted by a stop request.\n");
-    } catch (const std::exception& e) {
-        GENERIC_TARGET_PRINT_ERROR("{}\n", e.what());
-        s_app->Shutdown();
-        s_app.reset();
-        PrintFooter();
-        return exit_code::SemaphoreWaitFailed;
-    }
+    GetTerminationSemaphore().Wait();
+    GENERIC_TARGET_PRINT_INFO("The application is interrupted by a stop request.\n");
 
     // terminate real-time application
     s_app->Shutdown();

@@ -21,6 +21,7 @@ class RealTimeScheduler {
     public:
         /**
          * @brief Construct a new real-time scheduler. To begin scheduling, run  @ref Execute.
+         * @note In DEBUG mode, the master thread is allowed to run as non-realtime thread.
          */
         RealTimeScheduler();
 
