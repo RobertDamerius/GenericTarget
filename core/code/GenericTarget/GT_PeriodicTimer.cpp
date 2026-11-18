@@ -5,6 +5,7 @@
 #include <cerrno>
 #include <cstring>
 #include <limits>
+#include <unistd.h>
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
 #include <sys/timerfd.h>
@@ -97,9 +98,9 @@ bool PeriodicTimer::Start(double sampletime) {
         return false;
     }
 
-    m_numCPUOverloads.store(0U, std::memory_order_relaxed);
-    m_numLostTicks.store(0U, std::memory_order_relaxed);
-    m_isRunning.store(true, std::memory_order_relaxed);
+    m_numCPUOverloads.store(0U, std::memory_order_release);
+    m_numLostTicks.store(0U, std::memory_order_release);
+    m_isRunning.store(true, std::memory_order_release);
     return true;
 }
 
@@ -183,8 +184,8 @@ int32_t PeriodicTimer::WaitForTick() noexcept {
                 return -1;
             }
             if (expiredTicks > kExpectedExpiredTicks) {
-                m_numCPUOverloads.fetch_add(1U, std::memory_order_relaxed);
-                m_numLostTicks.fetch_add(expiredTicks - 1U, std::memory_order_relaxed);
+                m_numCPUOverloads.fetch_add(1U, std::memory_order_release);
+                m_numLostTicks.fetch_add(expiredTicks - 1U, std::memory_order_release);
             }
             return 1; // tick successful
         }
