@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <chrono>
+#include <unistd.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <execinfo.h>
@@ -133,6 +134,10 @@ bool RuntimeEnvironment::SetupMemoryLocking() {
 }
 
 bool RuntimeEnvironment::SetupSignalHandlers() {
+    // preoload backtrace
+    std::array<void*, 1U> dummy{};
+    static_cast<void>(::backtrace(dummy.data(), static_cast<int>(dummy.size())));
+
     // crash handler
     struct ::sigaction action{};
     action.sa_handler = CrashHandler;
