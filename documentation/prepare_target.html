@@ -178,7 +178,8 @@
   <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/note-light.svg" alt="" width="18" height="18">
       <img class="callout-icon callout-icon-dark" src="assets/icons/note-dark.svg" alt="" width="18" height="18">Command 2</p>
   <p>Open a terminal and run the following command:</p>
-  <pre>sudo apt update &amp;&amp; sudo apt -y upgrade &amp;&amp; sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target &amp;&amp; echo -e "net.core.rmem_max=33554432\nnet.core.wmem_max=33554432" | sudo tee /etc/sysctl.d/99-custom-buffers.conf &amp;&amp; sudo sysctl --system &amp;&amp; sudo apt -y install linux-image-rt-amd64 g++ gdb make build-essential net-tools btop &amp;&amp; sudo reboot</pre>
+  <pre>sudo apt update &amp;&amp; sudo apt -y upgrade &amp;&amp; sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target &amp;&amp; echo -e "net.core.rmem_max=33554432\nnet.core.wmem_max=33554432" | sudo tee /etc/sysctl.d/99-custom-buffers.conf &amp;&amp; sudo sysctl --system &amp;&amp; sudo apt -y install linux-image-rt-amd64 g++ gdb make build-essential net-tools btop &amp;&amp; printf "$USER soft memlock unlimited\n$USER hard memlock unlimited\n$USER soft rtprio 99\n$USER hard rtprio 99\n" | sudo tee /etc/security/limits.d/99-realtime-$USER.conf
+ &amp;&amp; sudo reboot</pre>
   <p>This command:</p>
   <ul>
     <li>updates all installed packages</li>
@@ -188,25 +189,20 @@
     <li>installs the <code>PREEMPT_RT</code> real-time kernel</li>
     <li>installs the C++ compiler, debugger, and build tools: <code>g++</code>, <code>gdb</code>,
         <code>make</code>, <code>build-essential</code>, <code>net-tools</code>, <code>btop</code></li>
+    <li>configures unlimited locked memory with a maximum real-time priority (<code>99</code>) to prevent page faults</li>
     <li>reboots the target computer</li>
   </ul>
 </aside>
 
-<p>
-  After the reboot, verify that the real-time kernel is active by running <code>uname -a</code> in a terminal.
-  The output should contain <code>SMP PREEMPT_RT</code>.
+  <p>After the reboot, open a terminal and run the following commands for verification:</p>
+  <ul>
+    <li><code>uname -a</code>: The output should contain <code>SMP PREEMPT_RT</code> (real-time kernel is active)</li>
+    <li><code>ulimit -l -r</code>: The maximum locked memory should be <code>unlimited</code> and real-time priority should be <code>99</code></li>
+    <li><code>g++ --version</code>: The compiler version must be <code>13.0.0</code> or newer</li>
+    <li><code>g++ -std=c++20 -x c++ -fsyntax-only /dev/null</code>: The command should complete
+    without printing an error message (C++20 standard is supported)</li>
+  </ul>
 </p>
-
-<aside class="callout callout-important">
-  <p class="callout-title"><img class="callout-icon callout-icon-light" src="assets/icons/important-light.svg" alt="" width="18" height="18">
-      <img class="callout-icon callout-icon-dark" src="assets/icons/important-dark.svg" alt="" width="18" height="18">Important — Compiler requirements</p>
-  <p>
-    A <code>g++</code> compiler of version 13 or newer is required to build the target application, and it must
-    support the C++20 standard. Check the installed compiler version with <code>g++ --version</code>. To verify
-    C++20 support, run <code>g++ -std=c++20 -x c++ -fsyntax-only /dev/null</code>; the command should complete
-    without printing an error message.
-  </p>
-</aside>
 
 <h2 id="step3">Step 3: Configure Passwordless SSH Authentication</h2>
 <aside class="callout callout-important">
