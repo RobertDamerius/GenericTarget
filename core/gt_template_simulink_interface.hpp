@@ -12,7 +12,7 @@
 /**
  * @brief Represents the interface from the generic target core to the simulink model.
  */
-class SimulinkInterface {
+class SimulinkInterface final {
     public:
         constexpr static int32_t numTasks{$NUM_TASKS$};
         constexpr static std::string_view modelName{"$NAME_OF_MODEL$"};                                                    // A string indicating the model name (ASCII characters only).

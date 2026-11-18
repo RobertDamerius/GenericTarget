@@ -11,7 +11,7 @@ namespace gt {
 /**
  * @brief This class represents a periodic timer that waits for timer events.
  */
-class PeriodicTimer {
+class PeriodicTimer final {
     public:
         /**
          * @brief Create a new periodic timer object.

@@ -19,7 +19,7 @@ namespace gt {
 /**
  * @brief Manages the runtime environment and the actual real-time application.
  */
-class RuntimeEnvironment {
+class RuntimeEnvironment final {
     public:
         /**
          * @brief Get the model execution time (steady clock), that is, the elapsed time to the start of the real-time scheduler thread.

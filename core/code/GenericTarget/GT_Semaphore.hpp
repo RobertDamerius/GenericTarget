@@ -10,7 +10,7 @@ namespace gt {
 /**
  * @brief RAII wrapper for POSIX semaphores.
  */
-class Semaphore {
+class Semaphore final {
     public:
         /**
          * @brief Construct a new POSIX-based semaphore object.

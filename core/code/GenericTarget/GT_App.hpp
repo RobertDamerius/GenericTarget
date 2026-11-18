@@ -14,7 +14,7 @@ namespace gt {
 /**
  * @brief The Real-Time target application.
  */
-class App {
+class App final {
     public:
         std::vector<std::string> args;   // List of all arguments passed to the application.
 

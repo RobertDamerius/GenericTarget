@@ -17,7 +17,7 @@ namespace gt {
 /**
  * @brief Runs a realtime-priority master thread and manages all worker threads of the model.
  */
-class RealTimeScheduler {
+class RealTimeScheduler final {
     public:
         /**
          * @brief Construct a new real-time scheduler. To begin scheduling, run  @ref Execute.

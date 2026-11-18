@@ -19,7 +19,7 @@ class RealTimeScheduler;
  * @brief Represents a real-time task that is notified periodically by the real-time scheduler. It contains a worker thread
  * that runs the step function of the simulink model.
  */
-class PeriodicTask {
+class PeriodicTask final {
     public:
         const int32_t taskID;   // Task ID for the simulink interface. This is used to identify the task in the SimulinkInterface class.
 
