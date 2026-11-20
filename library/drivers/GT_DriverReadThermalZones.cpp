@@ -26,12 +26,7 @@ void GT_DriverReadThermalZonesStep(void* const workVector, double* const tempera
         return;
     }
 
-    #if defined(_WIN32)
-    for (uint32_t n{0U}; n < maxNumThermalZones; ++n) {
-        temperatures[n] = std::numeric_limits<double>::quiet_NaN();
-    }
-    #else
+    // get latest thermal zone values
     const gt::driver::details::AsyncThermalZoneReader* const asyncReader{static_cast<gt::driver::details::AsyncThermalZoneReader*>(workVector)};
-    asyncReader->ReadZones(temperatures, maxNumThermalZones);
-    #endif
+    asyncReader->GetLatestData(temperatures, maxNumThermalZones);
 }

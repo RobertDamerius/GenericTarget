@@ -56,11 +56,14 @@ class AsyncThermalZoneReader final {
         AsyncThermalZoneReader& operator=(AsyncThermalZoneReader&&) = delete;
 
         /**
-         * @brief Read the latest temperatures of the thermal zones.
+         * @brief Get the latest temperatures of the thermal zones.
          * @param[out] temperatures Pointer to an array where the latest read temperatures will be stored.
          * @param[in] numZones The number of thermal zones to read.
          */
-        void ReadZones(double* temperatures, const uint32_t numZones) const noexcept {
+        void GetLatestData(double* temperatures, const uint32_t numZones) const noexcept {
+            if (temperatures == nullptr) {
+                return;
+            }
             for (uint32_t i{0U}; i < numZones; ++i) {
                 if (i < m_temperatures.size()) {
                     temperatures[i] = m_temperatures[i].load(std::memory_order_acquire);

@@ -8,6 +8,8 @@
 /* forward to target implementation */
 #if defined(GENERIC_TARGET_IMPLEMENTATION)
 #include <GenericTarget/GT_Common.hpp>
+#include <GenericTarget/GT_RuntimeEnvironment.hpp>
+#include <SimulinkCodeGeneration/SimulinkInterface.hpp>
 
 /* reimplement equivalent target API */
 #else
@@ -19,6 +21,9 @@
 #include <syncstream>
 #include <iostream>
 #include <utility>
+#include <span>
+#include <string>
+#include <limits>
 
 
 namespace gt {
@@ -68,7 +73,43 @@ template <typename... Args> void print_error(const char* file, int line, const c
 }
 
 
+/* emulate runtime API */
+class RuntimeEnvironment final {
+    public:
+        [[nodiscard]] static uint64_t GetNumCPUOverloads() noexcept {
+            constexpr uint64_t kFallbackValue{0U};
+            return kFallbackValue;
+        }
+        [[nodiscard]] static uint64_t GetNumLostTicks() noexcept {
+            constexpr uint64_t kFallbackValue{0U};
+            return kFallbackValue;
+        }
+        [[nodiscard]] static double GetTaskExecutionTime(const int32_t taskID) noexcept {
+            constexpr double kFallbackValue{std::numeric_limits<double>::quiet_NaN()};
+            static_cast<void>(taskID);
+            return kFallbackValue;
+        }
+        [[nodiscard]] static uint64_t GetNumTaskOverloads(const int32_t taskID) noexcept {
+            constexpr uint64_t kFallbackValue{0U};
+            static_cast<void>(taskID);
+            return kFallbackValue;
+        }
+        [[nodiscard]] static std::span<const std::string> GetAppArguments() noexcept {
+            return {};
+        }
+        static void RequestStop() noexcept {}
+};
+
+
 } /* namespace: gt */
+
+
+/* emulate simulink interface */
+class SimulinkInterface final {
+    public:
+        constexpr static int32_t numTasks{1};
+        constexpr static std::array<std::string_view, 1U> taskNames{""};
+};
 
 
 /* Macro definitions for thread-safe message printing */

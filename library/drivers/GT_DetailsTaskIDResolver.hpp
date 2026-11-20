@@ -2,10 +2,7 @@
 
 
 #include <cstdint>
-#if defined(GENERIC_TARGET_IMPLEMENTATION)
-#include <SimulinkCodeGeneration/SimulinkInterface.hpp>
-#include <string_view>
-#endif
+#include <GT_DetailsCompat.hpp>
 
 
 namespace gt::driver::details::task_id_resolver {
@@ -25,8 +22,6 @@ inline int32_t Resolve(const uint8_t* const taskName, const uint32_t taskNameLen
     if (taskName == nullptr) {
         return result;
     }
-
-    #if defined(GENERIC_TARGET_IMPLEMENTATION)
     const std::string_view targetTaskName{reinterpret_cast<const char*>(taskName), static_cast<std::size_t>(taskNameLength)};
     for (int32_t id{0}; id < SimulinkInterface::numTasks; ++id) {
         if (targetTaskName == SimulinkInterface::taskNames[id]) {
@@ -34,10 +29,6 @@ inline int32_t Resolve(const uint8_t* const taskName, const uint32_t taskNameLen
             break;
         }
     }
-    #else
-    static_cast<void>(taskName);
-    static_cast<void>(taskNameLength);
-    #endif
     return result;
 }
 

@@ -3,9 +3,7 @@
 #include <cstdint>
 #include <limits>
 #include <span>
-#if defined(GENERIC_TARGET_IMPLEMENTATION)
-#include <GenericTarget/GT_RuntimeEnvironment.hpp>
-#endif
+#include <GT_DetailsCompat.hpp>
 
 
 void GT_DriverApplicationArgumentsInitialize() {}
@@ -34,7 +32,7 @@ void GT_DriverApplicationArgumentsStep(uint8_t* const argBuffer, uint32_t* const
     const std::size_t totalBufferSize = maxNumArgs * maxNumCharsPerArg;
     const std::span<uint8_t> argBufferSpan{argBuffer, totalBufferSize};
 
-    #if defined(GENERIC_TARGET_IMPLEMENTATION)
+    // copy arguments to output
     const std::span<const std::string> args = gt::RuntimeEnvironment::GetAppArguments();
     const std::size_t numArgs = args.size();
     uint32_t argCount{0U};
@@ -51,7 +49,4 @@ void GT_DriverApplicationArgumentsStep(uint8_t* const argBuffer, uint32_t* const
         ++argCount;
     }
     *numArguments = argCount;
-    #else
-    static_cast<void>(argBufferSpan);
-    #endif
 }

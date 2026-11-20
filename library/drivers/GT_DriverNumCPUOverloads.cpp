@@ -1,7 +1,5 @@
 #include <GT_DriverNumCPUOverloads.hpp>
-#if defined(GENERIC_TARGET_IMPLEMENTATION)
-#include <GenericTarget/GT_RuntimeEnvironment.hpp>
-#endif
+#include <GT_DetailsCompat.hpp>
 
 
 void GT_DriverNumCPUOverloadsInitialize() {}
@@ -14,12 +12,7 @@ void GT_DriverNumCPUOverloadsStep(uint64_t* const numCPUOverloads, uint64_t* con
         return;
     }
 
-    // get overloads from runtime environment or assign fallback values during simulation
-    #if defined(GENERIC_TARGET_IMPLEMENTATION)
+    // get overloads from runtime environment
     *numCPUOverloads = gt::RuntimeEnvironment::GetNumCPUOverloads();
     *numLostTicks = gt::RuntimeEnvironment::GetNumLostTicks();
-    #else
-    *numCPUOverloads = 0U;
-    *numLostTicks = 0U;
-    #endif
 }
