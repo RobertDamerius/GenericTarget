@@ -87,6 +87,10 @@ class AsyncThermalZoneReader final {
          * @param[in] pollingInterval The interval in seconds at which to poll the thermal zones.
          */
         void ReadThread(const double pollingInterval) {
+            #if defined(__linux__)
+            const sched_param param{};
+            static_cast<void>(::pthread_setschedparam(::pthread_self(), SCHED_OTHER, &param));
+            #endif
             constexpr double kToDegree{0.001};
             while (!m_terminate.load(std::memory_order_acquire)) {
                 for (std::size_t i{0U}; i < m_temperatures.size(); ++i) {
