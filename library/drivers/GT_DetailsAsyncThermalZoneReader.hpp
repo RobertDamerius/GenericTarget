@@ -36,6 +36,18 @@ class AsyncThermalZoneReader final {
             constexpr double maxInterval{10.0};
             const double finalInterval = std::isfinite(pollingInterval) ? std::clamp(pollingInterval, minInterval, maxInterval) : minInterval;
             m_readThread = std::thread(&AsyncThermalZoneReader::ReadThread, this, finalInterval);
+
+            #if defined(GENERIC_TARGET_IMPLEMENTATION)
+            const sched_param param{};
+            if (::pthread_setschedparam(m_readThread.native_handle(), SCHED_OTHER, &param) == -1) {
+                std::string msg{"Failed to set scheduling policy SCHED_OTHER for background thread (AsyncThermalZoneReader)"};
+                #if defined(DEBUG)
+                GENERIC_TARGET_PRINT_ERROR("{}\n", msg);
+                #else
+                throw std::runtime_error(msg);
+                #endif
+            }
+            #endif
         }
 
         /**
@@ -87,10 +99,6 @@ class AsyncThermalZoneReader final {
          * @param[in] pollingInterval The interval in seconds at which to poll the thermal zones.
          */
         void ReadThread(const double pollingInterval) {
-            #if defined(__linux__)
-            const sched_param param{};
-            static_cast<void>(::pthread_setschedparam(::pthread_self(), SCHED_OTHER, &param));
-            #endif
             constexpr double kToDegree{0.001};
             while (!m_terminate.load(std::memory_order_acquire)) {
                 for (std::size_t i{0U}; i < m_temperatures.size(); ++i) {
