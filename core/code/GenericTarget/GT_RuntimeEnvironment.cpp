@@ -36,32 +36,32 @@ double RuntimeEnvironment::GetModelExecutionTime() noexcept {
     return s_app->GetModelExecutionTime();
 }
 
-uint64_t RuntimeEnvironment::GetNumCPUOverloads() noexcept {
+std::uint64_t RuntimeEnvironment::GetNumCPUOverloads() noexcept {
     if (s_app == nullptr) {
-        constexpr uint64_t kFallbackValue{0U};
+        constexpr std::uint64_t kFallbackValue{0U};
         return kFallbackValue;
     }
     return s_app->GetNumCPUOverloads();
 }
 
-uint64_t RuntimeEnvironment::GetNumLostTicks() noexcept {
+std::uint64_t RuntimeEnvironment::GetNumLostTicks() noexcept {
     if (s_app == nullptr) {
-        constexpr uint64_t kFallbackValue{0U};
+        constexpr std::uint64_t kFallbackValue{0U};
         return kFallbackValue;
     }
     return s_app->GetNumLostTicks();
 }
 
-double RuntimeEnvironment::GetTaskExecutionTime(const int32_t taskID) noexcept {
+double RuntimeEnvironment::GetTaskExecutionTime(const std::int32_t taskID) noexcept {
     if (s_app == nullptr) {
         return std::numeric_limits<double>::quiet_NaN();
     }
     return s_app->GetTaskExecutionTime(taskID);
 }
 
-uint64_t RuntimeEnvironment::GetNumTaskOverloads(const int32_t taskID) noexcept {
+std::uint64_t RuntimeEnvironment::GetNumTaskOverloads(const std::int32_t taskID) noexcept {
     if (s_app == nullptr) {
-        constexpr uint64_t kFallbackValue{0U};
+        constexpr std::uint64_t kFallbackValue{0U};
         return kFallbackValue;
     }
     return s_app->GetNumTaskOverloads(taskID);

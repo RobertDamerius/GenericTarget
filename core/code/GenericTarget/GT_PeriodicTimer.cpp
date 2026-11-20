@@ -106,7 +106,7 @@ bool PeriodicTimer::Start(double sampletime) {
 
 void PeriodicTimer::Cancel() {
     if (m_isRunning.exchange(false, std::memory_order_release)) {
-        uint64_t wakeUpSignal{1U};
+        std::uint64_t wakeUpSignal{1U};
         ::ssize_t written;
         int errorCode{0};
         do {
@@ -131,8 +131,8 @@ void PeriodicTimer::Stop() {
     }
 
     // clear any pending cancellation event
-    uint64_t discarded;
-    for (int32_t attempt{0}; attempt < 3; ++attempt) {
+    std::uint64_t discarded;
+    for (std::int32_t attempt{0}; attempt < 3; ++attempt) {
         ::ssize_t r = ::read(m_cancelFd, &discarded, sizeof(discarded));
         const int errorCode{errno};
         if ((r == sizeof(discarded)) || ((r == -1) && (errorCode == EAGAIN))) {
@@ -172,8 +172,8 @@ int32_t PeriodicTimer::WaitForTick() noexcept {
             return 0;
         }
         if (events[0U].data.fd == m_timerFd) {
-            constexpr uint64_t kExpectedExpiredTicks{1U};
-            uint64_t expiredTicks{0U};
+            constexpr std::uint64_t kExpectedExpiredTicks{1U};
+            std::uint64_t expiredTicks{0U};
             ::ssize_t s = ::read(m_timerFd, &expiredTicks, sizeof(expiredTicks));
             const int errorCode{errno};
             if (s != sizeof(expiredTicks)) {
@@ -193,10 +193,10 @@ int32_t PeriodicTimer::WaitForTick() noexcept {
     return 0;
 }
 
-uint64_t PeriodicTimer::GetNumCPUOverloads() const noexcept {
+std::uint64_t PeriodicTimer::GetNumCPUOverloads() const noexcept {
     return m_numCPUOverloads.load(std::memory_order_acquire);
 }
 
-uint64_t PeriodicTimer::GetNumLostTicks() const noexcept {
+std::uint64_t PeriodicTimer::GetNumLostTicks() const noexcept {
     return m_numLostTicks.load(std::memory_order_acquire);
 }

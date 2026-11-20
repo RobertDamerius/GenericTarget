@@ -20,13 +20,13 @@
  * @param[in] strlenDataTypes (Bus) Number of characters in the dataTypes array.
  * @param[in] writeFilesDuringSimulation Nonzero if files should be written during simulation.
  */
-extern void GT_DriverDataRecorderInitialize(uint8_t typeOfRecorder, const uint8_t* idCharacters, uint32_t numIDCharacters, uint32_t numSamplesPerFile, uint32_t numBytesPerSample, uint32_t numSignals, const uint8_t* signalNames, uint32_t strlenSignalNames, const uint8_t* dimensions, uint32_t strlenDimensions, const uint8_t* dataTypes, uint32_t strlenDataTypes, uint8_t writeFilesDuringSimulation);
+extern void GT_DriverDataRecorderInitialize(std::uint8_t typeOfRecorder, const std::uint8_t* idCharacters, std::uint32_t numIDCharacters, std::uint32_t numSamplesPerFile, std::uint32_t numBytesPerSample, std::uint32_t numSignals, const std::uint8_t* signalNames, std::uint32_t strlenSignalNames, const std::uint8_t* dimensions, std::uint32_t strlenDimensions, const std::uint8_t* dataTypes, std::uint32_t strlenDataTypes, std::uint8_t writeFilesDuringSimulation);
 
 /**
  * @brief Terminate the driver.
  * @param[in] writeFilesDuringSimulation Nonzero if files should be written during simulation.
  */
-extern void GT_DriverDataRecorderTerminate(uint8_t writeFilesDuringSimulation);
+extern void GT_DriverDataRecorderTerminate(std::uint8_t writeFilesDuringSimulation);
 
 /**
  * @brief Perform one step of the driver.
@@ -40,4 +40,4 @@ extern void GT_DriverDataRecorderTerminate(uint8_t writeFilesDuringSimulation);
  * @param[in] numBytesPerSample (Bus) The number of bytes per sample (exluding timestamp).
  * @param[in] writeFilesDuringSimulation Nonzero if files should be written during simulation.
  */
-extern void GT_DriverDataRecorderStep(uint8_t typeOfRecorder, const uint8_t* idCharacters, uint32_t numIDCharacters, double timestamp, double* values, uint32_t numValues, uint8_t* bytes, uint32_t numBytesPerSample, uint8_t writeFilesDuringSimulation);
+extern void GT_DriverDataRecorderStep(std::uint8_t typeOfRecorder, const std::uint8_t* idCharacters, std::uint32_t numIDCharacters, double timestamp, double* values, std::uint32_t numValues, std::uint8_t* bytes, std::uint32_t numBytesPerSample, std::uint8_t writeFilesDuringSimulation);

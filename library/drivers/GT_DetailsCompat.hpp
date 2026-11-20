@@ -76,21 +76,21 @@ template <typename... Args> void print_error(const char* file, int line, const c
 /* emulate runtime API */
 class RuntimeEnvironment final {
     public:
-        [[nodiscard]] static uint64_t GetNumCPUOverloads() noexcept {
-            constexpr uint64_t kFallbackValue{0U};
+        [[nodiscard]] static std::uint64_t GetNumCPUOverloads() noexcept {
+            constexpr std::uint64_t kFallbackValue{0U};
             return kFallbackValue;
         }
-        [[nodiscard]] static uint64_t GetNumLostTicks() noexcept {
-            constexpr uint64_t kFallbackValue{0U};
+        [[nodiscard]] static std::uint64_t GetNumLostTicks() noexcept {
+            constexpr std::uint64_t kFallbackValue{0U};
             return kFallbackValue;
         }
-        [[nodiscard]] static double GetTaskExecutionTime(const int32_t taskID) noexcept {
+        [[nodiscard]] static double GetTaskExecutionTime(const std::int32_t taskID) noexcept {
             constexpr double kFallbackValue{std::numeric_limits<double>::quiet_NaN()};
             static_cast<void>(taskID);
             return kFallbackValue;
         }
-        [[nodiscard]] static uint64_t GetNumTaskOverloads(const int32_t taskID) noexcept {
-            constexpr uint64_t kFallbackValue{0U};
+        [[nodiscard]] static std::uint64_t GetNumTaskOverloads(const std::int32_t taskID) noexcept {
+            constexpr std::uint64_t kFallbackValue{0U};
             static_cast<void>(taskID);
             return kFallbackValue;
         }
@@ -107,7 +107,7 @@ class RuntimeEnvironment final {
 /* emulate simulink interface */
 class SimulinkInterface final {
     public:
-        constexpr static int32_t numTasks{1};
+        constexpr static std::int32_t numTasks{1};
         constexpr static std::array<std::string_view, 1U> taskNames{""};
 };
 

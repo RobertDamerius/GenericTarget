@@ -26,4 +26,4 @@ extern void GT_DriverUTCTimeTerminate();
  * @param[out] wday Week days according to ISO 8601 [1 (Mon), 7 (Sun)].
  * @param[out] yday Days of the year [1, 366].
  */
-extern void GT_DriverUTCTimeStep(int32_t* const nanoseconds, int32_t* const second, int32_t* const minute, int32_t* const hour, int32_t* const mday, int32_t* const month, int32_t* const year, int32_t* const wday, int32_t* const yday) noexcept;
+extern void GT_DriverUTCTimeStep(std::int32_t* const nanoseconds, std::int32_t* const second, std::int32_t* const minute, std::int32_t* const hour, std::int32_t* const mday, std::int32_t* const month, std::int32_t* const year, std::int32_t* const wday, std::int32_t* const yday) noexcept;

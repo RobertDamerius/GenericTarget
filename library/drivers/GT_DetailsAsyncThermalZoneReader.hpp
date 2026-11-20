@@ -26,8 +26,8 @@ class AsyncThermalZoneReader final {
          * @param[in] maxNumThermalZones The maximum number of thermal zones to read.
          * @param[in] pollingInterval The interval in seconds at which to poll the thermal zones.
          */
-        AsyncThermalZoneReader(const uint32_t maxNumThermalZones, const double pollingInterval) : m_temperatures(maxNumThermalZones), m_tempFiles(maxNumThermalZones) {
-            for (uint32_t i{0U}; i < maxNumThermalZones; ++i) {
+        AsyncThermalZoneReader(const std::uint32_t maxNumThermalZones, const double pollingInterval) : m_temperatures(maxNumThermalZones), m_tempFiles(maxNumThermalZones) {
+            for (std::uint32_t i{0U}; i < maxNumThermalZones; ++i) {
                 m_temperatures[i].store(std::numeric_limits<double>::quiet_NaN(), std::memory_order_release);
                 m_tempFiles[i].rdbuf()->pubsetbuf(nullptr, 0); // make the stream unbuffered (call before open)
                 m_tempFiles[i].open("/sys/class/thermal/thermal_zone" + std::to_string(i) + "/temp");
@@ -60,11 +60,11 @@ class AsyncThermalZoneReader final {
          * @param[out] temperatures Pointer to an array where the latest read temperatures will be stored.
          * @param[in] numZones The number of thermal zones to read.
          */
-        void GetLatestData(double* temperatures, const uint32_t numZones) const noexcept {
+        void GetLatestData(double* temperatures, const std::uint32_t numZones) const noexcept {
             if (temperatures == nullptr) {
                 return;
             }
-            for (uint32_t i{0U}; i < numZones; ++i) {
+            for (std::uint32_t i{0U}; i < numZones; ++i) {
                 if (i < m_temperatures.size()) {
                     temperatures[i] = m_temperatures[i].load(std::memory_order_acquire);
                 } else {
@@ -98,7 +98,7 @@ class AsyncThermalZoneReader final {
                     if (m_tempFiles[i].is_open()) {
                         m_tempFiles[i].clear();
                         m_tempFiles[i].seekg(0, std::ios::beg);
-                        int32_t tempMillidegree{};
+                        std::int32_t tempMillidegree{};
                         if (m_tempFiles[i] >> tempMillidegree) {
                             tempData = static_cast<double>(tempMillidegree) * kToDegree;
                         }

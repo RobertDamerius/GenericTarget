@@ -10,7 +10,7 @@
  * @param[in] taskName The name of the task from which to obtain the latest task execution time.
  * @param[in] taskNameLength The number of characters representing the task name.
  */
-extern void GT_DriverTaskExecutionTimeInitialize(void** const workVector, const uint8_t* const taskName, const uint32_t taskNameLength);
+extern void GT_DriverTaskExecutionTimeInitialize(void** const workVector, const std::uint8_t* const taskName, const std::uint32_t taskNameLength);
 
 /**
  * @brief Terminate the driver.

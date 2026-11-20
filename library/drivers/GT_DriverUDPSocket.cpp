@@ -18,7 +18,7 @@ gt::driver::UDPServiceManager udpServiceManager;
 }
 
 
-void GT_DriverUDPSocketInitialize(int32_t port, uint8_t* deviceName, uint32_t deviceNameLength, int32_t socketPriority, uint8_t allowBroadcast, uint8_t allowZeroLengthMessage, uint8_t multicastAll, uint8_t multicastLoop, uint8_t multicastTTL, uint8_t* multicastInterfaceAddress) {
+void GT_DriverUDPSocketInitialize(std::int32_t port, std::uint8_t* deviceName, std::uint32_t deviceNameLength, std::int32_t socketPriority, std::uint8_t allowBroadcast, std::uint8_t allowZeroLengthMessage, std::uint8_t multicastAll, std::uint8_t multicastLoop, std::uint8_t multicastTTL, std::uint8_t* multicastInterfaceAddress) {
     #if defined(_WIN32) && !defined(GENERIC_TARGET_IMPLEMENTATION)
     if ((::WSAStartup(MAKEWORD(2, 2), &gt_driver_wsa_data)) || (LOBYTE(gt_driver_wsa_data.wVersion) != 2) || (HIBYTE(gt_driver_wsa_data.wVersion) != 2)) {
         std::fprintf(stderr, "ERROR: Failed to setup network for windows OS! WSAStartup(2,2) failed!\n");
@@ -27,7 +27,7 @@ void GT_DriverUDPSocketInitialize(int32_t port, uint8_t* deviceName, uint32_t de
     gt::driver::UDPServiceConfiguration conf;
     conf.port = port;
     conf.deviceName.clear();
-    for (uint32_t n = 0U; n < deviceNameLength; ++n) {
+    for (std::uint32_t n = 0U; n < deviceNameLength; ++n) {
         char c = static_cast<char>(deviceName[n]);
         if (c >= ' ') {
             conf.deviceName.push_back(c);
@@ -53,7 +53,7 @@ void GT_DriverUDPSocketInitialize(int32_t port, uint8_t* deviceName, uint32_t de
     #endif
 }
 
-void GT_DriverUDPSocketTerminate(int32_t port) {
+void GT_DriverUDPSocketTerminate(std::int32_t port) {
     udpServiceManager.ClearAllServices();
     #if defined(_WIN32) && !defined(GENERIC_TARGET_IMPLEMENTATION)
     ::WSACleanup();
@@ -61,7 +61,7 @@ void GT_DriverUDPSocketTerminate(int32_t port) {
     static_cast<void>(port);
 }
 
-void GT_DriverUDPSocketStep(int32_t port, uint8_t tfSendReceive, int32_t rxBufferSize, uint8_t* bytesReceived, uint8_t* sourceIP, uint16_t* sourcePort, int32_t* result, int32_t* lastErrorCode, uint8_t* destinationIP, uint16_t destinationPort, uint8_t* bytesToSend, int32_t numBytesToSend, uint8_t* groupBytes, uint32_t numGroupBytes) {
+void GT_DriverUDPSocketStep(std::int32_t port, std::uint8_t tfSendReceive, std::int32_t rxBufferSize, std::uint8_t* bytesReceived, std::uint8_t* sourceIP, std::uint16_t* sourcePort, std::int32_t* result, std::int32_t* lastErrorCode, std::uint8_t* destinationIP, std::uint16_t destinationPort, std::uint8_t* bytesToSend, std::int32_t numBytesToSend, std::uint8_t* groupBytes, std::uint32_t numGroupBytes) {
     sourceIP[0U] = 0U;
     sourceIP[1U] = 0U;
     sourceIP[2U] = 0U;
@@ -72,8 +72,8 @@ void GT_DriverUDPSocketStep(int32_t port, uint8_t tfSendReceive, int32_t rxBuffe
         std::tie(*result, *lastErrorCode) = udpServiceManager.SendTo(port, destination, bytesToSend, numBytesToSend);
     } else {
         gt::driver::Address source;
-        std::vector<std::array<uint8_t, 4U>> multicastGroups;
-        for (uint32_t k = 0U; (k + 3U) < numGroupBytes;) {
+        std::vector<std::array<std::uint8_t, 4U>> multicastGroups;
+        for (std::uint32_t k = 0U; (k + 3U) < numGroupBytes;) {
             multicastGroups.push_back({groupBytes[k++], groupBytes[k++], groupBytes[k++], groupBytes[k++]});
         }
         std::tie(source, *result, *lastErrorCode) = udpServiceManager.ReceiveFrom(port, bytesReceived, rxBufferSize, multicastGroups);

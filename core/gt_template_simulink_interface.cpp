@@ -22,7 +22,7 @@ void SimulinkInterface::Terminate() {
     GetModelInstance().$CODE_INFO_TERMINATE$();
 }
 
-void SimulinkInterface::Step(const int32_t id) noexcept {
+void SimulinkInterface::Step(const std::int32_t id) noexcept {
     switch (id) {
 $STEP_SWITCH$
         default:

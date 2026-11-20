@@ -17,13 +17,13 @@
  * @param[in] multicastTTL Time-to-live for multicast messages.
  * @param[in] multicastInterfaceAddress The IP address of the interface to be used for multicast messages.
  */
-extern void GT_DriverUDPSocketInitialize(int32_t port, uint8_t* deviceName, uint32_t deviceNameLength, int32_t socketPriority, uint8_t allowBroadcast, uint8_t allowZeroLengthMessage, uint8_t multicastAll, uint8_t multicastLoop, uint8_t multicastTTL, uint8_t* multicastInterfaceAddress);
+extern void GT_DriverUDPSocketInitialize(std::int32_t port, std::uint8_t* deviceName, std::uint32_t deviceNameLength, std::int32_t socketPriority, std::uint8_t allowBroadcast, std::uint8_t allowZeroLengthMessage, std::uint8_t multicastAll, std::uint8_t multicastLoop, std::uint8_t multicastTTL, std::uint8_t* multicastInterfaceAddress);
 
 /**
  * @brief Terminate the driver.
  * @param[in] port The port of this UDP socket, which is also used as unique identifier of the internal socket. All port values <= 0 indicate a dynamic port.
  */
-extern void GT_DriverUDPSocketTerminate(int32_t port);
+extern void GT_DriverUDPSocketTerminate(std::int32_t port);
 
 /**
  * @brief Perform one step of the driver.
@@ -42,4 +42,4 @@ extern void GT_DriverUDPSocketTerminate(int32_t port);
  * @param[in] groupBytes Array of bytes indicating the group addresses that should be joined. Four subsequent bytes represent one group address. This value is only used for receive operation.
  * @param[in] numGroupBytes Total number of bytes inside groupBytes (usually a multiple of 4). This value is only used for receive operation.
  */
-extern void GT_DriverUDPSocketStep(int32_t port, uint8_t tfSendReceive, int32_t rxBufferSize, uint8_t* bytesReceived, uint8_t* sourceIP, uint16_t* sourcePort, int32_t* result, int32_t* lastErrorCode, uint8_t* destinationIP, uint16_t destinationPort, uint8_t* bytesToSend, int32_t numBytesToSend, uint8_t* groupBytes, uint32_t numGroupBytes);
+extern void GT_DriverUDPSocketStep(std::int32_t port, std::uint8_t tfSendReceive, std::int32_t rxBufferSize, std::uint8_t* bytesReceived, std::uint8_t* sourceIP, std::uint16_t* sourcePort, std::int32_t* result, std::int32_t* lastErrorCode, std::uint8_t* destinationIP, std::uint16_t destinationPort, std::uint8_t* bytesToSend, std::int32_t numBytesToSend, std::uint8_t* groupBytes, std::uint32_t numGroupBytes);

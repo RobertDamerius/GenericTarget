@@ -57,27 +57,27 @@ class RealTimeScheduler final {
          * @brief Get the number of CPU overloads that have occurred since the start of the real-time scheduler.
          * @return The number of CPU overloads.
          */
-        uint64_t GetNumCPUOverloads() const noexcept;
+        std::uint64_t GetNumCPUOverloads() const noexcept;
 
         /**
          * @brief Get the number of lost ticks that have occurred since the start of the real-time scheduler.
          * @return The number of lost ticks.
          */
-        uint64_t GetNumLostTicks() const noexcept;
+        std::uint64_t GetNumLostTicks() const noexcept;
 
         /**
          * @brief Get the latest task execution time for a task.
          * @param[in] taskID The ID of the task from which to obtain the latest task execution time.
          * @return The latest task execution time in seconds or NaN if the taskID is invalid.
          */
-        double GetTaskExecutionTime(const int32_t taskID) const noexcept;
+        double GetTaskExecutionTime(const std::int32_t taskID) const noexcept;
 
         /**
          * @brief Get the number of task overloads for a task.
          * @param[in] taskID The ID of the task from which to obtain the latest number of task overloads.
          * @return The latest task overload counter or zero if the taskID is invalid.
          */
-        uint64_t GetNumTaskOverloads(const int32_t taskID) const noexcept;
+        std::uint64_t GetNumTaskOverloads(const std::int32_t taskID) const noexcept;
 
     private:
         static_assert(std::atomic<std::chrono::steady_clock::time_point>::is_always_lock_free, "std::atomic<std::chrono::steady_clock::time_point> must always be lock-free");

@@ -6,7 +6,7 @@ void GT_DriverStopExecutionInitialize() {}
 
 void GT_DriverStopExecutionTerminate() {}
 
-void GT_DriverStopExecutionStep(const uint8_t stopExecution) noexcept {
+void GT_DriverStopExecutionStep(const std::uint8_t stopExecution) noexcept {
     if (stopExecution != 0U) {
         gt::RuntimeEnvironment::RequestStop();
     }

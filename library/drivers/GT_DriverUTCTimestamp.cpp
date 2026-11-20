@@ -23,8 +23,8 @@ void GT_DriverUTCTimestampStep(double* const timestamp) noexcept {
     const chr::system_clock::duration subseconds{sinceEpoch - totalSeconds};
 
     // compute seconds elapsed since UTC midnight (86400 seconds per UTC day)
-    constexpr int64_t kSecondsPerDay{86400};
-    int64_t secondsToday{totalSeconds.count() % kSecondsPerDay};
+    constexpr std::int64_t kSecondsPerDay{86400};
+    std::int64_t secondsToday{totalSeconds.count() % kSecondsPerDay};
     if (secondsToday < 0) {
         secondsToday += kSecondsPerDay; // handle pre-1970 timestamps safely
     }

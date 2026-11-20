@@ -21,14 +21,14 @@ class RealTimeScheduler;
  */
 class PeriodicTask final {
     public:
-        const int32_t taskID;   // Task ID for the simulink interface. This is used to identify the task in the SimulinkInterface class.
+        const std::int32_t taskID;   // Task ID for the simulink interface. This is used to identify the task in the SimulinkInterface class.
 
         /**
          * @brief Create a periodic task.
          * @param[in] taskID The task ID for the simulink interface.
          * @note In DEBUG mode, the worker thread is allowed to run as non-realtime thread.
          */
-        explicit PeriodicTask(const int32_t taskID);
+        explicit PeriodicTask(const std::int32_t taskID);
 
         /**
          * @brief Delete the periodic task.
@@ -45,7 +45,7 @@ class PeriodicTask final {
          * @brief Get the number of task overloads.
          * @return Number of task overloads.
          */
-        uint64_t GetNumTaskOverloads() const noexcept;
+        std::uint64_t GetNumTaskOverloads() const noexcept;
 
         /**
          * @brief Get the task execution time.
@@ -63,15 +63,15 @@ class PeriodicTask final {
         void Trigger() noexcept;
 
     private:
-        static_assert(std::atomic<uint64_t>::is_always_lock_free, "std::atomic<uint64_t> must always be lock-free");
+        static_assert(std::atomic<std::uint64_t>::is_always_lock_free, "std::atomic<std::uint64_t> must always be lock-free");
         static_assert(std::atomic<double>::is_always_lock_free, "std::atomic<double> must always be lock-free");
 
-        int32_t m_ticks;                                                                     // Decrementing tick counter to be used to notify the actual thread with a multiple of the base sampletime.
-        int32_t m_offsetSamples;                                                             // Decrementing tick counter to be used to wait for some ticks before starting with the actual periodic task.
+        std::int32_t m_ticks;                                                                // Decrementing tick counter to be used to notify the actual thread with a multiple of the base sampletime.
+        std::int32_t m_offsetSamples;                                                        // Decrementing tick counter to be used to wait for some ticks before starting with the actual periodic task.
         Semaphore m_sem;                                                                     // Semaphore for thread notification.
         std::atomic<bool> m_terminate{false};                                                // True if thread is to be terminated, false otherwise.
         std::atomic<bool> m_jobPendingOrRunning{false};                                      // True if a job is queued or the thread is executing model code.
-        std::atomic<uint64_t> m_numTaskOverloads{0U};                                        // Total number of task overloads.
+        std::atomic<std::uint64_t> m_numTaskOverloads{0U};                                   // Total number of task overloads.
         std::atomic<double> m_taskExecutionTime{std::numeric_limits<double>::quiet_NaN()};   // Task-execution time in seconds.
         std::thread m_workerThread;                                                          // Worker thread object.
 

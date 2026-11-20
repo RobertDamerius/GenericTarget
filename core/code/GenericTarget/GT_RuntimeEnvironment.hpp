@@ -31,27 +31,27 @@ class RuntimeEnvironment final {
          * @brief Get the number of CPU overloads that have occurred since the start of the real-time scheduler.
          * @return The number of CPU overloads. If the application is not initialized, 0 is returned.
          */
-        [[nodiscard]] static uint64_t GetNumCPUOverloads() noexcept;
+        [[nodiscard]] static std::uint64_t GetNumCPUOverloads() noexcept;
 
         /**
          * @brief Get the number of lost ticks that have occurred since the start of the real-time scheduler.
          * @return The number of lost ticks. If the application is not initialized, 0 is returned.
          */
-        [[nodiscard]] static uint64_t GetNumLostTicks() noexcept;
+        [[nodiscard]] static std::uint64_t GetNumLostTicks() noexcept;
 
         /**
          * @brief Get the latest task execution time for a task.
          * @param[in] taskID The ID of the task from which to obtain the latest task execution time.
          * @return The latest task execution time in seconds or NaN if the taskID is invalid. If the application is not initialized, NaN is returned.
          */
-        [[nodiscard]] static double GetTaskExecutionTime(const int32_t taskID) noexcept;
+        [[nodiscard]] static double GetTaskExecutionTime(const std::int32_t taskID) noexcept;
 
         /**
          * @brief Get the number of task overloads for a task.
          * @param[in] taskID The ID of the task from which to obtain the latest number of task overloads.
          * @return The latest task overload counter or zero if the taskID is invalid. If the application is not initialized, 0 is returned.
          */
-        [[nodiscard]] static uint64_t GetNumTaskOverloads(const int32_t taskID) noexcept;
+        [[nodiscard]] static std::uint64_t GetNumTaskOverloads(const std::int32_t taskID) noexcept;
 
         /**
          * @brief Get the application arguments that have been passed to the application.

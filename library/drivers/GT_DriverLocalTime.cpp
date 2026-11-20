@@ -22,16 +22,16 @@ void GT_DriverLocalTimeTerminate(void* const workVector) {
 
 void GT_DriverLocalTimeStep(
     void* const workVector,
-    int32_t* const nanoseconds,
-    int32_t* const second,
-    int32_t* const minute,
-    int32_t* const hour,
-    int32_t* const mday,
-    int32_t* const month,
-    int32_t* const year,
-    int32_t* const wday,
-    int32_t* const yday,
-    uint8_t* const isdst) noexcept {
+    std::int32_t* const nanoseconds,
+    std::int32_t* const second,
+    std::int32_t* const minute,
+    std::int32_t* const hour,
+    std::int32_t* const mday,
+    std::int32_t* const month,
+    std::int32_t* const year,
+    std::int32_t* const wday,
+    std::int32_t* const yday,
+    std::uint8_t* const isdst) noexcept {
 
     // check for null-pointer
     if (workVector == nullptr) {

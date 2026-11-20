@@ -83,23 +83,23 @@ double App::GetModelExecutionTime() const noexcept {
     return m_rtScheduler->GetModelExecutionTime();
 }
 
-uint64_t App::GetNumCPUOverloads() const noexcept {
+std::uint64_t App::GetNumCPUOverloads() const noexcept {
     if (m_rtScheduler == nullptr) {
-        constexpr uint64_t kFallbackValue{0U};
+        constexpr std::uint64_t kFallbackValue{0U};
         return kFallbackValue;
     }
     return m_rtScheduler->GetNumCPUOverloads();
 }
 
-uint64_t App::GetNumLostTicks() const noexcept {
+std::uint64_t App::GetNumLostTicks() const noexcept {
     if (m_rtScheduler == nullptr) {
-        constexpr uint64_t kFallbackValue{0U};
+        constexpr std::uint64_t kFallbackValue{0U};
         return kFallbackValue;
     }
     return m_rtScheduler->GetNumLostTicks();
 }
 
-double App::GetTaskExecutionTime(const int32_t taskID) const noexcept {
+double App::GetTaskExecutionTime(const std::int32_t taskID) const noexcept {
     if (m_rtScheduler == nullptr) {
         constexpr double kFallbackValue{std::numeric_limits<double>::quiet_NaN()};
         return kFallbackValue;
@@ -107,9 +107,9 @@ double App::GetTaskExecutionTime(const int32_t taskID) const noexcept {
     return m_rtScheduler->GetTaskExecutionTime(taskID);
 }
 
-uint64_t App::GetNumTaskOverloads(const int32_t taskID) const noexcept {
+std::uint64_t App::GetNumTaskOverloads(const std::int32_t taskID) const noexcept {
     if (m_rtScheduler == nullptr) {
-        constexpr uint64_t kFallbackValue{0U};
+        constexpr std::uint64_t kFallbackValue{0U};
         return kFallbackValue;
     }
     return m_rtScheduler->GetNumTaskOverloads(taskID);
@@ -205,7 +205,7 @@ void App::PrintInfo() {
     GENERIC_TARGET_PRINT_RAW("baseSampleTime:           {:f} s\n", SimulinkInterface::baseSampleTime);
     GENERIC_TARGET_PRINT_RAW("basePriority:             {}\n", gt::basePriority);
     GENERIC_TARGET_PRINT_RAW("tasks:                    ");
-    for (int32_t i{0}; i < SimulinkInterface::numTasks; ++i) {
+    for (std::int32_t i{0}; i < SimulinkInterface::numTasks; ++i) {
         if (i != 0) {
             GENERIC_TARGET_PRINT_RAW("                          ");
         }

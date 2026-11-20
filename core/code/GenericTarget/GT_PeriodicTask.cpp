@@ -10,7 +10,7 @@
 using namespace gt;
 
 
-PeriodicTask::PeriodicTask(const int32_t taskID) : taskID(taskID) {
+PeriodicTask::PeriodicTask(const std::int32_t taskID) : taskID(taskID) {
     if ((taskID < 0) || (taskID >= SimulinkInterface::numTasks)) {
         throw std::out_of_range("Invalid taskID");
     }
@@ -60,7 +60,7 @@ PeriodicTask::~PeriodicTask() {
     Shutdown();
 
     // check and print overloads
-    uint64_t taskOverloads = m_numTaskOverloads.load(std::memory_order_relaxed);
+    std::uint64_t taskOverloads = m_numTaskOverloads.load(std::memory_order_relaxed);
     if (taskOverloads != 0U) {
         GENERIC_TARGET_PRINT_ERROR("Task \"{}\" (samplerate={}) stopped with overloads ({} task overloads)\n",
             SimulinkInterface::taskNames[taskID],
@@ -77,7 +77,7 @@ void PeriodicTask::Shutdown() {
     }
 }
 
-uint64_t PeriodicTask::GetNumTaskOverloads() const noexcept {
+std::uint64_t PeriodicTask::GetNumTaskOverloads() const noexcept {
     return m_numTaskOverloads.load(std::memory_order_acquire);
 }
 
@@ -87,12 +87,12 @@ double PeriodicTask::GetTaskExecutionTime() const noexcept {
 
 void PeriodicTask::Trigger() noexcept {
     // decrement sample offset counter
-    constexpr int32_t kThresholdOffsetSamples{0};
+    constexpr std::int32_t kThresholdOffsetSamples{0};
     if ((--m_offsetSamples) < kThresholdOffsetSamples) {
         m_offsetSamples = 0;
 
         // decrement tick counter
-        constexpr int32_t kThresholdTicks{1};
+        constexpr std::int32_t kThresholdTicks{1};
         if ((--m_ticks) < kThresholdTicks) {
             // reset tick counter to specified model sample ticks
             m_ticks = SimulinkInterface::sampleTicks[taskID];

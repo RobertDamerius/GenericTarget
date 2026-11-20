@@ -22,4 +22,4 @@ extern void GT_DriverApplicationArgumentsTerminate();
  * @param[in] maxNumCharsPerArgument Maximum number of characters per argument.
  * @param[in] maxNumArguments Maximum number of arguments.
  */
-extern void GT_DriverApplicationArgumentsStep(uint8_t* const argBuffer, uint32_t* const numCharsPerArgument, uint32_t* const numArguments, const uint32_t maxNumCharsPerArgument, const uint32_t maxNumArguments) noexcept;
+extern void GT_DriverApplicationArgumentsStep(std::uint8_t* const argBuffer, std::uint32_t* const numCharsPerArgument, std::uint32_t* const numArguments, const std::uint32_t maxNumCharsPerArgument, const std::uint32_t maxNumArguments) noexcept;

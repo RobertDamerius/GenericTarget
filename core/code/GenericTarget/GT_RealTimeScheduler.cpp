@@ -15,7 +15,7 @@ RealTimeScheduler::RealTimeScheduler() {
     m_timeOfStart.store(std::chrono::steady_clock::now(), std::memory_order_relaxed);
 
     // start worker threads
-    for (int32_t id{0}; id < SimulinkInterface::numTasks; ++id) {
+    for (std::int32_t id{0}; id < SimulinkInterface::numTasks; ++id) {
         m_tasks.push_back(std::make_unique<PeriodicTask>(id));
     }
 
@@ -55,8 +55,8 @@ RealTimeScheduler::~RealTimeScheduler() {
     Shutdown();
 
     // check and print overloads
-    uint64_t numCPUOverloads = m_timer.GetNumCPUOverloads();
-    uint64_t numLostTicks = m_timer.GetNumLostTicks();
+    std::uint64_t numCPUOverloads = m_timer.GetNumCPUOverloads();
+    std::uint64_t numLostTicks = m_timer.GetNumLostTicks();
     if ((numCPUOverloads != 0U) || (numLostTicks != 0U)) {
         GENERIC_TARGET_PRINT_ERROR("Master thread stopped with overloads ({} CPU overloads, {} lost ticks)\n", numCPUOverloads, numLostTicks);
     }
@@ -125,22 +125,22 @@ double RealTimeScheduler::GetModelExecutionTime() const noexcept {
     return std::chrono::duration<double>(std::chrono::steady_clock::now() - m_timeOfStart.load(std::memory_order_acquire)).count();
 }
 
-uint64_t RealTimeScheduler::GetNumCPUOverloads() const noexcept {
+std::uint64_t RealTimeScheduler::GetNumCPUOverloads() const noexcept {
     return m_timer.GetNumCPUOverloads();
 }
 
-uint64_t RealTimeScheduler::GetNumLostTicks() const noexcept {
+std::uint64_t RealTimeScheduler::GetNumLostTicks() const noexcept {
     return m_timer.GetNumLostTicks();
 }
 
-double RealTimeScheduler::GetTaskExecutionTime(const int32_t taskID) const noexcept {
+double RealTimeScheduler::GetTaskExecutionTime(const std::int32_t taskID) const noexcept {
     if ((taskID < 0) || (static_cast<std::size_t>(taskID) >= m_tasks.size()) || !m_tasks[taskID]) {
         return std::numeric_limits<double>::quiet_NaN();
     }
     return m_tasks[taskID]->GetTaskExecutionTime();
 }
 
-uint64_t RealTimeScheduler::GetNumTaskOverloads(const int32_t taskID) const noexcept {
+std::uint64_t RealTimeScheduler::GetNumTaskOverloads(const std::int32_t taskID) const noexcept {
     if ((taskID < 0) || (static_cast<std::size_t>(taskID) >= m_tasks.size()) || !m_tasks[taskID]) {
         return 0U;
     }

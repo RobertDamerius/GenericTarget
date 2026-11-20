@@ -6,7 +6,7 @@ void GT_DriverNumCPUOverloadsInitialize() {}
 
 void GT_DriverNumCPUOverloadsTerminate() {}
 
-void GT_DriverNumCPUOverloadsStep(uint64_t* const numCPUOverloads, uint64_t* const numLostTicks) noexcept {
+void GT_DriverNumCPUOverloadsStep(std::uint64_t* const numCPUOverloads, std::uint64_t* const numLostTicks) noexcept {
     // check for null-pointers
     if ((numCPUOverloads == nullptr) || (numLostTicks == nullptr)) {
         return;

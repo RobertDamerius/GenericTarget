@@ -11,13 +11,13 @@
  * @param[in] deviceNameLength The number of characters representing the device name.
  * @param[in] socketPriority The socket priority in range [0 (lowest), 6 (highest)] to be set for the TCP client socket.
  */
-extern void GT_DriverTCPClientSocketInitialize(int32_t port, uint8_t* deviceName, uint32_t deviceNameLength, int32_t socketPriority);
+extern void GT_DriverTCPClientSocketInitialize(std::int32_t port, std::uint8_t* deviceName, std::uint32_t deviceNameLength, std::int32_t socketPriority);
 
 /**
  * @brief Terminate the driver.
  * @param[in] port The port of this TCP client socket, which is also used as unique identifier of the internal socket. All port values <= 0 indicate a dynamic port.
  */
-extern void GT_DriverTCPClientSocketTerminate(int32_t port);
+extern void GT_DriverTCPClientSocketTerminate(std::int32_t port);
 
 /**
  * @brief Perform one step of the driver.
@@ -34,4 +34,4 @@ extern void GT_DriverTCPClientSocketTerminate(int32_t port);
  * @param[in] bytesToSend The array containing the message that should be send. This value is only used for send operation.
  * @param[in] numBytesToSend Number of bytes that should be send. This value is only used for send operation.
  */
-extern void GT_DriverTCPClientSocketStep(int32_t port, uint8_t tfSendReceive, int32_t rxBufferSize, uint8_t* bytesReceived, int32_t* result, int32_t* lastErrorCode, uint8_t* isConnected, uint8_t* destinationIP, uint16_t destinationPort, uint8_t manageConnection, uint8_t* bytesToSend, int32_t numBytesToSend);
+extern void GT_DriverTCPClientSocketStep(std::int32_t port, std::uint8_t tfSendReceive, std::int32_t rxBufferSize, std::uint8_t* bytesReceived, std::int32_t* result, std::int32_t* lastErrorCode, std::uint8_t* isConnected, std::uint8_t* destinationIP, std::uint16_t destinationPort, std::uint8_t manageConnection, std::uint8_t* bytesToSend, std::int32_t numBytesToSend);
