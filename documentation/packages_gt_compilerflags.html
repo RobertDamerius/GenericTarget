@@ -179,21 +179,21 @@
 <p>
   Additional compiler flags that are applied when compiling C source files. The complete flag set is:
 </p>
-<pre>-Wall -Wextra -Wno-format-security -mtune=native -pthread $TARGET_MAKEFILE_CC_FLAGS$</pre>
+<pre>-Wall -Wextra -mtune=native -pthread $TARGET_MAKEFILE_CC_FLAGS$</pre>
 <p>in which the placeholder <code>$TARGET_MAKEFILE_CC_FLAGS$</code> is replaced by the additional flags.</p>
 
 <h3 id="CPP_FLAGS">CPP_FLAGS</h3>
 <p>
   Additional compiler flags that are applied when compiling C++ source files. The complete flag set is:
 </p>
-<pre>-std=c++20 -Wall -Wextra -Wno-format-security -mtune=native -pthread $TARGET_MAKEFILE_CPP_FLAGS$</pre>
+<pre>-std=c++20 -Wall -Wextra -mtune=native -pthread $TARGET_MAKEFILE_CPP_FLAGS$</pre>
 <p>in which the placeholder <code>$TARGET_MAKEFILE_CPP_FLAGS$</code> is replaced by the additional flags.</p>
 
 <h3 id="LD_FLAGS">LD_FLAGS</h3>
 <p>
   Additional linker flags that are applied when the target application is linked. The complete flag set is:
 </p>
-<pre>-Wall -Wextra -Wno-format-security -mtune=native -pthread $TARGET_MAKEFILE_LD_FLAGS$</pre>
+<pre>-Wl,-z,now -Wall -Wextra -mtune=native -pthread $TARGET_MAKEFILE_LD_FLAGS$</pre>
 <p>in which the placeholder <code>$TARGET_MAKEFILE_LD_FLAGS$</code> is replaced by the additional linker flags.</p>
 
 <h3 id="INCLUDE_PATHS">INCLUDE_PATHS</h3>

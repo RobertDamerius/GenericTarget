@@ -2,7 +2,7 @@
 #
 # Generic Makefile (g++)
 #
-# Version 20261110
+# Version 20261120
 # Copyright (c) Robert Damerius
 #
 #########################################################################
@@ -33,9 +33,9 @@ CC_SYMBOLS         = -DGENERIC_TARGET_IMPLEMENTATION $TARGET_MAKEFILE_CC_SYMBOLS
 # Flags
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Build Flags
-CC_FLAGS        = -Wall -Wextra -Wno-format-security -mtune=native -pthread $TARGET_MAKEFILE_CC_FLAGS$
-CPP_FLAGS       = -std=c++20 -Wall -Wextra -Wno-format-security -mtune=native -pthread $TARGET_MAKEFILE_CPP_FLAGS$
-LD_FLAGS        = -Wall -Wextra -Wno-format-security -mtune=native -pthread $TARGET_MAKEFILE_LD_FLAGS$
+CC_FLAGS        = -Wall -Wextra -mtune=native -pthread $TARGET_MAKEFILE_CC_FLAGS$
+CPP_FLAGS       = -std=c++20 -Wall -Wextra -mtune=native -pthread $TARGET_MAKEFILE_CPP_FLAGS$
+LD_FLAGS        = -Wl,-z,now -Wall -Wextra -mtune=native -pthread $TARGET_MAKEFILE_LD_FLAGS$
 DEP_FLAGS       = -MT $@ -MMD -MP -MF $(DIRECTORY_BUILD)$*.Td
 POSTCOMPILE     = mv -f $(DIRECTORY_BUILD)$*.Td $(DIRECTORY_BUILD)$*.d
 
