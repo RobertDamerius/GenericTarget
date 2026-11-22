@@ -206,11 +206,11 @@ function BuildDrivers()
     fprintf('define driver: DataRecorder\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverDataRecorder';
-    def.StartFcnSpec     = 'void GT_DriverDataRecorderInitialize(uint8 p1, uint8 p2[], uint32 p3, uint32 p4, uint32 p5, uint32 p6, uint8 p7[], uint32 p8, uint8 p9[], uint32 p10, uint8 p11[], uint32 p12, uint8 p13)';
-    def.TerminateFcnSpec = 'void GT_DriverDataRecorderTerminate(uint8 p13)';
-    def.OutputFcnSpec    = 'void GT_DriverDataRecorderStep(uint8 p1, uint8 p2[], uint32 p3, double u1, double u2[p6], uint32 p6, uint8 u3[p5], uint32 p5, uint8 p13)';
+    def.StartFcnSpec     = 'void GT_DriverDataRecorderInitialize(void** work1, uint8 p1[], uint32 p2, uint32 p3, uint32 p4, uint32 p5, uint8 p6[], uint32 p7, uint8 p8[], uint32 p9, uint8 p10[], uint32 p11)';
+    def.TerminateFcnSpec = 'void GT_DriverDataRecorderTerminate(void* work1)';
+    def.OutputFcnSpec    = 'void GT_DriverDataRecorderStep(void* work1, uint8 u1[p4], uint32 p4)';
     def.HeaderFiles      = {'GT_DriverDataRecorder.hpp'};
-    def.SourceFiles      = {'GT_DriverDataRecorder.cpp','GT_DriverImplementationDetails.cpp'};
+    def.SourceFiles      = {'GT_DriverDataRecorder.cpp'};
     def.IncPaths         = {''};
     def.SrcPaths         = {''};
     def.LibPaths         = {''};
@@ -373,8 +373,7 @@ function BuildDrivers()
     fprintf('        Interface/UDP Receive                    yes(*)\n');
     fprintf('        Interface/TCP Client Send                yes(*)\n');
     fprintf('        Interface/TCP Client Receive             yes(*)\n');
-    fprintf('        Interface/Write Scalar Doubles To File   yes\n');
-    fprintf('        Interface/Write Bus To File              yes\n');
+    fprintf('        Interface/Write Bus To File              no\n');
     fprintf('        Interface/Stop Execution                 no\n');
     fprintf('        Target Stats/Application Arguments       no\n');
     fprintf('        Target Stats/Read Thermal Zones          yes(**)\n');

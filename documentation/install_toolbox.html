@@ -76,9 +76,8 @@
   <li><a class="nav-link" href="packages_gt_gettemplate.html">GT.GetTemplate</a></li>
   <li><a class="nav-link" href="packages_gt_getversion.html">GT.GetVersion</a></li>
   <li><a class="nav-link" href="packages_gt_opendocumentation.html">GT.OpenDocumentation</a></li>
-  <li><a class="nav-link" href="packages_gt_decodedatadirectory.html">GT.DecodeDataDirectory</a></li>
-  <li><a class="nav-link" href="packages_gt_decodedatafiles.html">GT.DecodeDataFiles</a></li>
-  <li><a class="nav-link" href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
+  <li><a class="nav-link" href="packages_gt_loaddatadirectory.html">GT.LoadDataDirectory</a></li>
+  <li><a class="nav-link" href="packages_gt_loaddatafiles.html">GT.LoadDataFiles</a></li>
   <li><a class="nav-link" href="packages_gt_mustbecellstr.html">GT.mustBeCellStr</a></li>
   <li><a class="nav-link" href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
   <li><a class="nav-link" href="packages_gt_mustcontainnowhitespace.html">GT.mustContainNoWhitespace</a></li>
@@ -94,7 +93,6 @@
   <li><a class="nav-link" href="library_gt_interface_tcpclientreceive.html">Interface / TCP Client Receive</a></li>
   <li><a class="nav-link" href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
   <li><a class="nav-link" href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
-  <li><a class="nav-link" href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
   <li><a class="nav-link" href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
   <li><a class="nav-link" href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
   <li><a class="nav-link" href="library_gt_targetstats_applicationarguments.html">Target Stats / Application Arguments</a></li>
@@ -178,15 +176,16 @@
 <h2>Rebuild Library Blocks (recommended)</h2>
 <p>
   The toolbox is shipped with prebuilt library blocks for Windows and Ubuntu. It is recommended to build the
-  Simulink driver blocks for your own platform. Run <code>GT.BuildDrivers()</code> from the MATLAB command window
-  to generate all necessary driver files. A prerequisite is that a C/C++ compiler is configured in MATLAB
-  (<code>mex -setup</code>).
+  Simulink driver blocks for your own platform. Run
+  <pre>GT.BuildDrivers();</pre>
+  from the MATLAB command window to generate all necessary driver files. A prerequisite is that a C/C++ compiler is
+  configured in MATLAB (<code>mex -setup</code>).
 </p>
 
 <aside class="callout callout-note" id="simulinksupport">
   <p class="callout-title">Simulink support</p>
   <p>
-    Run <code>GT.BuildDrivers()</code> to compile all driver blocks. Most of the blocks also work during
+    Run <a href="packages_gt_builddrivers.html"><code>GT.BuildDrivers()</code></a> to compile all driver blocks. Most of the blocks also work during
     simulation in Simulink; the following table summarizes which blocks are supported and their behavior during
     simulation.
   </p>
@@ -198,8 +197,7 @@
       <tbody>
         <tr><td>Interface / UDP Send</td><td class="simulink-support-ok"><span aria-hidden="true">✓</span> OK<sup>*</sup></td></tr>
         <tr><td>Interface / UDP Receive</td><td class="simulink-support-ok"><span aria-hidden="true">✓</span> OK<sup>*</sup></td></tr>
-        <tr><td>Interface / Write Scalar Doubles To File</td><td class="simulink-support-ok"><span aria-hidden="true">✓</span> OK</td></tr>
-        <tr><td>Interface / Write Bus To File</td><td class="simulink-support-ok"><span aria-hidden="true">✓</span> OK</td></tr>
+        <tr><td>Interface / Write Bus To File</td><td class="simulink-support-no"><span aria-hidden="true">✗</span> not supported</td></tr>
         <tr><td>Interface / Stop Execution</td><td class="simulink-support-no"><span aria-hidden="true">✗</span> not supported</td></tr>
         <tr><td>Target Stats / Application Arguments</td><td class="simulink-support-no"><span aria-hidden="true">✗</span> not supported</td></tr>
         <tr><td>Target Stats / Read Thermal Zones</td><td class="simulink-support-ok"><span aria-hidden="true">✓</span> OK<sup>**</sup></td></tr>

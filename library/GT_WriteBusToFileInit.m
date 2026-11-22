@@ -1,4 +1,4 @@
-function GT_WriteBusToFileInitFcn(block)
+function GT_WriteBusToFileInit(block)
     % NOTE: This is a callback helper function for the Generic Target Simulink library.
 
     % internal block names

@@ -10,6 +10,7 @@
 #include <cmath>
 #include <algorithm>
 #include <string>
+#include <format>
 #include <GT_DetailsEvent.hpp>
 
 
@@ -39,8 +40,10 @@ class AsyncThermalZoneReader final {
 
             #if defined(GENERIC_TARGET_IMPLEMENTATION)
             const sched_param param{};
-            if (::pthread_setschedparam(m_readThread.native_handle(), SCHED_OTHER, &param) == -1) {
-                std::string msg{"Failed to set scheduling policy SCHED_OTHER for background thread (AsyncThermalZoneReader)"};
+            const int errorCode = ::pthread_setschedparam(m_readThread.native_handle(), SCHED_OTHER, &param);
+            if (errorCode != 0) {
+                std::string msg = std::format("Failed to set scheduling policy SCHED_OTHER for background thread of AsyncThermalZoneReader with error code {}",
+                    errorCode);
                 #if defined(DEBUG)
                 GENERIC_TARGET_PRINT_ERROR("{}\n", msg);
                 #else

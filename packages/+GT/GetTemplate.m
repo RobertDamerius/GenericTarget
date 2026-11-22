@@ -86,14 +86,14 @@ function AddModelContent(modelName, strSampletime)
     nameDigitalClock = [modelName '/Digital Clock'];
     nameSum = [modelName '/Sum'];
     nameBusCreator = [modelName '/Bus Creator'];
-    nameWriteToFile = [modelName '/Write Scalar Doubles To File'];
+    nameWriteToFile = [modelName '/Write Bus To File'];
 
     % add blocks
     blockModelExecutionTime = add_block('GenericTarget/Time/Model Execution Time', nameModelExecutionTime);
     blockDigitalClock = add_block('simulink/Sources/Digital Clock', nameDigitalClock);
     blockSum = add_block('simulink/Math Operations/Sum', nameSum);
     blockBusCreator = add_block('simulink/Signal Routing/Bus Creator', nameBusCreator);
-    blockWriteToFile = add_block('GenericTarget/Interface/Write Scalar Doubles To File', nameWriteToFile);
+    blockWriteToFile = add_block('GenericTarget/Interface/Write Bus To File', nameWriteToFile);
 
     % set block parameters
     set_param(blockModelExecutionTime, 'Position', [80 -6 205 56], 'SampleTime', strSampletime);

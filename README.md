@@ -10,7 +10,7 @@
   <br><br>
 </div>
 
-Generic Target deploys MATLAB/Simulink models as real-time applications on Linux. It can run on any hardware capable of running Linux; real-time operation requires a **PREEMPT_RT** kernel. The toolbox is designed for applications that communicate with external devices over network interfaces, with support for protocols such as UDP and TCP.
+Generic Target deploys MATLAB/Simulink models as real-time applications on Linux. It can run on any 64-bit hardware capable of running Linux; real-time operation requires a **PREEMPT_RT** kernel. The toolbox is designed for applications that communicate with external devices over network interfaces, with support for protocols such as UDP and TCP.
 
 ## 📋 Requirements
 
@@ -23,13 +23,14 @@ Generic Target deploys MATLAB/Simulink models as real-time applications on Linux
 
 ### Target Computer
 
-- Linux. A Linux desktop or Windows with WSL can be used for testing.
+- A **little-endian, 64-bit** architecture (e.g., x86_64 or ARM64).
+- **Linux**. A Linux desktop or Windows with WSL can be used for testing.
 - A **PREEMPT_RT** kernel for real-time operation.
 - **g++ 13 or newer**, with support for the **C++20** standard.
 
 ## ✨ Features
 
-- **Hardware agnostic**: Runs in Linux userspace and supports Linux-compatible hardware.
+- **Hardware agnostic**: Runs in Linux userspace and supports Linux-compatible 64-bit hardware.
 - **Multithreading**: Schedules tasks with multiple sample rates using thread priorities.
 - **UDP communication**: Provides direct socket access, sender addresses, dynamic multicast joining, and socket error handling.
 - **TCP communication**: Manages connection lifecycle, disconnections, and automatic reconnection.

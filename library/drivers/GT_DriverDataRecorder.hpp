@@ -6,38 +6,31 @@
 
 /**
  * @brief Initialize the driver.
- * @param[in] typeOfRecorder The type of the data recorder (0: Scalar Doubles, 1: Bus).
- * @param[in] idCharacters (ScalarDoubles | Bus) Characters representing the unique ID of the data record.
- * @param[in] numIDCharacters (ScalarDoubles | Bus) Actual number of characters representing the unique ID.
- * @param[in] numSamplesPerFile (ScalarDoubles | Bus) The number of samples per file or zero if all samples should be written to one file.
- * @param[in] numBytesPerSample (Bus) The number of bytes per sample (exluding timestamp).
- * @param[in] numSignals (ScalarDoubles) Number of signals to record.
- * @param[in] signalNames (ScalarDoubles | Bus) Names for all signals separated by comma.
- * @param[in] strlenSignalNames (ScalarDoubles | Bus) Number of characters in the signalNames array.
- * @param[in] dimensions (Bus) String representing all signal dimensions separated by comma.
- * @param[in] strlenDimensions (Bus) Number of characters in the dimensions array.
- * @param[in] dataTypes (Bus) String representing all signal data types separated by comma.
- * @param[in] strlenDataTypes (Bus) Number of characters in the dataTypes array.
- * @param[in] writeFilesDuringSimulation Nonzero if files should be written during simulation.
+ * @param[inout] workVector The simulink work vector storing the pointer to a RealTimeDataRecorder object.
+ * @param[in] idCharacters  Characters representing the unique ID of the data record.
+ * @param[in] numIdCharacters Actual number of characters representing the unique ID.
+ * @param[in] numSamplesPerFile The number of samples per file or zero if all samples should be written to one file.
+ * @param[in] numBytesPerSample The number of bytes per sample.
+ * @param[in] sampleCapacityLog2 Ring buffer capacity exponent in range [0, 16]; sample capacity = 2^exponent.
+ * @param[in] labels Names for all signals separated by comma.
+ * @param[in] strlenLabels Number of characters in the signalNames array.
+ * @param[in] dimensions String representing all signal dimensions separated by comma.
+ * @param[in] strlenDimensions Number of characters in the dimensions array.
+ * @param[in] dataTypes String representing all signal data types separated by comma.
+ * @param[in] strlenDataTypes Number of characters in the dataTypes array.
  */
-extern void GT_DriverDataRecorderInitialize(std::uint8_t typeOfRecorder, const std::uint8_t* idCharacters, std::uint32_t numIDCharacters, std::uint32_t numSamplesPerFile, std::uint32_t numBytesPerSample, std::uint32_t numSignals, const std::uint8_t* signalNames, std::uint32_t strlenSignalNames, const std::uint8_t* dimensions, std::uint32_t strlenDimensions, const std::uint8_t* dataTypes, std::uint32_t strlenDataTypes, std::uint8_t writeFilesDuringSimulation);
+extern void GT_DriverDataRecorderInitialize(void** const workVector, const std::uint8_t* const idCharacters, const std::uint32_t numIdCharacters, const std::uint32_t numSamplesPerFile, const std::uint32_t numBytesPerSample, const std::uint32_t sampleCapacityLog2, const std::uint8_t* const labels, const std::uint32_t strlenLabels, const std::uint8_t* const dimensions, const std::uint32_t strlenDimensions, const std::uint8_t* const dataTypes, const std::uint32_t strlenDataTypes);
 
 /**
  * @brief Terminate the driver.
- * @param[in] writeFilesDuringSimulation Nonzero if files should be written during simulation.
+ * @param[inout] workVector The simulink work vector storing the pointer to a RealTimeDataRecorder object.
  */
-extern void GT_DriverDataRecorderTerminate(std::uint8_t writeFilesDuringSimulation);
+extern void GT_DriverDataRecorderTerminate(void* const workVector);
 
 /**
  * @brief Perform one step of the driver.
- * @param[in] typeOfRecorder The type of the data recorder (0: Scalar Doubles, 1: Bus).
- * @param[in] idCharacters (ScalarDoubles | Bus) Characters representing the unique ID of the data record.
- * @param[in] numIDCharacters (ScalarDoubles | Bus) Actual number of characters representing the unique ID.
- * @param[in] timestamp (ScalarDoubles | Bus) A time value associated with the data value.
- * @param[in] values (ScalarDoubles) Signal values.
- * @param[in] numValues (ScalarDoubles) Number of values.
- * @param[in] bytes (Bus) Array containing the bytes for a sample (exluding timestamp).
- * @param[in] numBytesPerSample (Bus) The number of bytes per sample (exluding timestamp).
- * @param[in] writeFilesDuringSimulation Nonzero if files should be written during simulation.
+ * @param[inout] workVector The simulink work vector storing the pointer to a RealTimeDataRecorder object.
+ * @param[in] bytes Array containing the bytes for a sample.
+ * @param[in] numBytesPerSample The number of bytes per sample.
  */
-extern void GT_DriverDataRecorderStep(std::uint8_t typeOfRecorder, const std::uint8_t* idCharacters, std::uint32_t numIDCharacters, double timestamp, double* values, std::uint32_t numValues, std::uint8_t* bytes, std::uint32_t numBytesPerSample, std::uint8_t writeFilesDuringSimulation);
+extern void GT_DriverDataRecorderStep(void* const workVector, const std::uint8_t* const bytes, const std::uint32_t numBytesPerSample) noexcept;

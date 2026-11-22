@@ -38,10 +38,11 @@ RealTimeScheduler::RealTimeScheduler() {
     // set master thread priority
     ::sched_param param;
     param.sched_priority = gt::basePriority;
-    if (::pthread_setschedparam(m_masterThread.native_handle(), SCHED_FIFO, &param) == -1) {
-        std::string msg = std::format("Failed to set thread priority {} of real-time scheduler (sampletime={})",
+    const int errorCode = ::pthread_setschedparam(m_masterThread.native_handle(), SCHED_FIFO, &param);
+    if (errorCode != 0) {
+        std::string msg = std::format("Failed to set thread priority {} of real-time scheduler with error code {}",
             gt::basePriority,
-            SimulinkInterface::baseSampleTime);
+            errorCode);
         #if defined(DEBUG)
         GENERIC_TARGET_PRINT_ERROR("{}\n", msg);
         #else

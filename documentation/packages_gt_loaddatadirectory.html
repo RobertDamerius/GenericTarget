@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GT.DecodeDataFiles &middot; Generic Target Documentation</title>
+<title>GT.LoadDataDirectory &middot; Generic Target Documentation</title>
 <link rel="icon" type="image/svg+xml" href="img/icon.svg">
 <link rel="stylesheet" href="assets/design.css">
 <script src="assets/theme.js"></script>
@@ -76,9 +76,8 @@
   <li><a class="nav-link" href="packages_gt_gettemplate.html">GT.GetTemplate</a></li>
   <li><a class="nav-link" href="packages_gt_getversion.html">GT.GetVersion</a></li>
   <li><a class="nav-link" href="packages_gt_opendocumentation.html">GT.OpenDocumentation</a></li>
-  <li><a class="nav-link" href="packages_gt_decodedatadirectory.html">GT.DecodeDataDirectory</a></li>
-  <li><a class="nav-link active" href="packages_gt_decodedatafiles.html" aria-current="page">GT.DecodeDataFiles</a></li>
-  <li><a class="nav-link" href="packages_gt_decodeindexfile.html">GT.DecodeIndexFile</a></li>
+  <li><a class="nav-link active" href="packages_gt_loaddatadirectory.html" aria-current="page">GT.LoadDataDirectory</a></li>
+  <li><a class="nav-link" href="packages_gt_loaddatafiles.html">GT.LoadDataFiles</a></li>
   <li><a class="nav-link" href="packages_gt_mustbecellstr.html">GT.mustBeCellStr</a></li>
   <li><a class="nav-link" href="packages_gt_mustbechar.html">GT.mustBeChar</a></li>
   <li><a class="nav-link" href="packages_gt_mustcontainnowhitespace.html">GT.mustContainNoWhitespace</a></li>
@@ -94,7 +93,6 @@
   <li><a class="nav-link" href="library_gt_interface_tcpclientreceive.html">Interface / TCP Client Receive</a></li>
   <li><a class="nav-link" href="library_gt_interface_udpsend.html">Interface / UDP Send</a></li>
   <li><a class="nav-link" href="library_gt_interface_udpreceive.html">Interface / UDP Receive</a></li>
-  <li><a class="nav-link" href="library_gt_interface_writescalardoublestofile.html">Interface / Write Scalar Doubles To File</a></li>
   <li><a class="nav-link" href="library_gt_interface_writebustofile.html">Interface / Write Bus To File</a></li>
   <li><a class="nav-link" href="library_gt_interface_stopexecution.html">Interface / Stop Execution</a></li>
   <li><a class="nav-link" href="library_gt_targetstats_applicationarguments.html">Target Stats / Application Arguments</a></li>
@@ -116,29 +114,33 @@
     <main id="main-content">
       <article>
 <span class="api-badge">MATLAB function</span>
-<h1>GT.DecodeDataFiles</h1>
+<h1>GT.LoadDataDirectory</h1>
 <p>
-  Decodes raw data files recorded by the Generic Target application into a structure of timeseries. Data files
-  are created by the application if the model contains at least one Write To File block.
+  Load all data files from a directory into a structure of time tables. The function scans <code>directory</code> (or the current
+  working directory if omitted) for files named <code>[id]_[number]</code>, where <code>[id]</code> is any prefix and
+  <code>[number]</code> is a number; subfolders and files that do not match this pattern are ignored. Files sharing the same
+  <code>[id]</code> form one recording, which is loaded in numeric order of <code>[number]</code>. The returned structure has
+  one field per unique <code>[id]</code>, each containing the time tables of all signals recorded under that ID.
 </p>
 
 <h2>Syntax</h2>
-<p class="api-signature"><code>data = GT.DecodeDataFiles(dataFileNames)</code></p>
+<p class="api-signature"><code>[data, info] = GT.LoadDataDirectory()</code></p>
+<p class="api-signature"><code>[data, info] = GT.LoadDataDirectory(directory)</code></p>
 
 <h2>Description</h2>
-<p>
-  <code>data = GT.DecodeDataFiles(dataFileNames)</code> decodes all data files given in the cell array
-  <code>dataFileNames</code>.
-</p>
+<p><code>[data, info] = GT.LoadDataDirectory()</code> loads the data files in the current working directory.</p>
+<p><code>[data, info] = GT.LoadDataDirectory(directory)</code> loads the data files from the specified <code>directory</code>.</p>
 
 <h2>Input Arguments</h2>
 <ul>
-  <li><strong>dataFileNames</strong> — A cell array of strings containing the raw data files of one recording ID, e.g., <code>{'myData_0','myData_1'}</code>.</li>
+  <li><strong>directory</strong> — The directory that contains the data recorded by the Generic Target application. If this argument
+    is omitted, the current working directory is used.</li>
 </ul>
 
 <h2>Output Arguments</h2>
 <ul>
-  <li><strong>data</strong> — The data structure containing timeseries for all recorded signals.</li>
+  <li><strong>data</strong> — A structure containing a time table for all recorded signals. To load only specific data files, see
+    <a href="packages_gt_loaddatafiles.html"><code>GT.LoadDataFiles()</code></a>.</li>
 </ul>
 
       </article>

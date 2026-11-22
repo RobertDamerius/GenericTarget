@@ -1,12 +1,18 @@
 #pragma once
 
 
+#include <cstddef>
 #include <string_view>
 #include <format>
 #include <chrono>
 #include <syncstream>
 #include <iostream>
 #include <utility>
+#include <bit>
+
+
+static_assert(std::endian::native == std::endian::little, "This code requires a little-endian platform.");
+static_assert((sizeof(void*) == 8) && (sizeof(std::size_t) == 8), "This code requires a 64-bit platform.");
 
 
 namespace gt {

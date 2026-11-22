@@ -42,10 +42,12 @@ PeriodicTask::PeriodicTask(const std::int32_t taskID) : taskID(taskID) {
     // set worker thread priority
     ::sched_param param;
     param.sched_priority = requestedPriority;
-    if (::pthread_setschedparam(m_workerThread.native_handle(), SCHED_FIFO, &param) == -1) {
-        std::string msg = std::format("Failed to set thread priority {} of task \"{}\" (sampletime={})",
+    const int errorCode = ::pthread_setschedparam(m_workerThread.native_handle(), SCHED_FIFO, &param);
+    if (errorCode != 0) {
+        std::string msg = std::format("Failed to set thread priority {} of task \"{}\" with error code {} (sampletime={})",
             requestedPriority,
             SimulinkInterface::taskNames[taskID],
+            errorCode,
             SimulinkInterface::baseSampleTime * static_cast<double>(SimulinkInterface::sampleTicks[taskID]));
         #if defined(DEBUG)
         GENERIC_TARGET_PRINT_ERROR("{}\n", msg);

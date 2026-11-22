@@ -127,7 +127,7 @@ void App::OpenSocket(const std::string_view& socketName) {
     ::sockaddr_un addr{};
     std::span<char> pathSpan{addr.sun_path};
     if (socketName.empty() || ((socketName.size() + kNumReservedZeroBytes) > pathSpan.size())) {
-        throw std::runtime_error("Invalid socket name length\n");
+        throw std::runtime_error("Invalid socket name length");
     }
 
     // create abstract socket
