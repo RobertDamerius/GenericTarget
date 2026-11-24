@@ -387,7 +387,7 @@ input:focus-visible {
    -------------------------------------------------------------------------- */
 .layout {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   min-height: calc(100vh - var(--header-height));
 }
 
