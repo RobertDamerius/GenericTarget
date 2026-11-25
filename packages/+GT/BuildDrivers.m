@@ -52,11 +52,11 @@ function BuildDrivers()
     fprintf('define driver: UDPSocket\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverUDPSocket';
-    def.StartFcnSpec     = 'void GT_DriverUDPSocketInitialize(int32 p1, uint8 p2[], uint32 p3, int32 p4, uint8 p5, uint8 p6, uint8 p7, uint8 p8, uint8 p9, uint8 p10[4])';
-    def.TerminateFcnSpec = 'void GT_DriverUDPSocketTerminate(int32 p1)';
-    def.OutputFcnSpec    = 'void GT_DriverUDPSocketStep(int32 p1, uint8 p11, int32 p12, uint8 y1[p12], uint8 y2[4], uint16 y3[1], int32 y4[1], int32 y5[1], uint8 u1[4], uint16 u2, uint8 u3[], int32 u4, uint8 u5[], uint32 u6)';
+    def.StartFcnSpec     = 'void GT_DriverUDPSocketInitialize(void** work1, int32 p1, uint8 p2[], uint32 p3, int32 p4, uint8 p5, uint8 p6, uint8 p7, uint8 p8, uint8 p9[4])';
+    def.TerminateFcnSpec = 'void GT_DriverUDPSocketTerminate()';
+    def.OutputFcnSpec    = 'void GT_DriverUDPSocketStep(void* work1, uint8 p10, uint8 p11, int32 p12, uint8 y1[p12], uint8 y2[4], uint16 y3[1], int32 y4[1], int32 y5[1], uint8 u1[4], uint16 u2, uint8 u3[], int32 u4, uint8 u5[], uint32 u6)';
     def.HeaderFiles      = {'GT_DriverUDPSocket.hpp'};
-    def.SourceFiles      = {'GT_DriverUDPSocket.cpp','GT_DriverImplementationDetails.cpp'};
+    def.SourceFiles      = {'GT_DriverUDPSocket.cpp','GT_DetailsUDPService.cpp'};
     def.IncPaths         = {''};
     def.SrcPaths         = {''};
     def.LibPaths         = {''};

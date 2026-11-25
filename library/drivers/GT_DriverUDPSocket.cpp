@@ -1,86 +1,93 @@
 #include <GT_DriverUDPSocket.hpp>
-#include <GT_DriverImplementationDetails.hpp>
-#if defined(GENERIC_TARGET_IMPLEMENTATION)
-#include <GenericTarget/GT_RuntimeEnvironment.hpp>
-#endif
+#include <GT_DetailsUDPServiceRegistry.hpp>
+#include <GT_DetailsCompat.hpp>
+#include <stdexcept>
+#include <span>
 #if defined(_WIN32)
 #include <winsock2.h>
 #endif
 
 
-#if defined(_WIN32) && !defined(GENERIC_TARGET_IMPLEMENTATION)
-static ::WSADATA gt_driver_wsa_data;
-#endif
-
-
 namespace {
-gt::driver::UDPServiceManager udpServiceManager;
+gt::driver::details::UDPServiceRegistry& GetInstance(){
+    static gt::driver::details::UDPServiceRegistry instance;
+    return instance;
 }
+} /* anonymous namespace */
 
 
-void GT_DriverUDPSocketInitialize(std::int32_t port, std::uint8_t* deviceName, std::uint32_t deviceNameLength, std::int32_t socketPriority, std::uint8_t allowBroadcast, std::uint8_t allowZeroLengthMessage, std::uint8_t multicastAll, std::uint8_t multicastLoop, std::uint8_t multicastTTL, std::uint8_t* multicastInterfaceAddress) {
-    #if defined(_WIN32) && !defined(GENERIC_TARGET_IMPLEMENTATION)
-    if ((::WSAStartup(MAKEWORD(2, 2), &gt_driver_wsa_data)) || (LOBYTE(gt_driver_wsa_data.wVersion) != 2) || (HIBYTE(gt_driver_wsa_data.wVersion) != 2)) {
-        std::fprintf(stderr, "ERROR: Failed to setup network for windows OS! WSAStartup(2,2) failed!\n");
-    }
+void GT_DriverUDPSocketInitialize(void** const workVector, const std::int32_t port, const std::uint8_t* const deviceName, const std::uint32_t deviceNameLength, const std::int32_t socketPriority, const std::uint8_t allowBroadcast, const std::uint8_t multicastAll, const std::uint8_t multicastLoop, const std::uint8_t multicastTTL, const std::uint8_t* const multicastInterfaceAddress) {
+    #if !defined(GENERIC_TARGET_IMPLEMENTATION)
+    try {
     #endif
-    gt::driver::UDPServiceConfiguration conf;
-    conf.port = port;
-    conf.deviceName.clear();
-    for (std::uint32_t n = 0U; n < deviceNameLength; ++n) {
-        char c = static_cast<char>(deviceName[n]);
-        if (c >= ' ') {
-            conf.deviceName.push_back(c);
-        }
+
+    if ((workVector == nullptr) || (deviceName == nullptr) || (multicastInterfaceAddress == nullptr)) {
+        throw std::invalid_argument("workVector, deviceName and multicastInterfaceAddress must not be nullptr");
     }
-    conf.socketPriority = socketPriority;
-    conf.allowBroadcast = static_cast<bool>(allowBroadcast);
-    conf.allowZeroLengthMessage = static_cast<bool>(allowZeroLengthMessage);
-    conf.multicastAll = static_cast<bool>(multicastAll);
-    conf.multicastLoop = static_cast<bool>(multicastLoop);
-    conf.multicastTTL = multicastTTL;
-    conf.multicastInterfaceAddress[0U] = multicastInterfaceAddress[0U];
-    conf.multicastInterfaceAddress[1U] = multicastInterfaceAddress[1U];
-    conf.multicastInterfaceAddress[2U] = multicastInterfaceAddress[2U];
-    conf.multicastInterfaceAddress[3U] = multicastInterfaceAddress[3U];
-    bool success = udpServiceManager.AddService(port, conf);
-    #if defined(GENERIC_TARGET_IMPLEMENTATION) && !defined(DEBUG) && !defined(_WIN32)
-    if (!success) {
-        gt::RuntimeEnvironment::RequestStop();
-    }
-    #else
-    static_cast<void>(success);
+
+    gt::driver::details::UDPServiceConfig conf{
+        .localPort = port,
+        .socketPriority = socketPriority,
+        .allowBroadcast = (allowBroadcast != 0U),
+        .multicastAll = (multicastAll != 0U),
+        .multicastLoop = (multicastLoop != 0U),
+        .multicastTTL = multicastTTL,
+        .deviceName = std::string(reinterpret_cast<const char*>(deviceName), deviceNameLength),
+        .multicastInterfaceAddress = {multicastInterfaceAddress[0U], multicastInterfaceAddress[1U], multicastInterfaceAddress[2U], multicastInterfaceAddress[3U]},
+    };
+
+    GetInstance().RequestInitialize();
+    gt::driver::details::UDPService* service = GetInstance().Register(conf);
+    *workVector = static_cast<void*>(service);
+
+    #if !defined(GENERIC_TARGET_IMPLEMENTATION)
+    } catch (const std::exception& e) { GENERIC_TARGET_PRINT_ERROR("{}\n", e.what()); }
+    catch (...) { GENERIC_TARGET_PRINT_ERROR("Caught unhandled exception!\n"); }
     #endif
 }
 
-void GT_DriverUDPSocketTerminate(std::int32_t port) {
-    udpServiceManager.ClearAllServices();
-    #if defined(_WIN32) && !defined(GENERIC_TARGET_IMPLEMENTATION)
-    ::WSACleanup();
-    #endif
-    static_cast<void>(port);
+void GT_DriverUDPSocketTerminate() {
+    GetInstance().RequestTerminate();
 }
 
-void GT_DriverUDPSocketStep(std::int32_t port, std::uint8_t tfSendReceive, std::int32_t rxBufferSize, std::uint8_t* bytesReceived, std::uint8_t* sourceIP, std::uint16_t* sourcePort, std::int32_t* result, std::int32_t* lastErrorCode, std::uint8_t* destinationIP, std::uint16_t destinationPort, std::uint8_t* bytesToSend, std::int32_t numBytesToSend, std::uint8_t* groupBytes, std::uint32_t numGroupBytes) {
+void GT_DriverUDPSocketStep(void* const workVector, const std::uint8_t tfSendReceive, const std::uint8_t allowZeroLengthMessage, const std::int32_t rxBufferSize, std::uint8_t* const bytesReceived, std::uint8_t* const sourceIP, std::uint16_t* const sourcePort, std::int32_t* const result, std::int32_t* const lastErrorCode, const std::uint8_t* const destinationIP, const std::uint16_t destinationPort, const std::uint8_t* const bytesToSend, const std::int32_t numBytesToSend, const std::uint8_t* const groupBytes, const std::uint32_t numGroupBytes) noexcept {
+    // check for null-pointers
+    if ((workVector == nullptr) ||
+        (bytesReceived == nullptr) ||
+        (sourceIP == nullptr) ||
+        (sourcePort == nullptr) ||
+        (result == nullptr) ||
+        (lastErrorCode == nullptr) ||
+        (destinationIP == nullptr) ||
+        (bytesToSend == nullptr) ||
+        (groupBytes == nullptr)) {
+        return;
+    }
+
+    // set default source address output
     sourceIP[0U] = 0U;
     sourceIP[1U] = 0U;
     sourceIP[2U] = 0U;
     sourceIP[3U] = 0U;
     *sourcePort = 0U;
-    if (tfSendReceive) {
-        gt::driver::Address destination(destinationIP[0U], destinationIP[1U], destinationIP[2U], destinationIP[3U], destinationPort);
-        std::tie(*result, *lastErrorCode) = udpServiceManager.SendTo(port, destination, bytesToSend, numBytesToSend);
+
+    // do the send or receive call
+    gt::driver::details::UDPService* const service{static_cast<gt::driver::details::UDPService*>(workVector)};
+    if (tfSendReceive != 0U) {
+        const std::array<std::uint8_t, 4U> dstIP{destinationIP[0U], destinationIP[1U], destinationIP[2U], destinationIP[3U]};
+        const bool allowZeroLengthTransmission{allowZeroLengthMessage != 0U};
+        auto tx = service->SendTo(dstIP, destinationPort, bytesToSend, numBytesToSend, allowZeroLengthTransmission);
+        *result = tx.result;
+        *lastErrorCode = tx.errorCode;
     } else {
-        gt::driver::Address source;
-        std::vector<std::array<std::uint8_t, 4U>> multicastGroups;
-        for (std::uint32_t k = 0U; (k + 3U) < numGroupBytes;) {
-            multicastGroups.push_back({groupBytes[k++], groupBytes[k++], groupBytes[k++], groupBytes[k++]});
-        }
-        std::tie(source, *result, *lastErrorCode) = udpServiceManager.ReceiveFrom(port, bytesReceived, rxBufferSize, multicastGroups);
-        sourceIP[0U] = source.ip[0U];
-        sourceIP[1U] = source.ip[1U];
-        sourceIP[2U] = source.ip[2U];
-        sourceIP[3U] = source.ip[3U];
-        *sourcePort = source.port;
+        std::span<const std::uint8_t> multicastGroupBytes{groupBytes, numGroupBytes};
+        auto rx = service->ReceiveFrom(multicastGroupBytes, bytesReceived, rxBufferSize);
+        *result = rx.result;
+        *lastErrorCode = rx.errorCode;
+        sourceIP[0U] = rx.sourceAddress[0U];
+        sourceIP[1U] = rx.sourceAddress[1U];
+        sourceIP[2U] = rx.sourceAddress[2U];
+        sourceIP[3U] = rx.sourceAddress[3U];
+        *sourcePort = rx.sourcePort;
     }
 }
