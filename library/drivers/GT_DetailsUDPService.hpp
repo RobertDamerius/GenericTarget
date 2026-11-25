@@ -23,24 +23,23 @@ using IPv4Address = std::array<std::uint8_t, 4U>;
  * @brief Socket configuration, handed to the UDPService constructor.
  */
 struct UDPServiceConfig final {
-    public:
-        std::int32_t localPort{0};                               // bind port (bound to 0.0.0.0, or to deviceName if set), lower than or equal to 0: kernel picks one
-        std::int32_t socketPriority{0};                          // SO_PRIORITY, values > 6 need CAP_NET_ADMIN or CAP_NET_RAW
-        bool allowBroadcast{false};                              // SO_BROADCAST
-        bool multicastAll{false};                                // IP_MULTICAST_ALL, false = only deliver groups joined by this socket
-        bool multicastLoop{true};                                // IP_MULTICAST_LOOP
-        std::uint8_t multicastTTL{1U};                           // IP_MULTICAST_TTL
-        std::string deviceName{};                                // SO_BINDTODEVICE (Linux only), device name to which the socket should be bound, if this string is non-empty; also selects the interface for multicast messages: Linux uses the index of this device, Windows (no device binding) looks for an adapter with this name (GUID) or description and falls back to multicastInterfaceAddress if there is none
-        IPv4Address multicastInterfaceAddress{0U, 0U, 0U, 0U};   // IP_MULTICAST_IF, IP address of the interface to be used for outgoing multicast messages as well as for joining/leaving groups, 0.0.0.0 = the kernel chooses by its routing; if deviceName selects the interface, the device wins and the address is only used as source address of outgoing multicast datagrams (Linux) or ignored (Windows)
+    std::int32_t localPort{0};                               // bind port (bound to 0.0.0.0, or to deviceName if set), lower than or equal to 0: kernel picks one
+    std::int32_t socketPriority{0};                          // SO_PRIORITY, values > 6 need CAP_NET_ADMIN or CAP_NET_RAW
+    bool allowBroadcast{false};                              // SO_BROADCAST
+    bool multicastAll{false};                                // IP_MULTICAST_ALL, false = only deliver groups joined by this socket
+    bool multicastLoop{true};                                // IP_MULTICAST_LOOP
+    std::uint8_t multicastTTL{1U};                           // IP_MULTICAST_TTL
+    std::string deviceName{};                                // SO_BINDTODEVICE (Linux only), device name to which the socket should be bound, if this string is non-empty; also selects the interface for multicast messages: Linux uses the index of this device, Windows (no device binding) looks for an adapter with this name (GUID) or description and falls back to multicastInterfaceAddress if there is none
+    IPv4Address multicastInterfaceAddress{0U, 0U, 0U, 0U};   // IP_MULTICAST_IF, IP address of the interface to be used for outgoing multicast messages as well as for joining/leaving groups, 0.0.0.0 = the kernel chooses by its routing; if deviceName selects the interface, the device wins and the address is only used as source address of outgoing multicast datagrams (Linux) or ignored (Windows)
 
-        /* default comparison operator */
-        bool operator==(const UDPServiceConfig&) const = default;
+    /* default comparison operator */
+    bool operator==(const UDPServiceConfig&) const = default;
 
-        /**
-         * @brief Convert this configuration to a string.
-         * @return String showing values of all attributes.
-         */
-        [[nodiscard]] std::string ToString() const;
+    /**
+     * @brief Convert this configuration to a string.
+     * @return String showing values of all attributes.
+     */
+    [[nodiscard]] std::string ToString() const;
 };
 
 
