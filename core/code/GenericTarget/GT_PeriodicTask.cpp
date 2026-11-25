@@ -18,11 +18,13 @@ PeriodicTask::PeriodicTask(const std::int32_t taskID) : taskID(taskID) {
     // check worker thread priority
     int requestedPriority = gt::basePriority - (static_cast<int>(taskID) + 1);
     if ((requestedPriority < ::sched_get_priority_min(SCHED_FIFO)) || (requestedPriority > ::sched_get_priority_max(SCHED_FIFO))) {
-        std::string msg = std::format("Requested priority {} of task \"{}\" is not in range [{},{}]\n",
+        std::string msg = std::format(
+            "Requested priority {} of task \"{}\" is not in range [{},{}]\n",
             requestedPriority,
             SimulinkInterface::taskNames[taskID],
             ::sched_get_priority_min(SCHED_FIFO),
-            ::sched_get_priority_max(SCHED_FIFO));
+            ::sched_get_priority_max(SCHED_FIFO)
+        );
         #if defined(DEBUG)
         GENERIC_TARGET_PRINT_ERROR("{}\n", msg);
         #else
@@ -44,11 +46,13 @@ PeriodicTask::PeriodicTask(const std::int32_t taskID) : taskID(taskID) {
     param.sched_priority = requestedPriority;
     const int errorCode = ::pthread_setschedparam(m_workerThread.native_handle(), SCHED_FIFO, &param);
     if (errorCode != 0) {
-        std::string msg = std::format("Failed to set thread priority {} of task \"{}\" with error code {} (sampletime={})",
+        std::string msg = std::format(
+            "Failed to set thread priority {} of task \"{}\" with error code {} (sampletime={})",
             requestedPriority,
             SimulinkInterface::taskNames[taskID],
             errorCode,
-            SimulinkInterface::baseSampleTime * static_cast<double>(SimulinkInterface::sampleTicks[taskID]));
+            SimulinkInterface::baseSampleTime * static_cast<double>(SimulinkInterface::sampleTicks[taskID])
+        );
         #if defined(DEBUG)
         GENERIC_TARGET_PRINT_ERROR("{}\n", msg);
         #else

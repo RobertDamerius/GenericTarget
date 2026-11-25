@@ -115,14 +115,16 @@ class DataRecordingSession final {
             const chr::sys_days today{chr::floor<chr::days>(now)};
             const chr::hh_mm_ss<chr::nanoseconds> timeOfDay{chr::duration_cast<chr::nanoseconds>(now - today)};
             const chr::year_month_day ymd{today};
-            return std::format("{:04d}{:02d}{:02d}_{:02d}{:02d}{:02d}{:03d}",
-                            static_cast<int>(ymd.year()),
-                            static_cast<unsigned int>(ymd.month()),
-                            static_cast<unsigned int>(ymd.day()),
-                            timeOfDay.hours().count(),
-                            timeOfDay.minutes().count(),
-                            timeOfDay.seconds().count(),
-                            chr::duration_cast<chr::milliseconds>(timeOfDay.subseconds()).count());
+            return std::format(
+                "{:04d}{:02d}{:02d}_{:02d}{:02d}{:02d}{:03d}",
+                static_cast<int>(ymd.year()),
+                static_cast<unsigned int>(ymd.month()),
+                static_cast<unsigned int>(ymd.day()),
+                timeOfDay.hours().count(),
+                timeOfDay.minutes().count(),
+                timeOfDay.seconds().count(),
+                chr::duration_cast<chr::milliseconds>(timeOfDay.subseconds()).count()
+            );
         }
 
         /**

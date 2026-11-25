@@ -127,8 +127,10 @@ class RealTimeDataRecorder final {
             const sched_param param{};
             const int errorCode = ::pthread_setschedparam(m_thread.native_handle(), SCHED_OTHER, &param);
             if (errorCode != 0) {
-                std::string msg = std::format("Failed to set scheduling policy SCHED_OTHER for background thread of RealTimeDataRecorder with error code {}",
-                    errorCode);
+                std::string msg = std::format(
+                    "Failed to set scheduling policy SCHED_OTHER for background thread of RealTimeDataRecorder with error code {}",
+                    errorCode
+                );
                 #if defined(DEBUG)
                 GENERIC_TARGET_PRINT_ERROR("{}\n", msg);
                 #else
