@@ -123,14 +123,15 @@
 <p>
   Internally, the target application uses one socket per local UDP port. If a UDP Send block and a
   <a href="library_gt_interface_udpreceive.html">UDP Receive</a> block share the same local port, they access
-  the same socket in the background. Their mask settings must therefore be identical; otherwise, the
-  initialization phase of the target application fails.
+  the same socket in the background. Their socket-related mask settings must therefore be
+  identical (local port, device name, socket priority, broadcast flag, and the multicast options);
+  otherwise, the initialization phase of the target application fails.
 </p>
 <p>
   A local port value less than 1 can also be selected in the block mask; in that case, the operating system
   assigns the actual UDP port randomly. All UDP Send and Receive blocks that share the same local port value must
-  nevertheless have identical mask settings: for example, several blocks with the local port <code>-3</code>
-  share a single background socket whose port is assigned randomly by the operating system.
+  nevertheless have identical socket-related mask settings: for example, several blocks with the local port
+  <code>-3</code> share a single background socket whose port is assigned randomly by the operating system.
 </p>
 
 <h2>Input Ports</h2>
@@ -147,7 +148,10 @@
 <p><strong>Data Type:</strong> <code>uint8</code></p>
 
 <h3>length</h3>
-<p>The number of bytes to send. The value must not be greater than 65507.</p>
+<p>
+  The number of bytes to send. The value must not be greater than 65507, and the number of bytes that is
+  actually sent is additionally limited to the length of the <code>bytes</code> input.
+</p>
 <p><strong>Data Type:</strong> <code>int32</code></p>
 
 <h2>Output Ports</h2>
@@ -196,12 +200,14 @@
 <h2>Further Notes</h2>
 <h3>Socket</h3>
 <p>
-  A socket is the interface between an application and the network. During model initialization, all UDP sockets
-  are created and their socket options are set. Binding to the local port and to a specific network device is
-  performed in a separate network management thread, which also ensures that the application starts correctly
-  even if the network interface is not yet available. The socket options <code>SO_REUSEPORT</code> and
-  <code>SO_REUSEADDR</code> are enabled after socket creation, which allows multiple sockets (for example,
-  multiple blocks) to bind to the same port and device.
+  A socket is the interface between an application and the network. During model initialization, the UDP service
+  for each local port is registered and a background worker thread is started. The worker thread creates the
+  socket, sets its socket options, and binds it to the local port and network device; the setup is retried
+  until it succeeds, which ensures that the application starts correctly even if the network interface is not
+  yet available. The socket options <code>SO_REUSEPORT</code> and <code>SO_REUSEADDR</code> are enabled after
+  socket creation, which allows multiple sockets to bind to the same port and device. Until the socket is fully
+  set up, send and receive operations return an error result; the <code>lastErrorCode</code> is initially
+  <code>ENETDOWN</code>.
 </p>
 
 <h3>Port Range</h3>
@@ -209,7 +215,7 @@
 <ul>
   <li><strong>System Ports (1–1023):</strong> reserved for system processes and should not be used.</li>
   <li><strong>User Ports (1024–49151):</strong> available for general use.</li>
-  <li><strong>Dynamic Ports (49152–65536):</strong> typically assigned dynamically, but availability may vary depending on the operating system.</li>
+  <li><strong>Dynamic Ports (49152–65535):</strong> typically assigned dynamically, but availability may vary depending on the operating system.</li>
 </ul>
 <p>
   Ports in the dynamic range may be restricted by the operating system. If a port cannot be bound, it is either
@@ -219,20 +225,22 @@
 
 <h3>Socket Priority</h3>
 <p>
-  This value must be between <strong>0 and 6</strong>. It sets the IP type-of-service priority for the packets
-  of this socket; Linux uses this value in its network queue management, so that higher-priority traffic is
-  scheduled first according to the active queuing discipline.
+  This value must be between <strong>0 and 6</strong>. It sets the socket priority (<code>SO_PRIORITY</code>)
+  of the socket, which is applied on Linux. There, the network queue management uses this value, so that
+  higher-priority traffic is scheduled first according to the active queuing discipline.
 </p>
 
 <h3>Multicast Interface Address</h3>
 <p>
   When joining or leaving a multicast group, a multicast interface address can be specified to determine which
-  network interface is used for multicast communication. If no interface is specified (e.g.,
-  <code>[0,0,0,0]</code>), the kernel selects an appropriate interface automatically. On systems with multiple
-  network interfaces, the desired interface should be set explicitly in the block mask. If a
-  <code>deviceName</code> is given in the Socket tab, it is used as the multicast interface address; if the
-  device name is not set or cannot be found, the kernel falls back to the interface defined by the
-  <code>multicastInterfaceAddress</code> parameter.
+  network interface is used for multicast communication. If neither an interface address nor a device is
+  specified (e.g., <code>[0,0,0,0]</code>), the kernel selects an appropriate interface automatically based on
+  its routing table. On systems with multiple network interfaces, the desired interface should be set
+  explicitly in the block mask. If a <code>deviceName</code> is given in the Socket tab, it takes precedence:
+  on Linux, the socket is bound to this device and the device's interface index is used for multicast
+  communication, while <code>multicastInterfaceAddress</code> then only serves as the source address of
+  outgoing multicast datagrams; on Windows, the device name is matched against the network adapters, and if no
+  matching adapter is found, the <code>multicastInterfaceAddress</code> is used instead.
 </p>
 
 <h3>Allow Broadcast</h3>

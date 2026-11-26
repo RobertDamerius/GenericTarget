@@ -190,8 +190,8 @@
 <h2>Thread Overview</h2>
 <p>
   Two threads are always present: the <strong>Real-Time Scheduler</strong> and the <strong>main</strong> thread.
-  A UDP service manager thread runs in addition if UDP blocks are used, and a TCP client service thread runs for
-  each TCP client socket if TCP blocks are used. Additional background threads run if
+  A UDP service worker thread runs in addition for each UDP socket if UDP blocks are used, and a TCP client
+  service thread runs for each TCP client socket if TCP blocks are used. Additional background threads run if
   <a href="library_gt_interface_writebustofile.html">Write Bus To File</a> and <a href="library_gt_targetstats_readthermalzones.html">Read Thermal Zones</a>
   blocks are used.
 </p>
@@ -213,10 +213,11 @@
   <code>SIGINT</code> or <code>SIGTERM</code>, which interrupts the loop.
 </p>
 <p>
-  The <strong>UDP service manager thread</strong> is a non-realtime background thread that is responsible for binding the
-  ports and device names for all UDP sockets. As long as the network interface is not available, it attempts to
-  bind the port and device name with paused delays of 100 milliseconds. Once all ports have been bound, this thread is
-  terminated.
+  Each UDP socket has a dedicated non-realtime <strong>UDP service worker thread</strong>. This thread creates the
+  socket, sets its socket options, and binds the port and device name. It also applies multicast group membership
+  changes that are requested at run time. As long as the network interface is not available, it retries the socket
+  setup and failed membership changes with pauses of 1 second. The thread runs for the entire lifetime of the
+  socket and is terminated during the termination phase of the application.
 </p>
 <p>
   The number of additional threads depends on the Simulink model: for each sample rate or periodic partition, one
