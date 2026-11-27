@@ -1,62 +1,84 @@
 #include <GT_DriverTCPClientSocket.hpp>
-#include <GT_DriverImplementationDetails.hpp>
-#if defined(GENERIC_TARGET_IMPLEMENTATION)
-#include <GenericTarget/GT_RuntimeEnvironment.hpp>
-#endif
+#include <GT_DetailsTCPClientServiceRegistry.hpp>
+#include <GT_DetailsCompat.hpp>
+#include <stdexcept>
+#include <span>
 #if defined(_WIN32)
 #include <winsock2.h>
 #endif
 
 
-#if defined(_WIN32) && !defined(GENERIC_TARGET_IMPLEMENTATION)
-static ::WSADATA gt_driver_wsa_data;
-#endif
-
-
 namespace {
-gt::driver::TCPClientServiceManager tcpClientServiceManager;
+gt::driver::details::TCPClientServiceRegistry& GetInstance(){
+    static gt::driver::details::TCPClientServiceRegistry instance;
+    return instance;
+}
+} /* anonymous namespace */
+
+
+void GT_DriverTCPClientSocketInitialize(void** const workVector, const std::int32_t port, const std::uint8_t* const deviceName, const std::uint32_t deviceNameLength, const std::int32_t socketPriority, const std::uint8_t typeOfService, const std::uint8_t noDelay, const std::int32_t kernelSendBufferSize, const std::int32_t kernelReceiveBufferSize, const std::uint8_t keepAlive, const std::int32_t keepAliveIdle, const std::int32_t keepAliveInterval, const std::int32_t keepAliveCount, const std::int32_t userTimeout) {
+    #if !defined(GENERIC_TARGET_IMPLEMENTATION)
+    try {
+    #endif
+
+    if ((workVector == nullptr) || (deviceName == nullptr)) {
+        throw std::invalid_argument("workVector and deviceName must not be nullptr");
+    }
+
+    gt::driver::details::TCPClientServiceConfig conf{
+        .localPort = port,
+        .deviceName = std::string(reinterpret_cast<const char*>(deviceName), deviceNameLength),
+        .socketPriority = socketPriority,
+        .typeOfService = typeOfService,
+        .noDelay = (noDelay != 0U),
+        .sendBufferSize = kernelSendBufferSize,
+        .receiveBufferSize = kernelReceiveBufferSize,
+        .keepAlive = (keepAlive != 0U),
+        .keepAliveIdle = keepAliveIdle,
+        .keepAliveInterval = keepAliveInterval,
+        .keepAliveCount = keepAliveCount,
+        .userTimeout = userTimeout
+    };
+
+    GetInstance().RequestInitialize();
+    gt::driver::details::TCPClientService* service = GetInstance().Register(conf);
+    *workVector = static_cast<void*>(service);
+
+    #if !defined(GENERIC_TARGET_IMPLEMENTATION)
+    } catch (const std::exception& e) { GENERIC_TARGET_PRINT_ERROR("{}\n", e.what()); }
+    catch (...) { GENERIC_TARGET_PRINT_ERROR("Caught unhandled exception!\n"); }
+    #endif
 }
 
-
-void GT_DriverTCPClientSocketInitialize(std::int32_t port, std::uint8_t* deviceName, std::uint32_t deviceNameLength, std::int32_t socketPriority) {
-    #if defined(_WIN32) && !defined(GENERIC_TARGET_IMPLEMENTATION)
-    if ((::WSAStartup(MAKEWORD(2, 2), &gt_driver_wsa_data)) || (LOBYTE(gt_driver_wsa_data.wVersion) != 2) || (HIBYTE(gt_driver_wsa_data.wVersion) != 2)) {
-        std::fprintf(stderr, "ERROR: Failed to setup network for windows OS! WSAStartup(2,2) failed!\n");
-    }
-    #endif
-    gt::driver::TCPClientServiceConfiguration conf;
-    conf.port = port;
-    conf.deviceName.clear();
-    for (std::uint32_t n = 0U; n < deviceNameLength; ++n) {
-        char c = static_cast<char>(deviceName[n]);
-        if (c >= ' ') {
-            conf.deviceName.push_back(c);
-        }
-    }
-    conf.socketPriority = socketPriority;
-    bool success = tcpClientServiceManager.AddService(port, conf);
-    #if defined(GENERIC_TARGET_IMPLEMENTATION) && !defined(DEBUG) && !defined(_WIN32)
-    if (!success) {
-        gt::RuntimeEnvironment::RequestStop();
-    }
-    #else
-    static_cast<void>(success);
-    #endif
+void GT_DriverTCPClientSocketTerminate() {
+    GetInstance().RequestTerminate();
 }
 
-void GT_DriverTCPClientSocketTerminate(std::int32_t port) {
-    tcpClientServiceManager.ClearAllServices();
-    #if defined(_WIN32) && !defined(GENERIC_TARGET_IMPLEMENTATION)
-    ::WSACleanup();
-    #endif
-    static_cast<void>(port);
-}
+void GT_DriverTCPClientSocketStep(void* const workVector, const std::uint8_t tfSendReceive, const std::int32_t rxBufferSize, std::uint8_t* const bytesReceived, std::int32_t* const result, std::int32_t* const lastErrorCode, std::uint8_t* const isConnected, const std::uint8_t* const serverAddress, const std::uint16_t serverPort, const std::uint8_t manageConnection, const std::uint8_t* const bytesToSend, const std::int32_t numBytesToSend) noexcept {
+    // check for null-pointers
+    if ((workVector == nullptr) ||
+        (bytesReceived == nullptr) ||
+        (result == nullptr) ||
+        (lastErrorCode == nullptr) ||
+        (isConnected == nullptr) ||
+        (serverAddress == nullptr) ||
+        (bytesToSend == nullptr)) {
+        return;
+    }
 
-void GT_DriverTCPClientSocketStep(std::int32_t port, std::uint8_t tfSendReceive, std::int32_t rxBufferSize, std::uint8_t* bytesReceived, std::int32_t* result, std::int32_t* lastErrorCode, std::uint8_t* isConnected, std::uint8_t* destinationIP, std::uint16_t destinationPort, std::uint8_t manageConnection, std::uint8_t* bytesToSend, std::int32_t numBytesToSend) {
-    gt::driver::Address serverAddress(destinationIP[0U], destinationIP[1U], destinationIP[2U], destinationIP[3U], destinationPort);
-    if (tfSendReceive) {
-        std::tie(*result, *lastErrorCode, *isConnected) = tcpClientServiceManager.Send(port, serverAddress, manageConnection, bytesToSend, numBytesToSend);
+    // do the send or receive call
+    gt::driver::details::TCPClientService* const service{static_cast<gt::driver::details::TCPClientService*>(workVector)};
+    const std::array<std::uint8_t, 4U> serverIP{serverAddress[0U], serverAddress[1U], serverAddress[2U], serverAddress[3U]};
+    const bool connectionManagement{manageConnection != 0U};
+    if (tfSendReceive != 0U) {
+        auto tx = service->Send(serverIP, serverPort, connectionManagement, bytesToSend, numBytesToSend);
+        *result = tx.result;
+        *lastErrorCode = tx.errorCode;
+        *isConnected = tx.isConnected ? 1U : 0U;
     } else {
-        std::tie(*result, *lastErrorCode, *isConnected) = tcpClientServiceManager.Receive(port, serverAddress, manageConnection, bytesReceived, rxBufferSize);
+        auto rx = service->Receive(serverIP, serverPort, connectionManagement, bytesReceived, rxBufferSize);
+        *result = rx.result;
+        *lastErrorCode = rx.errorCode;
+        *isConnected = rx.isConnected ? 1U : 0U;
     }
 }

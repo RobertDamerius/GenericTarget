@@ -74,11 +74,11 @@ function BuildDrivers()
     fprintf('define driver: TCPClientSocket\n');
     def = legacy_code('initialize');
     def.SFunctionName    = 'SFunctionGTDriverTCPClientSocket';
-    def.StartFcnSpec     = 'void GT_DriverTCPClientSocketInitialize(int32 p1, uint8 p2[], uint32 p3, int32 p4)';
-    def.TerminateFcnSpec = 'void GT_DriverTCPClientSocketTerminate(int32 p1)';
-    def.OutputFcnSpec    = 'void GT_DriverTCPClientSocketStep(int32 p1, uint8 p5, int32 p6, uint8 y1[p6], int32 y2[1], int32 y3[1], uint8 y4[1], uint8 u1[4], uint16 u2, uint8 p7, uint8 u3[], int32 u4)';
+    def.StartFcnSpec     = 'void GT_DriverTCPClientSocketInitialize(void** work1, int32 p1, uint8 p2[], uint32 p3, int32 p4, uint8 p5, uint8 p6, int32 p7, int32 p8, uint8 p9, int32 p10, int32 p11, int32 p12, int32 p13)';
+    def.TerminateFcnSpec = 'void GT_DriverTCPClientSocketTerminate()';
+    def.OutputFcnSpec    = 'void GT_DriverTCPClientSocketStep(void* work1, uint8 p14, int32 p15, uint8 y1[p15], int32 y2[1], int32 y3[1], uint8 y4[1], uint8 u1[4], uint16 u2, uint8 p16, uint8 u3[], int32 u4)';
     def.HeaderFiles      = {'GT_DriverTCPClientSocket.hpp'};
-    def.SourceFiles      = {'GT_DriverTCPClientSocket.cpp','GT_DriverImplementationDetails.cpp'};
+    def.SourceFiles      = {'GT_DriverTCPClientSocket.cpp','GT_DetailsTCPClientService.cpp'};
     def.IncPaths         = {''};
     def.SrcPaths         = {''};
     def.LibPaths         = {''};
