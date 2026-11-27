@@ -49,8 +49,8 @@ bool Contains(const std::vector<std::uint32_t>& v, const std::uint32_t value) no
     return std::find(v.begin(), v.end(), value) != v.end();
 }
 
-sockaddr_in MakeSockAddr(const IPv4Address& ip, const std::uint16_t port) noexcept {
-    sockaddr_in addr{};
+::sockaddr_in MakeSockAddr(const IPv4Address& ip, const std::uint16_t port) noexcept {
+    ::sockaddr_in addr{};
     addr.sin_family = AF_INET;
     addr.sin_port = ::htons(port);
     addr.sin_addr.s_addr = ::htonl(Pack(ip));
@@ -233,7 +233,7 @@ UDPService::SendResult UDPService::SendTo(const IPv4Address destinationIp, const
     }
 
     // send datagram
-    const sockaddr_in destination = MakeSockAddr(destinationIp, destinationPort);
+    const ::sockaddr_in destination = MakeSockAddr(destinationIp, destinationPort);
     const std::uint8_t emptyPayload{0U};
     const char* bytes{reinterpret_cast<const char*>((data != nullptr) ? data : &emptyPayload)};
     #if defined(__linux__)
@@ -241,7 +241,7 @@ UDPService::SendResult UDPService::SendTo(const IPv4Address destinationIp, const
     #else
     constexpr int flags{0};
     #endif
-    const ssize_t sent = ::sendto(fd, bytes, static_cast<std::size_t>(numBytesToSend), flags, reinterpret_cast<const sockaddr*>(&destination), sizeof(destination));
+    const ::ssize_t sent = ::sendto(fd, bytes, static_cast<std::size_t>(numBytesToSend), flags, reinterpret_cast<const ::sockaddr*>(&destination), sizeof(destination));
     if (sent < 0) {
         out.errorCode = LastSocketError();
         return out;
@@ -275,15 +275,15 @@ UDPService::ReceiveResult UDPService::ReceiveFrom(std::span<const std::uint8_t> 
     }
 
     // receive datagram
-    sockaddr_in source{};
-    socklen_t sourceLength = sizeof(source);
+    ::sockaddr_in source{};
+    ::socklen_t sourceLength = sizeof(source);
     char* bytes{reinterpret_cast<char*>(buffer)};
     #if defined(__linux__)
     constexpr int flags{MSG_DONTWAIT};
     #else
     constexpr int flags{0};
     #endif
-    const ssize_t received = ::recvfrom(fd, bytes, static_cast<std::size_t>(bufferSize), flags, reinterpret_cast<sockaddr*>(&source), &sourceLength);
+    const ::ssize_t received = ::recvfrom(fd, bytes, static_cast<std::size_t>(bufferSize), flags, reinterpret_cast<::sockaddr*>(&source), &sourceLength);
     if (received < 0) {
         out.errorCode = LastSocketError();
         return out;
@@ -445,7 +445,7 @@ bool UDPService::SetupSocket() noexcept {
     m_multicastInterfaceIndex = 0U;
     if (!config.deviceName.empty()) {
         #if !defined(_WIN32)
-        if (::setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, config.deviceName.c_str(), static_cast<socklen_t>(config.deviceName.size() + 1U)) != 0) {
+        if (::setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, config.deviceName.c_str(), static_cast<::socklen_t>(config.deviceName.size() + 1U)) != 0) {
             err = LastSocketError();
         }
         #endif
@@ -479,8 +479,8 @@ bool UDPService::SetupSocket() noexcept {
 
     if (err == 0) {
         const std::uint16_t localPort = static_cast<std::uint16_t>(std::clamp<std::int32_t>(config.localPort, 0, 0xFFFF));
-        const sockaddr_in local = MakeSockAddr(IPv4Address{0U, 0U, 0U, 0U}, localPort);
-        if (::bind(fd, reinterpret_cast<const sockaddr*>(&local), sizeof(local)) != 0) {
+        const ::sockaddr_in local = MakeSockAddr(IPv4Address{0U, 0U, 0U, 0U}, localPort);
+        if (::bind(fd, reinterpret_cast<const ::sockaddr*>(&local), sizeof(local)) != 0) {
             err = LastSocketError();
         }
     }
@@ -499,11 +499,11 @@ int UDPService::SetMulticastInterface(const int fd) const noexcept {
     // IP_MULTICAST_IF: the interface is selected by the interface index of deviceName if there is one, otherwise by the interface address
     #if defined(_WIN32)
     // Windows: plain in_addr, an interface index is passed in the form 0.0.0.<index> instead of an address
-    in_addr request{};
+    ::in_addr request{};
     request.s_addr = ::htonl((m_multicastInterfaceIndex != 0U) ? m_multicastInterfaceIndex : Pack(config.multicastInterfaceAddress));
     #else
     // Linux: ip_mreqn, the interface index wins over the address, which then only serves as source address of the datagrams
-    ip_mreqn request{};
+    ::ip_mreqn request{};
     request.imr_address.s_addr = ::htonl(Pack(config.multicastInterfaceAddress));
     request.imr_ifindex = static_cast<int>(m_multicastInterfaceIndex);
     #endif
@@ -518,7 +518,7 @@ int UDPService::ChangeMembership(const int fd, const int option, const std::uint
     request.imr_multiaddr.s_addr = ::htonl(group);
     request.imr_interface.s_addr = ::htonl((m_multicastInterfaceIndex != 0U) ? m_multicastInterfaceIndex : Pack(config.multicastInterfaceAddress));
     #else
-    ip_mreqn request{};
+    ::ip_mreqn request{};
     request.imr_multiaddr.s_addr = ::htonl(group);
     request.imr_address.s_addr = ::htonl(Pack(config.multicastInterfaceAddress));
     request.imr_ifindex = static_cast<int>(m_multicastInterfaceIndex);
