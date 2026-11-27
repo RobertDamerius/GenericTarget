@@ -161,7 +161,11 @@
 <p><strong>Data Type:</strong> <code>uint8</code></p>
 
 <h3>length</h3>
-<p>The number of bytes that were received, or <code>0</code> in case of an error.</p>
+<p>
+  The number of bytes that were received, or a negative value in case of an error. A value of <code>0</code>
+  indicates that the server has closed the connection. Since TCP is a byte stream, this can be smaller than
+  <code>rxBufferSize</code> if not enough data is available in the socket buffer.
+</p>
 <p><strong>Data Type:</strong> <code>int32</code></p>
 
 <h3>details</h3>
@@ -189,16 +193,25 @@
 <div class="table-wrap">
   <table>
     <thead>
-      <tr><th>Parameter Name</th><th>Description</th></tr>
+      <tr><th>Parameter Name</th><th>Socket Option</th><th>Description</th></tr>
     </thead>
     <tbody>
-      <tr><td><code>showDetails</code></td><td>Enables the details output port.</td></tr>
-      <tr><td><code>manageConnection</code></td><td>Enables connection management for this block.</td></tr>
-      <tr><td><code>localPort</code></td><td>Local port (Socket tab).</td></tr>
-      <tr><td><code>rxBufferSize</code></td><td>Receive buffer size (Socket tab).</td></tr>
-      <tr><td><code>deviceName</code></td><td>Network device name (Socket tab).</td></tr>
-      <tr><td><code>socketPriority</code></td><td>Socket priority (Advanced tab).</td></tr>
-      <tr><td><code>SampleTime</code></td><td>Sample time of the block.</td></tr>
+      <tr><td><code>showDetails</code></td><td>&mdash;</td><td>Enables the details output port.</td></tr>
+      <tr><td><code>manageConnection</code></td><td>&mdash;</td><td>Enables connection management for this block. When disabled, the <code>serverAddress</code> and <code>serverPort</code> inputs are ignored.</td></tr>
+      <tr><td><code>localPort</code></td><td>&mdash;</td><td>Local port the socket is bound to (Socket tab). Values less than or equal to <code>0</code> request a dynamic port assigned by the operating system. The local port identifies the shared background socket, so all blocks that share it must have identical settings.</td></tr>
+      <tr><td><code>rxBufferSize</code></td><td>&mdash;</td><td>Length of the <code>bytes</code> output and the maximum number of bytes fetched from the connection per step (Socket tab).</td></tr>
+      <tr><td><code>deviceName</code></td><td><a href="https://man7.org/linux/man-pages/man7/socket.7.html">SO_BINDTODEVICE</a>, Linux only</td><td>Network device the socket is bound to (Socket tab). An empty string uses the system default device. On Linux, the name must not be longer than 15 characters.</td></tr>
+      <tr><td><code>socketPriority</code></td><td><a href="https://man7.org/linux/man-pages/man7/socket.7.html">SO_PRIORITY</a>, Linux only</td><td>Socket priority in the range <strong>0 (lowest)</strong> to <strong>6 (highest)</strong> (Advanced tab). Values above 6 require the <code>CAP_NET_ADMIN</code> or <code>CAP_NET_RAW</code> capability.</td></tr>
+      <tr><td><code>typeOfService</code></td><td><a href="https://man7.org/linux/man-pages/man7/ip.7.html">IP_TOS</a>, Linux only</td><td>Type-of-service (DSCP) byte of the outgoing packets (Advanced tab), e.g. <code>0xB8</code> for DSCP 46 (expedited forwarding). <code>0</code> keeps the system default.</td></tr>
+      <tr><td><code>kernelSendBufferSize</code></td><td><a href="https://man7.org/linux/man-pages/man7/socket.7.html">SO_SNDBUF</a></td><td>Kernel send buffer size in bytes (Advanced tab). The kernel doubles the requested value. <code>0</code> keeps the system default (auto-tuned).</td></tr>
+      <tr><td><code>kernelReceiveBufferSize</code></td><td><a href="https://man7.org/linux/man-pages/man7/socket.7.html">SO_RCVBUF</a></td><td>Kernel receive buffer size in bytes (Advanced tab). The kernel doubles the requested value. <code>0</code> keeps the system default (auto-tuned). This is independent from <code>rxBufferSize</code>, which only limits the bytes fetched per step.</td></tr>
+      <tr><td><code>keepAlive</code></td><td><a href="https://man7.org/linux/man-pages/man7/socket.7.html">SO_KEEPALIVE</a></td><td>Enables keep-alive probing of idle connections (Advanced tab).</td></tr>
+      <tr><td><code>keepAliveIdle</code></td><td><a href="https://man7.org/linux/man-pages/man7/tcp.7.html">TCP_KEEPIDLE</a>, Linux only</td><td>Seconds without traffic until the first keep-alive probe is sent (Advanced tab). Must be at least 1.</td></tr>
+      <tr><td><code>keepAliveInterval</code></td><td><a href="https://man7.org/linux/man-pages/man7/tcp.7.html">TCP_KEEPINTVL</a>, Linux only</td><td>Seconds between two keep-alive probes (Advanced tab). Must be at least 1.</td></tr>
+      <tr><td><code>keepAliveCount</code></td><td><a href="https://man7.org/linux/man-pages/man7/tcp.7.html">TCP_KEEPCNT</a>, Linux only</td><td>Number of unanswered keep-alive probes until the connection is dropped (Advanced tab). Must be at least 1. Overridden by <code>userTimeout</code> while that value is not <code>0</code>.</td></tr>
+      <tr><td><code>noDelay</code></td><td><a href="https://man7.org/linux/man-pages/man7/tcp.7.html">TCP_NODELAY</a></td><td>Disables Nagle's algorithm so that small segments are sent immediately instead of being coalesced (Advanced tab). Enabled by default.</td></tr>
+      <tr><td><code>userTimeout</code></td><td><a href="https://man7.org/linux/man-pages/man7/tcp.7.html">TCP_USER_TIMEOUT</a>, Linux only</td><td>Milliseconds that sent data or a keep-alive probe may stay unacknowledged until the connection is dropped (Advanced tab). <code>0</code> keeps the system default.</td></tr>
+      <tr><td><code>SampleTime</code></td><td>&mdash;</td><td>Sample time of the block.</td></tr>
     </tbody>
   </table>
 </div>
@@ -207,10 +220,11 @@
 <h3>Socket</h3>
 <p>
   A socket is the interface between an application and the network. The TCP client socket is created when
-  connecting to the server and destroyed when the connection is closed. Socket creation and connection handling
-  are performed in a dedicated non-realtime background thread. The socket options <code>SO_REUSEPORT</code>
-  and <code>SO_REUSEADDR</code> are enabled after socket creation, which allows multiple sockets (for example,
-  multiple blocks) to bind to the same port and device.
+  connecting to the server and destroyed when the connection is closed. Socket creation, connection handling,
+  and reconnection are performed in a dedicated non-real-time background thread. After socket creation, the
+  socket option <a href="https://man7.org/linux/man-pages/man7/socket.7.html">SO_REUSEADDR</a> is enabled, which
+  allows the local port to be bound again while an earlier connection from that port is still lingering (for
+  example in the <code>TIME_WAIT</code> state).
 </p>
 
 <h3>Port Range</h3>
@@ -226,22 +240,86 @@
   the Generic Target request a random local port, usually from the dynamic range.
 </p>
 
-<h3>Socket Priority</h3>
+<h3>Socket Options</h3>
 <p>
-  This value must be between <strong>0 and 6</strong>. It sets the IP type-of-service priority for the packets
-  of this socket; Linux uses this value in its network queue management, so that higher-priority traffic is
-  scheduled first according to the active queuing discipline.
+  The socket options below are applied when the socket is created, before the connection is established. The
+  option names are the <code>setsockopt()</code> constants of the Linux API.
 </p>
+<ul>
+  <li>
+    <strong><code>deviceName</code> &mdash; <a href="https://man7.org/linux/man-pages/man7/socket.7.html">SO_BINDTODEVICE</a></strong>
+    (Linux only). Binds the socket to a specific network device before the socket is bound to its local port, so
+    that the traffic is guaranteed to use the selected interface. The device name must not be longer than 15
+    characters. If the device does not exist yet, the connection attempts are retried by the background thread
+    until it becomes available.
+  </li>
+  <li>
+    <strong><code>socketPriority</code> &mdash; <a href="https://man7.org/linux/man-pages/man7/socket.7.html">SO_PRIORITY</a></strong>
+    (Linux only). Sets the socket priority used by the network queue management of the kernel, so that
+    higher-priority traffic is scheduled first according to the active queuing discipline. The value must be
+    between <strong>0 and 6</strong>; values above 6 require the <code>CAP_NET_ADMIN</code> or
+    <code>CAP_NET_RAW</code> capability.
+  </li>
+  <li>
+    <strong><code>typeOfService</code> &mdash; <a href="https://man7.org/linux/man-pages/man7/ip.7.html">IP_TOS</a></strong>
+    (Linux only). Sets the type-of-service (DSCP) byte of the outgoing IP packets, for example
+    <code>0xB8</code> for DSCP 46 (expedited forwarding). A value of <code>0</code> keeps the system default.
+  </li>
+  <li>
+    <strong><code>noDelay</code> &mdash; <a href="https://man7.org/linux/man-pages/man7/tcp.7.html">TCP_NODELAY</a></strong>.
+    Disables Nagle's algorithm so that small segments are sent at once instead of being coalesced. This is
+    essential for low-latency communication and is enabled by default.
+  </li>
+  <li>
+    <strong><code>kernelSendBufferSize</code> &mdash; <a href="https://man7.org/linux/man-pages/man7/socket.7.html">SO_SNDBUF</a>,
+    <code>kernelReceiveBufferSize</code> &mdash; <a href="https://man7.org/linux/man-pages/man7/socket.7.html">SO_RCVBUF</a></strong>.
+    Request the size of the kernel send and receive buffers in bytes. The kernel doubles the requested value.
+    A value of <code>0</code> keeps the auto-tuned system default. The buffers are set before the connection is
+    established, because they influence what the connection negotiates.
+  </li>
+  <li>
+    <strong><code>keepAlive</code> &mdash; <a href="https://man7.org/linux/man-pages/man7/socket.7.html">SO_KEEPALIVE</a></strong>.
+    Enables keep-alive probing of an idle connection, which detects a server that vanished without a trace
+    (cable pulled, power loss). Enabled by default.
+  </li>
+  <li>
+    <strong><code>keepAliveIdle</code> &mdash; <a href="https://man7.org/linux/man-pages/man7/tcp.7.html">TCP_KEEPIDLE</a>,
+    <code>keepAliveInterval</code> &mdash; <a href="https://man7.org/linux/man-pages/man7/tcp.7.html">TCP_KEEPINTVL</a>,
+    <code>keepAliveCount</code> &mdash; <a href="https://man7.org/linux/man-pages/man7/tcp.7.html">TCP_KEEPCNT</a></strong>
+    (Linux only). Control the timing of the keep-alive probes: the number of seconds without traffic until the
+    first probe is sent, the number of seconds between two probes, and the number of unanswered probes until the
+    connection is dropped. All values must be at least <code>1</code>.
+  </li>
+  <li>
+    <strong><code>userTimeout</code> &mdash; <a href="https://man7.org/linux/man-pages/man7/tcp.7.html">TCP_USER_TIMEOUT</a></strong>
+    (Linux only). Limits the time that sent data or a keep-alive probe may stay unacknowledged, in milliseconds,
+    until the connection is dropped. A non-zero value overrides <code>TCP_KEEPCNT</code>. A value of
+    <code>0</code> keeps the system default.
+  </li>
+</ul>
 
 <h3>Connection Management</h3>
 <p>
   A dedicated thread is started for every TCP socket. This thread manages the entire connection lifecycle:
-  socket initialization, port binding, establishment of the TCP connection to the remote server, and automatic
-  reconnection attempts. The server address and port are supplied as inputs to the TCP Client blocks; they can
-  be set by both the Send and the Receive block of a socket. A disconnection is requested by setting the server
-  address to <code>[0,0,0,0]</code> or the server port to <code>0</code>. If a block should not participate in
-  connection management and should ignore its server address and port inputs, disable the
+  socket initialization, port binding, establishment of the TCP connection to the remote server, monitoring of
+  the connection, and automatic reconnection attempts. As long as the server cannot be reached or the connection
+  is lost, the thread retries the connection once per second. A connection attempt that is not finished after
+  5 seconds is aborted and retried. The server address and port are supplied as inputs to the TCP Client blocks;
+  they can be set by both the Send and the Receive block of a socket. A disconnection is requested by setting
+  the server address to <code>[0,0,0,0]</code> or the server port to <code>0</code>. If a block should not
+  participate in connection management and should ignore its server address and port inputs, disable the
   <strong>manageConnection</strong> checkbox in its mask.
+</p>
+
+<h3>Error Codes</h3>
+<p>
+  On Linux, <code>lastErrorCode</code> contains the <code>errno</code> value of the failed socket operation
+  (on Windows, the corresponding Winsock error code). While no connection is established, typical values are
+  <code>EINPROGRESS</code> (a connection attempt is in progress), <code>ECONNREFUSED</code> (the server refused
+  the connection), and <code>ENOTCONN</code> (the connection is closed, for example after a disconnect request).
+  During normal operation, <code>EAGAIN</code> indicates that a non-blocking send or receive had nothing to
+  transfer at that moment. A receive result of <code>0</code> means that the server has closed the connection;
+  the background thread then reconnects automatically if a valid server endpoint is requested.
 </p>
 
       </article>
